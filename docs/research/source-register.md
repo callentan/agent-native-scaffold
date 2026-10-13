@@ -1,6 +1,6 @@
 # 证据与来源登记
 
-研究日期：2026-10-12。本文是本轮来源索引；其他文档中的 `R`、`E`、`P` 编号均指向这里。
+初始研究日期：2026-10-12。其他文档中的 `R`、`E`、`P` 编号指向初始研究；2026-10-13 为 repo 模板方向补充的 Copilot 官方资料使用 `Q` 编号单独登记。
 
 ## 1. 读取方法与结论边界
 
@@ -95,3 +95,34 @@ OpenAI 开发者文档的 AGENTS 指南在本次 HTTP 读取中返回 403，没�
 - 不把现有文件引用的医疗法规解释当作已经完成的法规审查。
 - 不把固定 prompt 版本等同于模型输出确定性。
 - 不把本次可访问的八个仓库当作完整组织资产清单；外部风险管理仓库和 ADR wiki 未纳入范围。
+
+## 7. Repo 模板方向的 Copilot 资料补充
+
+访问日期：2026-10-13。以下通过官方页面读取文件约定和能力说明，没有向外部站点发送本仓库或参考项目的内容。
+
+| 编号 | 官方来源 | 本次核对的内容 |
+|---|---|---|
+| Q1 | GitHub：[Adding repository custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions) | `.github/copilot-instructions.md`、`.github/instructions/*.instructions.md` 与 `applyTo`，以及 AGENTS 类入口；主要读取创建 instructions 的章节，不将 GitHub.com 规则推断成全部 IDE 行为 |
+| Q2 | GitHub：[About agent skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) | Agent Skills 是开放约定；支持 `.github/skills`、`.claude/skills`、`.agents/skills` 等项目位置 |
+| Q3 | GitHub：[Copilot customization cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet) | Instructions、prompt files、custom agents、skills 的用途、位置、触发与使用界面支持；表中 prompt files 不支持 GitHub.com 和 Copilot CLI |
+| Q4 | GitHub：[Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) | `.md`/`.agent.md` 文件名、description 等 frontmatter、模型默认行为、工具范围及使用界面差异；读取配置与 tools 章节，未将所有扩展属性列为通用能力 |
+
+这些来源支持当前文件布局设计，不代表已经生成或测试了本项目的 Agent 能力文件。未来兼容记录仍需注明实际客户端、版本和验证结果；动态官方文档可能变化。
+
+本次没有重新访问八个参考仓库，也没有重跑初始公开研究。其版本、证据与限制仍按上面的历史登记理解。
+
+## 8. 目录命名采用记录
+
+2026-10-13 用户要求目录命名继续参考 DDD 与已有 repo。本次依据已有研究及初始提交 `4d67b20` 中 `docs\design\repository-blueprint.md` 第 3 节的参考路径记录作出设计调整，没有重新访问远端仓库或导入其文件。
+
+| 采用项 | 已有依据 | 本模板的处理 |
+|---|---|---|
+| `domain-model\` | R1/R2、E01/E11 的目录与挂载记录 | 沿用名称，在单仓内维护自己的领域资料，不默认使用 submodule |
+| `stakeholder-requirements\` | 领域研究中的 stakeholder requirements / REQ 职责、E11 样本 | 借鉴术语与分工，放在单仓顶层；未据此断言参考仓库采用相同层级 |
+| `software-requirements\`、`user-stories\`、`architecture\`、`verification\` | 初始蓝图第 3 节记录的参考路径，E10 的 SR/US/ABB/VT 样本 | 采用目录名与工件分工，自行编写表单 |
+| `_templates\items\` | E01 的 `_templates` 挂载记录，E09 的 `items/user-story.md`、`items/verification-test.md` | 采用集中表单组织方式，不复制模板源码或挂载模板仓库 |
+| `src\tests\` | E13 的实际测试路径及初始蓝图 | 作为新项目的参考布局，具体服从技术栈和既有工程 |
+| `.github\prompts\` 与 Copilot 原生入口 | E01 的 prompts 位置，Q1–Q4 的原生文件约定 | 保留原生发现位置；skills、agents 和 instructions 不因业务目录调整而迁入 `_templates` |
+| `logs\`、开发说明、架构决策集中位置 | 本项目的交接与维护需求 | 自有补充或单仓整理，不声称全部路径都在参考仓库中得到验证 |
+
+这一表记录命名选择与依据的粒度，不是新一轮代码或目录审计。模板保持独立、无自研 CLI、Copilot 优先；采用名称不等于强制完整 DDD 流程。

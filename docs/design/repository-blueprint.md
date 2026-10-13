@@ -1,222 +1,160 @@
-# 独立仓库与生成项目蓝图
+# 仓库模板与 Agent 文件蓝图
 
-本文所有目录与命令都是**设计示意**。本轮没有创建这些程序、配置或业务模板。
+**以下是计划交付的目录，不是当前已经存在的模板文件。当前仓库仍保留研究与设计资料。**
 
-## 1. 两种仓库不能混在一起
+## 1. 一个模板，两组内容
 
-| 仓库 | 生命周期 | 拥有的内容 |
-|---|---|---|
-| `agent-native-scaffold` | 作为框架独立版本发布 | 契约、检查器、skills、模板、适配器、迁移与评估 |
-| 生成或接入的业务仓库 | 自己的产品版本和交付节奏 | 业务事实、需求、代码、测试、项目配置和被锁定的框架版本 |
+正式模板的仓库根目录就是下游项目的起点，不再先安装一个框架再运行生成命令。项目资料与 Agent 能力文件一起分发，用户复制后直接拥有这些文件。
 
-框架不是业务应用的生产运行时依赖。卸载开发工具后，应用仍应能按自己的构建流程运行；不能把 agent 控制层混入业务服务。
+目录命名参考 DDD 工程及此前研究的 repo：领域侧借鉴 `ddd-subdomain` / `DM-Subdomain` 的职责，实现侧借鉴 `ddd-bc` / `DeviceRegistry-BC`，文档表单采用 `_templates` 的集中组织方式。我们把需要的内容组织在一个 repo 中，不沿用它们的 submodule 或多仓库部署方式。
 
-## 2. 建议的框架仓库结构
+参考源码、内部研究材料和本项目自身的设计讨论不应混进下游的 PRD 或业务文档。发布前先整理可分发内容，不能直接把当前研究仓库标为公开模板。
+
+## 2. 建议的模板目录
 
 ```text
-agent-native-scaffold/
+project\
   README.md
-  AGENTS.md                         框架自身也遵守 agent-ready 约定
-  CONTRIBUTING.md
-  docs/
-    architecture/
-    decisions/
-    guides/
-    reference/
-  schemas/                          唯一权威契约定义
-    project.schema.json
-    task.schema.json
-    evidence.schema.json
-    implementation-report.schema.json
-  src/agent_scaffold/               一个包，不是多个微服务
-    cli/
-    context/
-    artifacts/
-    execution/
-    verification/
-    adapters/
-      agents/
-      providers/
-  skills/                           通用活动，而非企业角色
-    orient/
-    specify-change/
-    implement-task/
-    verify-change/
-    recover-task/
-    assess-impact/
-  profiles/
-    methods/
-      basic/
-      ddd-v-model/
-    assurance/
-      standard/
-      regulated/
-  stacks/
-    dotnet-service/                 命令、依赖规则、模板、结果解析
-  integrations/
-    azure-devops/
-    github/
-  migrations/
-  examples/                         合成、可公开的黄金样例
-    minimal-service/
-    ddd-service/
-    legacy-import/
-  tests/
-    unit/
-    contracts/
-    golden/
-    integration/
-    evals/
-  pyproject.toml
-  <依赖锁文件>
+  AGENTS.md
+  .gitignore
+  domain-model\
+    README.md
+  stakeholder-requirements\
+    README.md
+  software-requirements\
+    README.md
+  user-stories\
+    README.md
+  architecture\
+    README.md
+    decisions\
+  verification\
+    README.md
+  logs\
+    README.md
+  docs\
+    development.md
+    agent-support.md
+  _templates\
+    items\
+      stakeholder-requirement.md
+      software-requirement.md
+      user-story.md
+      architecture-building-block.md
+      verification-test.md
+      architecture-decision.md
+      development-log.md
+  src\
+    tests\
+  .github\
+    copilot-instructions.md
+    instructions\
+      docs.instructions.md
+      tests.instructions.md
+    agents\
+      planner.agent.md
+      implementer.agent.md
+      reviewer.agent.md
+    skills\
+      project-onboarding\
+        SKILL.md
+      define-requirements\
+        SKILL.md
+      specify-feature\
+        SKILL.md
+      implement-task\
+        SKILL.md
+      verify-change\
+        SKILL.md
+      record-handoff\
+        SKILL.md
+    prompts\
+      start-project.prompt.md
+      plan-feature.prompt.md
+      implement-task.prompt.md
+      review-change.prompt.md
+      resume-work.prompt.md
+    pull_request_template.md
 ```
 
-这是完整方向，不要求首个 commit 就填满所有目录。MVP 只实现一个 agent、一个托管平台和一个技术栈包；其他适配器先保留设计边界，不建空壳冒充支持。
+这是目标布局，不要求第一步填满所有目录。`src\tests\` 参考现有 BC 工程的测试布局；实际源码、测试工程、依赖清单和流水线在选定技术栈后创建。已有项目或技术栈有不同的标准路径时保留原布局，在入口说明，不重复建立另一套测试目录。
 
-## 3. 建议的业务工程结构
+空白表单集中在 `_templates\items\`，复制后放入对应的正式工件目录，不再在每个目录放一份 `_template.md`。上面的表单文件名是本模板的设计，其中 `user-story.md`、`verification-test.md` 可直接对应参考记录；其余文件内容也由我们独立编写，不搬运原模板。
 
-```text
-sample-service/
-  README.md                         人类入口、运行方式与业务概述
-  AGENTS.md                         agent 导航，短而稳定
-  agent.yaml                        项目身份、方法、技术栈、命令与知识源
-  agent.lock.json                   框架、方法包、规则、模板和输入版本
-  .agent/
-    policies/                       项目级受保护规则
-    adapters/                       生成的客户端映射与能力声明
-    context/                        自动生成的索引/上下文清单
-  docs/
-    product/
-    architecture/
-    decisions/
-    runbooks/
-  specs/                            basic 方法的权威规范与 AC
-  tasks/
-    TASK-<id>.md                    意图、范围、依赖与完成条件
-  src/
-  tests/
-  .agent-state/                     忽略入库；运行状态、缓存、局部日志
-```
+### 命名依据与上一版的调整
 
-DDD 方法包可以沿用原工程的 `software-requirements/`、`user-stories/`、`architecture/`、`verification/` 和 `src/tests/`。这些路径通过 mapping 声明，不为了统一好看而复制一套 `specs/`、`tests/`。
+| 上一版用途 | 当前路径 | 参考与调整 |
+|---|---|---|
+| 领域事实散在项目说明中 | `domain-model\` | 沿用参考领域目录名，在本 repo 内维护，不是外部只读挂载 |
+| `prd\` 产品说明 | `stakeholder-requirements\` | 借鉴 stakeholder requirements / REQ 的职责；放在单仓顶层是本模板的整理，不声称复刻参考仓库嵌套路径 |
+| `specs\` 功能规格 | `software-requirements\`，设计与验证分别放 `architecture\`、`verification\` | 沿用参考工程的 SR/ABB/VT 分工，不把所有规格混进一个目录 |
+| `tasks\` 实施任务 | `user-stories\` 中的交付切片与实施清单 | 沿用 US；不适合用户故事的维护事项使用 issue/PR，不强行改写成用户价值叙事 |
+| `docs\architecture.md`、`docs\decisions\` | `architecture\README.md`、`architecture\decisions\` | 采用参考工程的架构目录；单仓架构决策集中位置由我们确定 |
+| 分散的 `_template.md` | `_templates\items\` | 沿用参考模板目录与 items 的组织方式，作为本地文件而非 submodule |
+| 开发与接手记录 | `logs\`、`docs\development.md`、`docs\agent-support.md` | 保留为自有补充；现有证据没有证明参考工程采用相同日志或说明路径 |
 
-领域知识可通过只读 submodule、导出的快照或授权连接器提供。首版兼容现有 submodule，但新项目不必强制维护 prompts/templates/domain-model 三层 Git 子模块。
+命名依据来自已有研究和初始蓝图的路径记录，详见[来源登记中的目录命名采用记录](../research/source-register.md)。借鉴目录不等于继承源码、强制完整 DDD 或让参考项目成为运行依赖。
 
-### 客户端入口
+## 3. 项目资料的最小内容
 
-`AGENTS.md` 是通用导航。若所选客户端需要 `.github/copilot-instructions.md`、`CLAUDE.md` 或特定 skill 安装路径，由 adapter 生成薄入口并指向同一规则来源。
-
-不能假设任何客户端会自动扫描 `.agent/`。适配器必须依据所支持版本验证实际 discovery 行为，并记录“已验证/未验证/不支持”，而不是复制文件后宣布兼容。
-
-## 4. 项目清单应声明什么
-
-`agent.yaml` 的概念模型：
-
-| 字段组 | 必须表达的内容 |
+| 文件或目录 | 最小内容 |
 |---|---|
-| Identity | 稳定项目 ID、仓库身份、所有者、工程类型 |
-| Method / Assurance / Stack | 启用的配置及对应版本 |
-| Sources | 来源仓库、固定 commit、挂载根、仓库内路径、读写性质 |
-| Artifact mapping | 工件种类、位置、ID 和状态解析方式 |
-| Commands | 安装、启动、build、lint、unit、integration、contract、smoke 等稳定命令标识 |
-| Environment | SDK、容器、服务、端口分配、允许读取的凭据引用 |
-| Boundaries | 业务代码写集合、受保护文件、只读源、允许网络范围 |
-| Delivery | 目标平台、交付为本地变更还是待审 PR、所需审批 |
-| Retention | 状态、日志、证据位置与保留要求 |
+| README | 项目目标、当前阶段、设置清单、目录导航、模板来源版本 |
+| 领域模型 | 术语、业务规则、用例与边界；按实际复杂度补充，不生成空的领域事实 |
+| 业务需求（REQ） | `stakeholder-requirements\README.md` 承接 PRD 的目标与范围，必要时用 `REQ-001-<slug>.md` 表达具体业务要求 |
+| 软件要求（SR） | 关联业务要求、软件行为、边界与错误情况、验收条件、必要的接口或数据约定 |
+| User Story（US） | 交付切片、SR 链接、修改范围、实施清单、状态、验证与日志链接；不是第二份软件要求 |
+| 验证规格（VT） | 关联 SR/US 的验收条件、验证步骤或测试标识、执行结果位置；不存测试实现代码 |
+| 开发日志 | 任务、日期和会话标识、分支或基线、变更、验证、阻塞、下一步 |
+| 架构（ABB）与 ADR | 当前结构、必要设计、选择理由、被替代方案、影响；不强制每个任务新增设计工件 |
+| 开发说明 | 实际操作系统、依赖、安装/构建/运行/测试命令、工作目录与排障入口 |
+| Agent 接入说明 | 入口与技能位置、已测客户端、使用限制、手动读取方式 |
 
-清单保存凭据引用名称，**不保存凭据值**。它可以声明策略需求，但实际权限上限仍由组织与执行环境控制。
+技术栈未选定时，开发说明明确写“尚未配置”，由首次设置补全；不提供貌似成功的空测试脚本。文档模板预留填写提示是正常的，但任务开始前必须辨认哪些事实仍未确定。
 
-manifest 与 lock 都需要 `schemaVersion`。schema 不支持、required 字段缺失、版本不兼容、路径越界或同名 ID 冲突时，必须明确报错。
+正式文件可采用 `SR-001-<slug>.md`、`US-001-<slug>.md`、`ABB-001-<slug>.md` 和 `VT-001-<slug>.md` 等可读名称。编号只有在对应工件需要创建时才分配；不为凑齐追溯链编造需求，也不把示例批准状态带进新项目。PRD 仍是产品说明的用途，不将整个 PRD 简单等同一条 REQ。
 
-## 5. CLI 是稳定的 agent 接口
+开发日志入库，只保存必要摘要和原始报告链接。应用运行日志、完整聊天、凭据、个人绝对路径和含敏感数据的输出不入库；项目的 `.gitignore` 根据真实工具输出目录配置。
 
-以下使用暂定命令名 `ans`；不是可安装或可运行的现有命令。
+## 4. Copilot 优先，但不复制多份规则
 
-| 设计命令 | 职责 | 副作用边界 |
-|---|---|---|
-| `ans init --dry-run` | 展示将生成的文件、参数、依赖和冲突 | 无写入 |
-| `ans init` | 在明确目标目录生成工程配置及模板 | 仅批准的本地文件；不顺带创建或推送远端仓库 |
-| `ans doctor` | 验证路径、版本、运行时与权限能力 | 默认只读；安装依赖需另行授权 |
-| `ans context --task <id>` | 解析限定任务的事实、规则和依赖 | 写入可再生上下文缓存 |
-| `ans check` | 校验 schema、引用图、前置条件、审批新鲜度 | 只读检查并输出报告 |
-| `ans run --task <id>` | 驱动批准范围内的托管任务 | 仅隔离工作区及授权发布通道 |
-| `ans resume --run <id>` | 核验检查点后继续 | 不重复已确认的外部副作用 |
-| `ans verify --task <id>` | 执行并解析批准的验证集合 | 仅隔离的测试环境 |
-| `ans report --run <id>` | 导出审阅摘要和证据位置 | 不改变审批或业务状态 |
-| `ans upgrade --plan` | 比较版本与文件所有权，产生迁移计划 | MVP 默认仅规划；应用迁移需批准 |
+| 入口 | 设计用法 |
+|---|---|
+| `AGENTS.md` | 通用规则与资料导航；不依赖特定模型、个人设置或隐藏会话 |
+| `.github\copilot-instructions.md` | Copilot 仓库级引导，要求读取通用规则和当前任务资料 |
+| `.github\instructions\*.instructions.md` | 用客户端支持的 `applyTo` 范围限定专项规则 |
+| `.github\agents\*.agent.md` | 选择工作模式；主要内容引用 skill，工具限制按客户端验证 |
+| `.github\skills\<name>\SKILL.md` | 活动方法的唯一正文，引用 `_templates\` 表单并说明正式产物目录 |
+| `.github\prompts\*.prompt.md` | 提供当前任务输入并指向相应方法；不承载唯一的工作流程 |
 
-每个命令支持机器可读输出，统一字段至少包括：
+GitHub 官方文档列出了多种 skill 目录，本方案只选 `.github\skills` 作为维护位置，以便 Copilot 原生使用。其他客户端不自动发现时，显式读取目标 `SKILL.md`；增加其他入口前先确认实际需要，避免 `.github`、`.agents`、`.claude` 下三套正文漂移。
 
-```json
-{
-  "schemaVersion": "1",
-  "status": "blocked",
-  "code": "SOURCE_UNAVAILABLE",
-  "message": "The pinned domain source cannot be read.",
-  "details": [],
-  "retryable": false,
-  "nextAction": "Restore approved read access."
-}
-```
+AGENTS 和 Copilot 入口之间的链接不是自动加载保证。首版需要验证 Copilot 确实读到了任务要求与相关规则，而不是只看到文件存在。Custom agent 的未识别工具名可能被客户端忽略，不能靠名称推断限制有效。
 
-标准输出在 JSON 模式只能包含结果；进度写入标准错误或日志。不能通过解析自然语言“看上去成功”来判断状态。
+Prompt files 是可选便利入口。GitHub.com 和 Copilot CLI 当前不支持 IDE 的 prompt files 体验时，直接用自然语言指定任务和相应 skill；核心流程不依赖斜杠命令、特定变量展开或客户端 handoff 功能。
 
-退出语义建议：`0` 为该命令成功，`1` 为检查/验收失败，`2` 为配置或输入错误，`3` 为缺权限/缺审批/缺依赖等阻塞，`4` 为超时或预算耗尽。取消与信号退出保留平台语义，并在可写状态中记录原因。
+这些位置和限制来自 2026-10-13 查阅的[GitHub 官方资料 Q1–Q4](../research/source-register.md)，不表示模板已经通过客户端兼容测试。
 
-工具失败、业务验证失败、尚未执行必须分别表达。成功的 `report` 命令不表示报告对应的任务成功。
+## 5. 首次设置与日常使用
 
-## 6. 文件所有权与升级
+1. 从整理后的正式模板创建仓库，或向已有项目合入需要的文件。
+2. 按 README 填写项目目标，确认技术栈和开发环境；可用 onboarding skill 协助，但不替用户猜业务事实。
+3. 用项目原生工具初始化必要代码，记录并实际执行开发命令。
+4. 打开 Copilot，选择工作模式或直接描述任务；其他 Agent 先显式读取 `AGENTS.md`。
+5. 按需完善领域与业务要求，细化 SR/US，在相应目录记录架构和验证；开发后更新日志与交接。需要 PR 时使用现有客户端和平台能力。
 
-每个生成文件在安装清单中带有所有权类别和基线摘要：
+使用项目工具和现成 Copilot CLI 不违反“不自研 CLI”的定位。模板也不要求额外的全局 skill 安装、MCP 服务或个人知识库才能完成基本流程。
 
-| 类别 | 例子 | 升级规则 |
-|---|---|---|
-| Managed | 生成的客户端入口、schema、适配元数据 | 基于旧基线做比较；检测手改，不能直接覆盖 |
-| Seed-once | 初始业务代码、首次 README、初始测试 | 创建后归项目；框架升级不重新生成 |
-| Project-owned | 业务规范、领域模型、实际代码、任务 | 只通过正常业务任务修改 |
-| Derived | 索引、矩阵、上下文包、实现摘要 | 从权威输入重新生成；记录生成器版本 |
-| Runtime | 缓存、临时环境、局部日志和运行 DB | 不作为业务源代码；按保留策略处理 |
+## 6. 复制、合入和更新
 
-升级采用旧模板基线、本地状态和新模板三方比较，先输出计划。冲突是需要解决的结果，不是“跳过后仍升级成功”。
+新项目复制后，文件归项目维护。模板更新只提供版本、差异和变更说明，由用户审阅合入；没有 `ans upgrade`、生成器托管文件类别或后台同步。
 
-对已有工程的改名、删除、schema 破坏性迁移必须显式展示。回滚通过已记录的迁移与 Git 变更进行，不能递归删除工作区或丢弃原有改动。
+已有项目应先盘点 README、AGENTS、Copilot 配置、skills 和文档位置，再选择性合入。冲突时保留原内容并明确列出差异，不覆盖已有规则，也不自动迁移历史 PRD、任务或代码。
 
-## 7. 发布单元和版本锁
+Git tag/release 记录模板版本，README 记录所用来源即可。应用依赖继续由项目原生依赖清单管理，不再增加 `agent.yaml`、`agent.lock.json` 或 `.agent-state` 作为必需文件。
 
-独立仓库统一发布经过组合验证的：
+## 7. 模板发布前必须处理的事项
 
-```text
-核心 CLI + schemas + skills + 方法包 + 技术栈包 + 校验器 + 迁移
-```
+当前研究目录含内部项目摘要；发布时需分离并审查，不能随业务模板复制或公开。只分发自有或授权的通用内容与合成示例。
 
-可以拆分分发包，但首先共用发布清单和兼容矩阵，避免消费方自行组合未经验证的六个 HEAD。
-
-业务 lock 记录实际版本、commit/digest、包来源和 profile 组合；生产应用的依赖仍保留在其原有包管理器锁文件中。
-
-prompt 只是文本，不意味着修改一定低风险。行为变化需要回归评估；改变契约或门禁需要适当版本升级和用户确认。固定 prompt 版本也不能保证模型输出确定性，模型/工具版本要一并记录。
-
-## 8. 从现有仓库接入
-
-### 阶段一：只读映射
-
-读取现有 `bc-config.yaml`、`.gitmodules`、工件目录和执行命令，生成接入差异报告。保留原路径、编号与 Git 历史。
-
-检查真实来源路径、跨项目 URL、版本锁、状态映射、外部 ADR 可访问性。未决项进入阻塞或待确认列表。
-
-### 阶段二：旁路验证
-
-保留现有流程，新增只读 checker 与证据报告。先使用真实工程收集误报和漏报，再决定哪些规则成为强制门。
-
-不把“检查器新增要求”自动解释成“现有业务事实需要改写”。
-
-### 阶段三：限定托管
-
-选择一个已批准、无未决外部契约的交付切片，使用隔离工作区完成代码与测试变更。通过后再扩大任务类型与仓库范围。
-
-任何历史工件状态无法映射的情况都需要明确处理，不把未知状态默认为 Approved。
-
-## 9. 独立仓库建立方式
-
-完成 P0 评审后，再由用户指定托管位置、仓库名、可见性、许可证和所有者，建立独立仓库。
-
-本目录的研究材料不应不加区分地原样公开。正式仓库应迁入通用设计，重写或经授权复用模板，使用合成数据和去组织化的示例；原有业务源码留在原仓库。
+把仓库设置为 GitHub template、配置可见性、分支保护、CI 权限和许可证都是单独的发布操作，不会因设计文档或模板文件存在而自动完成。本次只调整设计，不执行这些操作。
