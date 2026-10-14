@@ -19,7 +19,7 @@
 
 人和 Agent 都使用 [project-onboarding](.github/skills/project-onboarding/SKILL.md)。新接入或更新模板时按该方法盘点现有内容、逐项合入差异，保留所有者内容与原规则位置；不要整仓覆盖。
 
-只填已确认信息，资料维护不要求技术栈。只有用户选定项目、技术栈与位置、授权创建且[开发输入](docs/development.md#creation-inputs)齐备，才进入编码路径。使用 Agent 时另读[通用入口](AGENTS.md)和[接入说明](docs/agent-support.md)；GitHub Copilot App 仍为首测目标，尚未实测。
+只填已确认信息，资料维护不要求技术栈。只有用户选定项目、技术栈与位置、授权创建且[开发输入](docs/development.md#creation-inputs)齐备，才进入编码路径。使用 Agent 时另读[通用入口](AGENTS.md)和[接入说明](docs/agent-support.md)；App 的有限入口观察与未验证项按客户端分别记录，不把模板存在当成全部入口已支持。
 
 <a id="daily-work"></a>
 ## 日常工作
