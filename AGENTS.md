@@ -1,21 +1,18 @@
 # 通用工作入口
 
-人和 Agent 使用同一套仓库资料，不另建一份事实或结果。
+人和 Agent 使用同一套方法、事实与结果，方法正文只维护在六个 `SKILL.md` 中。
 
-## 开始前
+## 读取入口
 
-1. 读 [README](README.md)，确认项目阶段、范围和未配置项。
-2. 读当前任务的目标、范围、依据和完成条件；小维护请求或现有 issue 本身可以是任务依据，不强制创建 US。
-3. 按任务读取[领域事实](domain-model/README.md)、[业务需求](stakeholder-requirements/README.md)、[软件要求](software-requirements/README.md)及[必要设计](architecture/README.md)。占位、提案和未决项不能当成已确认事实。
-4. 读[真实开发说明](docs/development.md)、[验证指引](verification/README.md)和[相关日志](logs/README.md)，核对结果基线与待复核项。
-5. 写入前检查当前工作目录、Git 分支、暂存区和未提交改动。保留无关修改，不自动覆盖已有 README、AGENTS 或其他规则。
+1. 读 [README 项目登记](README.md#project)与当前任务的目标、范围、依据和完成条件；维护请求本身可以作依据，不强制创建 US。
+2. 从 [README 活动导航](README.md#activities)选择对应方法，**显式读取完整 `SKILL.md`**，再读它链接的当前事实、指引和表单。文件名、链接或描述不是自动包含保证；没有原生发现时也沿这条路径读取。
+3. 修改 Markdown 时读[文档规则](.github/instructions/docs.instructions.md)；修改任何测试时读[测试规则](.github/instructions/tests.instructions.md)，即使文件不匹配其初始 globs。按实际项目补充匹配范围，不假设统一测试布局。
+4. 写入前核对实际目录、Git 分支、commit、暂存区及未提交范围；保留所有者内容、已有规则位置和无关改动。
 
-## 工作与停止条件
+## 边界
 
-- 只做当前任务所需的修改。缺少会改变行为的业务事实、必需资料不可读、事实冲突、修改冲突或授权不足时，停止受影响的操作并提出具体问题。
-- 开发说明未配置时不自行选技术栈、安装依赖或生成项目；纯文档工作仍可按任务继续。
-- 按[验收盘点与影响检查](verification/README.md#coverage-check)核对要求、VT 和基线；检查失败就报告，不删除要求或降低标准来抹平缺口。
-- 只报告实际执行的检查。分清文档检查、业务验收、软件行为，以及 `not-run`、历史结果和当前适用性。
-- 完成或暂停时用[日志表单](_templates/items/development-log.md)留下任务、变化、结果链接、缺口和下一步；不保存完整聊天、凭据或敏感输出。
+- 只做获授权的任务。影响行为的事实缺失、来源不可读、冲突或授权不足时停止受影响的操作并说明，不把占位或提案当事实。
+- [开发说明](docs/development.md)未配置时不自行选栈、安装依赖或生成项目；输入齐备的纯文档维护可继续。
+- 证据与影响按 [verify-change](.github/skills/verify-change/SKILL.md)处理；完成、暂停或接手按 [record-handoff](.github/skills/record-handoff/SKILL.md)处理。不补造结果，不复制权威记录或隐藏聊天依赖。
 
-不自动发现本文件的客户端，可显式读取它并沿链接取用所需资料，见[接入说明](docs/agent-support.md)。文件约定不替代客户端或平台的真实权限配置；外部操作仍须有相应授权。
+原生入口与观察状态见[接入说明](docs/agent-support.md)。角色不是独立人工批准者，也不自动组织团队；Markdown 规则不替代真实权限、sandbox 或 CI，外部操作仍须相应授权。
