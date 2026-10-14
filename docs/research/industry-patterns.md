@@ -119,3 +119,5 @@ GitHub 官方资料 Q1–Q4 列出了仓库 instructions、custom agents、skill
 本项目选择 `.github\skills` 维护 skill 正文；`.github\agents` 提供工作模式，`.github\prompts` 提供支持该功能的客户端快捷入口。AGENTS 和项目文档保持可直接读取，不让 prompt files 成为唯一入口。
 
 支持表区分了使用界面，例如 prompt files 当前不支持 GitHub.com 和 Copilot CLI。Custom agent 的部分属性也存在界面差异，因此引用同一套 Markdown 不等于自动获得全部原生能力。这里只核对官方约定，实际模板尚未完成客户端演练。
+
+P0 已选择 GitHub Copilot App 作为首测客户端，只验收骨架、入口、文档流程与交接，不要求创建应用项目。App 的原生能力单独实测，不能从上述 VS Code 或 Copilot CLI 的资料推断；prompt files 保留为可选入口。

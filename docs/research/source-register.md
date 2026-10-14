@@ -121,8 +121,10 @@ OpenAI 开发者文档的 AGENTS 指南在本次 HTTP 读取中返回 403，没�
 | `stakeholder-requirements\` | 领域研究中的 stakeholder requirements / REQ 职责、E11 样本 | 借鉴术语与分工，放在单仓顶层；未据此断言参考仓库采用相同层级 |
 | `software-requirements\`、`user-stories\`、`architecture\`、`verification\` | 初始蓝图第 3 节记录的参考路径，E10 的 SR/US/ABB/VT 样本 | 采用目录名与工件分工，自行编写表单 |
 | `_templates\items\` | E01 的 `_templates` 挂载记录，E09 的 `items/user-story.md`、`items/verification-test.md` | 采用集中表单组织方式，不复制模板源码或挂载模板仓库 |
-| `src\tests\` | E13 的实际测试路径及初始蓝图 | 作为新项目的参考布局，具体服从技术栈和既有工程 |
+| `src\tests\`（历史参考） | E13 的实际测试路径及初始蓝图 | P0 不采用为预建目录；`src` 只留说明，下游自行选择项目类型与测试布局 |
 | `.github\prompts\` 与 Copilot 原生入口 | E01 的 prompts 位置，Q1–Q4 的原生文件约定 | 保留原生发现位置；skills、agents 和 instructions 不因业务目录调整而迁入 `_templates` |
 | `logs\`、开发说明、架构决策集中位置 | 本项目的交接与维护需求 | 自有补充或单仓整理，不声称全部路径都在参考仓库中得到验证 |
 
 这一表记录命名选择与依据的粒度，不是新一轮代码或目录审计。模板保持独立、无自研 CLI、Copilot 优先；采用名称不等于强制完整 DDD 流程。
+
+同日补齐 P0 时，用户选择 GitHub Copilot App 首测，并明确只交付 repo 骨架、在 `src` 内自行创建任意类型的项目，首版只验收骨架与文档流程。上述历史来源不变，也不是 App 原生能力的验证依据；当前决策见[决策记录](../plan/decisions-and-risks.md)。
