@@ -45,8 +45,8 @@
 | ENH-13 | 干净候选按文件清单分发。模板正文、可选工具及其依赖与测试分别说明；研究、计划、制作日志、内部来源、演练数据和 Git 历史不进入候选 |
 | ENH-14 | 固定文档正反例、真实 App 工作流、新会话接手和经授权的代码生成/传播演练均有范围明确的结果；未运行项保持未验证，原 P3 的人工与客户端缺项不被继承为通过 |
 | ENH-15 | 可选领域源接入支持明确仓库/版本/实际路径、只读/本地所有权和占位冲突检查；以 Python 提供预检与明确执行，不默认创建子模块、提交或推送 |
-| ENH-16 | 文档、转录及经批准的音频输入能形成带来源定位/置信度的候选工件；支持来源关联和不确定性，不自动批准。缺可选解析/转录服务时明确不可用，不发送资料或伪造转录 |
-| ENH-17 | 来源可追溯的关系图、SEQ、SWAS、PDF/演示输出可从指定输入生成；无数据显示 empty，不注入 demo；本地输出明确、无个人路径，外部渲染/资源须授权 |
+| ENH-16 | 本地 Markdown/plain text、明确转录格式和 DOCX，以及经单独批准的音频输入能形成带来源定位/置信度的候选工件；文档定位至少保留段落/表格或等价源位置，支持来源关联和不确定性，不自动批准。缺可选解析器/依赖时明确不可用，不发送资料或伪造转录；DOCX 未实际运行时本项保持 `not-run`，音频服务仍单独授权 |
+| ENH-17 | 来源可追溯的关系图、SEQ、SWAS 及 `render_presentation(inputs, format)` 参数化演示输出可从指定输入生成；演示是必需的等价能力，不得靠 allowlist 排除；无数据显示 empty，不注入 demo；本地输出明确、无个人路径，PDF/PPTX 依赖与实际格式检查仍须按授权执行 |
 | ENH-18 | AI 交互与用量摘要可按明确范围/工具/时间记录并形成可核对统计；无真实用量不编造计费/资格结果，不保存完整敏感对话，不用账本替代审批或执行证据 |
 
 ## 3. 设计约定
@@ -70,6 +70,47 @@
 `bc-config.yaml` 是**可选的数据配置**，不是项目执行 manifest。字段为 `schemaVersion`、`projectId`、`boundedContexts`、`domainSources` 和开发登记的引用。每个领域来源明确 `kind`、`root`、仓库内相对 `path`、固定 `baseline`、`readOnly`；不把挂载根和仓库内路径拼成猜测，不保存凭据或复制开发命令。
 
 `model.yaml` 只保存 `schemaVersion`、`scope`、来源对象基线、工件位置/ID/关系和实施摘要引用。正文不复制进去；内容声明仍回 Markdown，结果仍回 VT/真实报告。导出器采用确定顺序，保留完整原 ID，不在读取时联网或更新外部仓库。
+
+#### 3.2.1 视图桥接契约
+
+跨仓实施桥接只暴露一个不重复事实的 `views` map，固定键为
+`requirements`、`stories`、`architecture`、`sequences`、`verification`、
+`quality`、`governance`、`risk`、`release`。每个视图必须具有以下形状；视图
+只保存引用和可定位缺口，不复制领域正文、审批声明或实际结果：
+
+```yaml
+views:
+  <view-key>:
+    state: available | partial | unverified
+    artifactRefs:
+      - scope/id#anchor
+    evidenceRefs:
+      - reference: repo-relative/path#anchor
+        baseline: source-object-or-report-baseline-pointer
+    gaps:
+      - specific reason string
+```
+
+`state` 只表示来源的可读性和完整性：`available` 表示该视图所需来源可读且
+完整，`partial` 表示来源可读但有字段/条目缺失，`unverified` 表示可选来源
+缺失、来源不可读或证据基线不能核实。它永远不是 `passed`、`approved` 或
+任何实际结果。`artifactRefs` 使用唯一的 `scope/id#anchor` canonical key；
+`evidenceRefs` 必须同时保留 `reference` 与 `baseline` 指针。可选来源缺失时
+仍输出该视图，使用 `unverified`、空引用集合和具体 `gaps` 原因，不能伪造
+数据或省略视图。领域正文仍归领域工件，真实结果仍归 VT/运行报告/治理或
+风险记录的原所有者。
+
+| 视图 | 源字段映射 | `artifactRefs` 的内容 | `evidenceRefs` 的内容 | 缺失/不完整规则 |
+|---|---|---|---|---|
+| `requirements` | `srSummary.srVersion`、`srSummary.entries[].reqId/srIds/ucId/status/notes` | REQ、SR、UC 的 `scope/id#anchor` | SR/REQ 源路径与固定对象、报告基线 | 缺 `srSummary` 写 `unverified`，gap 为“`srSummary` source is absent”；版本或条目不全写 `partial` 并说明缺少字段 |
+| `stories` | `storySummary.storyVersion`、`storySummary.entries[].srId/usIds/status` | SR、US 的 canonical key | 故事源路径与对象/报告基线 | 缺 `storySummary` 写 `unverified` 并指出“SR→US bridge is unavailable”；条目缺状态写 `partial` |
+| `architecture` | `abbSummary.abbVersion/language/framework/blocks/integrations`，含 `adrRef` | ABB、ADR、集成伙伴的 canonical key | ABB/ADR/接口源路径与版本或 Git 基线 | 缺 ABB 或 ADR 源写 `unverified` 并说明缺哪类；只读到部分 blocks 写 `partial` |
+| `sequences` | `sequenceSummary.seqVersion`、`sequenceSummary.entries[].seqId/ucId/title/hasAsync/externalPartners/status` | SEQ、UC、ABB、伙伴的 canonical key | SEQ 文件与来源对象/生成报告基线 | 缺 `sequenceSummary` 写 `unverified` 并说明 runtime sequence source is unavailable；版本/参与者不完整写 `partial` |
+| `verification` | `verificationSummary.vtVersion/lastRunDate`、`verificationSummary.entries[].usId/vtIds/result/automatedCount/manualCount/notes` | US、VT、REQ/SR 的 canonical key | VT 文件、运行报告与其对象/要求基线 | 缺验证源写 `unverified` 并说明 evidence source is unavailable；`result` 只引用原记录，不由视图改写 |
+| `quality` | QAS/utility-tree 工件与其 `testScenarios` 引用；源 `model.yaml` 没有另造 `qasSummary` 字段 | QAS、REQ、TS/feature 的 canonical key | QAS/utility-tree/场景文件与版本或报告基线 | 缺 QAS/utility-tree 写 `unverified`，gap 具体说明 quality source is missing；只读到部分场景写 `partial` |
+| `governance` | `governanceSummary.govVersion`、`governanceSummary.entries[].govId/status/ref/notes` | GOV、REQ、waiver 的 canonical key | governance catalog、REQ/waiver 与基线指针 | 缺治理源写 `unverified` 并说明 governance source is unavailable；`status` 不转成审批结论 |
+| `risk` | `riskSummary.riskVersion`、`riskSummary.entries[].riskId/title/preMitigationLevel/rcIds/residualRiskLevel/reqIds/vtCoverage/status` | RISK、RC、REQ、VT 的 canonical key | 风险/控制源、VT 报告与各自基线 | 缺风险源写 `unverified` 并说明 risk source is unavailable；字段不全写 `partial`，不推导残余风险 |
+| `release` | `releaseStatus.lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease/changeControlRef` | release/change-control/相关 BC 的 canonical key | release/change-control 记录与版本/对象基线 | 缺 release 记录写 `unverified` 并说明 release source is unavailable；生命周期字段空缺写 `partial`，不表示已发布 |
 
 导出与检查分开：默认只检查，显式导出到允许的本地目标才写文件。遇到未知版本、来源缺失、越界路径、重复键/ID、未登记手改派生文件或原基线不符时失败，不吞错或自动“修正”权威文件。
 
@@ -104,7 +145,7 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 | `artifact_io.parse_artifact(path, root)` | 读取本地正式 Markdown，返回 `Artifact`；含 `key`、`kind`、`scope`、`content_state`、`upstream`、`targets`、`acceptance_ids`、原文件定位。非法 YAML/路径/版本抛 `ArtifactInputError`，不返回空对象 |
 | `check_artifacts.run_check(root, base_sha=None)` | `base_sha=None` 执行完整扫描；给定时必须读取该精确 Git 对象及目标快照。返回 `CheckReport`：`status`、`findings`、`checked_count`、`baseline`、`excluded` |
 | `check_traceability.trace_report(root, delivery_ids)` | 从明确完整的验收清单核对目标与判据，返回 `CheckReport`；每项 `Finding` 有 `code`、`path`、`line`、`owner`、`target`、`message` |
-| `export_model.export_view(root, scope)` | 返回 JSON 可序列化字典，不写文件；来源散列与工件关系确定排序。脚本层检查/显式写入另行处理 |
+| `export_model.export_view(root, scope)` | 返回 JSON 可序列化字典及约定的 `views` map，不写文件；来源散列与工件关系确定排序。脚本层检查/显式写入另行处理 |
 | `collect_implementation_report.build_report(root, object_sha, evidence_files)` | 读取精确 Git 对象和实际报告，返回可定位摘要；缺证据保持 `not-run` 或输入错误，不推导 pass，不运行应用 |
 | `plan_template_update.plan_update(base, local, candidate)` | 返回 `UpdatePlan`，包含 `changes`、`conflicts`、`preserved`；三方目录不写入。修改与删除均只给提案，缺旧基线是错误 |
 
@@ -112,9 +153,20 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 
 新正式工件的 frontmatter 必填 `schemaVersion`、`id`、`kind`、`scope`、`contentState`；`upstream` 与 `targets` 缺省为空列表。每条目标记录含完整 `target`、`criterionAnchor` 和可选 `testId`，目标以 owner 的验收锚点定位，判据锚点必须存在于当前 VT 正文。正文标题/验收锚点是可检索的独立目标，不从全文随意出现的 ID 字符串倒推验收库存。
 
-`kind` 的本版枚举为 `domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`。规则可以保留为领域文档中的稳定 RULE 锚点，不强建另一份规则正文。`upstream` 是完整来源引用的字符串列表；目标是上述结构的记录列表。`confirmed` 内容还需 `confirmation` 的 `by`、`reference`、`baseline`，校验器只核对声明结构，不认证该决定的身份/权限。
-
-按本轮完整来源补入 `quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`。这些 kind 使用同一身份/来源/关系契约；具体资料缺失不靠编造来满足字段。测试按 kind 选择正文结构，契约不得因选择更多种类而自动生成实例。
+`kind` 在 schema v1 中是一个封闭集合，恰好支持以下 32 个值：
+`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、
+`invariant`、`validation-scenario`、`backlog-item`、
+`stakeholder-requirement`、`software-requirement`、`user-story`、
+`architecture-building-block`、`architecture-decision`、`verification-test`、
+`review-record`、`tool-qualification`、`development-log`、
+`quality-attribute-scenario`、`context-map`、`published-interface`、
+`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、
+`domain-event`、`integration-partner`、`intended-use`、`risk-control`、
+`architecture-specification`、`sequence-diagram`。未知 kind 必须报输入错误；
+不提供通用扩展机制。规则可以保留为领域文档中的稳定 RULE 锚点，不强建
+另一份规则正文。`upstream` 是完整来源引用的字符串列表；目标是上述结构
+的记录列表。`confirmed` 内容还需 `confirmation` 的 `by`、`reference`、
+`baseline`，校验器只核对声明结构，不认证该决定的身份/权限。
 
 ## 4. 授权关卡与完成判定
 

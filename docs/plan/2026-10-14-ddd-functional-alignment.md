@@ -60,8 +60,8 @@
 | 5 | `_templates\items\sequence-diagram.md`、`architecture-specification.md`、`verification-test.feature`；`.github\prompts\sequence-diagram.prompt.md`、`build-architecture-spec.prompt.md`；`.github\instructions\architecture.instructions.md`、`coding.instructions.md`、`security.instructions.md` | SEQ/SWAS、Gherkin companion 及规则；沿用项目真实栈与必要装配例外，不预置应用 |
 | 9 | `_templates\items\intended-use.md`、`risk-control.md`；`docs\governance.md` | 来源确有的可选监管/风险资料引用，责任人与确认关卡，不替代外部风险分析或合规决定 |
 | 15 | `.github\utilities\setup_domain_source.py`、`tests\test_domain_source.py`；`docs\domain-sources.md` | Python 预检与明确批准的领域源接入，不默认子模块或提交 |
-| 16 | `.github\utilities\extract_source.py`、`score_candidates.py`、`transcribe_audio.py`、`requirements-media.txt`；`tests\test_source_extraction.py`、`test_candidate_scoring.py`；`docs\source-extraction.md` | 文档/转录/音频适配、候选与置信度；外部依赖和数据发送单独授权，不发展提案执行器 |
-| 17 | `.github\utilities\render_traceability.py`、`render_architecture.py`、`render_presentation.py`、`requirements-rendering.txt`；`tests\test_rendering.py`；`docs\document-exports.md` | 本地关系图/SEQ/SWAS 与可选 PDF/PPTX；显式输入/输出，无 demo fallback、硬编码内容或线上 CDN 默认依赖 |
+| 16 | `.github\utilities\extract_source.py`、`score_candidates.py`、`transcribe_audio.py`、`requirements-media.txt`；`tests\test_source_extraction.py`、`test_candidate_scoring.py`；`docs\source-extraction.md` | Markdown/plain-text、转录、DOCX/音频适配、候选与置信度；外部依赖和数据发送单独授权，不发展提案执行器 |
+| 17 | `.github\utilities\render_traceability.py`、`render_architecture.py`、`render_presentation.py`、`requirements-rendering.txt`；`tests\test_rendering.py`；`docs\document-exports.md` | 本地关系图/SEQ/SWAS 与必须提供的参数化 presentation 等价输出；PDF/PPTX renderer 依赖按格式授权，显式输入/输出，无 demo fallback、硬编码内容或线上 CDN 默认依赖 |
 | 18 | `.github\utilities\log_interaction.py`、`summarize_usage.py`、`tests\test_interaction_log.py`；`_templates\reports\ai-interaction-log.csv` | 按真实输入记账/统计，不抓取完整聊天、秘密或估算未提供的计费 |
 
 若任务 1 发现此表没有承接的六仓现有功能，先按来源修改规格、验收与对应文件职责，再开有边界的任务。不得为宣称对齐而删除能力行。专用领域/风险文件只在确认其属于六仓现有能力后进入这套变更，不从业务实例推导。
@@ -116,7 +116,17 @@
 - [x] 每个文件登记 repo/完整 commit/路径/object/读取覆盖，能力登记输入输出、前提、写入和目标任务/判据；散列、漏项/重复项及引用行界限已核对。
 - [x] 区分现有方法/脚本、上游提案、实例占位与未解析外部依赖；保留不同消费 gitlink 版本，不从目录或路线图推导运行成功。
 - [x] 用户确认完整纳入新发现能力；增补文件职责和 ENH-15–18，功能替代与 Python 优先不变。音频/PDF/平台实际执行仍由独立关卡控制。
-- [ ] 回源逐行审阅，更新 P0 中“七表单/六方法/无工具”的增强适用范围，但保留原版已交付与 P3 结果。仅提交矩阵和范围文档。
+- [x] 已完成回源逐行审阅，更新 P0 中“七表单/六方法/无工具”的增强适用范围，同时保留原版已交付与 P3 结果；本项只关闭范围审阅，不表示任何后续实现完成。
+
+| 原 P0 决策 | 原版边界（仍有效） | 新发现范围的确切承接 |
+|---|---|---|
+| D02 | 七表单、六方法、三 agents、五 prompts 和无自研执行层仍是首版基线 | Task 1 / ENH-01 负责来源范围；Task 2 / ENH-02、ENH-06 承接契约；Task 3 / ENH-03、Task 7 / ENH-08、Task 8 / ENH-12 承接新增结构化桥接；Tasks 9、15、16、17、18 / ENH-09、ENH-15、ENH-16、ENH-17、ENH-18 是增强，不改写首版清单 |
+| D08 | 首版不预置专用领域/监管套件，不宣称合规资格 | Task 3 / ENH-03 的 QAS/战术资料、Task 8 / ENH-12 的治理/风险引用、Task 9 / ENH-09 的资格记录和 Task 17 / ENH-17 的 SWAS/PDF 只作可选、可追溯输入，不产生合规或批准结论 |
+| D10 | 轻量 DDD 只要求术语、关系、规则、上下文职责/交互和来源，不强制战术模式 | Task 3 / ENH-03、Task 4 / ENH-04、Task 5 / ENH-05、Task 8 / ENH-12、Task 16 / ENH-16 分别承接新增领域工件、派生、桥接和候选提取；不改变轻量项目的最低填写边界 |
+| D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
+
+以上是已完成的范围映射和原版边界记录；Task 2 是下一步，后续任务与 ENH
+仍未实施，不能从本表推导完成状态。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
@@ -127,6 +137,7 @@
 **文件：** 四个 contracts、`artifact_io.py`、依赖/工具 README、`tests\helpers.py`、`test_artifact_io.py`、`docs\development.md`。
 
 - [ ] 审阅规格 3.1/3.2 的事实归属、作用域、状态及现有资料无损演进；冻结 schemaVersion `1`，unknown version 是错误，不降级解释。
+- [ ] 将 `kind` 固定为规格列出的 32 个值，并为每个值各写至少一个可解析且 schema-valid 的真实 fixture：`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`、`quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`；未知 kind 必须失败，不添加通用扩展入口。
 - [ ] 先创建 `.github\utilities\requirements.txt`（规格两项 direct pins）与工具环境登记，再在项目 `.venv` 恢复依赖，核对 Python 3.11+ 和 unittest 发现路径。这一步没有解析器实现，不把缺解释器/包当功能 RED。
 - [ ] 编写真实夹具测试：正常文档、两个 scope 同号、同 scope 重号、重复 YAML 键、未知状态/版本、越界路径、缺必要字段。最小测试形状如下：
 
@@ -151,6 +162,7 @@ class ArtifactIOTests(unittest.TestCase):
                 parse_artifact(path, root)
 ```
 
+- [ ] 用最小 model fixture 验证 `views` 的九个固定键及 `state`/`artifactRefs`/`evidenceRefs`/`gaps` 形状；保留 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 的 canonical 引用和 source baseline 指针，缺可选源时输出 `unverified` 加具体 gap，而不是省略或填造数据。
 - [ ] 定向运行 `test_artifact_io.py`；失败应是缺解析/校验行为，不是错的 cwd 或缺已配置解释器。
 - [ ] 实现 dataclass、SafeLoader、重复键拒绝、本地 schema 和准确行号，不启用远程 `$ref` 或联网解析；实测后保存传递依赖 lock。对既有正式文档只在确认作用域后补元数据，保留原正文与锚点，未确认的 scope 不猜。
 - [ ] 重跑并登记实际数量/结果；工具环境单列，根开发说明仍不声称有业务应用。提交契约、解析器、测试与环境说明。
@@ -255,6 +267,7 @@ class TraceabilityTests(unittest.TestCase):
 ```
 
 - [ ] 分别运行 `test_traceability.py`、`test_model_export.py` 看到失败；实现库存优先的双向核对，精确定位 source/anchor/layer/criterion，不把缺目标的摘要算覆盖。
+- [ ] 用含 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 和 quality/QAS 引用的 fixture 核对 `export_view` 原样保留 canonical artifact/evidence/baseline 引用；删除任一可选 source 时仍输出对应 view 的 `unverified` 与具体 gap，不能复制正文或把 `state` 映射为 passed/approved。
 - [ ] 实现确定排序、来源散列与关系导出；相同输入字节输出相同结构，源变化/手改 view 检查失败。视图不复制业务正文、结果或审批，显式导出不回写源。
 - [ ] 2→3 规则变化给出受影响 REQ/SR/VT/任务候选及原因；即使引用方未抄数字也可受影响。共享方法负责语义判定、原结果保留与新运行，机械图不宣布业务正确。
 - [ ] 重跑正反例与前后散列；提交两脚本、tests、方法和格式说明。
@@ -286,6 +299,7 @@ class ImplementationReportTests(unittest.TestCase):
 ```
 
 - [ ] 实现 BC/领域 baseline、相关 SR/US/ABB/VT、代码/测试标识与实际结果入口的摘要；缺证据不伪造 pass，越界或基线错配报输入错误。
+- [ ] 在 report fixture 中同时保留 sequence/governance/risk/release 与 quality/QAS 的 artifact/evidence/baseline 引用；分别删除可选源、源不可读和执行证据缺失，确认每种情况都保留 `unverified`/具体 gap 或 `not-run`，不从 view 状态生成批准或实际结果。
 - [ ] 以来源 BC-12/DOMAIN-19 核对 sequence、QAS、治理/风险、release 关联都能用工件/证据引用表达；不因我们使用较窄摘要而丢失原消费方需要的视图，也不把源正文复制进摘要或写回只读领域。
 - [ ] 在显式本地输出写摘要，领域源前后散列不变；model 仅引用摘要。跨仓提交/回写属于独立获授权操作，没有权限就停止该副作用。
 - [ ] 重跑、提交工具和表单，记录可访问性；不保存私有日志、凭据或完整聊天。
@@ -408,7 +422,7 @@ class TemplateUpdateTests(unittest.TestCase):
 
 - [ ] 固定自有文本/转录样本：具名说话者、时间戳、重复与冲突语句、未决表达、缺来源；非文本和音频样本仅在获准处理后使用，不复制内部访谈。
 - [ ] 定义 `extract_candidates(source, kind)` 输出候选列表，记录来源文件/片段/时间、候选类型、原始依据、`observed | inferred | uncertain`；`score_candidates(items)` 仅做透明规则评分与原因，不伪装校准概率。测试空输入返回空候选、有冲突不自动 confirmed、重复不丢出处。
-- [ ] 实现本地 Markdown/plain-text/明确转录格式适配；document/audio 的具体解析器、SDK/模型与固定版本经单独授权后加入 `requirements-media.txt`，未配置返回 `SOURCE_ADAPTER_UNAVAILABLE`，不静默把二进制当文本。
+- [ ] 实现本地 Markdown/plain-text、明确转录格式和 DOCX 适配；每个候选保留文件、段落/表格或转录时间戳/源片段位置。损坏或不可解析的 DOCX 必须返回明确输入错误（不能变成空成功），缺 DOCX 适配器/可选依赖必须返回 `SOURCE_ADAPTER_UNAVAILABLE`。document/audio 的具体解析器、SDK/模型与固定版本经单独授权后加入 `requirements-media.txt`；本轮不选择或安装 DOCX 包，缺可选依赖不关闭 ENH-16，DOCX 未运行时 ENH-16 仍是 `not-run`，音频服务保持单独授权。
 - [ ] `transcribe_audio.py` 只在输入授权、明确服务/模型/数据范围和本地输出齐备后调用；无条件发送资料、从环境任取密钥、在线 fallback 均禁止。转录失败保留实际错误，不输出假空成功。
 - [ ] 候选先由逆向方法确认/列 BL，永不直接写成正式领域事实；测试可执行适配、缺依赖和禁止副作用，实际音频服务未跑就保持该项 not-run。
 
@@ -420,8 +434,8 @@ class TemplateUpdateTests(unittest.TestCase):
 
 - [ ] 先测试空模型、孤立节点、坏关系、SEQ 的成功/错误路径、缺 ABB/风险来源的 SWAS、已有非空输出文件。输入固定，输出无随机 demo 或硬编码业务内容。
 - [ ] `render_traceability(view)` 输出确定性 JSON/自包含 HTML 或 SVG，基于准确节点/关系/缺口，默认不请求 CDN；空数据明确 empty，不伪造演示节点。
-- [ ] `render_architecture(inputs, format)` 以 source ID/基线组装 SWAS 和引用的序列视图；`render_presentation(inputs, format)` 从明确标题/资料/来源生成可选演示，不复制原 `_gen_ppt.py` 的内容或个人输出位置。
-- [ ] PDF/PPTX 的实际 renderer/依赖/模板在获准后锁定到 `requirements-rendering.txt`，新 subprocess 使用参数列表/cwd，失败或缺依赖不称导出成功。不依赖浮动 latest 容器；文件写入均需显式目标，已有文件先报冲突。
+- [ ] `render_architecture(inputs, format)` 以 source ID/基线组装 SWAS 和引用的序列视图；`render_presentation(inputs, format)` 是必须提供的等价参数化输出，不得以 distribution allowlist 排除 presentation 来满足 parity，也不得复制原 `_gen_ppt.py` 的硬编码内容或个人输出位置。
+- [ ] PDF/PPTX 的实际 renderer/依赖/模板在获准后锁定到 `requirements-rendering.txt`；请求相应 format 时仍必须通过依赖、文件签名及页面/slide 计数 gates，缺依赖或未执行实际格式检查只能记 `unavailable`/`not-run`，不称导出成功。不依赖浮动 latest 容器；文件写入均需显式目标，已有文件先报冲突。
 - [ ] 以解析器/文件签名与页面或 slide 计数检查真实输出，再做人/App 内容检查；没有对应 renderer 时仅完成可执行格式，其余 not-run。导出成功不等于 SWAS 已批准。
 
 **退出：** ENH-17；所有适用格式均有真实结果，纯文本/图输出不能冒充 PDF/PPTX 验收。

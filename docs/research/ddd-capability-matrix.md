@@ -718,7 +718,7 @@ BC 的 prompts/templates gitlink 指向本轮已取回的两仓版本，可以�
 | 失败与写入边界 | 缺依赖/目录/权限保存失败；写固定绝对路径，不改领域 Markdown。 |
 | 当前骨架差距 | 尚无通用演示导出；不复制原一次性管理内容和固定输出路径。 |
 | 目标任务 / 增强验收 | 17 / ENH-01、ENH-13、ENH-17 |
-| 目标验收 | 若保留则参数化输出并记录输入基线；否则 distribution allowlist 明确排除。 |
+| 目标验收 | 必须提供 render_presentation(inputs, format) 的参数化等价输出；不得用 distribution allowlist 排除 presentation 来满足 parity，不得复制原脚本的硬编码内容或个人路径。请求 PDF/PPTX 时，依赖、文件签名及页面/slide 计数检查仍是必需 gates；缺依赖或未执行实际格式检查只能记 unavailable/not-run，不能称演示导出通过。 |
 | 本地实现状态 | 来源已核验；目标方法/工具按计划实现与验证，未计为功能完成 |
 
 ## 7. 上游提案和未解析能力
