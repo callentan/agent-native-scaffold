@@ -6,7 +6,7 @@
 ## 项目登记
 
 | 项目 | 当前值 |
-|---|---|
+| --- | --- |
 | 项目名称 | 待填写 |
 | 当前阶段 | 待填写，尚未确认 |
 | 当前工作范围摘要 | 待填写，尚未确认 |
@@ -37,7 +37,7 @@
 ## 按活动查找资料
 
 | 活动 | 人与 Agent 共用的方法 | 输入与字段指引 | 表单 | 正式落点 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 接入项目资料 | [project-onboarding](.github/skills/project-onboarding/SKILL.md) | 已确认项目输入、已有文件与 Git；[项目登记](#project) | 本页登记、[开发登记](docs/development.md#project-registration)、[日志](_templates/items/development-log.md) | 本页、[产品说明](stakeholder-requirements/README.md#product)、[开发说明](docs/development.md)、[日志](logs/README.md) |
 | 整理模型与业务需求 | [define-requirements](.github/skills/define-requirements/SKILL.md) | 目标、用户、范围与来源；[领域指引](domain-model/README.md)、[REQ 指引](stakeholder-requirements/README.md) | 领域入口填写栏、[REQ](_templates/items/stakeholder-requirement.md) | [领域模型](domain-model/README.md)、[业务需求](stakeholder-requirements/README.md) |
 | 细化行为与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际模型/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[VT](_templates/items/verification-test.md) | [软件要求](software-requirements/README.md)、[验证计划与索引](verification/README.md) |
