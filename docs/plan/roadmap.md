@@ -220,6 +220,6 @@ T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额
 
 用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
 
-源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 2 已交付四份数据 schema、类型化 Python parser、工具环境与 tests，修正提交 `322cd90` 通过本次范围审阅及 144 项真实回归。下一步是任务 3 的领域表单，不从中间写生成器。
+源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 2 的四份 schema/parser 已复核；任务 3 在 `0aef102` 交付 18 类可选领域/QAS/战术表单并完成本次有限范围复核。下一步是任务 4 的领域方法与反向提取，不从中间写生成器。
 
-目前完成的是来源盘点、范围修订与输入契约/parser，不是整个增强通过；跨文件追溯、模型导出、hook/CI 等仍属后续任务。原 P3 未验证项、应用栈/真实代码生成验收与发布关卡保留。历史规划见[原日志](../../logs/2026-10-14-ddd-enhancement-plan.md)，实际执行见[增强交接](../../logs/2026-10-15-ddd-alignment.md)。
+目前完成的是来源盘点、输入契约/parser 和可选领域表单，不是整个增强通过；共享方法扩展、跨文件追溯、模型导出、hook/CI 等仍属后续任务。原 P3 未验证项、应用栈/真实代码生成验收与发布关卡保留。历史规划见[原日志](../../logs/2026-10-14-ddd-enhancement-plan.md)，实际执行见[增强交接](../../logs/2026-10-15-ddd-alignment.md)。
