@@ -162,3 +162,48 @@ git --no-pager diff --check
 另一个独立消费者只用当前六个共享方法与新表单处理五个固定输入场景，实际填 UC、QAS 和 Published Interface 三个草稿，parser 成功解析，未改仓库。来源不全、2 与 3 的规则冲突、active 的同名异义、QAS 缺指标、接口/审批/覆盖缺项均保留；它没有伪造缺失的文件、行号、actor、指标或验收 ID。报告位于 `task4-baseline-use\task4-baseline-report.md`，既是 Task3 的有限消费者观察，也是 Task4 增强前基线，不是人工参与或 App 原生测试。
 
 该基线已有正确控制行为，不能为新方法编造 RED 或可靠性提升。可确认的功能缺口是独立反向提取活动尚未提供，Task4 尚未实施；新的领域方法需对同一输入再观察并明确覆盖范围。
+
+<a id="task4"></a>
+## Task4：领域方法、反向候选与薄入口
+
+本节追加 Task4 实际结果，保留上节作为实施前的历史观察。**当前 Task4 已实现，等待独立复核；本执行停在 Task4，Task5–18 为 `not-run`。**
+
+### 会话、任务与 Git 对象
+
+| 项目 | 实际记录 |
+|---|---|
+| 日期与执行者 | 2026-10-15；Task4 implementer 单会话实施与自用，无嵌套 Agent 或独立 reviewer |
+| 依据与范围 | 用户批准的 [Task4](../docs/plan/2026-10-14-ddd-functional-alignment.md#task4) 与本机会话 brief；只实现方法/入口和状态记录，不重新获取源或重做基线 |
+| 分支与起始对象 | `callentan-repository-skeleton`；`6f617e101b88e85bbeecfb3347187f24d0f90891`，已核对完整 SHA |
+| 原有未提交内容 | 开始时工作树与暂存区均干净，无需重做“先提交当前变更” |
+| 本次对象定义 | 18 个分发文档，加计划当前状态与本日志追加段，共 20 个仓库文件；包含本节的 Git 提交及会话报告记录完整提交号 |
+| 授权边界 | 允许本次限定文件、显式自用/文档检查、一次既有回归与含 coauthor 的本地提交；不推送、PR、安装、联网、执行应用/源程序、hooks/CI 或后续任务 |
+
+### 实际变化与判断
+
+- 新增 [reverse-engineer-domain](../.github/skills/reverse-engineer-domain/SKILL.md)，从实际文件、外部记录或已提供摘录保存候选、原始依据、认识类别、冲突、确认需要与影响。缺原文件/行号不补造；实现默认值不成为业务批准，未提供的指标/演员/政策继续未知。
+- 聚焦 [define-requirements](../.github/skills/define-requirements/SKILL.md) 的访谈、知识锤炼、词汇、接口、来件 ADR 和可选 Intended Use；扩展 [verify-change](../.github/skills/verify-change/SKILL.md) 的领域/BL 审阅、查询和影响。保留完整验收优先、精确目标反查、旧新基线及只读/执行分支，遵循实际 Task3 元数据和表单契约。
+- 新增十个[薄 prompts](../docs/agent-support.md#entry-points)，每个只含当前输入与一个实际方法小节链接；仅校准 planner/plan-feature 的选择路由及 README/AGENTS/agent-support 导航。当前实际为七方法、十五 prompts、三个模式，不是最终计划的九方法。
+- 原四份未涉及方法、其余模式、copilot-instructions、表单、parser/schema、依赖、tests 与空白项目事实没有改动；未发现需要修改 record-handoff 或 copilot-instructions 的集成问题。未链接未来方法或治理/架构表单。
+
+### 实际结果入口
+
+下列位置均在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 已授权的 `files\ddd-alignment-execution\`，仅本机可访问、不进入分发候选；不能当作跨机器 CI 链接。接手需取得该目录或重新执行有界检查。
+
+| 层次 | 实际记录定位 | 对象与限制 |
+|---|---|---|
+| 实施前独立基线 | `task4-baseline-use\task4-baseline-report.md` 及七份原产物 | 原六方法已有正确控制行为；本轮只读取并核对散列，不重跑、不制造失败 |
+| 三方法同题自用 | `task4-after-use\case-interview.md`、`case-reverse.md`、`case-glossary.md`、`case-interface.md`、`case-review.md` | 同一实施者的五个有限案例；具体选择、来源位置、冲突、需谁补什么及禁止副作用分别记录，不是独立复核或人工参与 |
+| 表单使用与附加停点 | `task4-after-use` 中 UC/QAS/PI 草稿与 `supplemental-stops.md` | 三份实际表单使用，fixture 身份不是生产事实；ADR/Intended Use 只覆盖缺输入停点，查询只覆盖当前领域目录 |
+| 文档/结构检查 | `task4-checks.py` 的实际 stdout 与 `task4-report.md` | 限定闭包/相对链接/锚点、YAML、scope 与基线保留检查；不交付新 checker/exporter，不把 parser 当完整追溯引擎 |
+| 维护工具回归 | `task4-report.md` 的实际命令与输出摘录 | 当前项目 `.venv`、明确仓库 cwd，新运行一次原 144 项；不是方法语义、业务/软件行为或 App 测试 |
+
+本次回归实际输出为 `Ran 144 tests in 4.654s; OK`，144 项均执行、0 跳过、0 失败/错误，退出 0；没有改动测试或复用 Task3 的通过结果。原输入和基线产物的散列保留。既有原生六方法/P3 记录不升级为七方法已测，新增及修订方法只作显式文件自用记录。
+
+### 缺口、影响与停点
+
+- CASE-REVIEW 未给真实缺失软件验收的 owner/ID/路径，只能精确回指输入的章节/行并请求原文；没有发明目标，也没有报告覆盖完整。“Approved”缺决定/基线仍不获认可。
+- 原路径/行号、2 与 3 的取舍、actor、QAS 度量、契约版本/错误政策与完整消费者清单仍有缺口。新记录为候选或提案，没有把既有正确基线描述为纪律失败或声称可靠性提升。
+- 新 ADR/Intended Use 的真实来件修订、广泛模型/客户端表现、App 原生入口和人工 T17 均未验证；没有假造风险分类或给借用案例施加医疗/QMS 前置。
+- 独立复核由父会话/用户另行进行，本执行者没有认证批准。后续工具/适配器、应用、媒体/PDF/平台、hooks/CI、推送和 PR 未执行；独立授权关卡与完整增强验收不变。
+- 接手先核对本次完整提交、工作树、计划全部当前状态及本机报告可读性；只复核 Task4，不从本次局部结果自动启动 Task5 或其他任务。

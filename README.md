@@ -26,7 +26,7 @@
 
 明确本次目标、范围、依据和完成条件后，从下表选择方法并读取所链接的实际工件。小维护请求或现有 issue 可直接作任务依据，不必补齐 REQ/SR/US/ABB 链。
 
-方法正文只维护在六个 `SKILL.md` 中；现有指引与表单定义字段，正式工件保存事实和结果。需要提交审阅时可用 [PR 表单](.github/pull_request_template.md)，文件或角色都不代表批准，也不自动授权外部操作。
+方法正文只维护在下列七个 `SKILL.md` 中；现有指引与表单定义字段，正式工件保存事实和结果。需要提交审阅时可用 [PR 表单](.github/pull_request_template.md)，文件或角色都不代表批准，也不自动授权外部操作。
 
 <a id="resume"></a>
 ## 接手或继续
@@ -40,10 +40,25 @@
 | --- | --- | --- | --- | --- |
 | 接入项目资料 | [project-onboarding](.github/skills/project-onboarding/SKILL.md) | 已确认项目输入、已有文件与 Git；[项目登记](#project) | 本页登记、[开发登记](docs/development.md#project-registration)、[日志](_templates/items/development-log.md) | 本页、[产品说明](stakeholder-requirements/README.md#product)、[开发说明](docs/development.md)、[日志](logs/README.md) |
 | 整理模型与业务需求 | [define-requirements](.github/skills/define-requirements/SKILL.md) | 目标、用户、范围与来源；[领域指引](domain-model/README.md)、[REQ 指引](stakeholder-requirements/README.md) | 领域入口填写栏、[可选领域表单](domain-model/README.md#optional-forms)、[REQ](_templates/items/stakeholder-requirement.md)、[QAS](_templates/items/quality-attribute-scenario.md) | [领域模型](domain-model/README.md)、[业务需求](stakeholder-requirements/README.md) |
+| 从既有资料提取领域候选 | [reverse-engineer-domain](.github/skills/reverse-engineer-domain/SKILL.md) | 获准读取的文档、实现、片段或外部记录及实际定位/版本；[来源边界](domain-model/README.md#sources) | 按需使用[现有领域表单](domain-model/README.md#optional-forms)；缺身份时先留获准笔记 | 获准候选记录或所属领域/需求目录，不回写来源或自动确认 |
 | 细化行为与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际模型/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[业务场景](_templates/items/validation-scenario.md)、[VT](_templates/items/verification-test.md) | [软件要求](software-requirements/README.md)、[验证计划与索引](verification/README.md) |
 | 实施明确任务 | [implement-task](.github/skills/implement-task/SKILL.md) | 任务、验收、实际目录与授权；编码另需[开发输入](docs/development.md#creation-inputs) | 现有任务；按需 [US](_templates/items/user-story.md) | 指定文档或[项目实际位置](src/README.md)，不强改原生布局 |
 | 核对覆盖与证据 | [verify-change](.github/skills/verify-change/SKILL.md) | 全部交付验收、旧新基线、真实记录；[验证指引](verification/README.md) | [VT](_templates/items/verification-test.md) | [验证目录](verification/README.md)与实际报告入口；测试代码在项目原生位置 |
 | 交接或恢复任务 | [record-handoff](.github/skills/record-handoff/SKILL.md) | 任务、Git、变化、结果入口与缺口；[日志指引](logs/README.md) | [开发日志](_templates/items/development-log.md) | [日志目录](logs/README.md)；结果仍回原记录读取 |
+
+领域与审阅活动可直接定位以下小节；仍须完整读取所属方法，不另有一套流程：
+
+| 当前需要 | 方法小节与输入 |
+|---|---|
+| 访谈或迭代确认 | [define-requirements / interview](.github/skills/define-requirements/SKILL.md#interview)：目标、参与者、范围、来源及未决问题 |
+| 知识锤炼、模型漂移 | [define-requirements / distill](.github/skills/define-requirements/SKILL.md#distill)：实际模型版本、陈述与使用线索 |
+| 词汇对齐 | [define-requirements / glossary-sync](.github/skills/define-requirements/SKILL.md#glossary-sync)：本地/外部定义、上下文和明确版本 |
+| 发布接口演化 | [define-requirements / published-interface](.github/skills/define-requirements/SKILL.md#published-interface)：实际契约、差异与已知消费者；[PI 表单](_templates/items/published-interface.md) |
+| 来件 ADR 或 Intended Use 变更 | [incoming-adr](.github/skills/define-requirements/SKILL.md#incoming-adr) / [intended-use](.github/skills/define-requirements/SKILL.md#intended-use)：仅处理实际提供的原文、基线与授权，不要求所有项目采用 |
+| 领域工件审阅 | [verify-change / domain-review](.github/skills/verify-change/SKILL.md#domain-review)：完整范围、实际工件与证据；默认只读 |
+| 查询库存 | [verify-change / query](.github/skills/verify-change/SKILL.md#query)：真实根目录、类型、scope 与问题；默认只读 |
+| 审阅开放问题 | [verify-change / backlog-review](.github/skills/verify-change/SKILL.md#backlog-review)：原问题/BL、决定依据和残留影响；默认只读 |
+| 覆盖与语义影响 | [coverage](.github/skills/verify-change/SKILL.md#coverage) / [impact](.github/skills/verify-change/SKILL.md#impact)：全部验收来源、逐项目标、旧新基线与原始结果 |
 
 附加工件只按需使用：[US 表单](_templates/items/user-story.md)落在[交付目录](user-stories/README.md)；[ABB](_templates/items/architecture-building-block.md)与 [ADR](_templates/items/architecture-decision.md)依[架构指引](architecture/README.md)落在 `architecture\` 或首份决策创建时的 `architecture\decisions\`。它们不是强制链路。
 

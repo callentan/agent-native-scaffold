@@ -17,7 +17,7 @@
 说明实际读取的文件、缺失输入与证据限制，不把链接视为已加载。
 ```
 
-这只是显式读取的操作入口，不是实测结果。六个共享方法可由人直接应用；可选提示词不要求通用 slash 语法，任何核心方法都不依赖 prompt 加载。
+这只是显式读取的操作入口，不是实测结果。当前七个共享方法可由人直接应用；可选提示词不要求通用 slash 语法，任何核心方法都不依赖 prompt 加载。
 
 <a id="entry-points"></a>
 ## 已提供的薄入口
@@ -28,8 +28,12 @@
 | 仓库 instructions | [copilot-instructions.md](../.github/copilot-instructions.md) 指向通用入口及任务规则 |
 | 路径规则 | [docs.instructions.md](../.github/instructions/docs.instructions.md) 适用 Markdown；[tests.instructions.md](../.github/instructions/tests.instructions.md) 使用有限的测试路径/名称 globs |
 | 自定义角色 | [planner](../.github/agents/planner.agent.md)、[implementer](../.github/agents/implementer.agent.md)、[reviewer](../.github/agents/reviewer.agent.md) 只选择方法与工作视角，不是自动团队 |
-| 共享方法 | [project-onboarding](../.github/skills/project-onboarding/SKILL.md)、[define-requirements](../.github/skills/define-requirements/SKILL.md)、[specify-feature](../.github/skills/specify-feature/SKILL.md)、[implement-task](../.github/skills/implement-task/SKILL.md)、[verify-change](../.github/skills/verify-change/SKILL.md)、[record-handoff](../.github/skills/record-handoff/SKILL.md)；正文只在各自文件维护 |
+| 共享方法 | [project-onboarding](../.github/skills/project-onboarding/SKILL.md)、[define-requirements](../.github/skills/define-requirements/SKILL.md)、[reverse-engineer-domain](../.github/skills/reverse-engineer-domain/SKILL.md)、[specify-feature](../.github/skills/specify-feature/SKILL.md)、[implement-task](../.github/skills/implement-task/SKILL.md)、[verify-change](../.github/skills/verify-change/SKILL.md)、[record-handoff](../.github/skills/record-handoff/SKILL.md)；正文只在各自文件维护 |
 | 可选提示词 | [start-project](../.github/prompts/start-project.prompt.md)、[plan-feature](../.github/prompts/plan-feature.prompt.md)、[implement-task](../.github/prompts/implement-task.prompt.md)、[review-change](../.github/prompts/review-change.prompt.md)、[resume-work](../.github/prompts/resume-work.prompt.md) 提供当前输入栏与方法链接 |
+| 领域活动提示词 | [domain-interview](../.github/prompts/domain-interview.prompt.md)、[reverse-engineering](../.github/prompts/reverse-engineering.prompt.md)、[distill-domain](../.github/prompts/distill-domain.prompt.md)、[glossary-sync](../.github/prompts/glossary-sync.prompt.md)、[published-interface](../.github/prompts/published-interface.prompt.md)、[amend-intended-use](../.github/prompts/amend-intended-use.prompt.md) |
+| 只读审阅/查询提示词 | [review-artifacts](../.github/prompts/review-artifacts.prompt.md)、[assess-impact](../.github/prompts/assess-impact.prompt.md)、[query-artifacts](../.github/prompts/query-artifacts.prompt.md)、[review-backlog](../.github/prompts/review-backlog.prompt.md)；执行或写入仍须当前任务授权 |
+
+新增反向提取方法与十个薄提示词是文件入口，当前合计七方法、十五提示词；没有增加角色或授予权限。新方法及变更小节的原生发现、App prompt 调用和人工使用尚未验证，显式读文件的有限使用不能补记为这些客户端结果。
 
 测试规则的模式不是通用命名全集，也不指定测试布局。真实项目应按实际路径扩展模式；修改任何测试时，即使自动匹配未发生也要显式读该规则。
 
@@ -86,6 +90,8 @@
 
 <a id="template-observations"></a>
 ## 模板入口观察（2026-10-14）
+
+本节是原六方法、五提示词基线的历史观察；不因新增文件或修订方法而扩展为当前七方法、十五提示词已在 App 验证。
 
 以下是模板制作期间四个真实 App 会话的有限实测，不是新项目已经完成接入。对象为 P2 内容的独立本地 Git 副本及其文档演练 checkpoint，没有远端或应用。App 创建隔离 worktree，分别使用默认工作模式及 API 选择 reviewer、planner、implementer，不使用普通 task 子代理替代客户端。没有观察 GUI agent picker，也没有重启整个共享 App。
 
