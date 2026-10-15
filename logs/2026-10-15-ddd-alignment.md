@@ -597,3 +597,12 @@ Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows
 本轮已完成文档实施与自审，**Task9 等待独立范围审阅**，不记录真实 expert/clinical/regulatory approval、风险接受或工具资格。合成具名决定仅证明字段/导航可用；实际确认、组织政策、外部风险源、人工 T17、客户端/OS 权限与业务应用均未验证。当前 Markdown 规则不成为 ACL 或 sandbox。
 
 本轮只授权 20 个文档路径；实际本地提交及提交后 Git 状态以报告最终记录为准，不预填 commit。旧日志前缀与历史结果保持，后续审阅应重查精确提交、实填副本、源字段缺口和只读/覆盖保护。没有子代理/reviewer/workflow、Task10 或后续实现、应用、安装、hook/权限配置、amend、push、PR、发布或远端操作；提交与报告完成后停止，等待本任务的范围审阅。
+
+<a id="task9-review"></a>
+## Task9 独立范围审阅关闭
+
+2026-10-16，独立 reviewer 核对 `002ad73a18700e7c95b21a0fa7d0d84a26f453b5` 至 `3b818e5902f343a808fe476033256902f0d32a2d` 的全部 20 个 Markdown 变更，判定符合 Task9 / ENH-09 文档范围、质量可接受，无 Critical/Important/Minor 发现。另行只读核对既有 confirmation schema 和 model-source 的 review/risk 字段兼容，没有执行工具或重新审查 Task1–8。
+
+原始审阅会话的结果定位与兼容性依据保存在本机会话 `files\ddd-alignment-execution\task9-review-result.md`。父会话已重查实际 head/parent/trailer、变更范围和干净 Git；独立 `task9-parent-consumer.json` 保存现有 checker/trace CLI 的真实参数、cwd、输出与前后字节：13 个正式合成记录 clean，仍精确发现 `task9/alpha/REQ-SYN-001#req-syn-001-ac-02` 在来源第 16 行未覆盖，输入未变。此故意保留的夹具缺口不是产品待办，也没有被伪造为通过。
+
+Task9 的文档实现/审阅关卡关闭，不认证真实专家决定、工具资格、风险接受、人工 T17 或权限。后续按[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10)实现可选 hooks/CI，并只在受控本地 Git 夹具试验；不在当前真实工作树安装 hook，不更改远端 required checks，也不从文档存在推断 CI 已运行。
