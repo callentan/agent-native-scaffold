@@ -467,3 +467,12 @@ Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选�
 新证据与辅助脚本只保存在本机会话 `files\ddd-alignment-execution\task7-evidence\fix2-*`，原报告的 fix2 追加位于 `task7-report.md`；起点摘要保存 116 个源文件、266 个旧证据文件及原日志/报告前缀。上述结果是局部工具与来源结构验证，不是业务执行或独立批准。
 
 Task7 保持**待限定复审**。本轮只有该函数、同一模型测试文件、直接契约说明和当前状态/本日志变更；四份原 schema、32 kind、九视图与 8/21/3 不变。完成新局部提交和报告追加后停止；没有 subagent、Task8、应用、安装、权限/hook 配置、amend、push、PR 或远程操作。
+
+<a id="task7-review"></a>
+## Task7 复审关闭
+
+2026-10-16，父会话直接读取 `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` 至 `23c06b6bc46099c04091c61c036016b88cf4ae99` 的完整七文件局部 diff，核对 `_owned_runs` 的锚点/真实标题配对、peer/ancestor 截断和六个新控制。F1-N1 已处理，未发现此修正引入的重大问题；原 T7-I1–I5 沿用上一轮独立复审的 addressed 判定，不重复开展原始全量审阅。实际 head/parent/trailer、七路径范围和干净工作树/暂存区已重查。
+
+本机会话 `files\ddd-alignment-execution\task7-fix2-review-result.md` 保存本轮逐项依据；`task7-fix2-parent-tests.json` 保存父会话在 `23c06b6` 的实际项目解释器、cwd、`test_model_export.py` 和原始输出：77 方法、0 跳过、退出 0，48.748 秒。此前 `task7-fix1-review-result.md` 与 `task7-fix1-parent-tests.json` 分别保存五项判定/新问题及 `d622b14e` 上的 243 方法结果。这些不同对象和范围不拼成一次新全套通过，旧 RED/报告仍保留。
+
+Task7 的有限实现和范围复核关卡关闭，没有遗留的本任务审阅发现；不是增强整体、真实业务执行或跨宿主资格通过。本次只同步规格、计划、roadmap 和本日志。下一步按既有授权处理 Task8 的实施摘要桥接；真实结果仍归 VT/原始报告，不能由模型 available、commit 或测试文件存在推导。
