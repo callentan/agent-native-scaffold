@@ -112,7 +112,11 @@ views:
 | `risk` | `riskSummary.riskVersion`、`riskSummary.entries[].riskId/title/preMitigationLevel/rcIds/residualRiskLevel/reqIds/vtCoverage/status` | RISK、RC、REQ、VT 的 canonical key | 风险/控制源、VT 报告与各自基线 | 缺风险源写 `unverified` 并说明 risk source is unavailable；字段不全写 `partial`，不推导残余风险 |
 | `release` | `releaseStatus.lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease/changeControlRef` | release/change-control/相关 BC 的 canonical key | release/change-control 记录与版本/对象基线 | 缺 release 记录写 `unverified` 并说明 release source is unavailable；生命周期字段空缺写 `partial`，不表示已发布 |
 
-导出与检查分开：默认只检查，显式导出到允许的本地目标才写文件。遇到未知版本、来源缺失、越界路径、重复键/ID、未登记手改派生文件或原基线不符时失败，不吞错或自动“修正”权威文件。
+必需输入是当前 `root`、支持的 schema 版本、选定 `scope`、该范围的正式工件及其明确对象基线；不存在/不可读、非法 YAML/schema、越界路径、重复键/ID、未登记的派生文件手改或基线不符均为输入错误。不能把这些错误降成“可选来源缺失”。
+
+九个 `views` 的外部/汇总来源均为可选视图输入：不存在、不可读、摘要格式不满足该视图约定或其基线无法核实时，固定输出该视图的 `unverified`、空引用集合和具体原因；不得省略该视图或终止其他可核对视图。已读到合法来源但只缺部分条目时为 `partial`，保留已经核对的引用并逐项列 gap。若主根/工件本身无法建立可信基线则仍按上一段失败，而不是把整个输入解释为九个空视图。
+
+导出与检查分开：默认只检查，显式导出到允许的本地目标才写文件。上述必需输入错误必须失败；可选视图缺项按固定 `unverified/partial` 规则输出，不吞错或自动“修正”权威文件。
 
 ### 3.3 方法与工具边界
 

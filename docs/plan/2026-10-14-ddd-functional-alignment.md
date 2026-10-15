@@ -137,6 +137,7 @@
 **文件：** 四个 contracts、`artifact_io.py`、依赖/工具 README、`tests\helpers.py`、`test_artifact_io.py`、`docs\development.md`。
 
 - [ ] 审阅规格 3.1/3.2 的事实归属、作用域、状态及现有资料无损演进；冻结 schemaVersion `1`，unknown version 是错误，不降级解释。
+- [ ] 按规格 3.2.1 分开测试必需主输入错误和可选视图缺项：root/schema/scope/工件基线失败是 input-error；单个可选摘要缺失、不可读或格式无效时该视图为 unverified+空引用+具体 gap，其余视图保留；合法但部分缺项是 partial，不把结果误写成 passed/approved。
 - [ ] 将 `kind` 固定为规格列出的 32 个值，并为每个值各写至少一个可解析且 schema-valid 的真实 fixture：`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`、`quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`；未知 kind 必须失败，不添加通用扩展入口。
 - [ ] 先创建 `.github\utilities\requirements.txt`（规格两项 direct pins）与工具环境登记，再在项目 `.venv` 恢复依赖，核对 Python 3.11+ 和 unittest 发现路径。这一步没有解析器实现，不把缺解释器/包当功能 RED。
 - [ ] 编写真实夹具测试：正常文档、两个 scope 同号、同 scope 重号、重复 YAML 键、未知状态/版本、越界路径、缺必要字段。最小测试形状如下：
