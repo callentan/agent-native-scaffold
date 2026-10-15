@@ -217,6 +217,11 @@ def trace_report(root: PathInput, delivery_ids) -> CheckReport:
 
 def impact_report(root: PathInput, base_sha: str, task_ids=()) -> dict:
     """Conservative canonical dependency candidates; no semantic/execution verdict."""
+    if base_sha is None:
+        error = ArtifactInputError("INVALID_BASE", str(root), 1, "Impact requires an explicit exact Git commit base")
+        result = CheckReport("input-error", (_error(error),), 0, None, (), 0).to_dict()
+        result.update(changed_sources=[], candidates=[], task_ids=[])
+        return result
     inventory = read_inventory(root, base_sha)
     report = inventory.report
     result = report.to_dict()

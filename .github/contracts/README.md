@@ -249,8 +249,8 @@ scopes:
 | stories | US 的 `task`、`checklist` 和 SR 来源 |
 | architecture | ABB 的 `structure`、`interfaces`、`runtime` 与 ADR 的 `decision` |
 | sequences | SEQ 的 `basis`、`participants`、`paths`、`diagram`，UC 与 ABB 来源；时序、伙伴/异步含义回源阅读 |
-| verification | VT 的 `plan`、`targets`、`runs` 与 REQ/SR；计划结构不证明已有实际运行 |
-| quality | QAS 的 `scenario`、`measurement` 与 REQ、实际 TS/VT 目标；TS/feature 是场景来源，不复制场景正文 |
+| verification | VT 的 `plan`、`targets`、`runs` 及其实际所属子运行块，与 REQ/SR；计划结构不证明已有实际运行 |
+| quality | QAS 的 `scenario`、`measurement`、实际 utility-tree 来源，以及 REQ、实际 TS/VT 目标；缺 QAS 或树源为 unverified，不复制树或场景正文 |
 | governance | review-record 的 `decision`；批准/waiver 含义仍归原记录 |
 | risk | risk-control 的 `analysis`、`control`、`residual` 与 REQ/VT 来源；不计算风险等级 |
 | release | development-log 的 `release`、`change-control`；生命周期/分类/版本仍归原发布记录 |
@@ -263,13 +263,19 @@ scopes:
 | ABB `runtime` | `language/实现语言`、`framework/框架`；未选定则缺项，不选默认栈 |
 | SEQ `paths` | `hasAsync/异步交互` 的明确 `true/false` 声明，不从 Mermaid 箭头推断 |
 | SEQ `participants` | 已有 integration-partner upstream；没有时需 `externalPartners/外部伙伴` 的明确来源说明，包括已知无伙伴 |
-| VT `runs` | `lastRunDate/日期、执行者与方式`、`result/实际结果`、`automatedCount/自动检查数量`、`manualCount/人工检查数量`、`notes/报告可访问性与限制`；只有计划时保持缺口，不补执行结果 |
+| VT `runs` 下的本 owner `vt-…-run-NN` 子块 | 日期、notes、三个运行基线及明确 auto/manual 数量在各自子块读取；实际结果来自该块的逐判据多列表，不要求在 `runs` 标题前再抄一份 |
 | QAS `scenario` | 现有六要素表全部六个值；也接受 `stimulusSource/stimulus/environment/object/response/responseMeasure` 原字段标签 |
 | review-record `decision` | `status/审阅结论`、`notes/限制与说明`；读取声明不认证批准 |
 | risk-control `analysis` / `residual` | `preMitigationLevel/控制前风险`、`residualRiskLevel/残余风险`；不计算或接受风险 |
 | development-log `release` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease` 五个原字段值；变更控制仍通过其独立原文节定位 |
 
-同一字段的重复/缺值、明确未知、缺原文节或必要关联均为具体 gap。计数为非负十进制，布尔只接受 `true/false`，已知的零和 false 不视为缺值。只有表头/分隔行不是内容；SEQ 图代码必须在其真实 `diagram` 节，不能拿其他章节的示例补位。非支持形状的已有文档仍可被引用为部分来源，不自动迁移；有已有摘要时直接引用它。
+同一字段的重复/缺值、明确未知、缺原文节或必要关联均为具体 gap。计数为非负十进制，布尔只接受 `true/false`，已知的零和 false 不视为缺值。只有表头/分隔行不是内容；SEQ 图必须是其 `diagram` 节内真正闭合的 Mermaid 代码围栏，具有序列头和消息。HTML 注释、外层 literal fence 中的示例、未闭合围栏或普通说明不能补位；正文和图复用同一注释/围栏状态机，不再回扫原始文本猜图。非支持形状的已有文档保留具体缺口，不自动迁移。
+
+直接 quality 可在同一清单视图中并列选择原 QAS Markdown 与已有 utility-tree YAML/JSON。树文件的顶层 `tree` 为 mapping/list，数据仍归该文件，导出只保留 `文件#tree + baseline`，不增加 kind 或抄树节点。空 `tree` 是已知来源的条目缺口（partial）；没有 QAS、没有树源、树不可读/格式错误/基线不可核实为 unverified、空 refs 和具体缺源原因。QAS 和树都可核实后，缺响应度量或部分场景才是 partial。也可直接引用已有 `quality.utilityTree` 证据指针；不要求为工具新造一份模型。
+
+直接 VT 从真实 `runs` 二级章节内查找本 owner 的 `vt-…-run-NN` 锚点，各子块仍以严格锚点边界隔离。读取原表单的“日期、执行者与方式”“报告可访问性与限制”、实际对象/当时要求/VT 三个基线，以及“判据链接（目标由 frontmatter 定位）／实际观察及原始报告定位／实际结果／未执行或跳过原因”四列。每个已声明 criterion 都需自己的结果行；重复、缺行、无效状态或未知 criterion 有源位置 gap。结果不抄进 model。
+
+auto/manual 数量只能来自该运行块中明确的 `automatedCount/自动检查数量`、`manualCount/人工检查数量` 行，或原“退出码、发现/执行/跳过数量（适用时）”值中明确注明的这两项（例如“自动检查数量 0；人工检查数量 2”）。不能从总发现/执行数、结果行数或文件名推算。多个运行分别保留源锚点/基线；互补缺字段不能拼成完整运行，同对象/要求/VT 基线却结果冲突时保留两侧引用并标 partial 的冲突 gap。不同基线的完整历史记录可分别定位，不选最新、不合并成全局结果。
 
 已有 YAML/JSON 汇总可直接选为来源。文件顶层包含下表对应的对象；允许同一文件有多个已知汇总，但**不是本工具派生的 model**。字段值仍由源维护，导出仅保存 `文件#汇总键 + baseline` 及下面的实际引用；不把 status/result/度量/安全分类抄进 model。JSON 使用同一个安全 YAML 数据读取器读取其兼容子集，拒绝重键、危险 tag 与循环别名。
 
@@ -287,6 +293,6 @@ scopes:
 | risk / `riskSummary` | `riskVersion: text`, `entries: [{riskId: ref, title: text, preMitigationLevel: text, rcIds: [ref], residualRiskLevel: text, reqIds: [ref], vtCoverage: [ref], status: text}]` |
 | release / `releaseStatus` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease: text`, `changeControlRef: evidence`；已有 `releaseRef: ref`、`bcRefs: [ref]` 也保留 |
 
-缺少整个汇总对象或字段类型错误是可选源格式错误：`unverified`、空 refs。存在合法对象但缺具体字段、null/空文本或缺必要关联条目时为 `partial`，gap 带源文件及完整字段路径，例如 `sequenceSummary.entries[0].externalPartners`；已知 ref 和来源指针继续保留。显式空 `entries/blocks` 表示可核对的空汇总；`srIds/usIds/vtIds/qasRefs/testScenarios` 空列表则报告缺关联，`externalPartners/integrations/rcIds/reqIds/vtCoverage` 显式空列表不推导不存在的对象。`false`、计数 `0` 是有效源值，但字符串布尔与布尔计数不是有效类型。引用的 owner/anchor、文件或基线无法核实时为 `unverified`，不保留无法确认的引用。
+缺少整个汇总对象或字段类型错误是可选源格式错误：`unverified`、空 refs。来源已提供但缺具体字段、null/空文本或缺必要关联条目时为 `partial`，gap 带源文件及完整字段路径，例如 `sequenceSummary.entries[0].externalPartners`；已知 ref 和来源指针继续保留。quality 的 QAS/utility-tree 是必需的来源组成，缺任一来源优先按 unverified 处理，不能降为普通字段 partial。显式空 `entries/blocks` 表示可核对的空汇总；`srIds/usIds/vtIds/testScenarios` 空列表报告缺关联，`externalPartners/integrations/rcIds/reqIds/vtCoverage` 显式空列表不推导不存在的对象。`false`、计数 `0` 是有效源值，但字符串布尔与布尔计数不是有效类型。引用的 owner/anchor、文件或基线无法核实时为 `unverified`，不保留无法确认的引用。
 
 同一视图有多个来源时，任一来源无法核实使该视图 `unverified` 并清空 refs；全部可核实但有结构缺项则为 `partial`。其他视图不受牵连。每个状态都只说明所选来源的结构/可定位性；完整文本、数值/异步含义、批准真实性和结果适用性仍须回到原所有者判断。

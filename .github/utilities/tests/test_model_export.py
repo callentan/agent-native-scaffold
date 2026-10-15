@@ -867,7 +867,14 @@ class ModelBoundaryTests(ModelFixture):
             {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
             '# TS-001：测量计划\n<a id="criterion"></a>\n## 独立测量\n比较实际值和源度量。\n',
             "records/TS-001.md")
-        self.manifest(self.select("quality", qas))
+        # Fix1 isolates the missing field: QAS AND an actual utility-tree source
+        # must exist before field incompleteness can legitimately be partial.
+        # The original partial/responseMeasure assertions below are unchanged.
+        tree = write_yaml(self.root / "evidence/utility.yaml",
+                          {"tree": {"Responsiveness": [self.scope + "/QAS-001#qas-001-ac-01"]}})
+        selected = self.select("quality", qas)
+        selected["quality"] += self.select("quality", tree)["quality"]
+        self.manifest(selected)
         view = self.export()["views"]["quality"]
         self.assertEqual("partial", view["state"])
         self.assertIn("responseMeasure", " ".join(view["gaps"]))
@@ -905,6 +912,319 @@ class ModelBoundaryTests(ModelFixture):
                 result = self.export()["views"][view]
                 self.assertEqual("partial", result["state"])
                 self.assertIn(field, " ".join(result["gaps"]))
+
+
+class Fix1QualityTests(ModelFixture):
+    """T7-I1: direct quality needs both original QAS and utility-tree sources."""
+
+    def quality_sources(self, *, tree=True, measure=True):
+        qas = write_metadata(
+            self.root, metadata(id="QAS-001", kind="quality-attribute-scenario",
+                                upstream=[self.scope + "/REQ-001"]),
+            '# QAS-001：响应场景\n<a id="scenario"></a>\n## 六要素\n'
+            '| 刺激源：谁或什么发起 | 来源明确的有效会员 |\n'
+            '| 刺激：发生什么 | 提交额度内借用请求 |\n'
+            '| 环境：在哪些运行或业务条件下 | 来源明确的受控输入 |\n'
+            '| 对象：哪个业务过程或受影响对象 | 借用记录过程 |\n'
+            '| 响应：应观察到什么 | 返回来源定义的记录 |\n'
+            + ('| 响应度量：可测标准、单位与适用范围 | 按原来源核对本次记录数量 |\n' if measure else '')
+            + '<a id="measurement"></a>\n## 测量依据\n'
+            '由来源拥有的测量方法与限制。\n'
+            '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01：记录响应\n'
+            '独立响应标准由本 QAS 拥有。\n', "records/QAS-001.md")
+        write_metadata(
+            self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
+                {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
+            '# TS-001：测量计划\n<a id="criterion"></a>\n## 测量\n'
+            '比较响应与 QAS 的源判据，不执行应用。\n', "records/TS-001.md")
+        selections = self.select("quality", qas)
+        tree_path = self.root / "evidence/utility.yaml"
+        if tree:
+            write_yaml(tree_path, {"tree": {"Responsiveness": [self.scope + "/QAS-001#qas-001-ac-01"]}})
+            selections["quality"] += self.select("quality", tree_path)["quality"]
+        self.manifest(selections)
+        return qas, tree_path, selections
+
+    def test_fix1_i1_missing_tree_is_unverified_not_available(self):
+        self.quality_sources(tree=False)
+        before = source_bytes(self.root)
+        view = self.export()["views"]["quality"]
+        self.assertEqual("unverified", view["state"])
+        self.assertEqual([], view["artifactRefs"])
+        self.assertEqual([], view["evidenceRefs"])
+        self.assertIn("utility", " ".join(view["gaps"]).lower())
+        self.assertEqual(before, source_bytes(self.root))
+
+    def test_fix1_i1_real_tree_is_referenced_and_in_source_identity(self):
+        _, tree, selected = self.quality_sources()
+        before = source_bytes(self.root)
+        model = self.export()
+        view = model["views"]["quality"]
+        self.assertEqual("available", view["state"])
+        self.assertEqual([], view["gaps"])
+        self.assertIn({"reference": "evidence/utility.yaml#tree", "baseline": byte_baseline(tree)}, view["evidenceRefs"])
+        self.assertEqual(before, source_bytes(self.root))
+        write_yaml(tree, {"tree": {"Changed source grouping": [self.scope + "/QAS-001#qas-001-ac-01"]}})
+        selected["quality"][1]["baseline"] = byte_baseline(tree)
+        self.manifest(selected)
+        changed = self.export()
+        self.assertNotEqual(model["source"]["baseline"], changed["source"]["baseline"])
+        self.assertNotIn("Changed source grouping", json.dumps(changed))
+
+    def test_fix1_i1_missing_qas_is_unverified_with_no_refs(self):
+        tree = write_yaml(self.root / "evidence/utility.yaml", {"tree": {"Responsiveness": []}})
+        self.manifest(self.select("quality", tree))
+        view = self.export()["views"]["quality"]
+        self.assertEqual("unverified", view["state"])
+        self.assertEqual([], view["artifactRefs"])
+        self.assertEqual([], view["evidenceRefs"])
+        self.assertIn("QAS", " ".join(view["gaps"]))
+
+    def test_fix1_i1_known_sources_but_missing_measure_remains_partial(self):
+        self.quality_sources(measure=False)
+        view = self.export()["views"]["quality"]
+        self.assertEqual("partial", view["state"])
+        self.assertTrue(view["artifactRefs"] and view["evidenceRefs"])
+        self.assertIn("responseMeasure", " ".join(view["gaps"]))
+
+    def test_fix1_i1_declared_tree_missing_unreadable_shape_and_empty_items(self):
+        _, tree, selected = self.quality_sources()
+        tree.unlink()
+        absent = self.export()["views"]["quality"]
+        self.assertEqual("unverified", absent["state"])
+        self.assertIn("evidence/utility.yaml", " ".join(absent["gaps"]))
+        for data, expected in (({"tree": 4}, "unverified"), ({"tree": {}}, "partial")):
+            with self.subTest(data=data):
+                write_yaml(tree, data)
+                selected["quality"][1]["baseline"] = byte_baseline(tree)
+                self.manifest(selected)
+                self.assertEqual(expected, self.export()["views"]["quality"]["state"])
+
+
+class Fix1OutputTests(ModelFixture):
+    """T7-I2: reservation is based on declarations, not successful dereferences."""
+
+    def test_fix1_i2_missing_utility_reference_cannot_be_output(self):
+        self.summary_sources()
+        missing = self.root / "evidence/utility.yaml"
+        missing.unlink()
+        before = source_bytes(self.root)
+        result = self.cli("--output", str(missing))
+        self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+        self.assertIn("REPORT_CONFLICT", [f["code"] for f in json.loads(result.stdout)["findings"]])
+        self.assertEqual(before, source_bytes(self.root))
+        self.assertFalse(missing.exists())
+
+    def test_fix1_i2_later_nested_reference_reserved_after_an_earlier_failure(self):
+        sources, paths, selected = self.summary_sources()
+        later = write_yaml(self.root / "evidence/later.yaml", {"record": "Actual source-owned record"})
+        sources["quality"]["quality"]["evidenceRefs"] = [
+            {"reference": "evidence/later.yaml#record", "baseline": byte_baseline(later)}]
+        write_yaml(paths["quality"], sources["quality"])
+        selected["quality"][0]["baseline"] = byte_baseline(paths["quality"])
+        self.manifest(selected)
+        (self.root / "evidence/utility.yaml").unlink()
+        later.unlink()
+        old = self.workspace / "old-output.json"
+        old.write_bytes(b'{"old":"must remain unchanged"}\n')
+        before, old_bytes = source_bytes(self.root), old.read_bytes()
+        result = self.cli("--output", str(later))
+        self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+        self.assertIn("REPORT_CONFLICT", [f["code"] for f in json.loads(result.stdout)["findings"]])
+        self.assertFalse(later.exists())
+        self.assertEqual(before, source_bytes(self.root))
+        self.assertEqual(old_bytes, old.read_bytes())
+
+    def test_fix1_i2_legitimate_export_check_round_trip_with_optional_gap(self):
+        self.summary_sources()
+        (self.root / "evidence/utility.yaml").unlink()
+        before = source_bytes(self.root)
+        output = self.root / "new-model.yaml"
+        created = self.cli("--output", str(output))
+        self.assertEqual(0, created.returncode, created.stdout + created.stderr)
+        saved = output.read_bytes()
+        checked = self.cli("--check", str(output))
+        self.assertEqual(0, checked.returncode, checked.stdout + checked.stderr)
+        self.assertEqual("clean", json.loads(checked.stdout)["status"])
+        self.assertEqual(saved, output.read_bytes())
+        remaining = source_bytes(self.root)
+        del remaining["new-model.yaml"]
+        self.assertEqual(before, remaining)
+        self.assertEqual(2, self.cli("--output", str(output)).returncode)
+        self.assertEqual(saved, output.read_bytes())
+
+    def test_fix1_i2_unreservable_later_location_cannot_authorize_output(self):
+        sources, paths, selected = self.summary_sources()
+        outside = write_yaml(self.workspace / "outside-source.yaml", {"record": "A supplied location"})
+        sources["quality"]["quality"]["evidenceRefs"] = [
+            {"reference": "../outside-source.yaml#record", "baseline": byte_baseline(outside)}]
+        write_yaml(paths["quality"], sources["quality"])
+        selected["quality"][0]["baseline"] = byte_baseline(paths["quality"])
+        self.manifest(selected)
+        outside.unlink()
+        (self.root / "evidence/utility.yaml").unlink()
+        before = source_bytes(self.root)
+        # Read-only derivation may still report optional gaps; a writer cannot
+        # infer that a malformed later declaration is safe to occupy.
+        self.assertEqual("unverified", self.export()["views"]["quality"]["state"])
+        result = self.cli("--output", str(outside))
+        self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+        self.assertIn("REPORT_CONFLICT", [f["code"] for f in json.loads(result.stdout)["findings"]])
+        self.assertFalse(outside.exists())
+        self.assertEqual(before, source_bytes(self.root))
+
+
+class Fix1DiagramTests(ModelFixture):
+    """T7-I3: only a real, owned Mermaid fence can establish diagram content."""
+
+    BLOCK = "```mermaid\nsequenceDiagram\n  Member->>Clerk: Known request\n```\n"
+
+    def sequence_source(self, diagram):
+        write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
+                       '# UC-001：路径\n<a id="main"></a>\n## 路径\n来源明确的业务路径。\n', "records/UC-001.md")
+        write_metadata(self.root, metadata(id="ABB-001", kind="architecture-building-block"),
+                       '# ABB-001：构件\n' + "".join(
+                           f'<a id="{anchor}"></a>\n## {anchor}\n来源已说明责任和接口限制。\n'
+                           for anchor in ("structure", "interfaces", "runtime")), "records/ABB-001.md")
+        path = write_metadata(
+            self.root, metadata(id="SEQ-001", kind="sequence-diagram",
+                                upstream=[self.scope + "/UC-001#main", self.scope + "/ABB-001#structure"]),
+            '# SEQ-001：场景\n<a id="basis"></a>\n## 来源\n保留原场景的范围与条件。\n'
+            '<a id="participants"></a>\n## 参与者\n| externalPartners | 无外部伙伴 |\n'
+            '<a id="paths"></a>\n## 路径\n| hasAsync | false |\n由来源说明本次消息含义。\n'
+            '<a id="diagram"></a>\n## 原始图\n' + diagram
+            + '<a id="verification-needs"></a>\n## 限制\n本测试不执行图或应用。\n',
+            "records/SEQ-001.md")
+        self.manifest(self.select("sequences", path))
+        return path
+
+    def test_fix1_i3_commented_and_enclosing_literal_fences_do_not_count(self):
+        for diagram in (
+            "<!--\n" + self.BLOCK + "-->\n",
+            "````text\n" + self.BLOCK + "````\n",
+            "~~~text\n" + self.BLOCK + "~~~\n",
+            "这里有一段文字，但没有图代码。\n",
+            "```mermaid\nsequenceDiagram\n  Member->>Clerk: Known request\n",
+        ):
+            with self.subTest(diagram=diagram):
+                self.sequence_source(diagram)
+                before = source_bytes(self.root)
+                view = self.export()["views"]["sequences"]
+                self.assertEqual("partial", view["state"])
+                self.assertIn("diagram", " ".join(view["gaps"]))
+                self.assertEqual(before, source_bytes(self.root))
+
+    def test_fix1_i3_real_closed_mermaid_still_satisfies_diagram(self):
+        self.sequence_source(self.BLOCK)
+        self.assertEqual("available", self.export()["views"]["sequences"]["state"])
+        self.sequence_source("<!-- closed context -->" + self.BLOCK)
+        self.assertEqual("available", self.export()["views"]["sequences"]["state"])
+
+
+class Fix1RunTests(ModelFixture):
+    """T7-I4: source-owned child run records use the actual VT form's tables."""
+
+    def run_block(self, number=1, *, result="pass", counts=True, date=True, object_baseline=None):
+        object_baseline = object_baseline or byte_baseline(self.root / "software-requirements/SR-001.md")
+        requirements = byte_baseline(self.root / "stakeholder-requirements/REQ-001.md")
+        return (
+            f'<a id="vt-002-run-{number:02d}"></a>\n### VT-002-RUN-{number:02d}：合成来源记录\n\n'
+            '| 实际执行信息 | 内容 |\n|---|---|\n'
+            + ('| 日期、执行者与方式 | 2026-10-15，Fixture，原始记录中的人工检查 |\n' if date else '')
+            + f'| 实际对象基线 | {object_baseline} |\n'
+            f'| 当时的需求/设计/任务依据基线 | {requirements} |\n'
+            '| 当时的 VT 基线 | 原计划的具名记录，见原始报告 |\n'
+            '| 实际环境与工具版本 | 已提供的合成来源，不代表真实应用运行 |\n'
+            '| 实际工作目录 | 原记录的受控目录 |\n'
+            '| 实际命令或人工步骤/测试标识 | 原记录逐项比较前后记录；此处只读 |\n'
+            '| 退出码、发现/执行/跳过数量（适用时） | 退出码 0；发现 2；执行 2；跳过 0'
+            + ('；自动检查数量 0；人工检查数量 2' if counts else '') + ' |\n'
+            '| 原始报告与具体位置 | [原始记录](../evidence/run.md#run) |\n'
+            '| 报告可访问性与限制 | 仅合成输入，保留原来源限制，不代表工具执行 |\n\n'
+            '| 判据链接（目标由 frontmatter 定位） | 实际观察及原始报告定位 | 实际结果 | 未执行/跳过原因或失败差异 |\n'
+            '|---|---|---|---|\n'
+            f'| [记录判据](#record) | 原始记录中的允许观察 | {result} | 原记录说明 |\n'
+            f'| [拒绝判据](#no-write) | 原始记录中的拒绝观察 | {result} | 原记录说明 |\n\n'
+        )
+
+    def verification_source(self, blocks):
+        evidence = self.root / "evidence/run.md"
+        evidence.parent.mkdir(exist_ok=True)
+        evidence.write_text('# 原始合成记录\n<a id="run"></a>\n## 记录\n由来源保存逐项观察。\n',
+                            encoding="utf-8")
+        path = self.root / "verification/VT-002.md"
+        source = path.read_text(encoding="utf-8").split('<a id="runs">')[0]
+        source = source.replace("## 逐项目标与判据\n", "## 逐项目标与判据\n以下分别保留原有独立判据。\n")
+        path.write_text(source + '<a id="runs"></a>\n## 实际执行记录\n\n' + blocks
+                        + '<a id="applicability"></a>\n## 当前适用性\n保留来源中的限制和待复核事项。\n',
+                        encoding="utf-8")
+        self.manifest(self.select("verification", path))
+        return path
+
+    def test_fix1_i4_actual_child_run_and_multicolumn_results_are_available(self):
+        source = self.verification_source(self.run_block())
+        before = source_bytes(self.root)
+        model = self.export()
+        view = model["views"]["verification"]
+        self.assertEqual("available", view["state"])
+        self.assertEqual([], view["gaps"])
+        self.assertIn({"reference": "verification/VT-002.md#vt-002-run-01", "baseline": byte_baseline(source)},
+                      view["evidenceRefs"])
+        self.assertEqual(before, source_bytes(self.root))
+        self.assertNotIn("automatedCount", json.dumps(model))
+        self.assertNotIn("原始记录中的允许观察", json.dumps(model, ensure_ascii=False))
+
+    def test_fix1_i4_missing_split_counts_are_not_invented_from_totals_or_rows(self):
+        self.verification_source(self.run_block(counts=False))
+        view = self.export()["views"]["verification"]
+        self.assertEqual("partial", view["state"])
+        gaps = " ".join(view["gaps"])
+        self.assertIn("vt-002-run-01", gaps)
+        self.assertIn("automatedCount", gaps)
+        self.assertIn("manualCount", gaps)
+
+    def test_fix1_i4_missing_result_for_one_criterion_is_a_located_gap(self):
+        block = self.run_block().replace(
+            '| [拒绝判据](#no-write) | 原始记录中的拒绝观察 | pass | 原记录说明 |\n', '')
+        self.verification_source(block)
+        view = self.export()["views"]["verification"]
+        self.assertEqual("partial", view["state"])
+        self.assertIn("no-write", " ".join(view["gaps"]))
+        self.assertIn("vt-002-run-01", " ".join(view["gaps"]))
+
+    def test_fix1_i4_complementary_incomplete_runs_cannot_fill_each_other(self):
+        self.verification_source(self.run_block(1, counts=False) + self.run_block(2, date=False))
+        view = self.export()["views"]["verification"]
+        self.assertEqual("partial", view["state"])
+        self.assertTrue(any("vt-002-run-01" in gap and "automatedCount" in gap for gap in view["gaps"]))
+        self.assertTrue(any("vt-002-run-02" in gap and "lastRunDate" in gap for gap in view["gaps"]))
+
+    def test_fix1_i4_conflicting_same_baseline_runs_are_explicit_not_merged(self):
+        self.verification_source(self.run_block(1) + self.run_block(2, result="fail"))
+        view = self.export()["views"]["verification"]
+        self.assertEqual("partial", view["state"])
+        self.assertIn("conflicting", " ".join(view["gaps"]).lower())
+        for number in ("01", "02"):
+            self.assertIn(self.scope + "/VT-002#vt-002-run-" + number, view["artifactRefs"])
+
+    def test_fix1_i4_distinct_baseline_histories_retain_separate_run_refs(self):
+        first = self.run_block(1)
+        second = self.run_block(2, result="fail",
+                                object_baseline=byte_baseline(self.root / "domain-model/DM-001.md"))
+        path = self.verification_source(first + second)
+        view = self.export()["views"]["verification"]
+        self.assertEqual("available", view["state"])
+        for number in ("01", "02"):
+            self.assertIn({"reference": "verification/VT-002.md#vt-002-run-" + number,
+                           "baseline": byte_baseline(path)}, view["evidenceRefs"])
+
+    def test_fix1_i4_duplicate_criterion_results_remain_ambiguous(self):
+        block = self.run_block().rstrip() + '\n| [拒绝判据](#no-write) | 另一条冲突观察 | fail | 需回源确认 |\n'
+        self.verification_source(block)
+        view = self.export()["views"]["verification"]
+        self.assertEqual("partial", view["state"])
+        self.assertTrue(any("ambiguous" in gap and "no-write" in gap and "vt-002-run-01" in gap
+                            for gap in view["gaps"]))
 
 
 if __name__ == "__main__":

@@ -397,6 +397,29 @@ class ImpactTests(TraceFixture):
         bad = self.cli("--base", "HEAD")
         self.assertEqual(2, bad.returncode)
 
+    def test_fix1_i5_public_api_rejects_none_without_fixture_base_fallback(self):
+        self.change_rule()
+        before = source_bytes(self.root)
+        # Call the production boundary directly: self.impact(None) substitutes self.base.
+        report = self.tool().impact_report(self.root, None, ["sample/CTX-001/TASK-001"])
+        self.assertEqual("input-error", report["status"])
+        self.assertIn("INVALID_BASE", [finding["code"] for finding in report["findings"]])
+        self.assertIsNone(report["baseline"])
+        self.assertEqual([], report["candidates"])
+        self.assertEqual(before, source_bytes(self.root))
+
+
+class Fix1CriterionIsolationTests(TraceFixture):
+    def test_fix1_i4_next_criterion_cannot_fill_an_empty_previous_criterion(self):
+        path = self.root / "verification/VT-002.md"
+        text = path.read_text(encoding="utf-8")
+        start, end = text.index('<a id="record">'), text.index('<a id="no-write">')
+        path.write_text(text[:start] + '<a id="record"></a>\n### 独立判据\n\n' + text[end:], encoding="utf-8")
+        report = self.report()
+        self.assertEqual("invalid", report.status)
+        self.assertEqual([DELIVERY[2]], [f.target for f in report.findings if f.code == "UNCOVERED_ACCEPTANCE"])
+        self.finding(report, "INSUFFICIENT_CRITERION")
+
 
 if __name__ == "__main__":
     unittest.main()

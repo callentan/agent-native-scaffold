@@ -41,7 +41,7 @@ parse_artifacts(
 
 `source` 是去除 UTF-8 BOM 后的原文，`body` 从闭合 frontmatter 分隔行之后开始；两者保留原 LF/CRLF，不重排或写回文件。`body_start_line`、目标和验收位置用于后续检查定位；`relative_path` 使用解析后相对根的 `/` 路径。原始字节需要调用者另行读取，不能拿解码后的 `source` 替代原文件的字节摘要。
 
-`metadata_locations` 是 `(字段路径 tuple, SourceLocation)` 的 tuple，来自同一次 YAML 解析，例如 `("scope",)` 或 `("targets", 0, "target")`，不是第二套字段解析。共享 `iter_markdown_lines(body, start=1)` 保留行号，移除 HTML 注释，代码行返回 `None`；parser 与检查器共用它处理字面内容。owner 验收仍只由 parser 的显式锚点与所属 ID 标题产生。
+`metadata_locations` 是 `(字段路径 tuple, SourceLocation)` 的 tuple，来自同一次 YAML 解析，例如 `("scope",)` 或 `("targets", 0, "target")`，不是第二套字段解析。共享 `iter_markdown_lines(body, start=1)` 保留行号，移除 HTML 注释，代码行返回 `None`；parser 与检查器共用它处理字面内容。`iter_markdown_fences(body, start=1)` 从**同一个**状态机返回真正闭合的 `MarkdownFence(start_line, end_line, info, body)`，注释或外层代码中的围栏示例不变成新代码块。owner 验收仍只由原 parser 的显式锚点与所属 ID 标题产生。
 
 ## 输入错误
 
@@ -207,7 +207,7 @@ trace_report(root, delivery_ids) -> CheckReport
 impact_report(root, base_sha, task_ids=()) -> dict
 ```
 
-同属 `check_traceability`，采用明确完整 commit 和当前工作文件，不选 HEAD/分支、不只看暂存内容。返回 `CheckReport.to_dict()` 的字段及：
+同属 `check_traceability`，采用明确完整 commit 和当前工作文件，不选 HEAD/分支、不只看暂存内容。公开 API 的 base 是必需项，显式传 `None` 也返回 `INVALID_BASE` / input-error / 2，不沿共享库存的可选 base 语义退化为 clean 空比较。返回 `CheckReport.to_dict()` 的字段及：
 
 - `changed_sources`：正式变更路径、added/modified/deleted、旧 blob/前后 SHA256；`before/after` 保存可解析的 `{key, path, sha256}`，没有对应侧为 null。
 - `candidates`：按 key 排序的传递依赖候选，保留同形状的 `before/after`、`requested_task` 和 `reasons`。每条 reason 有实际 `source/consumer/reference/relation/path/line/snapshot`；`relation` 为 upstream 或 target，`snapshot` 为 base/current。
@@ -229,6 +229,8 @@ check_model(root, scope, model_path) -> CheckReport
 
 采用[可选 model-sources 契约](../contracts/README.md#model-sources)选择各 scope 的已有 Markdown 或 YAML/JSON 汇总。缺清单/缺 scope 登记/缺 view 各有具体 gap；主索引仍可用。供应了非法清单是 `INVALID_SOURCE_MANIFEST` / 2。单个可选源缺失、不可读、格式或基线问题为该 view 的 `unverified`，refs 清空；可读但字段/条目不完整为 `partial`；完整为 `available`。原九个键永不省略，值/正文/结果仍归源，不从状态推出批准。可选失败 gap 带选择路径、实际失败来源与 code；不输出个人绝对路径或原始敏感异常内容。
 
+直接 quality 同时核对实际 QAS 和 utility-tree 来源（可显式选已有顶层 `tree` mapping/list 文件）；缺源为 unverified，已知源缺字段/条目才 partial。直接 verification 读取当前 VT 表单的所属子运行块和四列结果表，逐运行记录缺项/冲突并保留原锚点；不从总数推算自动/人工数量，不把相邻运行或 criterion 内容拼合。SEQ 完整性读取受共享注释/围栏状态约束的真实图代码，不回扫原始字面示例。具体源形状仍以契约说明为准。
+
 主 `source.root` 固定为可移植的 `.`。各 artifact baseline 是实际读到的原始 bytes 的 `sha256:`（含 BOM/换行），upstream/targets、工件、视图、refs 与 gaps 确定排序。主 `source.baseline` 是以下对象经 `json.dumps(sort_keys=True, separators=(",", ":"))`、UTF-8 编码后的 `sha256:`：`scope`、按 path 排序的 Task6 `files` 读集记录、`manifest: absent/present`、排序的可选失败 `(选择路径, code)`、artifact/model/model-sources 三份所用契约的原始摘要。读集包括选择用 guide、清单、实际可选 YAML/JSON 与证据文件，不只包含正式 Markdown。无时间戳/随机数据；工具版本另随检查记录保存。
 
 canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope 消费者也能回源。代码/表头/普通 AC 提及不会自动成为 source 字段或 owner 验收。两次读取不一致返回 `INPUT_CHANGED` / 2；这不是文件系统事务，仍不保证抵御检查/打开之间的恶意替换。
@@ -241,7 +243,9 @@ canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope
 | `--check <已有模型>` | JSON CheckReport；无漂移 0、发现漂移 1、输入错误 2 |
 | `--output <新模型>` | 显式 exclusive create 本地 `.json/.yaml/.yml`，stdout 仍是 schema-valid model；父目录须存在 |
 
-`--check` 与 `--output` 互斥。输出路径复用 Task6 的本地/冲突约束：任何已存在源、模型、报告、空文件或目录均不覆盖；登记为来源或清单的路径即使当前缺失也不能被模型占用。`REPORT_CONFLICT / REPORT_WRITE_ERROR` 退出 2；主输入失败不创建输出，写入中失败可能留下不完整的新文件。root 内的新模型本身不进入源读集。无网络、fetch、filters/textconv、hook 或来源命令执行，不自动修订清单基线。
+`--check` 与 `--output` 互斥。输出路径复用 Task6 的本地/冲突约束：任何已存在源、模型、报告、空文件或目录均不覆盖；清单或所选 YAML/JSON 来源中已声明的嵌套 source/evidence 位置，即使缺失也不能被模型占用。工具先登记整个已解析文档中的 `reference`、`path + baseline` 位置，再逐项解引用；前一项失败不会跳过后续声明的保护。登记不授予读取权限，不把未读取的数据判为可用。
+
+声明位置本身非法、不能安全登记时，默认只读派生仍可报告可选 gap，但显式创建输出返回 `REPORT_CONFLICT`，不假称已建立输入/输出隔离。正常的新输出路径可导出后原样检查，不自动成为自身源。`REPORT_CONFLICT / REPORT_WRITE_ERROR` 退出 2；主输入失败不创建输出，写入中失败可能留下不完整的新文件。无网络、fetch、filters/textconv、hook 或来源命令执行，不自动修订清单基线。
 
 ## 使用范围
 

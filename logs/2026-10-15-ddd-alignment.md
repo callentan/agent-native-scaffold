@@ -424,3 +424,32 @@ Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选�
 - 覆盖判据和直接 Markdown/摘要适配是已说明的机械结构检查，不证明自然语言判据充分、风险可接受、批准真实或已发布。只处理实际 canonical 依赖，隐含语义/轻量链接仍需责任人核对。读取不是文件系统事务。
 - 未执行独立 reviewer/Agent 压力测试、Task8–18、应用/Gherkin、hooks/CI、媒体、平台/远端操作；未安装依赖、改权限、amend、push 或 PR。实施报告字段仍为空，未创建 Task8 收集器。
 - 本次完成范围内本地提交和报告后停止。下一步由调用方核对精确 commit、20 文件范围、原始证据及完整来源契约，再决定 Task7 独立复核；不能从局部 GREEN 推导完整功能等价。
+
+<a id="task7-fix1"></a>
+## Task7 第 1 轮修正：五项 Important
+
+### 起点与范围
+
+用户授权在同一轮处理 T7-I1–I5。独立审阅和父会话机制核对均未声称新运行复现；本轮从干净的 `fe1acd39e1e25025d037e0c072e437824e848911`、同一 `callentan-repository-skeleton` worktree 开始，实际补复现后再修。只修改两个工具、必要的共享 Markdown 读取、相关测试/契约/工具说明及当前状态；四份原 schema、32 kind、九视图与 8/21/3 不变。
+
+### 实际修正与原断言保护
+
+- T7-I1：直接 quality 同时需要可核实 QAS 与真实 utility-tree 来源/基线，缺源为 unverified 且清空 refs；已有源缺字段/条目仍 partial。原缺度量 fixture 补一个实际树文件只是隔离缺字段条件，原 partial 与 responseMeasure 断言不变；缺树另有新 RED，不创造 kind 或生产树数据。
+- T7-I2：在解引用前登记所选已解析源文档的全部嵌套位置，缺失/前项失败不漏掉后项；声明不能安全登记时只读仍可给 gap，但输出被拒绝，不假称完成隔离。合法新模型可原样 export/check，旧输出不覆盖。
+- T7-I3：正文与闭合代码围栏复用同一个注释/围栏状态机，图检查只接受实际归属 `diagram` 的代码块。注释、外层 literal、未闭合块或普通说明均不能补图；Task6 的旧围栏/注释测试保留。
+- T7-I4：按真实 VT `runs` 章节读取本 owner 的子运行块和逐判据多列表，每条记录分别核对明确数量、日期、说明和基线。不放宽 `section_lines`，不从总数推算数量、不跨块拼合；同基线结果冲突保留两侧引用及 gap。
+- T7-I5：公开 `impact_report(root, None, task_ids)` 直接返回 INVALID_BASE/input-error，不通过测试 helper 的默认 base，也不退化成 clean 空比较。
+
+### 真实结果入口
+
+本机会话 `files\ddd-alignment-execution\task7-report.md` 追加 fix1，原报告前缀和原证据保留。新 receipts/helpers/保留样本仅用 `task7-evidence\fix1-*` 名称；瞬时测试夹具仍只在忽略的 `.venv`。这些是本机证据，不随模板分发。
+
+- `fix1-start.json` 记录干净起点、116 个源文件、123 个旧证据文件和原报告/日志前缀摘要。
+- `fix1-all-red.json`：先只改测试，生产代码仍为起点；18 方法、20 个失败子例、0 错误/跳过，五项都实际复现。I2 的错误创建发生在自有临时输入里，不是生产源。旧 293 方法结果没有被重标成本轮基线。
+- `fix1-i1-green.json`、`fix1-i2-green.json`、`fix1-i3-green.json`、`fix1-i4-green.json`、`fix1-i5-green.json` 分别记录 8/6/10/9/7 方法的定向 GREEN；包含对应正常/缺项/隔离控制及保留 Task6 用例。后续不安全位置的补充 RED/GREEN 另见 `fix1-reservation-boundary-*.json`。
+- `fix1-full-suite.json`：本轮只执行一次完整保留＋新增套件，实际发现/执行 **313 方法**，0 失败、0 错误、0 跳过，退出 0，105.466 秒。完整命令/cwd/stdout/stderr 与前后源字节在 receipt；被测工具、tests 与 schemas 的字节在提交前后再核对，不用语法或旧结果替代。
+- `fix1-observations\results.json` 保留八组新来源/结果观察，涵盖五项：QAS 缺树/实树、后续缺失嵌套位置的实际 CLI 拒绝、注释/外层 literal/真实图、所属运行表，以及 None base 与真实精确 Git base 对照。均记录工具执行前后输入摘要；运行表仅为已提供的合成来源记录，不是一次业务/软件执行。
+
+### 限制与停点
+
+本轮自审与测试不关闭审阅关卡；Task7 保持**待限定复审**。Windows / Python 3.13.15 实测，不声称 Python 3.11、其他宿主、自然语言语义、人工批准或业务执行已验证。只读来源状态不是 pass/approval/release；未实施 Task8–18，没有 reviewer/subagent/workflow、安装、权限变更、hook 安装、远程操作、amend、push 或 PR。完成新局部提交及报告追加后停止，由调用方核对五项修正、完整 diff 和新旧证据保护。

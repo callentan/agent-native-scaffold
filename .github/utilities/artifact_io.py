@@ -370,18 +370,20 @@ def _without_comments(line: str, in_comment: bool) -> tuple[str, bool]:
     return result, in_comment
 
 
-def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | None]]:
-    """Shared literal/comment handling; None marks code, preserving source lines."""
+def _markdown_tokens(body: str, start: int) -> Iterator[tuple[int, str, str]]:
+    """One comment/fence state machine for prose and actual fenced-code readers."""
     fence: tuple[str, int] | None = None
     in_comment = False
     for number, raw in enumerate(body.splitlines(), start):
         if fence is not None:
             if re.fullmatch(r" {0,3}" + re.escape(fence[0]) + "{" + str(fence[1]) + r",}[ \t]*", raw):
                 fence = None
-            yield number, None
+                yield number, "fence-close", ""
+            else:
+                yield number, "fence-body", raw
             continue
         if not in_comment and (raw.startswith("    ") or raw.startswith("\t")):
-            yield number, None
+            yield number, "code", raw
             continue
         # Strip only a candidate's prefix: comments may precede a fence, but
         # its raw info string is literal and still determines fence validity.
@@ -395,10 +397,37 @@ def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | 
                 break
         if fence is not None:
             in_comment = False
-            yield number, None
+            yield number, "fence-open", opener[2].strip()
         else:
             line, in_comment = _without_comments(raw, in_comment)
-            yield number, line
+            yield number, "text", line
+
+
+def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | None]]:
+    """Shared literal/comment handling; None marks code, preserving source lines."""
+    for number, kind, text in _markdown_tokens(body, start):
+        yield number, text if kind == "text" else None
+
+
+@dataclass(frozen=True, slots=True)
+class MarkdownFence:
+    start_line: int
+    end_line: int
+    info: str
+    body: str
+
+
+def iter_markdown_fences(body: str, start: int = 1) -> Iterator[MarkdownFence]:
+    """Closed fences owned by the shared scanner, never examples inside literals."""
+    opening, info, lines = None, "", []
+    for number, kind, text in _markdown_tokens(body, start):
+        if kind == "fence-open":
+            opening, info, lines = number, text, []
+        elif kind == "fence-body":
+            lines.append(text)
+        elif kind == "fence-close" and opening is not None:
+            yield MarkdownFence(opening, number, info, "\n".join(lines))
+            opening = None
 
 
 def _body_entries(

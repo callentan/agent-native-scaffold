@@ -14,11 +14,11 @@ import yaml
 
 from artifact_io import (
     Artifact, ArtifactInputError, PathInput, _artifact_validator, _resolve_file,
-    _schema_validator, load_yaml_mapping,
+    _schema_validator, iter_markdown_fences, iter_markdown_lines, load_yaml_mapping,
 )
 from check_artifacts import (
     CheckReport, Finding, Inventory, _anchors, _baseline, _decode, _error, _exclusion,
-    _git, _local_root, _network_path, _output_path, _read, read_inventory,
+    _git, _HEADING, _INLINE_LINK, _local_root, _network_path, _output_path, _read, read_inventory,
 )
 from check_traceability import _meaningful, _table_values, section_lines
 
@@ -182,6 +182,7 @@ class _Sources:
         self.validators = {}
         self.failures: set[tuple[str, str]] = set()
         self.reserved_paths = {self.root / "model-sources.yaml"}
+        self.reservation_errors: set[str] = set()
         self.selection = "absent"
         self.git_root_checked = False
         self.verified: set[tuple[Path, str, str]] = set()
@@ -196,18 +197,53 @@ class _Sources:
         if self.validators["artifact"].schema != _artifact_validator().schema:
             raise ArtifactInputError("CONTRACT_ERROR", self.root, 1, "Artifact schema changed after parser cache load; use a new process")
 
-    def path(self, relative: str) -> Path:
-        # Validate before any resolution/read; do not decode URL paths or expand env.
+    def reserve(self, relative: str) -> Path:
+        """Reserve a declared local path without requiring that it exists."""
         schema = self.validators["model-sources"].schema["$defs"]["source"]["properties"]["path"]
         if not isinstance(relative, str) or not self.validators["model-sources"].evolve(schema=schema).is_valid(relative):
             raise ArtifactInputError("INVALID_PATH", self.root, 1, "Source must name a local root-relative file")
         lexical = self.root / relative
         if _exclusion(relative) == "TOOL_DATA":
             raise ArtifactInputError("EXCLUDED_TARGET", lexical, 1, "Git, environment and dependencies are not sources")
-        actual = _resolve_file(lexical, self.root)
+        try:
+            actual = lexical.resolve()
+        except (OSError, ValueError, RuntimeError) as error:
+            raise ArtifactInputError("INVALID_PATH", lexical, 1, str(error)) from error
+        if not actual.is_relative_to(self.root):
+            raise ArtifactInputError("OUTSIDE_ROOT", lexical, 1, "Declared source leaves the explicit root")
         if _exclusion(actual.relative_to(self.root).as_posix()) == "TOOL_DATA":
             raise ArtifactInputError("EXCLUDED_TARGET", actual, 1, "Resolved source is excluded tool data")
+        self.reserved_paths.add(actual)
         return actual
+
+    def path(self, relative: str) -> Path:
+        # Registration precedes stat/read failure; path syntax and read permission
+        # are still checked by the existing resolver, not granted by registration.
+        return _resolve_file(self.reserve(relative), self.root)
+
+    def reserve_declarations(self, data: dict) -> None:
+        """Inspect the whole already-parsed document before the first dereference."""
+        pending, visited = [data], set()
+        while pending:
+            node = pending.pop()
+            if not isinstance(node, (dict, list)) or id(node) in visited:
+                continue
+            visited.add(id(node))
+            if isinstance(node, list):
+                pending.extend(node)
+                continue
+            # These are location declarations, not commands or a new data model.
+            for field in ("reference", "path"):
+                value = node.get(field)
+                if isinstance(value, str) and (field == "reference" or "baseline" in node):
+                    try:
+                        self.reserve(value.split("#", 1)[0] if field == "reference" else value)
+                    except ArtifactInputError as error:
+                        # Do not stop before later declarations. The source adapter
+                        # still owns value validation; an unresolved location also
+                        # prevents a writer from claiming output/source isolation.
+                        self.reservation_errors.add(error.code)
+            pending.extend(node.values())
 
     def read(self, relative: str) -> tuple[Path, bytes]:
         path = self.path(relative)
@@ -250,6 +286,7 @@ class _Sources:
 
     def document(self, path: Path, raw: bytes) -> dict:
         data, _ = load_yaml_mapping(_decode(raw, path), path)
+        self.reserve_declarations(data)
         if "views" in data and ("artifacts" in data or "source" in data):
             raise ArtifactInputError("DERIVED_SOURCE", path, 1, "A derived model is not an authoritative source")
         return data
@@ -311,9 +348,9 @@ class _Sources:
         path, raw = self.read(relative)
         if path == (self.root / "model-sources.yaml").resolve():
             raise ArtifactInputError("DERIVED_SOURCE", path, 1, "The selection manifest is not view evidence")
+        document = (self.document(path, raw) if path.suffix.lower() in (".json", ".yaml", ".yml") else None)
         self.fixed(path, raw, value["baseline"])
         if path.suffix.lower() in (".json", ".yaml", ".yml"):
-            document = self.document(path, raw)
             valid = not fragment or fragment in document
         elif path.suffix.lower() == ".md":
             valid = not fragment or fragment in _anchors(_decode(raw, path), self.artifacts.get(path))
@@ -355,9 +392,10 @@ class _Sources:
         return references, visited
 
 
-def _summary_source(reader: _Sources, view: str, path: Path, raw: bytes, baseline: str) -> dict:
+def _summary_source(reader: _Sources, view: str, path: Path, raw: bytes, baseline: str,
+                    data: dict | None = None) -> dict:
     container = _SUMMARY[view]
-    data = reader.document(path, raw)
+    data = reader.document(path, raw) if data is None else data
     if not isinstance(data.get(container), dict):
         raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, f"Expected {container} mapping")
     source = data[container]
@@ -433,10 +471,53 @@ def _summary_source(reader: _Sources, view: str, path: Path, raw: bytes, baselin
     for key in sorted(visited):
         artifact = reader.owners[key]
         evidence.append({"reference": artifact.relative_path, "baseline": _sha(reader.raw[artifact.path])})
-    return {"artifactRefs": references, "evidenceRefs": evidence, "gaps": gaps}
+    return {"artifactRefs": references, "evidenceRefs": evidence, "gaps": gaps,
+            "utility_tree": view == "quality" and isinstance(source.get("utilityTree"), dict)}
+
+
+def _tree_source(reader: _Sources, path: Path, baseline: str, data: dict) -> dict:
+    """An explicitly selected existing utility tree, not a new artifact kind/model."""
+    tree = data.get("tree")
+    if not isinstance(tree, (dict, list)):
+        raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, "Utility-tree source needs a tree mapping or list")
+    relative = path.relative_to(reader.root).as_posix()
+    return {
+        "artifactRefs": set(),
+        "evidenceRefs": [{"reference": relative + "#tree", "baseline": baseline}],
+        "gaps": [] if tree else [f"{relative}#tree: missing utility-tree items"],
+        "utility_tree": True,
+    }
 
 
 def _section_has_content(source: Artifact, anchor: str) -> bool:
+    if source.kind == "sequence-diagram" and anchor == "diagram":
+        location = next((a.location.line for a in source.anchors if a.name == anchor), None)
+        if location is None:
+            return False
+        end = min((a.location.line for a in source.anchors if a.location.line > location),
+                  default=source.body_start_line + len(source.body.splitlines()))
+        level = None
+        for number, line in iter_markdown_lines(source.body, source.body_start_line):
+            if number <= location or line is None:
+                continue
+            heading = _HEADING.fullmatch(line)
+            if heading:
+                if level is not None and len(heading[1]) <= level:
+                    end = min(end, number)
+                    break
+                if level is None:
+                    level = len(heading[1])
+        for block in iter_markdown_fences(source.body, source.body_start_line):
+            if not (location < block.start_line <= block.end_line < end):
+                continue
+            if not block.info.split() or block.info.split()[0] != "mermaid":
+                continue
+            lines = [line.strip() for line in block.body.splitlines()
+                     if line.strip() and not line.lstrip().startswith("%%")]
+            if (lines and lines[0] == "sequenceDiagram"
+                    and any(re.match(r"^\w+[ \t]*--?>>[ \t]*\w+[ \t]*:[ \t]*\S", line) for line in lines[1:])):
+                return True
+        return False
     lines = [line.strip() for _, line in section_lines(source, anchor)
              if line.strip() and not line.lstrip().startswith("#")]
     for index, line in enumerate(lines):
@@ -447,17 +528,134 @@ def _section_has_content(source: Artifact, anchor: str) -> bool:
         cells = [cell.strip() for cell in line.strip("|").split("|")]
         if any(_meaningful(cell) for cell in (cells[1:] if line.startswith("|") else cells)):
             return True
-    if source.kind == "sequence-diagram" and anchor == "diagram":
-        location = next((a.location.line for a in source.anchors if a.name == anchor), None)
-        if location is not None:
-            end = min((a.location.line for a in source.anchors if a.location.line > location),
-                      default=source.body_start_line + len(source.body.splitlines()))
-            raw_section = "\n".join(source.body.splitlines()[
-                location - source.body_start_line + 1:end - source.body_start_line])
-            return bool(re.search(r"(?m)^ {0,3}(?:`{3,}|~{3,})mermaid[ \t]*$", raw_section)
-                        and re.search(r"(?m)^[ \t]*sequenceDiagram[ \t]*$", raw_section)
-                        and re.search(r"(?m)^[ \t]*\w+[ \t]*--?>>[ \t]*\w+:", raw_section))
     return False
+
+
+def _owned_runs(source: Artifact) -> tuple[str, ...]:
+    """Current VT-form child runs inside its H2 runs section only."""
+    start = next((a.location.line for a in source.anchors if a.name == "runs"), None)
+    if start is None:
+        return ()
+    end = source.body_start_line + len(source.body.splitlines())
+    heading_seen = False
+    for number, line in iter_markdown_lines(source.body, source.body_start_line):
+        if number <= start or line is None:
+            continue
+        heading = _HEADING.fullmatch(line)
+        if heading:
+            if not heading_seen:
+                if len(heading[1]) != 2:
+                    return ()
+                heading_seen = True
+            elif len(heading[1]) <= 2:
+                end = number
+                break
+    pattern = re.compile(re.escape(source.id.lower()) + r"-run-[0-9]+")
+    return tuple(a.name for a in source.anchors
+                 if start < a.location.line < end and pattern.fullmatch(a.name)) if heading_seen else ()
+
+
+def _run_results(source: Artifact, anchor: str, lines: tuple[tuple[int, str], ...]) -> tuple[dict, list[str]]:
+    """Read the form's per-criterion four-column table; do not synthesize results."""
+    expected = {target.criterion_anchor for target in source.targets}
+    results, gaps = {}, []
+    prefix = f"{source.relative_path}#{anchor}"
+    labels = ("判据链接（目标由 frontmatter 定位）", "实际观察及原始报告定位",
+              "实际结果", "未执行/跳过原因或失败差异")
+    header, tables, previous = None, 0, 0
+    for number, line in lines:
+        if number != previous + 1:
+            header = None
+        previous = number
+        if not line.strip().startswith("|"):
+            header = None
+            continue
+        cells = [cell.strip().replace(r"\|", "|") for cell in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+        if all(label in cells for label in labels):
+            tables += 1
+            if len(cells) != len(labels) or len(set(cells)) != len(labels):
+                gaps.append(f"{prefix}: ambiguous verificationSummary.result table header")
+                header = None
+            else:
+                header = {label: cells.index(label) for label in labels}
+            continue
+        if header is None or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+            continue
+        if len(cells) != len(labels):
+            gaps.append(f"{prefix}:{number}: malformed verificationSummary.result row")
+            continue
+        link = _INLINE_LINK.fullmatch(cells[header[labels[0]]])
+        criterion = link[1].strip("<>").removeprefix("#") if link and link[1].strip("<>").startswith("#") else None
+        status = cells[header["实际结果"]]
+        if criterion not in expected:
+            gaps.append(f"{prefix}:{number}: unknown local criterion in verificationSummary.result")
+        elif criterion in results:
+            gaps.append(f"{prefix}:{number}: ambiguous verificationSummary.result for {criterion}")
+        elif (status not in ("not-run", "pass", "fail", "skipped")
+              or not cells[header["实际观察及原始报告定位"]]
+              or status in ("not-run", "skipped") and not cells[header["未执行/跳过原因或失败差异"]]):
+            gaps.append(f"{prefix}:{number}: incomplete verificationSummary.result for {criterion}")
+        else:
+            results[criterion] = status
+    if tables != 1:
+        gaps.append(f"{prefix}: missing or ambiguous verificationSummary.result table")
+    for criterion in sorted(expected - results.keys()):
+        gaps.append(f"{prefix}: missing verificationSummary.result for {criterion}")
+    if not expected:
+        gaps.append(f"{prefix}: missing declared criterion targets for verificationSummary.result")
+    return results, gaps
+
+
+def _run_source(source: Artifact, baseline: str) -> tuple[list[dict], list[str]]:
+    """Keep every owned run separate; never merge dates, counts or observations."""
+    runs = _owned_runs(source)
+    fields = _DIRECT_VALUES[("verification", "verification-test")]
+    if not runs:
+        return [], [f"{source.relative_path}#runs: missing owned run block for verificationSummary.{field}"
+                    for _, field, _, _ in fields]
+    evidence, gaps, complete = [], [], []
+    basis_labels = ("实际对象基线", "当时的需求/设计/任务依据基线", "当时的 VT 基线")
+    for anchor in runs:
+        lines = section_lines(source, anchor)  # Strict criterion/anchor isolation is unchanged.
+        evidence.append({"reference": source.relative_path + "#" + anchor, "baseline": baseline})
+        run_gaps, basis = [], []
+        prefix = f"{source.relative_path}#{anchor}"
+        for _, field, labels, kind in fields:
+            if field == "result":
+                continue
+            values = [value for label in labels for _, value in _table_values(lines, label)]
+            if kind == "count":
+                # The form's compound count row may explicitly state auto/manual
+                # counts. Overall found/executed totals never imply those splits.
+                stem = "自动" if field == "automatedCount" else "人工"
+                pattern = re.compile(r"(?<![\w])(?:" + field + "|" + stem
+                                     + r"(?:检查)?(?:数量)?)[ \t]*[:=：]?[ \t]*([0-9]+)(?![\w.])")
+                for _, text in _table_values(lines, "退出码、发现/执行/跳过数量（适用时）"):
+                    values.extend(pattern.findall(text))
+            valid = len(values) == 1 and bool(values[0].strip())
+            if valid and kind == "count":
+                valid = bool(re.fullmatch(r"[0-9]+", values[0].strip()))
+            elif valid:
+                valid = not re.match(r"^(?:未提供|未配置|未执行|待填写|未知|unknown)(?:$|[：:，,；; ])",
+                                     values[0].strip(), re.I)
+            if not valid:
+                run_gaps.append(f"{prefix}: missing or ambiguous verificationSummary.{field}")
+        for label in basis_labels:
+            values = _table_values(lines, label)
+            value = values[0][1].strip() if len(values) == 1 else ""
+            if not value or re.match(r"^(?:未提供|未执行|待填写|未知|unknown)(?:$|[：:，,；; ])", value, re.I):
+                run_gaps.append(f"{prefix}: missing or ambiguous run basis {label}")
+            basis.append(value)
+        results, result_gaps = _run_results(source, anchor, lines)
+        run_gaps.extend(result_gaps)
+        gaps.extend(run_gaps)
+        if not run_gaps:
+            complete.append((anchor, tuple(basis), results))
+    for index, (anchor, basis, results) in enumerate(complete):
+        for other, other_basis, other_results in complete[:index]:
+            if basis == other_basis and results != other_results:
+                gaps.append(f"{source.relative_path}: conflicting runs {other} and {anchor} at the same object/requirement/VT basis")
+    return evidence, gaps
 
 
 def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: str) -> dict:
@@ -470,15 +668,23 @@ def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: st
     gaps, evidence = [], []
     for key in sorted(visited):
         source = reader.owners[key]
+        source_baseline = baseline if source.key == artifact.key else _sha(reader.raw[source.path])
         evidence.append({"reference": source.relative_path,
-                         "baseline": baseline if source.key == artifact.key else _sha(reader.raw[source.path])})
+                         "baseline": source_baseline})
         if not source.anchors:
             gaps.append(f"{source.relative_path}: missing explicit source sections")
         if source.kind in ("stakeholder-requirement", "software-requirement") and not source.acceptances:
             gaps.append(f"{source.relative_path}: missing owner acceptances")
         for anchor in _SECTIONS.get(source.kind, ()):
+            if source.kind == "verification-test" and anchor == "runs" and _owned_runs(source):
+                continue
             if not _section_has_content(source, anchor):
                 gaps.append(f"{source.relative_path}: missing content in {anchor}")
+        if view == "verification" and source.kind == "verification-test":
+            run_evidence, run_gaps = _run_source(source, source_baseline)
+            evidence.extend(run_evidence)
+            gaps.extend(run_gaps)
+            continue
         for anchor, field, labels, kind in _DIRECT_VALUES.get((view, source.kind), ()):
             if field == "externalPartners" and any(reader.owners[key].kind == "integration-partner" for key in visited):
                 continue  # Actual partners are declared by canonical upstream, not copied.
@@ -503,22 +709,28 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
     failed = False
     direct_kinds: set[str] = set()
     has_direct = False
+    utility_tree = False
     for entry in sorted(selected, key=lambda item: (item["path"], item["baseline"])):
         try:
             path, raw = reader.read(entry["path"])
+            data = (reader.document(path, raw) if path.suffix.lower() in (".yaml", ".yml", ".json") else None)
             reader.fixed(path, raw, entry["baseline"])
             if path.suffix.lower() == ".md" and path in reader.artifacts:
                 part = _direct_source(reader, view, reader.artifacts[path], entry["baseline"])
                 direct_kinds.update(part["kinds"])
                 has_direct = True
             elif path.suffix.lower() in (".yaml", ".yml", ".json"):
-                part = _summary_source(reader, view, path, raw, entry["baseline"])
+                if view == "quality" and "quality" not in data and "tree" in data:
+                    part = _tree_source(reader, path, entry["baseline"], data)
+                else:
+                    part = _summary_source(reader, view, path, raw, entry["baseline"], data)
             else:
                 raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, "Use a formal Markdown artifact or YAML/JSON summary")
             references.update(part["artifactRefs"])
             for item in part["evidenceRefs"]:
                 evidence[(item["reference"], item["baseline"])] = item
             gaps.update(part["gaps"])
+            utility_tree = utility_tree or part.get("utility_tree", False)
         except ArtifactInputError as error:
             if error.code in ("INPUT_CHANGED", "CONTRACT_ERROR"):
                 raise
@@ -532,9 +744,16 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
                 gap += f": {error.message}"
             gaps.add(gap)
             reader.failures.add((entry["path"], error.code))
+    kinds = direct_kinds | {reader.owners[ref.split("#")[0]].kind for ref in references}
+    selection = ", ".join(sorted(entry["path"] for entry in selected))
+    if view == "quality" and not failed:
+        if "quality-attribute-scenario" not in kinds:
+            gaps.add(f"quality: {selection}: QAS source is absent")
+            failed = True
+        if not utility_tree:
+            gaps.add(f"quality: {selection}: utility-tree source is absent")
+            failed = True
     if has_direct and not failed:
-        kinds = direct_kinds | {reader.owners[ref.split("#")[0]].kind for ref in references}
-        selection = ", ".join(sorted(entry["path"] for entry in selected))
         for kind in sorted(_DIRECT_REQUIRED[view] - kinds):
             gaps.add(f"{view}: {selection}: missing {kind} source")
         if view == "quality" and not kinds.intersection({"validation-scenario", "verification-test"}):
@@ -661,6 +880,8 @@ def main() -> int:
         model, report, reader = _derive(inventory, arguments.scope)
         if arguments.output is not None:
             path = _output_path(arguments.output, arguments.root, (".json", ".yaml", ".yml"))
+            if reader.reservation_errors:
+                raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Malformed declared source/evidence locations prevent safe output isolation")
             if path in reader.reserved_paths:
                 raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output is a registered source/selection path, even if absent")
             content = (json.dumps(model, ensure_ascii=False, sort_keys=True, indent=2)
