@@ -7,7 +7,7 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地元数据解析与四类数据契约，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地元数据解析、正式工件检查与四类数据契约，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
@@ -25,8 +25,11 @@
 | 核对安装版本 | `.venv\Scripts\python.exe -m pip freeze` | 当前终端；与 lock 核对实际版本，不自动更新锁定清单 |
 | 核对环境一致性 | `.venv\Scripts\python.exe -m pip check` | 当前终端；不能用退出 0 代替行为测试 |
 | 工具源码语法 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` | 当前终端；只检查已分发源码的语法，不替代行为验证 |
+| 正式工件完整检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root .` | JSON stdout；不自动保存报告，empty/退出 0 不代表业务通过 |
+| 精确历史比较 | 上行增加 `--base <已核对的完整 commit ID>` | 验证目标仍是当前文件的完整正式库存，不只检查变更或暂存内容；精确对象不可读退出 2 |
+| 明确保存检查报告 | 检查命令增加 `--report <获准的新 JSON 路径>` | 相对路径以 root 为准；父目录须存在，已有文件一律拒绝，不改写源文件或历史记录 |
 
-这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。当前没有完整工件扫描器或模型导出器，不把上述环境检查称为这些功能。
+这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。检查器的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)是实际使用契约；`run_check(root, base_sha=None)` API 不写文件。当前没有跨文件验收覆盖或模型导出器，工件检查不能代替它们。尖括号参数由本次实际输入替换。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目
@@ -63,7 +66,7 @@
 <a id="document-checks"></a>
 ## 当前可做的文档检查
 
-本仓库尚无完整文档扫描器或语言 CI；单文件解析和 schema 数据校验不替代全仓文档检查。可按本次任务核对文件与相对链接、占位与事实、[验收覆盖和语义影响](../verification/README.md#coverage-check)，明确检查对象和判据后记录实际操作。
+可用正式工件检查器核对其[限定 Markdown 语法](../.github/utilities/README.md#checker-format)、元数据、ID、占位与本地链接；没有正式工件时明确输出 `empty`。它不是全部文档扫描器或语言 CI，普通 README/guide、覆盖与语义仍须按本次任务核对。尤其不能把文件/锚点有效等同于[验收覆盖和语义影响](../verification/README.md#coverage-check)已核对。
 
 若使用已有本地工具检查，应记录实际工具、命令、工作目录、对象基线和原始结果入口；不把作者机器上的外部脚本当作仓库自带能力。人工核对记录所读工件、基线、观察和限制，不伪造命令。文档检查不能替代业务验收或软件行为执行。
 

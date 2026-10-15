@@ -6,7 +6,7 @@ import json
 import os
 import re
 import stat
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -97,6 +97,7 @@ class Artifact:
     body: str
     anchors: tuple[Anchor, ...]
     acceptances: tuple[Acceptance, ...]
+    metadata_locations: tuple[tuple[MetadataPath, SourceLocation], ...] = ()
 
     @property
     def key(self) -> str:
@@ -321,6 +322,7 @@ def _validate_metadata(
 
 _ANCHOR = re.compile(r""" {0,3}<a[ \t]+id=(["'])([A-Za-z][A-Za-z0-9._:-]*)\1[ \t]*></a>[ \t]*$""")
 _FENCE = re.compile(r" {0,3}(`{3,}|~{3,})(.*)$")
+_INLINE_CODE = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
 
 
 def _without_comments(line: str, in_comment: bool) -> tuple[str, bool]:
@@ -333,11 +335,38 @@ def _without_comments(line: str, in_comment: bool) -> tuple[str, bool]:
             line, in_comment = line[end + 3:], False
         else:
             start = line.find("<!--")
+            for literal in _INLINE_CODE.finditer(line):
+                if start < 0 or literal.start() > start:
+                    break
+                if start < literal.end():
+                    start = line.find("<!--", literal.end())
             if start < 0:
                 return result + line, False
             result += line[:start]
             line, in_comment = line[start + 4:], True
     return result, in_comment
+
+
+def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | None]]:
+    """Shared literal/comment handling; None marks code, preserving source lines."""
+    fence: tuple[str, int] | None = None
+    in_comment = False
+    for number, raw in enumerate(body.splitlines(), start):
+        if fence is not None:
+            if re.fullmatch(r" {0,3}" + re.escape(fence[0]) + "{" + str(fence[1]) + r",}[ \t]*", raw):
+                fence = None
+            yield number, None
+            continue
+        if not in_comment and (raw.startswith("    ") or raw.startswith("\t")):
+            yield number, None
+            continue
+        line, in_comment = _without_comments(raw, in_comment)
+        opener = _FENCE.fullmatch(line)
+        if opener and not (opener[1][0] == "`" and "`" in opener[2]):
+            fence = (opener[1][0], len(opener[1]))
+            yield number, None
+        else:
+            yield number, line
 
 
 def _body_entries(
@@ -349,17 +378,8 @@ def _body_entries(
     anchors: dict[str, Anchor] = {}
     acceptances: list[Acceptance] = []
     pending: Anchor | None = None
-    fence: tuple[str, int] | None = None
-    in_comment = False
-    for number, raw in enumerate(body.splitlines(), start):
-        if fence is not None:
-            if re.fullmatch(r" {0,3}" + re.escape(fence[0]) + "{" + str(fence[1]) + r",}[ \t]*", raw):
-                fence = None
-            continue
-        line, in_comment = _without_comments(raw, in_comment)
-        opener = _FENCE.fullmatch(line)
-        if opener and not (opener[1][0] == "`" and "`" in opener[2]):
-            fence = (opener[1][0], len(opener[1]))
+    for number, line in iter_markdown_lines(body, start):
+        if line is None:
             pending = None
             continue
         anchor_match = _ANCHOR.fullmatch(line)
@@ -438,7 +458,7 @@ def parse_artifact(path: PathInput, root: PathInput) -> Artifact:
         targets=tuple(targets), confirmation=confirmation, path=actual,
         relative_path=actual.relative_to(actual_root).as_posix(), location=SourceLocation(actual, 1),
         id_location=locations[("id",)], body_start_line=body_start, source=source, body=body,
-        anchors=anchors, acceptances=acceptances,
+        anchors=anchors, acceptances=acceptances, metadata_locations=tuple(locations.items()),
     )
 
 

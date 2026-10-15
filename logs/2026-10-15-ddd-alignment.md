@@ -281,3 +281,50 @@ Task5 的独立范围审阅返回无重大问题。父会话在上述实现对�
 独立修改后消费者记录在同一入口的 `task5-independent-use\task5-independent-report.md`。它实际只读固定十例、当前方法/规则/表单和 owner fixture，逐例区分可草拟、缺身份、非空冲突、缺运行输入、历史适用性及对应停点；没有另造修改前基线，没有运行 parser、应用或 renderer，也没有修改仓库。其观察中的 fixture 仍是 225 字节，摘要与前节原值相同。该报告仅支持本次显式文件使用和手工结构核对，不证明原生发现、人工对照或一般可靠性提升。上述完整报告和原始工具记录仅在本机可访问，换机须重新取得或执行相应检查。
 
 前节两个合成未覆盖目标继续保留，真正应用生成、Gherkin runner、客户端/人工、PDF/平台和批准均未验收。下一步按[任务 6](../docs/plan/2026-10-14-ddd-functional-alignment.md)实现有明确输入、定位、基线和退出码的 Python 工件检查器；不因此创建应用或安装后续可选依赖。接手仍须重新核对当前 Git、任务状态及证据可访问性。
+
+<a id="task6"></a>
+## Task6：正式工件检查器
+
+### 会话、范围与 Git
+
+本节追加 Task6 / ENH-07 的实际实现与执行记录，保留前面各任务的原始结果。任务来源为[既有 Task6 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6)和用户“先commit 当前的变更。然后开始按照增强计划执行优化”的本次限定授权；没有新建业务 REQ/SR。状态为**已实现，等待独立审阅**，不是实现者自行关闭 review gate。
+
+- 起始完整对象 `fea6e3f7f5749f223528a0311734e062e392a1b3`，分支 `callentan-repository-skeleton`；已核对为原 App 管理的 isolated worktree、无 superproject，108 个原 tracked 源文件、工作树/暂存区干净。前序提交已完成，不做空的“先提交”或修改主 checkout。
+- 本次只修改 12 个范围内文件：新增 checker/对应测试，共享 parser 的最小行处理和字段定位，utilities README、开发说明、docs/tests instructions、verify-change 的耦合工具说明，以及规格、计划、roadmap、本日志。四个 schema、32-kind、依赖、既有 tests/helpers、应用与其他工具/入口保持原位。
+- 完整报告为本会话 `files\ddd-alignment-execution\task6-report.md`；同批提交的实际 SHA 由 Git 文件历史和报告定位。提交前后 Git/暂存范围分别记录，不将测试时未提交的对象写成只有 HEAD。
+
+### 实际变化与判定边界
+
+新增 [check_artifacts.py](../.github/utilities/check_artifacts.py) 的 `run_check(root, base_sha=None)` 与独立 CLI；[使用契约](../.github/utilities/README.md#artifact-checker)登记发现规则、支持的 Markdown、占位、JSON、错误码、计数和输出保护。继续使用 `Artifact`、`ArtifactInputError`、canonical key、owner acceptance 和源位置，没有第二套 YAML/frontmatter/验收解析器或配置框架。
+
+明确 root 下的文件名/元数据信号决定正式库存，template/native/maker/test/Git/环境目录有精确排除；普通轻量 guide 不冒充正式工件，root 祖先的 `.venv` 也不误排除整个夹具。标题/占位/本地链接为 `invalid`；parser、路径、基线和写报告问题为 `input-error`；没有正式工件为 `empty`，不是业务通过。
+
+base 只读取精确 commit/tree/blob 作历史比较，目标始终是完整当前工作文件，含未暂存/未跟踪正式输入；未改的身份/链接错误不能隐藏。旧元数据不套用新规则，不运行 filters/textconv、来源命令或网络读取，不猜 main/master/HEAD/暂存内容。报告记录原始字节与实际读集，读失败不记成删除，`comparison_complete` 区分不完整比较；没有提供 index-only hook。
+
+API 不写入；CLI 默认只输出 JSON，只有显式新 `.json` 路径才写报告。拒绝覆盖已有源/历史文件、自动建目录和 UNC 报告路径；报告输出与输入散列分开。`verify-change` 只更新原来“检查器未提供”的说明，保留只读模式不运行命令、无覆盖/导出和不认证批准的边界；没有新增方法、角色、prompt 或工作流。
+
+### 实际结果入口
+
+所有原始执行证据都在会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的获准 `files\ddd-alignment-execution\task6-evidence\` 下；以下定位仅在本机可访问，不是随下游分发的依赖或跨机器 CI 证明。
+
+| 记录定位 | 对象与说明 |
+|---|---|
+| `start.json` | 实际 root、分支、Git dir/common dir、起始 commit/index 状态和 108 个原文件字节摘要 |
+| `red-01-missing-module.json`、`red-02-behavior.json`、`red-03-assertions.json` | 先缺模块，再使用无检查行为的接口确认真实 RED；补足两处测试断言前提后为 52 方法、77 断言失败、0 错误/跳过，源码和 raw stdout/stderr 保留 |
+| `check-04-implementation.json`、`red-05-boundaries.json`、`green-06-boundaries.json` | 初步 52 方法通过；自审发现并用八个新增边界复现问题，再到 60 方法通过：缺分隔符/标题身份的发现、普通 project 误报、inline-code 注释开头、UNC 预拒绝和不可读文件的比较完整性 |
+| `parser-01-shared-helper.json`、`parser-02-literal-comments.json` | 两次有界 parser 回归均为原 74 方法、0 跳过；共享提取及字面注释修正未破坏旧接口行为 |
+| `full-01-precommit.json` | 同一最终代码对象完整 suite：204 方法发现/执行、361 个子例、0 跳过/失败/错误、24.468 秒、退出 0；原 74 parser + 70 schema/Git 数据 + 新 60 checker，没有替换原套件 |
+| `cli-01-receipts.json`、`cli-01-execution.json`、`cli-01\` | 9 次真实 CLI：正例、坏文件、空骨架、精确 base/重跑、无效/符号 base、错误 root 类型、旧报告保护；逐条保存参数/cwd/stdout/stderr/退出码和源字节前后摘要，显式报告另列 |
+| `check14-zero-*`、`check14-skipped-*` | 证据门禁实测：零发现和全跳过拒绝。当前 Python 3.13 原生 CLI 零发现实际退出 5（最初预期 0 的观察保留），仅用 `wasSuccessful()` 的真实 API runner 则零发现退出 0；计数门禁仍拒绝，未添加自我证明的产品测试 |
+| `worktree-01-receipts.json` | 当前真实 worktree 的 full/base 均为 empty、0 正式工件、40 排除条目、17 个实际读取 Markdown 摘要；两次检查前后 110 个源文件字节和 Git 状态相同。该对象在本日志追加之前，不能当最终日志字节摘要 |
+| `syntax-01.json`、`dependencies-01.json` | 现有 Python 的 compileall 和 pip check 退出 0；编译缓存明确写入获准证据目录，没有新安装或改 lock |
+
+命令和门禁入口只用于这次获准执行，测试代码与预期病例本身不是运行证据。原始记录保留失败和成功的不同对象/阶段；未把初次模块缺失或 naive runner 的退出 0 当作功能/回归通过。最终范围、自审、文档链接、提交及提交后状态回完整报告读取。
+
+### 限制、未执行与下一步
+
+- 真实运行宿主为 Windows、Python 3.13.15、现有 PyYAML 6.0.2/jsonschema 4.23.0；本机真实 SHA-1/SHA-256 Git、字节锁及 junction 已用。最低 Python 3.11、其他 OS、所有文件系统/权限策略尚未实测，不由当前成功推导。
+- 目录不可枚举及部分不可读比较路径采用明确 OS 边界注入；UNC 测试在本地阻止解析以保证不联网，没有修改 ACL。真实文件字节锁另有实际执行。路径检查不是防并发恶意替换的操作系统隔离。
+- Markdown 是已登记的有限语法，不是完整 renderer；普通 guide、跨文件 canonical 覆盖/层次/语义、模型导出不属于 Task6。明确保留未决业务事实，Task5 的两个合成未覆盖目标、旧结果适用性和业务/软件 VT 的 `not-run` 未升级。
+- 未启动子代理/独立审阅者、Task7、来源接入、应用、Gherkin runner、hooks/CI、媒体/PDF、平台、推送或 PR，没有安装依赖或改变权限。方法说明只做直接耦合的可用工具更新，不声称新的独立 Agent 压力测试或可靠性结论。
+- 下一步由调用方独立核对本次 commit、12 文件 diff、完整报告与各原始证据；接手先检查当前工作树/暂存区和本机证据是否可读。Task6 等待该复核，本执行在本地提交与报告后停止；Task7–18 及原 P3 的未执行关卡仍保持原状。
