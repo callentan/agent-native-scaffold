@@ -1,6 +1,6 @@
 # 六仓功能对齐增强实施计划
 
-> **面向 AI 代理的工作者：** 执行时使用 subagent-driven-development 或 executing-plans 逐任务推进；先核对已有完成记录，不重复执行。步骤以复选框跟踪。当前只获授权生成计划，不开始下面的实施任务。
+> **面向 AI 代理的工作者：** 用户于 2026-10-15 授权先提交当前变更、再执行本计划。先核对已有完成记录，不重复执行；按 subagent-driven-development 或 executing-plans 分任务推进，步骤以复选框跟踪。应用、音频/PDF、平台与发布的单独授权关卡仍保留。
 
 **目标：** 在现有单仓骨架上提供六个 `ddd-*` 仓库现有功能的等价能力，并用逐项证据区分已交付、未执行和明确替代。
 
@@ -8,11 +8,13 @@
 
 **技术栈：** 维护工具 Python 3.11+、`unittest`、PyYAML 6.0.2、jsonschema 4.23.0；本地、hooks 与 CI 复用 Python 逻辑，不要求 PowerShell 包装脚本。下游应用技术栈仍未选择。
 
-**规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-14、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
+**规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 规划完成不等于实现批准。以当前实现 `4531891` 为起点，现有 38 文件和 P3 证据不改写为增强交付；来源盘点是第一任务，余下阶段受明确关卡约束。
+**当前状态：** README 排版已按用户要求单独提交为 `1a6f594`；以干净工作树开始本计划。任务 1 的六仓源码盘点完成，详见[能力矩阵](../research/ddd-capability-matrix.md)；增强方法/工具尚未交付，现有 38 文件和原 P3 证据不改写为增强通过。
 
 **2026-10-15 修订：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。此修订不开始实现，也不将新增自动化一概归为原仓已有功能。
+
+**同日执行期补充：** 完整读取后确认存在原计划未承接的持续能力，用户选择完整纳入。原任务 3/4/5/8/9/10/11 扩展实际工件与活动，新增任务 15–18 承接可选领域源接入、来源适配、图/文档导出和交互账本；这些任务按依赖在 12–14 收口前完成，编号不表示可跳过依赖。
 
 ## 全局约束
 
@@ -20,7 +22,7 @@
 - 固定六仓现有版本；不把实例应用、路线图、自动批准/合并或通用执行器纳入已实现能力。
 - 独立编写内容；内部材料不进入分发候选，不复制未获许可的源码或模板，不向第三方发送私有资料。
 - 新字段不产生第二份事实；元数据、验收正文、VT 实际结果和派生视图各有单一归属。
-- 先核对 Git、原文件和范围。README 的现有排版未提交，任何任务均不得代为丢弃或混入提交。
+- 先核对 Git、原文件和范围。此前 README 排版已授权提交为 `1a6f594`，后续仍保留每次开始时发现的无关改动，不默认覆盖。
 - 没有完整必要输入时停止受影响任务，不把缺项当默认值；任务失败、未执行、空检查与通过分别记录。
 - 不自动初始化应用、安装依赖、安装 hook、变更 CI 门禁、回写外部来源、推送、PR、发布或改变权限。
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
@@ -49,6 +51,19 @@
 | 更新/分发说明 | 创建 `docs\template-updates.md`、`docs\distribution.md`；修改 `docs\development.md`、`docs\agent-support.md`、`.gitignore`、PR 表单 | 维护工具与应用环境分开，文件级分发与版本差异、兼容限制 |
 | 制作验收 | 创建 `verification\ddd-alignment.md`，日志沿现有表单 | ENH-* 对象/结果/未执行记录；制作验收、夹具和日志不进入候选 |
 
+### 完整来源盘点后的新增承接文件
+
+| 任务 | 具体文件 | 作用与边界 |
+|---|---|---|
+| 3 | `_templates\items\quality-attribute-scenario.md`、`context-map.md`、`published-interface.md`、`aggregate.md`、`entity.md`、`value-object.md`、`factory.md`、`domain-service.md`、`policy.md`、`domain-event.md`、`integration-partner.md` | 战略/战术/QAS 的可选表单；不把形式强加给轻量维护任务 |
+| 4 | `.github\prompts\distill-domain.prompt.md`、`glossary-sync.prompt.md`、`published-interface.prompt.md`、`query-artifacts.prompt.md`、`review-backlog.prompt.md`、`amend-intended-use.prompt.md` | 分别承接来源活动，复用现有方法，不复制正文、不自动批准 |
+| 5 | `_templates\items\sequence-diagram.md`、`architecture-specification.md`、`verification-test.feature`；`.github\prompts\sequence-diagram.prompt.md`、`build-architecture-spec.prompt.md`；`.github\instructions\architecture.instructions.md`、`coding.instructions.md`、`security.instructions.md` | SEQ/SWAS、Gherkin companion 及规则；沿用项目真实栈与必要装配例外，不预置应用 |
+| 9 | `_templates\items\intended-use.md`、`risk-control.md`；`docs\governance.md` | 来源确有的可选监管/风险资料引用，责任人与确认关卡，不替代外部风险分析或合规决定 |
+| 15 | `.github\utilities\setup_domain_source.py`、`tests\test_domain_source.py`；`docs\domain-sources.md` | Python 预检与明确批准的领域源接入，不默认子模块或提交 |
+| 16 | `.github\utilities\extract_source.py`、`score_candidates.py`、`transcribe_audio.py`、`requirements-media.txt`；`tests\test_source_extraction.py`、`test_candidate_scoring.py`；`docs\source-extraction.md` | 文档/转录/音频适配、候选与置信度；外部依赖和数据发送单独授权，不发展提案执行器 |
+| 17 | `.github\utilities\render_traceability.py`、`render_architecture.py`、`render_presentation.py`、`requirements-rendering.txt`；`tests\test_rendering.py`；`docs\document-exports.md` | 本地关系图/SEQ/SWAS 与可选 PDF/PPTX；显式输入/输出，无 demo fallback、硬编码内容或线上 CDN 默认依赖 |
+| 18 | `.github\utilities\log_interaction.py`、`summarize_usage.py`、`tests\test_interaction_log.py`；`_templates\reports\ai-interaction-log.csv` | 按真实输入记账/统计，不抓取完整聊天、秘密或估算未提供的计费 |
+
 若任务 1 发现此表没有承接的六仓现有功能，先按来源修改规格、验收与对应文件职责，再开有边界的任务。不得为宣称对齐而删除能力行。专用领域/风险文件只在确认其属于六仓现有能力后进入这套变更，不从业务实例推导。
 
 ## 2. 依赖与执行关卡
@@ -66,15 +81,19 @@
 | 9 | 1、6 | 人工审阅与工具资格记录 |
 | 10 | 6、7 | 可选 hook/CI 实际失败传播 |
 | 11 | 6、7 | 三方更新与多目标传播提案 |
-| 12 | 3–11 | 自包含增强候选与原骨架回归 |
+| 12 | 3–11、15–18 | 自包含增强候选与原骨架回归 |
 | 13 | 12、应用/平台验收授权 | 端到端行为与真实客户端结果 |
 | 14 | 13、全部矩阵行有结论 | 功能等价结论与发布前交接 |
+| 15 | 2、6 | 可选领域源接入与原文保护 |
+| 16 | 2、4、6 | 可定位的来源提取/评分与可选转录 |
+| 17 | 5、7、8 | 不造数据的关系图和文档导出 |
+| 18 | 2、9 | 最小交互/用量账本与统计 |
 
 任务 4/5 都触及原方法与模式，按 4→5 串行，不能并行覆盖这些入口。任务 8/9/10/11 的工具测试可在各自依赖满足后独立验证，但 shared methods/开发说明的修改仍按一个写入者串行合入。不因可独立验证而另起工作流或扩大代理数。
 
 ## 3. 执行命令与测试约定
 
-本计划只记录**未来执行方式**，本次不创建 `.venv` 或安装包。任务 2 先登记工具环境并创建 manifest，之后才在仓库自己的 `.venv` 恢复依赖。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
+以下为执行约定；任务 1 尚未创建 `.venv` 或安装包。任务 2 先登记工具环境并创建 manifest，之后才在仓库自己的 `.venv` 恢复依赖。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
 
 | 检查 | 明确 cwd | 可执行程序及参数 |
 |---|---|---|
@@ -93,13 +112,15 @@
 
 **文件：** `docs\research\ddd-capability-matrix.md`、本规格、本计划、P0 决策与蓝图。
 
-- [ ] 读取规格六个完整 commit 的递归树及所有约定、表单、工作流、工具、hook/pipeline；可以使用已有获准快照，不能用旧摘要代替未读文件。
-- [ ] 每个文件登记 repo、commit、路径、原始证据位置和分类；每个能力登记输入/输出、前提、失败、写入边界、现实现差距、目标任务和 ENH 标识。重复入口关联到同一能力，不丢文件。
-- [ ] 区分 `observed-current`、`proposed-upstream`、`unverified`、`instance-only`；特别核对反向提取、model/config、validator、commit-msg、fan-out 和工具治理是否现有，不从路线图推导。
-- [ ] 对齐用户两项已确认决定，列出功能替代而非格式兼容；发现缺规格的现有功能就补有来源的验收/任务。源不可读时只交付阻塞记录，不宣布矩阵完整。
+- [x] 读取规格六个完整 commit 的递归树及所有 active 约定、表单、工作流、工具、hook/pipeline；185 个 blob 全文、10 个 roadmap 范围阅读，所有 252 entries 有分类；没有执行上游脚本。
+- [x] 每个文件登记 repo/完整 commit/路径/object/读取覆盖，能力登记输入输出、前提、写入和目标任务/判据；散列、漏项/重复项及引用行界限已核对。
+- [x] 区分现有方法/脚本、上游提案、实例占位与未解析外部依赖；保留不同消费 gitlink 版本，不从目录或路线图推导运行成功。
+- [x] 用户确认完整纳入新发现能力；增补文件职责和 ENH-15–18，功能替代与 Python 优先不变。音频/PDF/平台实际执行仍由独立关卡控制。
 - [ ] 回源逐行审阅，更新 P0 中“七表单/六方法/无工具”的增强适用范围，但保留原版已交付与 P3 结果。仅提交矩阵和范围文档。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
+
+**本次结果：** 来源盘点完成，目标功能仍未实现。矩阵 44 组 current 能力存在交叉，不能把数量当交付进度；6 组上游提案、1 组未解析依赖单列。四处超出文件末尾的来源行号已按实际 manifest 修正，没有改动源码或掩盖未读内容。
 
 ### 任务 2：元数据、schema 与工具环境
 
@@ -144,6 +165,7 @@ class ArtifactIOTests(unittest.TestCase):
 
 - [ ] 先固定一份自有演练输入：两个上下文、一个共同 capability、一个 UC 正常/拒绝路径、一个规则约束的 INV、业务场景与两个未决 BL。沿用原借用额度素材，资格失效后处理和并发仍不决定。
 - [ ] 编写 SD/CTX/CAP/UC/INV/validation/BL 表单的实际字段：身份/来源/责任、规则关联、正常与替代路径、判定、阻塞影响和确认依据；不预填批准或执行结果。
+- [ ] 按来源 DOMAIN-05/17/18 增补可选 QAS（刺激源、刺激、环境、对象、响应、测量）、context map/Published Interface（方向、消费者、版本、破坏变化/通知）与战术工件（规则来源、生命周期、事件/策略/协作）。不把这些工件强制用于每个小维护任务，也不从模板产生新业务事实。
 - [ ] 让一位执行者按表单写入隔离副本，再反查概念关系、规则先于 INV、来源/未决、上下文所有权与逐项业务场景。使用两个 scope 的同号验证不会混淆。
 - [ ] 核对旧 `domain-model\README.md` 的单上下文轻流程和稳定链接仍可使用；正式工件只在实际需要时创建，空模板候选不包含演练 SD/UC/INV。
 - [ ] 登记文档检查对象/结果并提交表单与指引，不把填写成功当业务验证。
@@ -156,6 +178,7 @@ class ArtifactIOTests(unittest.TestCase):
 
 - [ ] 用无新指导的隔离使用案例记录基线：来源不完整、旧代码与专家陈述冲突、未知 invariant、只读输入和紧迫交付压力。真实基线正确就如实记，不捏造行为失败。
 - [ ] 增强 define 的访谈/迭代确认和领域评审输入输出；逆向方法产物为候选事实+源路径/行或版本+`observed | inferred | uncertain` 置信类别+问题，初始内容状态为 draft。
+- [ ] 逐项映射来源 elicitation/distillation/glossary-sync/published-interface/ADR/intended-use/query/backlog/review/impact/traceability 的输入、可写产物和停点。新增薄 prompts 对应方法小节，词汇冲突、接口破坏变化、来件 ADR 和 Intended Use 变更均先产有来源的影响/确认记录，不自动修改外部目录或发送通知。
 - [ ] 对同一案例应用完整方法，确认不会从实现默认值导出批准业务规则；冲突进入 BL 或来源差异，不改只读源，不自动提升状态。
 - [ ] 测一个新领域与一个既有资料修正；同一方法供人/App 读取，prompt 只带输入。一次测试仅说明所执行场景，不保证所有模型。
 - [ ] 记录原生加载与显式读取的不同证据，提交方法/入口与可访问的有限结果。
@@ -167,6 +190,9 @@ class ArtifactIOTests(unittest.TestCase):
 **文件：** 原 SR/US/ABB/VT/ADR 表单、specify/implement/verify、新 generate-code、BC 配置表单、derive/design/verification/generate prompts。
 
 - [ ] 明确领域依据 → SR → 可选 US → ABB/VT 的派生字段、边界与确认来源。业务 VT 不由软件结果汇总，ABB/VT 可在输入齐备后独立规划，维护任务不强制完整链。
+- [ ] 承接 BC-11/DOMAIN-15：SEQ 包含参与者、成功/错误路径、事件方向与异步边界，缺参与者记缺口；SWAS 汇总业务/逻辑/运行/部署及风险/验证视图但只引用真实来源，不编造 ABB、序列、发布或批准信息。源里的硬编码平台/语言改为明确适用条件。
+- [ ] `.feature` 拥有 Gherkin 场景正文，Markdown 保留元数据与同名文件/稳定目标引用；从 UC/INV/REQ/QAS 编写有独立判据的正常/负例，安全关键标签只来自具名来源。测试代码和 runner 不存在时不称已自动化。
+- [ ] 新架构/编码/安全规则区分机器可检和需人判断，保留真实 composition root 的装配例外；没有选定技术栈时不预建四层应用、认证中间件、容器或部署配置。
 - [ ] 初始生成契约给出明确来源/文件范围/已有内容预检/拟生成说明；非空冲突停写，不以“跳过”报告生成完整。既有代码修改走 implement-task 的任务/diff/验证路径，不复用初始化覆盖规则。
 - [ ] 代码和测试的 trace marker 可定位 owner-qualified ID；缺项目类型、真实路径、命令、cwd 或执行前提时 block，不使用工具层 Python 代选应用栈。
 - [ ] 在隔离已有内容副本演练目标非空、假审批、无开发输入和路径错配，验证源与 owner 文件原文保留。此步只验证流程/停止分支，不能报代码生成已通过。
@@ -260,6 +286,7 @@ class ImplementationReportTests(unittest.TestCase):
 ```
 
 - [ ] 实现 BC/领域 baseline、相关 SR/US/ABB/VT、代码/测试标识与实际结果入口的摘要；缺证据不伪造 pass，越界或基线错配报输入错误。
+- [ ] 以来源 BC-12/DOMAIN-19 核对 sequence、QAS、治理/风险、release 关联都能用工件/证据引用表达；不因我们使用较窄摘要而丢失原消费方需要的视图，也不把源正文复制进摘要或写回只读领域。
 - [ ] 在显式本地输出写摘要，领域源前后散列不变；model 仅引用摘要。跨仓提交/回写属于独立获授权操作，没有权限就停止该副作用。
 - [ ] 重跑、提交工具和表单，记录可访问性；不保存私有日志、凭据或完整聊天。
 
@@ -272,6 +299,7 @@ class ImplementationReportTests(unittest.TestCase):
 - [ ] 从任务 1 矩阵准确读取已有治理功能；为工具用途/版本/运行环境、评估输入/结果/限制、责任人、批准范围与来源，以及重要交互摘要设计字段。
 - [ ] 用一条没有具名决定的记录和一条有可定位外部决定的记录演练：前者不能写 confirmed，后者也不因文本存在就由机器认证身份。
 - [ ] 如果确有六仓专用领域/风险工件，按已确认矩阵在本任务增补有独立职责的可选表单和验收；来源或适用责任缺失时保持阻塞，不默认医疗/QMS。
+- [ ] 本轮来源已确认 Intended Use、风险控制引用及 QMS/SWAS 关系。加入约定的两个可选表单与 governance 说明，分别记录范围变更、责任人、外部风险源、确认基线和需升级的动作；不沿用原文件冲突的小节编号，不代做风险接受或法规认证。
 - [ ] 审阅记录与结果、日志分开；不要求完整聊天，不生成“合规认证”声明。提交字段/指引。
 
 **退出：** ENH-09；所有资格/审阅声明有范围与证据，不把 commit trailer 或 reviewer 模式当批准。
@@ -284,6 +312,7 @@ class ImplementationReportTests(unittest.TestCase):
 - [ ] 在本地 Git 夹具做真实提交试验：合法输入通过、非法暂存工件失败、含空格路径成功、缺解释器/依赖明确失败。hook 检查暂存快照，不用工作树未暂存修复掩盖即将提交的问题。
 - [ ] 实现 Python hook 入口与 installer；pre-commit 从 index 的已登记 blob 构造临时只读快照并检查，报告 index tree 与对象散列，不直接扫描被未暂存修改替换的文件。commit-msg 只能检查约定/提醒，不能认证 `reviewed-by` 身份。若 Git 宿主确需薄启动适配，适配中只调用同一 Python 逻辑；实际提交失败就修正后重测，不能以直接运行 Python 成功代替 hook 验证。
 - [ ] 制作仓库的 tooling-tests 运行 tools tests，下游 validate-artifacts 只调用候选内检查器与数据契约；不引用不会分发的 tests。都保存明确基线/报告，PR 输入采用精确 base commit。未知对象、回归测试零发现或全跳过失败，不做成功形状 fallback；空项目的文档扫描仍单独标 empty。
+- [ ] 原 ADO fan-out 的实际传播对象是 `.feature`，不是任意整仓覆盖。任务 11 的提案登记必须能表达来源场景→明确 BC 目标→文件范围→各自结果；托管平台实现可不同，但缺目标、无变化、冲突和失败不能一概报成功。
 - [ ] 用脚本/夹具验证 0/1/2 传播；真实托管运行和必需检查配置在任务 13 单独授权，未跑就 not-run。提交源码、workflow 与说明。
 
 **退出：** ENH-10 的工具与本地接入；服务端门禁是否实际启用由真实平台结果决定。
@@ -359,7 +388,55 @@ class TemplateUpdateTests(unittest.TestCase):
 - [ ] 明确原 P3 尚未完成的人工/客户端/发布项与本增强的证据关系；没有重新执行就不能更新为通过。
 - [ ] 用原日志表单保存真实 Git、已完成/阻塞、原始证据限制与下一步；只在内容/许可证/位置/版本/维护者和操作权限都获确认后另行发布，不在本任务默认推送。
 
-**退出：** ENH-01 至 ENH-14 的适用项有事实结论。未到达此条件时交付“已完成部分及差距”，不是“六仓功能全一致”。
+**退出：** ENH-01 至 ENH-18 的适用项有事实结论。未到达此条件时交付“已完成部分及差距”，不是“六仓功能全一致”。
+
+### 任务 15：可选领域源接入
+
+**依赖：** 2、6；完成后解锁任务 12。**文件：** `setup_domain_source.py`、`test_domain_source.py`、`docs\domain-sources.md`、onboarding 与 BC 配置说明。
+
+- [ ] 用临时本地 Git 源和目标夹具覆盖未配置、正确固定 commit、缺版本、已有非空 `domain-model`、错层路径、无网络授权及只读目标。
+- [ ] 定义 `inspect_domain_source(root, source_config)` 返回 `ready | conflict | unavailable` 与精确路径/版本/拟变更，不写文件；测试现有 owner 字节在冲突后仍相同，缺 commit 不改用远端 HEAD。
+- [ ] 实现 Python 接入：默认单仓/local-source，显式用户选择 submodule 时才提出 native Git 操作；网络读取、文件/配置写入、index 更新和 commit 分开，不因执行脚本顺便提交。
+- [ ] 在授权的本地夹具验证干净接入、二次执行、冲突与恢复；不得运行原 PowerShell 安装器或改原参考仓。测试远端来源时另确认权限。
+- [ ] 将真实前置/返回/退出码写入开发说明，提交脚本与 tests。
+
+**退出：** ENH-15；保留可选领域来源功能，避免强制六仓部署和隐含副作用。
+
+### 任务 16：文档/转录来源适配与候选评分
+
+**依赖：** 2、4、6；完成后解锁任务 12。**文件：** 来源表中三个 Python 工具、两 tests、media manifest、source-extraction 说明与逆向方法。
+
+- [ ] 固定自有文本/转录样本：具名说话者、时间戳、重复与冲突语句、未决表达、缺来源；非文本和音频样本仅在获准处理后使用，不复制内部访谈。
+- [ ] 定义 `extract_candidates(source, kind)` 输出候选列表，记录来源文件/片段/时间、候选类型、原始依据、`observed | inferred | uncertain`；`score_candidates(items)` 仅做透明规则评分与原因，不伪装校准概率。测试空输入返回空候选、有冲突不自动 confirmed、重复不丢出处。
+- [ ] 实现本地 Markdown/plain-text/明确转录格式适配；document/audio 的具体解析器、SDK/模型与固定版本经单独授权后加入 `requirements-media.txt`，未配置返回 `SOURCE_ADAPTER_UNAVAILABLE`，不静默把二进制当文本。
+- [ ] `transcribe_audio.py` 只在输入授权、明确服务/模型/数据范围和本地输出齐备后调用；无条件发送资料、从环境任取密钥、在线 fallback 均禁止。转录失败保留实际错误，不输出假空成功。
+- [ ] 候选先由逆向方法确认/列 BL，永不直接写成正式领域事实；测试可执行适配、缺依赖和禁止副作用，实际音频服务未跑就保持该项 not-run。
+
+**退出：** ENH-16；保留原有适配/评分用途，不扩展到源中仅在路线图的 Code/Schema 自动推理引擎。
+
+### 任务 17：关系图、SWAS/PDF 与演示导出
+
+**依赖：** 5、7、8；完成后解锁任务 12。**文件：** 三个 render Python 工具、rendering manifest、`test_rendering.py`、document-exports 说明及可选 workflow。
+
+- [ ] 先测试空模型、孤立节点、坏关系、SEQ 的成功/错误路径、缺 ABB/风险来源的 SWAS、已有非空输出文件。输入固定，输出无随机 demo 或硬编码业务内容。
+- [ ] `render_traceability(view)` 输出确定性 JSON/自包含 HTML 或 SVG，基于准确节点/关系/缺口，默认不请求 CDN；空数据明确 empty，不伪造演示节点。
+- [ ] `render_architecture(inputs, format)` 以 source ID/基线组装 SWAS 和引用的序列视图；`render_presentation(inputs, format)` 从明确标题/资料/来源生成可选演示，不复制原 `_gen_ppt.py` 的内容或个人输出位置。
+- [ ] PDF/PPTX 的实际 renderer/依赖/模板在获准后锁定到 `requirements-rendering.txt`，新 subprocess 使用参数列表/cwd，失败或缺依赖不称导出成功。不依赖浮动 latest 容器；文件写入均需显式目标，已有文件先报冲突。
+- [ ] 以解析器/文件签名与页面或 slide 计数检查真实输出，再做人/App 内容检查；没有对应 renderer 时仅完成可执行格式，其余 not-run。导出成功不等于 SWAS 已批准。
+
+**退出：** ENH-17；所有适用格式均有真实结果，纯文本/图输出不能冒充 PDF/PPTX 验收。
+
+### 任务 18：最小交互/用量账本
+
+**依赖：** 2、9；完成后解锁任务 12。**文件：** `log_interaction.py`、`summarize_usage.py`、`test_interaction_log.py`、CSV 表单和 ai-tooling 说明。
+
+- [ ] 定义固定字段：记录 ID、时间、工具/版本、任务/对象基线、操作摘要、人工决定来源、已提供的用量值/单位和证据引用；没有用量写 unknown，不推算用户账单。
+- [ ] 测试真实 CSV 追加、重复 ID、无效时间/负用量、特殊字符和源记录缺失。重放同一 ID 不复制账目，冲突值显式失败，不覆盖已有行。
+- [ ] 实现 Python 显式输入追加，不读取完整聊天、cookie、密钥或未授权日志；统计只按已知单位/计费依据分组，不把不同单位或未知值相加成“成本节省”。
+- [ ] 对写入前后非目标字节和重复运行做验证，工具资格/审阅仍回原始记录，不因账本存在认定流程受控。
+- [ ] 提交工具、tests 与字段说明；真实计费/平台数据没提供时对应集成结论保持未验证。
+
+**退出：** ENH-18；可重复记账不扩大到会话监控、自动预算控制或工作流运行状态库。
 
 ## 5. 规格覆盖自检
 
@@ -379,5 +456,9 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-12 | 8 | 无证据仍 pass、回写只读领域源 |
 | ENH-13 | 12、14 | 演练/研究/内部路径混入、候选依赖排除文件 |
 | ENH-14 | 12–14 | Agent 模拟人工、旧 App 结果充新结果、未执行写通过 |
+| ENH-15 | 15、13 | 错误来源版本、覆盖非空目录、安装时隐含 commit |
+| ENH-16 | 16、4、13 | 冲突候选被批准、缺适配输出假空成功、无授权上传资料 |
+| ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
+| ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-本轮只完成规格/计划编写与文档检查，未运行任何增强测试、恢复依赖或执行上述任务。执行批准时先做任务 1，不从中间写生成器开始。
+执行状态按本计划和制作日志更新：任务 1 只确认来源盘点，增强功能与 tests 尚未实施。后续从依赖已满足的任务推进；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用未来计划或源码存在代替通过。

@@ -1,12 +1,12 @@
 # 六仓功能对齐：增强规格
 
-**状态：规划规格，未实施。** 2026-10-14 用户确认按功能等价对齐六个 `ddd-*` 仓库，保留单仓与下游技术栈中立，不要求原文件格式直接兼容。2026-10-15 进一步确认脚本基本统一使用 Python；取消必须交付的 PowerShell 包装层，不自研 CLI 或执行器。下文是实现计划的设计依据，不表示新工具、工件或工作流已交付。
+**状态：已获执行授权，来源盘点完成，增强功能尚未交付。** 2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。本轮进一步核对完整六仓后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
 
-当前实现基线为 `453189135af07f8ba5ab65dd4dd58879b8741c17`。原 P1/P2 的 38 文件与 P3 结果继续有效，README 的既有未提交排版不属于本增强。实施前先核对实际 Git；[原 P3 未完成项](../plan/roadmap.md#actual-acceptance)不能被新计划抹掉。
+原 P1/P2/P3 实现基线为 `453189135af07f8ba5ab65dd4dd58879b8741c17`，规划修订为 `f9aab56`。本轮按用户要求将 README 排版单独提交为 `1a6f594` 后开始，起点工作树干净；不再把这两处排版视为未提交。原 P1/P2 的 38 文件与[原 P3 未完成项](../plan/roadmap.md#actual-acceptance)继续保留，不被新实施状态抹掉。
 
 ## 1. 范围与参考基线
 
-只对齐以下六仓的**现有功能**，不复制其源码、业务内容、品牌或六仓部署形态。以下 commit 来自[历史来源登记](../research/source-register.md)；本轮规划没有重新审计它们的全部文件。
+只对齐以下六仓的**现有功能**，不复制其源码、业务内容、品牌或六仓部署形态。本轮通过只读 Git 获取并核对这些完整 commit，逐文件分类与能力证据见[六仓能力矩阵](../research/ddd-capability-matrix.md)；原有[历史来源登记](../research/source-register.md)保留为历史观察。
 
 | 参考仓库 | 固定 commit | 关注职责 |
 |---|---|---|
@@ -18,6 +18,8 @@
 | ddd-subdomain-templates | `59f98e352a150f99290a3855092298dbe11e0615` | 领域结构、模型和验证场景表单 |
 
 任务 1 必须逐文件冻结能力矩阵，将原仓已有功能与本计划新增的自动化分别登记。统一使用 Python 是实现策略，不证明导出、自动追溯或三方更新各自都有原仓脚本对应。历史摘要、实例 repo 的使用情况和上游路线图不能冒充六仓已经实现的能力。读取受限时记录具体缺项，停止依赖它的等价判定；不猜测文件内容或追随新的 HEAD。
+
+本轮盘点覆盖 252 个 Git entries、195 个 blobs；185 个文件全文读取，10 个 roadmap 文件按范围阅读并标为提案，目录/gitlink 只登记元数据。新增承接的是来源中已存在的 QAS/战术工件、SEQ/Gherkin/SWAS、词汇与发布接口演化、可选领域源接入、输入适配、图/文档/演示导出和交互账本；不是把它们伪装成原计划已经覆盖。
 
 `DM-Subdomain`、`DeviceRegistry-BC` 只可提供已授权的研究线索，不是本增强的交付清单或应用底座。Tantu CLI、通用执行引擎、自动批准/合并、状态数据库、Web 平台和专用技术栈不纳入本规格。
 
@@ -42,12 +44,20 @@
 | ENH-12 | 实施摘要连接 BC、领域来源、SR/US/ABB/VT、真实代码/测试标识及结果基线；报告不自行认证通过或回写只读领域源 |
 | ENH-13 | 干净候选按文件清单分发。模板正文、可选工具及其依赖与测试分别说明；研究、计划、制作日志、内部来源、演练数据和 Git 历史不进入候选 |
 | ENH-14 | 固定文档正反例、真实 App 工作流、新会话接手和经授权的代码生成/传播演练均有范围明确的结果；未运行项保持未验证，原 P3 的人工与客户端缺项不被继承为通过 |
+| ENH-15 | 可选领域源接入支持明确仓库/版本/实际路径、只读/本地所有权和占位冲突检查；以 Python 提供预检与明确执行，不默认创建子模块、提交或推送 |
+| ENH-16 | 文档、转录及经批准的音频输入能形成带来源定位/置信度的候选工件；支持来源关联和不确定性，不自动批准。缺可选解析/转录服务时明确不可用，不发送资料或伪造转录 |
+| ENH-17 | 来源可追溯的关系图、SEQ、SWAS、PDF/演示输出可从指定输入生成；无数据显示 empty，不注入 demo；本地输出明确、无个人路径，外部渲染/资源须授权 |
+| ENH-18 | AI 交互与用量摘要可按明确范围/工具/时间记录并形成可核对统计；无真实用量不编造计费/资格结果，不保存完整敏感对话，不用账本替代审批或执行证据 |
 
 ## 3. 设计约定
 
 ### 3.1 唯一事实源与结构
 
 保留现有顶层资料目录；轻量项目可继续用 `domain-model\README.md`。确需多个领域时，正式资料按 `domain-model\subdomains\<slug>\contexts\<slug>\` 组织；不预填真实 SD/CTX，不要求业务边界等于服务或代码层。
+
+完整功能路径还提供可选 QAS、context map、published interface、aggregate、entity、value object、factory、domain service、policy、domain event、integration partner、Intended Use/风险引用和架构规格/SEQ 表单。按当前任务选用，不强制每个维护事项完成全套战术或监管工件。专用字段只记录责任人给定的来源和决定，不声明合规。
+
+领域/软件场景的 `.feature` 保留可执行 Gherkin 正文，Markdown 保存目标、元数据、判据与文件引用，不复制两份场景正文；没有 runner/应用时保持计划 not-run。sequence、QAS、风险与 release 等桥接字段用工件/证据引用表示，不搬运业务正文进 `model.yaml`。
 
 工件 Markdown 正文拥有业务含义、规则和验收。正式工件的 YAML frontmatter 拥有机器身份、作用域、声明状态及上游/目标关系；原表单中重复表达这些元数据的状态/关系栏改为引用或删除。VT 的正文按 `criterionAnchor` 保存逐项判据，frontmatter 的目标记录只定位对应来源与判据。反向索引从这些关系派生，不再手写另一份映射。
 
@@ -65,7 +75,7 @@
 
 ### 3.3 方法与工具边界
 
-增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。新增 prompts 仍是可选输入入口，不决定审批或工具权限。
+增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。词汇对齐/发布接口、知识锤炼、ADR 来件、Intended Use 变更、只读 query、backlog/追溯和 SWAS/SEQ 各有明确输入/产出入口，按职责复用这九个方法，不为每个 prompt 新建角色或流程引擎。
 
 工具位于 `.github\utilities\`，仅执行明确定义的本地读/检查/导出/差异提案；没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 创建依赖清单并实测后锁定传递依赖；本次规划不安装任何包。
 
@@ -74,6 +84,8 @@
 Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境和 Python 调用。只有宿主确实要求时才添加最薄的启动适配，不复制校验/更新逻辑；在 Git for Windows 的实际提交试验中验证解释器、含空格路径、暂存内容与失败传播，再声明支持。Markdown、prompts 和 skills 仍承载方法与需要判断的活动，不因统一脚本语言而改写为 Python 执行流程。
 
 维护者的工具回归 workflow 与下游的资料校验 workflow 分开。前者运行不分发的 tools tests；后者只调用候选内的工具/contracts 和项目工件，不能引用被排除的制作 tests、研究或演练文件。模板传播 workflow 也属于维护者侧，不默认复制给每个业务项目。
+
+来源适配、音频转录、PDF/PPTX 等依赖单列为可选，不加入所有用户必装的核心环境。先做本地文本/转录、确定性图与候选报告；外部服务、SDK、渲染器和数据发送在对应任务中确认后才配置。原仓硬编码的管理 PPT 内容不复制，只提供参数化的同类输出能力。缺依赖返回明确输入/环境错误，不改用未批准的在线服务。
 
 ### 3.4 检查与副作用
 
@@ -102,6 +114,8 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 
 `kind` 的本版枚举为 `domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`。规则可以保留为领域文档中的稳定 RULE 锚点，不强建另一份规则正文。`upstream` 是完整来源引用的字符串列表；目标是上述结构的记录列表。`confirmed` 内容还需 `confirmation` 的 `by`、`reference`、`baseline`，校验器只核对声明结构，不认证该决定的身份/权限。
 
+按本轮完整来源补入 `quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`。这些 kind 使用同一身份/来源/关系契约；具体资料缺失不靠编造来满足字段。测试按 kind 选择正文结构，契约不得因选择更多种类而自动生成实例。
+
 ## 4. 授权关卡与完成判定
 
 1. **能力关卡：** 六仓逐文件矩阵核对后，规格遗漏项必须进入有来源的变更；不能把未知写成不需要。
@@ -110,6 +124,6 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 4. **应用验收关卡：** 代码生成的实际工程、技术栈、位置与执行方式在任务 13 执行前由用户确认。工具采用 Python 不代表下游应用也选 Python；本轮没有授权创建演练应用。
 5. **平台关卡：** 自动传播、hooks 安装、远端 PR、CI 必需检查及发布按具体操作授权；无授权时对应结果为未执行，不因此降低 ENH-10/11/14 的标准。
 
-“六仓功能等价”只有在 ENH-01 的每个现有能力行有完成证据或责任人接受的明确替代方式，且 ENH-02 至 ENH-14 的适用项均通过时才可声明。原格式兼容、任意语言应用验证、法规符合性及全部 Agent 支持不在该声明内。
+“六仓功能等价”只有在 ENH-01 的每个现有能力行有完成证据或责任人接受的明确替代方式，且 ENH-02 至 ENH-18 的适用项均通过时才可声明。原格式兼容、任意语言应用验证、法规符合性及全部 Agent 支持不在该声明内。外部 ADR/风险实例和不同消费 gitlink 版本的运行组合只登记为依赖，不以六仓源码盘点宣称已验证它们。
 
 实施顺序、文件职责和逐任务检查见[增强计划](../plan/2026-10-14-ddd-functional-alignment.md)。
