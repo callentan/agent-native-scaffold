@@ -6,11 +6,13 @@
 
 **架构：** 资料正文继续拥有业务事实，少量结构化元数据连接上下文、工件与验证；模型与实施摘要是可重建视图。共享方法负责需要判断的活动，项目内脚本负责确定性检查、导出与更新提案，Git/CI/现有 Agent 负责实际执行和授权。
 
-**技术栈：** 维护工具 Python 3.11+、`unittest`、PyYAML 6.0.2、jsonschema 4.23.0；Windows 入口 PowerShell 7。下游应用技术栈仍未选择。
+**技术栈：** 维护工具 Python 3.11+、`unittest`、PyYAML 6.0.2、jsonschema 4.23.0；本地、hooks 与 CI 复用 Python 逻辑，不要求 PowerShell 包装脚本。下游应用技术栈仍未选择。
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-14、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
 **当前状态：** 规划完成不等于实现批准。以当前实现 `4531891` 为起点，现有 38 文件和 P3 证据不改写为增强交付；来源盘点是第一任务，余下阶段受明确关卡约束。
+
+**2026-10-15 修订：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。此修订不开始实现，也不将新增自动化一概归为原仓已有功能。
 
 ## 全局约束
 
@@ -23,6 +25,7 @@
 - 不自动初始化应用、安装依赖、安装 hook、变更 CI 门禁、回写外部来源、推送、PR、发布或改变权限。
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
+- 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
 - 这里提到的工具、schema、测试与新工件均是拟创建文件，不是当前可执行功能。
 
 ## 1. 文件结构与职责
@@ -39,7 +42,7 @@
 | 原方法/模式 | 修改 `.github\skills` 中六个既有 SKILL、三个 `.github\agents`、相关 instructions 与五个原 prompts | 沿用单份方法并接入新资料和工具 |
 | 新活动方法 | 创建 `.github\skills\reverse-engineer-domain\SKILL.md`、`generate-code\SKILL.md`、`update-template\SKILL.md` | 反向提取、初始代码生成和安全模板更新 |
 | 可选活动入口 | 创建 `.github\prompts\domain-interview.prompt.md`、`reverse-engineering.prompt.md`、`derive-requirements.prompt.md`、`design-architecture.prompt.md`、`plan-verification.prompt.md`、`generate-code.prompt.md`、`assess-impact.prompt.md`、`review-artifacts.prompt.md`、`update-template.prompt.md` | 本次输入与方法链接，不复制流程或授予权限 |
-| 本地工具 | 创建 `.github\utilities\artifact_io.py`、`check_artifacts.py`、`check_traceability.py`、`export_model.py`、`collect_implementation_report.py`、`plan_template_update.py`、`Invoke-ArtifactCheck.ps1`、`README.md`、`requirements.txt`、`requirements.lock` | 范围明确的独立脚本；不建立统一 CLI、执行引擎或后台服务 |
+| 本地工具 | 创建 `.github\utilities\artifact_io.py`、`check_artifacts.py`、`check_traceability.py`、`export_model.py`、`collect_implementation_report.py`、`plan_template_update.py`、`README.md`、`requirements.txt`、`requirements.lock` | 范围明确的独立 Python 脚本，直接调用，不另建必需的 shell 包装、统一 CLI、执行引擎或后台服务 |
 | 工具测试 | 创建 `.github\utilities\tests\__init__.py`、`helpers.py`、`test_artifact_io.py`、`test_artifact_check.py`、`test_traceability.py`、`test_model_export.py`、`test_implementation_report.py`、`test_template_update.py`、`test_hooks.py`、`test_distribution.py`；夹具在同目录 `fixtures\` | 真实文件/Git 正反例；不预建下游的 `src\tests` |
 | 审阅/工具治理 | 创建 `docs\ai-tooling.md`、`_templates\items\review-record.md`、`tool-qualification.md` | 工具版本、范围、人工决定与交互摘要，不自证审批或合规 |
 | 可选工程接入 | 创建 `.github\hooks\pre-commit`、`commit-msg`、`README.md`、`.github\utilities\install_hooks.py`、`.github\workflows\validate-artifacts.yml`、`tooling-tests.yml`、`propose-template-updates.yml` | Python Git 入口、明确安装、同源校验和提案传播；tooling-tests/传播 workflow 为维护者侧，平台副作用仍须授权 |
@@ -71,7 +74,7 @@
 
 ## 3. 执行命令与测试约定
 
-本计划只记录**未来执行方式**，本次不创建 `.venv` 或安装包。任务 2 先登记工具环境并创建 manifest，之后才在仓库自己的 `.venv` 恢复依赖。PowerShell 多步操作存成 `.ps1`，使用 `-File`、显式 `Repository` 和参数数组，不把个人绝对路径写进模板。
+本计划只记录**未来执行方式**，本次不创建 `.venv` 或安装包。任务 2 先登记工具环境并创建 manifest，之后才在仓库自己的 `.venv` 恢复依赖。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
 
 | 检查 | 明确 cwd | 可执行程序及参数 |
 |---|---|---|
@@ -79,9 +82,8 @@
 | 全部工具测试 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v` |
 | 工件检查 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -u .github\utilities\check_artifacts.py --root <本次已解析根目录> --report <获准结果目录>\artifacts.json` |
 | 显式变更基线 | 当前仓库根 | 在上行增加 `--base <已核对的完整 commit>`；不存在则退出 2，不换分支或回退暂存区 |
-| Windows 入口 | 当前仓库根 | `pwsh.exe -NoLogo -NoProfile -NonInteractive -File .github\utilities\Invoke-ArtifactCheck.ps1 -Repository <本次已解析根目录> -ReportPath <获准结果文件>` |
 
-尖括号表示执行时从当前工作区解析的路径/Git 对象参数，不是虚构的可执行值。检查器的路径参数用 `Path` / `Join-Path`，每个参数单独传递；命令与 cwd 的真实记录在执行时保存。
+表中使用 Windows 路径，直接执行项目 Python，不需要 `.ps1`。其他宿主按实际环境登记解释器位置，不把 Windows 的 `.venv\Scripts\python.exe` 照搬到 Linux。尖括号表示执行时从当前工作区解析的路径/Git 对象参数，不是虚构的可执行值。检查器使用 `pathlib.Path` 处理路径，每个参数单独传递；命令与 cwd 的真实记录在执行时保存。
 
 所有 Python 工具任务先编写行为测试、运行看到预期失败、实现最小代码、重跑，再提交。测试实读夹具/真实 Git 对象，不只 grep 代码或模拟返回值。文档方法用真实使用正反例验证，不把“出现某个词”当流程正确。
 
@@ -174,7 +176,7 @@ class ArtifactIOTests(unittest.TestCase):
 
 ### 任务 6：正式工件检查器
 
-**文件：** `check_artifacts.py`、`test_artifact_check.py`、PowerShell 入口、utilities README、相关 docs/test instructions。
+**文件：** `check_artifacts.py`、`test_artifact_check.py`、utilities README、相关 docs/test instructions。
 
 - [ ] 编写真实文件失败测试：重复 ID、缺标题/元数据、正式工件残留占位、坏文件/锚点、非法基线、空目录。例：
 
@@ -197,7 +199,7 @@ class ArtifactCheckTests(unittest.TestCase):
 
 - [ ] 定向运行 `test_artifact_check.py` 看到失败；以用户提供的完整基线扫描指定 Git 对象，不读取 main/master 猜测，不把失败当无变化。
 - [ ] 实现全量/精确变更输入、模板排除、位置明确的 findings、基线及计数。空骨架输出 `status=empty`，不宣称需求通过；正式来源解析错误返回明确 input-error。
-- [ ] PowerShell wrapper 只调用确认的项目解释器和该脚本，参数数组、显式 cwd；用含空格仓库目录及故意失败夹具核对 Python 的 0/1/2 退出码原样传播。
+- [ ] 在 `test_artifact_check.py` 通过 `subprocess.run` 直接调用当前测试解释器和该脚本，使用参数列表、显式 cwd 与 `shell=False`；用含空格目录及正常、违反项、输入错误夹具核对实际输出和 0/1/2 退出码，不添加 shell 包装或把失败转成成功。
 - [ ] 重跑，核对检查前后所有输入散列完全相同；提交实现、正反例及执行登记。
 
 **退出：** ENH-07；工具实际可重复，未发生静默 fallback、零发现冒充验收或写入源工件。
@@ -280,7 +282,7 @@ class ImplementationReportTests(unittest.TestCase):
 
 - [ ] 测试 installer 默认不更改 Git 配置、既有 hook 冲突不覆盖；显式安装只处理获准 hook，提供逐路径恢复说明，不改组织门禁。
 - [ ] 在本地 Git 夹具做真实提交试验：合法输入通过、非法暂存工件失败、含空格路径成功、缺解释器/依赖明确失败。hook 检查暂存快照，不用工作树未暂存修复掩盖即将提交的问题。
-- [ ] 实现 Python 入口与 installer；pre-commit 从 index 的已登记 blob 构造临时只读快照并检查，报告 index tree 与对象散列，不直接扫描被未暂存修改替换的文件。commit-msg 只能检查约定/提醒，不能认证 `reviewed-by` 身份。Windows 入口若在真实 Git 不工作，修正后重测，不能以直接运行 Python 成功代替 hook 验证。
+- [ ] 实现 Python hook 入口与 installer；pre-commit 从 index 的已登记 blob 构造临时只读快照并检查，报告 index tree 与对象散列，不直接扫描被未暂存修改替换的文件。commit-msg 只能检查约定/提醒，不能认证 `reviewed-by` 身份。若 Git 宿主确需薄启动适配，适配中只调用同一 Python 逻辑；实际提交失败就修正后重测，不能以直接运行 Python 成功代替 hook 验证。
 - [ ] 制作仓库的 tooling-tests 运行 tools tests，下游 validate-artifacts 只调用候选内检查器与数据契约；不引用不会分发的 tests。都保存明确基线/报告，PR 输入采用精确 base commit。未知对象、回归测试零发现或全跳过失败，不做成功形状 fallback；空项目的文档扫描仍单独标 empty。
 - [ ] 用脚本/夹具验证 0/1/2 传播；真实托管运行和必需检查配置在任务 13 单独授权，未跑就 not-run。提交源码、workflow 与说明。
 
@@ -372,7 +374,7 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-07 | 6、10 | 无基线 fallback、空扫描/零发现冒充验收 |
 | ENH-08 | 7、13 | 精确漏项/悬空、同号异主、旧 pass 自动沿用 |
 | ENH-09 | 9 | 文字 Approved、trailer/角色被当认证 |
-| ENH-10 | 10、13 | 只检查工作树而非暂存、wrapper 不传播失败、CI 未跑 |
+| ENH-10 | 10、13 | 只检查工作树而非暂存、脚本/hook/CI 不传播失败、CI 未跑 |
 | ENH-11 | 11、13 | 三方冲突被跳过后仍成功、无授权远端传播 |
 | ENH-12 | 8 | 无证据仍 pass、回写只读领域源 |
 | ENH-13 | 12、14 | 演练/研究/内部路径混入、候选依赖排除文件 |
