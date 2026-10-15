@@ -380,3 +380,14 @@ API 不写入；CLI 默认只输出 JSON，只有显式新 `.json` 路径才写�
 - 本机 Windows / Python 3.13.15 实测；Python 3.11 和其他宿主仍未执行，不推导跨宿主兼容。保存的 9 个测试方法未新增或削弱断言，源字节与暂停前 RED 一致。
 - 两项修正等待调用方限定复审，未自行关闭 Important 或独立关卡。接手先检查新 commit、实际 diff、最新报告和证据可访问性；不要盲目重放旧 audit 的范围假设。
 - Task7 来源入口仍待用户选择，本轮没有选定 `model-sources.yaml` 或替代入口；Task7–18、应用、hooks/CI、平台和发布保持未执行。没有子代理、工作流、新 worktree、安装、权限变更、push 或 PR；完成限定本地提交与追加报告后停止。
+
+<a id="task6-review"></a>
+## Task6 第 1 轮限定复审与来源入口决定
+
+父会话核对了 `b8d4f826db142de052038288f938d90b1581020e` 至 `e0b9fae75a4ea07176e36e4b5b776887ab2a893c` 的完整七文件限定 diff：两个生产函数的选择/状态边界、保留的九个失败用例及相关说明。两项 Important 均已处理，未发现本修正引入的重大问题；这是协调者直接完成的限定复审，不是实现者自审，也未另起重复审阅任务。实际 commit/parent/trailer 和干净工作树/暂存区已重查。
+
+本机会话 `files\ddd-alignment-execution\task6-fix1-review-result.md` 保存逐项依据；`task6-fix1-parent-tests.json` 保存父会话在 `e0b9fae` 独立执行的准确命令、cwd 和原始输出：`test_artifact*.py` 发现并执行 143 方法、0 跳过、退出 0，43.040 秒。两模块的新结果不替换原 204 项全套的历史基线，不声明 Python 3.11、其他宿主或业务行为已经验证。完整报告仍只有本机可访问。
+
+Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选择了“使用可选 model-sources.yaml 来源清单（推荐）”；上一节执行者未收到该后续决定，其“仍待选择”是起始上下文，不作为当前未决状态。Task7 将依此登记来源路径和固定基线，不复制正文、结果或批准状态；正式来源清单、模型导出和覆盖工具尚未创建，不获得外部读写权限。
+
+本次同步规格、计划、roadmap 的当前状态，保留全部旧观察。计划中 Task8 的旧示意也与已实现的报告 schema 对齐为 `entries[].execution` / `evidenceRefs`，没有新增全局结果字段或声称 Task8 已运行。下一步按[Task7](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7)继续；应用、平台及发布关卡不变。
