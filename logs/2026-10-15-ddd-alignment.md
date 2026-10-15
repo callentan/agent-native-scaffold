@@ -555,3 +555,12 @@ Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows
 本轮只改一处生产机制、同一模型测试文件、直接契约说明和最小状态/日志。schema、32 kinds、九视图和 8/21/3 不变；原 I1/I2/I3 addressed 判定保留，Task8 仍**等待限定复审**。实际新提交与提交后状态沿完整报告最终追加查看。
 
 没有子代理/reviewer、Task9、应用/原生执行、安装、持久权限/hook 变更、amend、push、PR 或远端操作。实测仅 Windows/Python 3.13.15；来源可读/可导出不认证业务结果、人工批准或跨宿主资格。局部提交和交接后停止，由调用方继续限定复审。
+
+<a id="task8-review"></a>
+## Task8 复审关闭
+
+2026-10-16，父会话直接核对 `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` 至 `9a3055acf51bcebab9f2a833b91c577a0c1cae49` 的完整七文件局部 diff、两个真实往返控制及报告追加。T8-F1-N1 已处理：缺 baseline 的保护仍由真实 domainSources 上下文驱动，普通业务 root/path 不再误声明路径；原域位置、alias、目录和引用保护保持。未发现本修正引入的重大问题，原 T8-I1/I2/I3 维持上一轮 addressed 判定。
+
+本机会话 `files\ddd-alignment-execution\task8-fix2-review-result.md` 保存本轮复核依据；`task8-fix2-parent-tests.json` 保存父会话在 `9a3055a` 的实际解释器、cwd 和模型模块原始输出：94 方法、0 跳过、退出 0，157.340 秒。前轮三项判定及新问题在 `task8-fix1-review-result.md`，对应独立 collector/model 153 方法结果在 `task8-fix1-parent-tests.json`。这些记录及旧 395 全套不合并、不替换彼此的对象与范围。
+
+实际 head/parent/trailer、七个提交路径和干净工作树/暂存区已重查。Task8 的有限实现与范围复核关卡关闭，没有遗留的本任务审阅发现；不认证真实业务执行、人工批准或其他宿主。下一步按[任务 9](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9)处理可选治理/审阅/工具资格资料；应用、媒体、平台和发布的独立边界仍保留。
