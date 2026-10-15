@@ -112,3 +112,45 @@ git --no-pager diff --check
 在修正提交 `322cd9082c0f99a4583cf54b04590075c5e1b42f` 上回读了单行 parser 修正、新增双 API 的真实 invalid-root 回归，以及分发文档/计划的范围修订；三项反馈均已处理，没有扩展 schema 或引入新运行功能。
 
 父会话使用现有项目 `.venv`、显式仓库 cwd 独立执行全套工具测试：`Ran 144 tests in 5.054s; OK`，退出 0、跳过 0。原始命令/输出与 commit 在本机 `ddd-alignment-execution\task2-final-tests.json`，不是复述实现者结果。当前 Task 2 的范围审阅关闭，下一步为 Task 3；这不关闭后续模型导出、追溯、App/人工或业务执行验收。
+
+<a id="task3"></a>
+## Task3：可选领域表单与实际文档使用
+
+### 会话、范围与对象
+
+| 项目 | 本次记录 |
+|---|---|
+| 日期与执行者 | 2026-10-15；Task3 implementer 单会话执行、自审，无嵌套 Agent |
+| 任务依据 | 用户批准的 [Task3](../docs/plan/2026-10-14-ddd-functional-alignment.md#task3)，父会话固定的 Task3 brief 与 case input；不是新业务需求 |
+| 分支与起始基线 | `callentan-repository-skeleton`；`6f8a0f9667f7b4d81840a7d4d6a994ceff45934b`，已核对完整 SHA 与 Task2 修正的祖先关系 |
+| 原有改动 | 开始时暂存区与工作树均干净，没有待代为提交的旧改动 |
+| 本次对象 | 下列 24 个分发文件及 Task3 计划状态、本日志；同次局部提交，完整提交号回 Git 与会话报告读取 |
+| 非目标 | 不改 parser/schema、共享 skills/agents/prompts、应用/测试布局；不安装依赖、不执行参考源、hooks/CI、媒体/平台操作或远端操作，不启动 Task4+ |
+
+### 实际变化
+
+- 新增 18 个独立编写的领域/QAS/战术表单，完整列表与正式落点见[领域工件导航](../domain-model/README.md#optional-forms)；所有空表保留 draft 与待项目确认的身份。
+- 接入[领域指引](../domain-model/README.md#artifact-metadata)、[REQ/QAS 指引](../stakeholder-requirements/README.md#domain-inputs)、[场景/VT 指引](../verification/README.md#domain-scenarios)及[根表单导航](../README.md#forms)。旧轻量正文、稳定锚点和项目事实没有替换。
+- [REQ 表单](../_templates/items/stakeholder-requirement.md)与 [VT 表单](../_templates/items/verification-test.md)接入现有 frontmatter，删除重复的内容状态栏；VT 的目标关系归元数据，正文按 criterionAnchor 保存独立判据，历史执行与当前适用性分开。
+- 没有修改其他字段指引。制作资料、演练实例、一次性检查脚本与报告没有进入分发文件或成为它们的依赖。
+
+### 结果入口与可访问性
+
+原始结果在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\` 下；以下是该已授权入口内的定位，不是仓库自带命令或跨机器报告。接手时须取得该目录或重新执行有界检查。
+
+| 检查层次 | 实际记录定位 | 对象与限制 |
+|---|---|---|
+| parser/schema 与实际表单复制使用 | `task3-artifacts\run-03\results.json`、`template-provenance.json`，实际实例在同级 `used-copy\` | 27 个草稿工件覆盖全部 18 新 kind；10 个 owner-qualified 验收与 10 条目标引用；同 scope 重号拒绝。不是通用覆盖图或业务执行 |
+| 本地文档链接与保留性 | 同一 `results.json`、`lightweight-before.txt` 和 `lightweight-copy\domain-model\README.md` | 24 个变更分发文件及 57 个复制 Markdown 依赖、正例/重号副本均检查本地链接；轻量正文和所有者标记逐字节保留 |
+| 规则变化的文档操作 | `task3-artifacts\run-03\allowance-change-plan.md` | 针对 UC/INV/REQ/SR/TS/VT 的影响计划，保留原文件与未知项；未实际迁移或执行业务 |
+| 本次真实维护工具回归 | `task3-report.md` 的命令与终端摘录 | 当前工作树上新运行一次现有全套测试：144 项、0 跳过、退出 0；未复用 Task2 历史通过 |
+| 自审与提交交接 | `task3-report.md` | 精确变更文件、复制路径、操作/结果、提交号与语义限制；同一执行者自审，不代表父会话或人工批准 |
+
+检查过程中保留了两个检查脚本问题的记录：`run-01` 用归一化换行与 parser 保留的 CRLF 比较而误报，按原始字节比较后 `run-02` 完成；随后扩查重号反例，发现移入 `negative\` 后的相对链接未重定位，补正该临时副本构造后 `run-03` 全部有限检查完成。两项都只修正会话检查脚本，未改 parser、schema 或分发表单，旧产物保留。
+
+### 缺口、影响与停点
+
+- 自用演练明确保留资格失效、并发、QAS 度量、战术边界/身份/事件、接口版本及失败政策缺口。全部业务/软件行为记录仍为 `not-run`，没有应用、runner 或批准可作为执行依据。
+- 全部 18 类都有真实填表后的 parser/schema 正例；语义复核限于实际操作的固定文档案例。其他战术模式的设计正确性、真实应用行为、性能与跨平台支持未验证。
+- 当前 parser 不检查完整跨文件覆盖或批准真实性；本次只对明确选择的夹具关系做有界核对，没有交付后续 checker/exporter。
+- Task3 实现与自审结束，等待父会话/用户的独立范围复核；交接者需重新核对本次提交、工作树和本机证据可访问性。本执行停在 Task3，不把 Task4+ 或原 P3 未完成项改成完成，不推送或创建 PR。

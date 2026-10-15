@@ -1,17 +1,27 @@
+---
+schemaVersion: 1
+id: REQ-NNN
+kind: stakeholder-requirement
+scope: PROJECT/CTX-NNN
+contentState: draft
+upstream: []
+targets: []
+---
 # REQ-NNN：待填写
 
-> 空白表单，不是已确认需求。先读[业务需求指引](../../stakeholder-requirements/README.md#req-writing)，按需复制到 `stakeholder-requirements\REQ-NNN-<slug>.md`。复制后删除本提示，替换占位编号、标题与锚点，并核对相对链接。
+> 空白表单，不是已确认需求。先读[业务需求指引](../../stakeholder-requirements/README.md#req-writing)及[领域输入约定](../../stakeholder-requirements/README.md#domain-inputs)，按需复制到 `stakeholder-requirements\REQ-NNN-<slug>.md`。确认并替换 `PROJECT/CTX-NNN`、占位编号、标题与锚点，保留已有内容、核对实际落点的相对链接后删除本提示。
 
 <a id="basis"></a>
-## 来源与状态
+## 来源依据
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | 草稿，待确认 |
 | 提出者、来源及可定位依据 | 待填写 |
-| 记录日期、确认人及确认依据 | 待填写；没有确认不得写已批准 |
+| 记录日期与来源基线 | 待填写；没有确认不得写已批准 |
 | 所属产品目标、用户或干系人 | 待填写：引用产品说明，不另写一份 PRD |
-| 领域概念、上下文与规则 | 待填写：实际 ID 及稳定相对链接；不适用需说明 |
+| 领域输入的业务含义与来源解释 | 待填写：适用的概念、上下文、CAP/UC、RULE/INV 或 QAS；原文链接只作导航，不适用需说明 |
+
+身份、scope、内容状态及可解析上游只在 frontmatter 维护，字段依[元数据约定](../../domain-model/README.md#artifact-metadata)。正文不再维护另一份关系/状态表；未元数据化的旧领域来源仍用普通相对链接。确认声明需真实来源与被确认基线，不能由表单预填。
 
 <a id="business-need"></a>
 ## 业务需要与范围

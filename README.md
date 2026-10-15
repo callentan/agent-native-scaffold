@@ -39,8 +39,8 @@
 | 活动 | 人与 Agent 共用的方法 | 输入与字段指引 | 表单 | 正式落点 |
 | --- | --- | --- | --- | --- |
 | 接入项目资料 | [project-onboarding](.github/skills/project-onboarding/SKILL.md) | 已确认项目输入、已有文件与 Git；[项目登记](#project) | 本页登记、[开发登记](docs/development.md#project-registration)、[日志](_templates/items/development-log.md) | 本页、[产品说明](stakeholder-requirements/README.md#product)、[开发说明](docs/development.md)、[日志](logs/README.md) |
-| 整理模型与业务需求 | [define-requirements](.github/skills/define-requirements/SKILL.md) | 目标、用户、范围与来源；[领域指引](domain-model/README.md)、[REQ 指引](stakeholder-requirements/README.md) | 领域入口填写栏、[REQ](_templates/items/stakeholder-requirement.md) | [领域模型](domain-model/README.md)、[业务需求](stakeholder-requirements/README.md) |
-| 细化行为与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际模型/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[VT](_templates/items/verification-test.md) | [软件要求](software-requirements/README.md)、[验证计划与索引](verification/README.md) |
+| 整理模型与业务需求 | [define-requirements](.github/skills/define-requirements/SKILL.md) | 目标、用户、范围与来源；[领域指引](domain-model/README.md)、[REQ 指引](stakeholder-requirements/README.md) | 领域入口填写栏、[可选领域表单](domain-model/README.md#optional-forms)、[REQ](_templates/items/stakeholder-requirement.md)、[QAS](_templates/items/quality-attribute-scenario.md) | [领域模型](domain-model/README.md)、[业务需求](stakeholder-requirements/README.md) |
+| 细化行为与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际模型/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[业务场景](_templates/items/validation-scenario.md)、[VT](_templates/items/verification-test.md) | [软件要求](software-requirements/README.md)、[验证计划与索引](verification/README.md) |
 | 实施明确任务 | [implement-task](.github/skills/implement-task/SKILL.md) | 任务、验收、实际目录与授权；编码另需[开发输入](docs/development.md#creation-inputs) | 现有任务；按需 [US](_templates/items/user-story.md) | 指定文档或[项目实际位置](src/README.md)，不强改原生布局 |
 | 核对覆盖与证据 | [verify-change](.github/skills/verify-change/SKILL.md) | 全部交付验收、旧新基线、真实记录；[验证指引](verification/README.md) | [VT](_templates/items/verification-test.md) | [验证目录](verification/README.md)与实际报告入口；测试代码在项目原生位置 |
 | 交接或恢复任务 | [record-handoff](.github/skills/record-handoff/SKILL.md) | 任务、Git、变化、结果入口与缺口；[日志指引](logs/README.md) | [开发日志](_templates/items/development-log.md) | [日志目录](logs/README.md)；结果仍回原记录读取 |
@@ -55,3 +55,5 @@
 表单在 `_templates\items\`，正式工件放入上表对应目录。只在需要时分配唯一编号；复制后删除表单提示，替换文件名、标题、ID 与锚点中的占位符，并按落点检查相对链接。
 
 正文中的文件路径示例使用反斜杠；Markdown 链接使用相对 URL 和 `/`。验收项使用带所属工件的稳定 ID，例如 `REQ-NNN-AC-01`、`SR-NNN-AC-01`，并设置对应的 ASCII 锚点。编号示意不是已批准的需求，表单也不是实际结果记录。
+
+独立领域/QAS/场景及新版 REQ/VT 表单的 frontmatter 按[元数据约定](domain-model/README.md#artifact-metadata)填写；项目和上下文未明确时不猜 scope。原单上下文 README 与已有正式工件可以继续使用，不自动迁移或强制补齐全部可选表单。

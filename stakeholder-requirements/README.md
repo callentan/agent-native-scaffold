@@ -35,6 +35,23 @@
 
 SR 自己保存上游 REQ 链接，VT 自己保存目标链接；需要查下游时反向搜索，不在 REQ 再维护一套映射或验证结果。独立维护请求可以直接作为任务依据，不必制造 REQ。
 
+<a id="domain-inputs"></a>
+## 采用可选领域输入
+
+来源较多时可引用已有 SD/CTX、CAP、UC、RULE、INV 与 QAS；表单和默认落点见[领域工件指引](../domain-model/README.md#strategic-forms)。它们不是 REQ 的强制前置链，轻量 README 中的已有规则仍是有效来源。REQ 说明业务需要和验收，领域事实及规则正文仍回原所有者读取。
+
+新 [REQ 表单](../_templates/items/stakeholder-requirement.md)用 frontmatter 声明身份、scope、内容状态和上游；正文只说明来源为何支持本需求。按[元数据约定](../domain-model/README.md#artifact-metadata)替换占位，不自动转换旧 REQ，不改已有验收 ID/锚点。没有元数据的旧来源保留普通链接，不编造 canonical key。需求未决与业务来源缺口要明确到责任人，不能以填写齐全代替确认。
+
+<a id="quality-inputs"></a>
+## 质量属性输入
+
+需要独立质量要求时使用 [QAS 表单](../_templates/items/quality-attribute-scenario.md)，放入 `stakeholder-requirements\QAS-NNN-<slug>.md`；不把质量指标另存到领域规则或产品说明中。
+
+- 分开填写刺激源、刺激、环境、对象、响应和响应度量，说明每项来源与适用范围。
+- 度量要有可观察标准、单位/统计口径或其他判定方式及其依据。没有数值或方法时保留 `draft`、具体缺口和需谁确认，不补常见 SLA、监管分类或平台保证。
+- QAS 的独立判据使用其 owner-qualified 验收 ID/锚点；[业务场景或 VT](../verification/README.md#domain-scenarios)引用具体条目。非行为关注点只保留规格与待补输入，不强造可执行场景。
+- 要求基线变化时复核 UC、设计与验证的语义影响，原执行基线及结果保留。QAS 填写或 schema 校验不代表质量验收通过。
+
 <a id="requirements"></a>
 ## 正式需求入口
 
