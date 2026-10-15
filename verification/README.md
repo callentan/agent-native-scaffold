@@ -106,6 +106,13 @@
 
 这是**源结果的引用摘要**，不是收集器重跑了业务测试，也不认证记录者或批准。实际结果和当前适用性仍回 VT/原始报告；报告只是可重建输出，可显式被 model 引用，不将结果所有权移给模型、日志或覆盖索引。
 
+<a id="optional-reviews"></a>
+## 可选审阅与工具使用记录
+
+需要独立保存时才采用[审阅表单](../_templates/items/review-record.md)或[工具资格与使用表单](../_templates/items/tool-qualification.md)，分别落在 `verification\REVIEW-NNN-<slug>.md`、`verification\TQ-NNN-<slug>.md`，已有项目位置不变。按[治理字段归属](../docs/governance.md#ownership)区分判据、发现、原始执行证据和具名决定；工具范围/版本/配置及重新评价见[工具说明](../docs/ai-tooling.md)。
+
+审阅仍使用 [verify-change](../.github/skills/verify-change/SKILL.md#domain-review)，默认只读；只有本次授权允许保存时才写记录。发现缺测试、冲突证据或失败判据就引用原所有者并列跟进，不能改写 VT 结果、悄悄缩小覆盖或以表单完整称通过。合成决定只演示字段/导航，声明的 confirmation 不认证实际人员或权限；Agent 自审不是人工参与验收。
+
 <a id="change-impact"></a>
 ## 领域规则、边界或要求改变时
 

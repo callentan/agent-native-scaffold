@@ -564,3 +564,36 @@ Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows
 本机会话 `files\ddd-alignment-execution\task8-fix2-review-result.md` 保存本轮复核依据；`task8-fix2-parent-tests.json` 保存父会话在 `9a3055a` 的实际解释器、cwd 和模型模块原始输出：94 方法、0 跳过、退出 0，157.340 秒。前轮三项判定及新问题在 `task8-fix1-review-result.md`，对应独立 collector/model 153 方法结果在 `task8-fix1-parent-tests.json`。这些记录及旧 395 全套不合并、不替换彼此的对象与范围。
 
 实际 head/parent/trailer、七个提交路径和干净工作树/暂存区已重查。Task8 的有限实现与范围复核关卡关闭，没有遗留的本任务审阅发现；不认证真实业务执行、人工批准或其他宿主。下一步按[任务 9](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9)处理可选治理/审阅/工具资格资料；应用、媒体、平台和发布的独立边界仍保留。
+
+<a id="task9"></a>
+## Task9：可选审阅、工具用途、Intended Use 与风险引用
+
+2026-10-16，按本轮 Task9 / ENH-09 明确授权，在原 `callentan-repository-skeleton` worktree 从干净的 `002ad73a18700e7c95b21a0fa7d0d84a26f453b5` 开始，暂存区及原有未提交范围均为空。任务 1–8 的已关闭关卡不重开。依据[增强规格](../docs/design/ddd-functional-alignment.md)、[Task9 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9)及固定矩阵 DOMAIN-08、DOMAIN-20、FRAMEWORK-03 的既有记录，不重新获取或运行参考来源。
+
+### 本轮变化与归属
+
+- 新增[治理指引](../docs/governance.md)、[AI 工具说明](../docs/ai-tooling.md)，以及[审阅记录](../_templates/items/review-record.md)、[工具资格/使用](../_templates/items/tool-qualification.md)、[Intended Use](../_templates/items/intended-use.md)、[风险控制引用](../_templates/items/risk-control.md)四张可选空表。
+- 只合入 README、相关领域/要求/架构/验证/日志指引的必要导航，以及原 define-requirements、verify-change、record-handoff 的字段入口。新表保持 draft；身份/内容声明/真实关系归 frontmatter，实际决定、评价、当前适用性和 VT 结果不互相替代。
+- 保留现有源接口：review 的 `decision` 两列原字段，risk 的 `analysis/control/residual` 与原风险字段。没有生产工具、schema、依赖、prompt、角色或新方法变更，没有正式治理/QMS/业务实例；仍为 8 方法、21 prompts、3 模式。
+
+### 实际检查与证据入口
+
+本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task9-evidence\` 保存本轮原始证据；同级 `task9-report.md` 汇总精确命令、cwd、源字节、状态与最终提交。只在本机可访问，不是公共或跨机器 CI 证据。
+
+| 证据入口 | 对象、观察与限制 |
+|---|---|
+| `baseline.json`、`baseline-reading.md` | 精确干净起点，120 个原文件与 1353 个旧任务材料的 bytes 身份；已有方法对 10 情形的安全决定原本成立，没有伪造 RED |
+| `method-use.md` | 三处方法导航的逐项直接应用；只读输入仍返回发现，不执行/保存；不是独立 Agent、人工 T17 或原生权限观察 |
+| `run-03\provenance.json`、`case-results.json` | 10 个预备情形、11 份实际复制/填写的四类表单，保存模板与实填 bytes、字段、完整身份及具体缺口 |
+| `run-03\check-filled.json`、`command-*.json` | 现有 checker 实际尝试/检查 13 个正式合成记录，clean；四种缺确认元数据由 parser 报 INVALID_METADATA；source/result 两个已存在输出目标均拒绝覆盖 |
+| `run-03\model-alpha.json`、`model-beta.json`、`model-unavailable.json` | 合成决定治理来源 available 不等于批准；未知控制前/残余风险为 partial，不可用来源为 unverified；异 scope 同号不混用决定 |
+| `run-03\coverage-missing.json`、`optional-free.json` | 完整两项目标盘点定位第二项 UNCOVERED_ACCEPTANCE，VT 原 not-run 不改写；无治理要求的维护为 empty 库存，不算业务通过 |
+| `run-03\navigation.json`、`protected-bytes.json` | 104 个候选文件、619 条本地链接/锚点无缺口；不含制作资料/测试依赖，输入与旧结果 bytes 保留，拒绝覆盖另列 |
+
+夹具只在忽略的 `.venv` 中，报告与记录脚本只在上述获准的绝对会话目录。采用现有 Python 3.13.15、PyYAML 6.0.2、jsonschema 4.23.0；实际 parser 评价的两个自有合成输入、0 跳过与环境/观察保存在夹具原始 `sources\evaluation.json`，不是业务测试。没有重跑无关 Python 全套。前两次有界运行原样保留；后续只细化演练输入的版本变更、用途/跟进与对象范围，未修改生产 validator，不把这些运行合并为更多验收项或伪造失败基线。
+
+### 限制与下一步
+
+本轮已完成文档实施与自审，**Task9 等待独立范围审阅**，不记录真实 expert/clinical/regulatory approval、风险接受或工具资格。合成具名决定仅证明字段/导航可用；实际确认、组织政策、外部风险源、人工 T17、客户端/OS 权限与业务应用均未验证。当前 Markdown 规则不成为 ACL 或 sandbox。
+
+本轮只授权 20 个文档路径；实际本地提交及提交后 Git 状态以报告最终记录为准，不预填 commit。旧日志前缀与历史结果保持，后续审阅应重查精确提交、实填副本、源字段缺口和只读/覆盖保护。没有子代理/reviewer/workflow、Task10 或后续实现、应用、安装、hook/权限配置、amend、push、PR、发布或远端操作；提交与报告完成后停止，等待本任务的范围审阅。

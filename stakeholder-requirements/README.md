@@ -42,6 +42,8 @@ SR 自己保存上游 REQ 链接，VT 自己保存目标链接；需要查下游
 
 新 [REQ 表单](../_templates/items/stakeholder-requirement.md)用 frontmatter 声明身份、scope、内容状态和上游；正文只说明来源为何支持本需求。按[元数据约定](../domain-model/README.md#artifact-metadata)替换占位，不自动转换旧 REQ，不改已有验收 ID/锚点。没有元数据的旧来源保留普通链接，不编造 canonical key。需求未决与业务来源缺口要明确到责任人，不能以填写齐全代替确认。
 
+本任务确有用途或风险依据时，引用[可选 Intended Use/风险控制资料](../domain-model/README.md#governance-forms)及其原来源/决定基线，产品说明不另抄用途或风险正文。未知环境、范围限制或负责政策阻塞相关需求确认；候选变更先按[用途修订](../.github/skills/define-requirements/SKILL.md#intended-use)列影响，不默认新产品声明或法规分类。
+
 <a id="quality-inputs"></a>
 ## 质量属性输入
 

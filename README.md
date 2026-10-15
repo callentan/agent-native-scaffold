@@ -44,8 +44,8 @@
 | 细化行为、必要设计与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际领域/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[架构指引](architecture/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[业务场景](_templates/items/validation-scenario.md)、[VT](_templates/items/verification-test.md)及按需附加工件 | [软件要求](software-requirements/README.md)、[架构](architecture/README.md)、[验证计划与索引](verification/README.md) |
 | 维护既有代码或指定文档 | [implement-task](.github/skills/implement-task/SKILL.md) | 任务、验收、实际目录与授权；编码另需[开发输入](docs/development.md#creation-inputs) | 现有任务；按需 [US](_templates/items/user-story.md) | 指定文档或[项目实际位置](src/README.md)，不强改原生布局 |
 | 安全初始代码生成 | [generate-code](.github/skills/generate-code/SKILL.md) | 已确认任务/验收、用户选定项目/栈/路径、真实命令/cwd/报告与创建授权 | 现有开发登记；按需 [BC 配置](_templates/config/bc-config.yaml) | 仅获准且预检无冲突的目标；缺输入停止，不默认创建应用 |
-| 核对覆盖与证据 | [verify-change](.github/skills/verify-change/SKILL.md) | 全部交付验收、旧新基线、真实记录；[验证指引](verification/README.md) | [VT](_templates/items/verification-test.md) | [验证目录](verification/README.md)与实际报告入口；测试代码在项目原生位置 |
-| 交接或恢复任务 | [record-handoff](.github/skills/record-handoff/SKILL.md) | 任务、Git、变化、结果入口与缺口；[日志指引](logs/README.md) | [开发日志](_templates/items/development-log.md) | [日志目录](logs/README.md)；结果仍回原记录读取 |
+| 核对覆盖与证据 | [verify-change](.github/skills/verify-change/SKILL.md) | 全部交付验收、旧新基线、真实记录；[验证指引](verification/README.md)、按需[治理字段](docs/governance.md) | [VT](_templates/items/verification-test.md)，按需[审阅记录](_templates/items/review-record.md)或[工具使用记录](_templates/items/tool-qualification.md) | [验证目录](verification/README.md)与实际报告入口；测试代码在项目原生位置 |
+| 交接或恢复任务 | [record-handoff](.github/skills/record-handoff/SKILL.md) | 任务、Git、变化、结果入口与缺口；[日志指引](logs/README.md)、按需[最小工具记录](docs/ai-tooling.md#minimal-record) | [开发日志](_templates/items/development-log.md) | [日志目录](logs/README.md)；结果与决定仍回原记录读取 |
 
 领域与审阅活动可直接定位以下小节；仍须完整读取所属方法，不另有一套流程：
 
@@ -55,7 +55,7 @@
 | 知识锤炼、模型漂移 | [define-requirements / distill](.github/skills/define-requirements/SKILL.md#distill)：实际模型版本、陈述与使用线索 |
 | 词汇对齐 | [define-requirements / glossary-sync](.github/skills/define-requirements/SKILL.md#glossary-sync)：本地/外部定义、上下文和明确版本 |
 | 发布接口演化 | [define-requirements / published-interface](.github/skills/define-requirements/SKILL.md#published-interface)：实际契约、差异与已知消费者；[PI 表单](_templates/items/published-interface.md) |
-| 来件 ADR 或 Intended Use 变更 | [incoming-adr](.github/skills/define-requirements/SKILL.md#incoming-adr) / [intended-use](.github/skills/define-requirements/SKILL.md#intended-use)：仅处理实际提供的原文、基线与授权，不要求所有项目采用 |
+| 来件 ADR 或 Intended Use 变更 | [incoming-adr](.github/skills/define-requirements/SKILL.md#incoming-adr) / [intended-use](.github/skills/define-requirements/SKILL.md#intended-use)：仅处理实际提供的原文、基线与授权；可选 [IU 表单](_templates/items/intended-use.md)与[治理指引](docs/governance.md#intended-use)不替代原文，不要求所有项目采用 |
 | 领域工件审阅 | [verify-change / domain-review](.github/skills/verify-change/SKILL.md#domain-review)：完整范围、实际工件与证据；默认只读 |
 | 查询库存 | [verify-change / query](.github/skills/verify-change/SKILL.md#query)：真实根目录、类型、scope 与问题；默认只读 |
 | 审阅开放问题 | [verify-change / backlog-review](.github/skills/verify-change/SKILL.md#backlog-review)：原问题/BL、决定依据和残留影响；默认只读 |
@@ -64,10 +64,13 @@
 | 必要架构与验证计划 | [design-architecture](.github/skills/specify-feature/SKILL.md#design-architecture) / [plan-verification](.github/skills/specify-feature/SKILL.md#plan-verification)：各自必要输入齐备后独立规划，不强制 US |
 | 时序与架构规格 | [sequence-diagram](.github/skills/specify-feature/SKILL.md#sequence-diagram) / [build-architecture-spec](.github/skills/specify-feature/SKILL.md#build-architecture-spec)：实际参与者、契约、来源视图与基线；缺项保留 |
 | BC 派生与生成边界审阅 | [bc-review](.github/skills/verify-change/SKILL.md#bc-review)：实际工件、代码范围/冲突与逐项证据；默认只读 |
+| 可选人工审阅、waiver 与工具用途核对 | [domain-review](.github/skills/verify-change/SKILL.md#domain-review)及[交接](.github/skills/record-handoff/SKILL.md)：字段与落点见[治理](docs/governance.md#records)/[工具说明](docs/ai-tooling.md)，不新增审批或执行流程 |
 
 附加工件只按需使用：[US 表单](_templates/items/user-story.md)落在[交付目录](user-stories/README.md)；[ABB](_templates/items/architecture-building-block.md)与 [ADR](_templates/items/architecture-decision.md)依[架构指引](architecture/README.md)落在 `architecture\` 或首份决策创建时的 `architecture\decisions\`。它们不是强制链路。
 
 需要时再采用 [SEQ](_templates/items/sequence-diagram.md)、[SWAS](_templates/items/architecture-specification.md)和 [Gherkin companion](_templates/items/verification-test.feature)。图和场景文本不是运行证据，SWAS 不提供 PDF/演示 renderer；[BC 数据配置](architecture/README.md#bc-configuration)只登记实际身份/来源与开发入口，不是应用或执行 manifest。
+
+需要独立用途或外部风险引用时，使用 [Intended Use](_templates/items/intended-use.md)与[风险控制](_templates/items/risk-control.md)表单，按[领域落点](domain-model/README.md#governance-forms)保存。四种治理/工具记录都可选；未知政策、来源或决定保留缺口，空白表单不建立 QMS、资格或批准。
 
 [Copilot 薄入口](docs/agent-support.md#entry-points)只链接上述方法；不自动发现时显式读取具体 `SKILL.md` 和适用规则。链接不是自动包含保证，可选 prompt files 也不是执行这些方法的前提。
 
@@ -78,4 +81,4 @@
 
 正文中的文件路径示例使用反斜杠；Markdown 链接使用相对 URL 和 `/`。验收项使用带所属工件的稳定 ID，例如 `REQ-NNN-AC-01`、`SR-NNN-AC-01`，并设置对应的 ASCII 锚点。编号示意不是已批准的需求，表单也不是实际结果记录。
 
-独立领域/QAS/场景、REQ/SR/US/ABB/ADR/VT 与 SEQ/SWAS 表单的 frontmatter 按[元数据约定](domain-model/README.md#artifact-metadata)填写；项目和上下文未明确时不猜 scope。关系与内容状态归元数据，正文保存含义与判据，任务进度及实际结果另记。原单上下文 README 与已有正式工件可以继续使用，不自动迁移或强制补齐全部可选表单。
+独立领域/QAS/场景、REQ/SR/US/ABB/ADR/VT、SEQ/SWAS 及四种可选治理/工具表单的 frontmatter 按[元数据约定](domain-model/README.md#artifact-metadata)填写；项目和上下文未明确时不猜 scope。关系与内容状态归元数据，正文保存含义与判据，任务进度及实际结果另记；[决定字段](docs/governance.md#ownership)不构成第二份内容状态。原单上下文 README 与已有正式工件可以继续使用，不自动迁移或强制补齐全部可选表单。

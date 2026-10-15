@@ -66,6 +66,8 @@ description: Use when business goals or rules are unclear, a domain model has ga
 
 产出章节级差异和影响/升级提案、需谁确认什么及被阻塞动作；没有责任人的适用范围和风险决定，不确认新用途、不改下游承诺。获准修订也须保留旧基线与尚未解决事项，不能由文档齐全推出合规或批准。
 
+需要独立承载时按[用途表单](../../../_templates/items/intended-use.md)与[治理指引](../../../docs/governance.md#intended-use)记录来源、提案、实际决定及影响；已有原文仍由其所有者维护，表单不补缺失原文。风险资料仅用[风险控制引用](../../../_templates/items/risk-control.md)定位外部来源与残留缺口；未知环境、限制或负责政策阻塞相应确认，不默认医疗分类或新增审批链。
+
 ## 产出与完成
 
 领域事实落在 `domain-model/README.md` 的现有栏目或其已链接模型；产品信息落在 `stakeholder-requirements/README.md`；按需创建 `stakeholder-requirements/REQ-NNN-<slug>.md`。独立领域工件、QAS 与 BL 按[现有落点](../../../domain-model/README.md#optional-forms)使用，ADR 按[架构指引](../../../architecture/README.md#decisions)落点；来件与 Intended Use 沿用提供文件的所有权和位置。表单只作来源，不把正式内容留在 `_templates`。

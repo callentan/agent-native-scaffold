@@ -20,6 +20,8 @@ VT 直接引用 SR 验收项，不要求经过 US。查询某个 REQ 的下游�
 
 需求确认、软件实施和实际运行分别取证。表单完整、schema-valid 或上游写着 Approved 都不证明责任人确认；形成可实施要求前核对实际决定及适用基线。没有来源身份时可在获准笔记中整理已知行为，但不能宣称正式追溯完整。
 
+适用的[用途/风险引用](../docs/governance.md#intended-use)仍由原所有者维护，SR 只细化有依据的软件行为。缺外部分析、接受决定或控制验证证据时列相关缺口，不在 SR 造风险分值或用[审阅记录](../_templates/items/review-record.md)代替原 VT。工具用途/配置变化按[重新评价指引](../docs/ai-tooling.md#requalification)保留旧证据并复核当前适用性。
+
 ```markdown
 [SR-NNN-AC-01](SR-NNN-<slug>.md#sr-nnn-ac-01)
 ```

@@ -42,6 +42,8 @@
 - 缺可选来源保留 `unverified` 与具体 gap；部分可读则 `partial` 并保留可核对导航；所需来源完整才为 `available`，均不表示通过/批准。不适用需要范围依据。必需主输入错误仍阻塞，不能用九个空视图掩盖。
 - model 存在时先用[只读检查](../.github/utilities/README.md#model-export)核对其来源基线并回原文。可选[来源清单](../.github/contracts/README.md#model-sources)能登记多个明确 scope 的真实文件/基线，未登记或缺可选源各有 gap；不制造 ABB、部署、风险分类或审批。模型是引用索引，SWAS 仍是 Markdown 汇编，不提供 PDF/演示渲染器。
 
+governance/risk 来源可按需使用[审阅记录](../_templates/items/review-record.md)与[风险控制引用](../_templates/items/risk-control.md)，字段归属见[治理指引](../docs/governance.md#source-views)。用途、风险或 waiver 的原决定仍回其所有者；ADR/SWAS 不接管外部权威，不把来源 available 或工具资格记录当架构/法规批准。
+
 <a id="bc-configuration"></a>
 ## 可选 BC 数据配置
 

@@ -39,6 +39,8 @@ description: Use when assessing acceptance or domain artifacts, querying current
 
 输出发现与残留缺口，不自动重构、修正状态或宣布健康。内容写“confirmed/approved”但缺具名决定及适用基线，不能确认其批准；结构校验也不能认证身份。语言/边界的候选解释可用 [知识锤炼](../define-requirements/SKILL.md#distill)，实际修改仍回获授权任务。
 
+需要独立记录时使用[审阅表单](../../../_templates/items/review-record.md)与[治理字段指引](../../../docs/governance.md#ownership)；工具用途评价另按[工具记录](../../../docs/ai-tooling.md#adoption)定位版本、配置、输入、证据和决定范围。只读模式仍只返回这些字段对应的发现，不运行检查或写表单；执行/保存须有本次授权。实际决定与 VT 结果分开，未知风险或缺决定保留缺口，不为导出完整而补值。
+
 <a id="query"></a>
 ## 查询实际库存
 

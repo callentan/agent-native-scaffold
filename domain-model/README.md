@@ -131,6 +131,18 @@ RULE 仍由原领域文件的稳定锚点拥有，不增加第二份规则正文
 
 这些记录不预设端点、数据库、消息中间件、事务或性能/交付保证，也不提供监管分类。规则、生命周期、协作者和版本期望按来源填写；没有来源就说明谁需要补充什么。填写完成不表示实现或行为已验证。
 
+<a id="governance-forms"></a>
+### 可选用途与外部风险引用
+
+| 按需记录的内容 | 表单 | 默认正式落点 |
+|---|---|---|
+| 目的、使用者、环境、用途边界及候选变更 | [Intended Use](../_templates/items/intended-use.md) | `domain-model\IU-NNN-<slug>.md` |
+| 外部分析/控制/残余风险与决定的实际引用 | [Risk control](../_templates/items/risk-control.md) | `domain-model\RC-NNN-<slug>.md` |
+
+已有位置与外部事实所有权不变；[治理指引](../docs/governance.md#intended-use)说明适用性和责任缺口。初次来源整理与已有用途修订分开，修订仍按[现有方法](../.github/skills/define-requirements/SKILL.md#intended-use)读取完整原文/基线。不默认医疗/QMS，不替外部风险所有者计算、接受风险或确认用途；未知只阻塞受影响的决定。
+
+需要独立审阅或工具使用依据时，记录落在[验证目录](../verification/README.md#optional-reviews)，不写成另一份领域规则或 VT 结果。模型来源沿[已有字段](../docs/governance.md#source-views)读取；不得为了完整导出补风险数值或制造关系。
+
 <a id="artifact-metadata"></a>
 ## 可选结构化身份与关系
 
