@@ -360,12 +360,21 @@ def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | 
         if not in_comment and (raw.startswith("    ") or raw.startswith("\t")):
             yield number, None
             continue
-        line, in_comment = _without_comments(raw, in_comment)
-        opener = _FENCE.fullmatch(line)
-        if opener and not (opener[1][0] == "`" and "`" in opener[2]):
-            fence = (opener[1][0], len(opener[1]))
+        # Strip only a candidate's prefix: comments may precede a fence, but
+        # its raw info string is literal and still determines fence validity.
+        for marker in re.finditer(r"`{3,}|~{3,}", raw):
+            prefix, prefix_comment = _without_comments(raw[:marker.start()], in_comment)
+            if prefix_comment:
+                continue
+            opener = _FENCE.fullmatch(prefix + raw[marker.start():])
+            if opener and not (opener[1][0] == "`" and "`" in opener[2]):
+                fence = (opener[1][0], len(opener[1]))
+                break
+        if fence is not None:
+            in_comment = False
             yield number, None
         else:
+            line, in_comment = _without_comments(raw, in_comment)
             yield number, line
 
 

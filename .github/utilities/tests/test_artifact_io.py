@@ -105,6 +105,76 @@ class ArtifactIOTests(unittest.TestCase):
         self.assertEqual(parse_artifact(path, self.root).acceptance_ids,
                          ("sample/CTX-001/ABB-001#abb-001-vc-01",))
 
+    def test_fix1_tilde_info_comment_preserves_actual_owner_acceptance(self) -> None:
+        # Task6 Finding 2: run the raw parser, not a checker-derived inventory.
+        path = write_metadata(
+            self.root, metadata(),
+            "# Requirement\n~~~ text <!--\nexample\n~~~\n[broken](missing.md)\n"
+            '<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Observable condition\n',
+        )
+        before = path.read_bytes()
+        artifact = parse_artifact(path, self.root)
+        self.assertEqual(("sample/CTX-001/REQ-001#req-001-ac-01",), artifact.acceptance_ids)
+        self.assertEqual(14, artifact.acceptances[0].location.line)
+        self.assertEqual(13, artifact.acceptances[0].anchor_location.line)
+        self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_fence_variants_do_not_promote_literal_or_hide_real_acceptances(self) -> None:
+        for opener, short_close, closer in (
+            ("~~~ text <!--", "~~", "~~~"),
+            ("``` text <!--", "``", "```"),
+            ("   ~~~~ text <!--", "~~~", "  ~~~~~"),
+            ("  ```` text <!--", "```", "   `````"),
+            ("~~~ text `literal` <!--", "~~", "~~~~"),
+            ("~~~ text <!-- closed -->", "~~", "~~~"),
+            ("<!-- note -->~~~ text <!--", "~~", "~~~"),
+        ):
+            with self.subTest(opener=opener):
+                path = write_metadata(
+                    self.root, metadata(),
+                    f"# Requirement\n{opener}\n[hidden](hidden.md) <!--\n"
+                    '<a id="req-001-ac-99"></a>\n### REQ-001-AC-99: Literal only\n'
+                    f"{short_close}\n{closer}\n[broken](missing.md)\n"
+                    '<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Observable condition\n',
+                )
+                before = path.read_bytes()
+                artifact = parse_artifact(path, self.root)
+                self.assertEqual(("sample/CTX-001/REQ-001#req-001-ac-01",), artifact.acceptance_ids)
+                self.assertEqual(["req-001-ac-01"], [anchor.name for anchor in artifact.anchors])
+                self.assertEqual(17, artifact.acceptances[0].location.line)
+                self.assertEqual(16, artifact.acceptances[0].anchor_location.line)
+                self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_document_comment_owns_fence_like_lines_until_comment_ends(self) -> None:
+        path = write_metadata(
+            self.root, metadata(),
+            "# Requirement\n<!-- document comment\n~~~ text <!--\n[hidden](hidden.md)\n"
+            '<a id="req-001-ac-99"></a>\n### REQ-001-AC-99: Hidden\n-->\n'
+            '[broken](missing.md)\n<a id="req-001-ac-01"></a>\n'
+            "### REQ-001-AC-01: Observable condition\n",
+        )
+        before = path.read_bytes()
+        artifact = parse_artifact(path, self.root)
+        self.assertEqual(("sample/CTX-001/REQ-001#req-001-ac-01",), artifact.acceptance_ids)
+        self.assertEqual(17, artifact.acceptances[0].location.line)
+        self.assertEqual(16, artifact.acceptances[0].anchor_location.line)
+        self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_backticks_in_fence_info_stay_invalid_before_comment_stripping(self) -> None:
+        for opener in ("``` text `not-valid-info`", "``` text <!-- `not-valid-info` -->"):
+            with self.subTest(opener=opener):
+                path = write_metadata(
+                    self.root, metadata(),
+                    f"# Requirement\n{opener}\n"
+                    '<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Observable condition\n',
+                )
+                before = path.read_bytes()
+                artifact = parse_artifact(path, self.root)
+                self.assertEqual(("sample/CTX-001/REQ-001#req-001-ac-01",), artifact.acceptance_ids)
+                self.assertEqual(11, artifact.acceptances[0].location.line)
+                self.assertEqual(10, artifact.acceptances[0].anchor_location.line)
+                self.assertEqual(before, path.read_bytes())
+
     def test_targets_keep_owner_anchor_criterion_and_optional_test_id(self) -> None:
         data = metadata(id="VT-001", kind="verification-test", upstream=[
             "sample/CTX-001/SR-001", "sample/CTX-002/SR-001#sr-001-ac-02",

@@ -96,7 +96,7 @@ run_check(root: str | os.PathLike[str], base_sha: str | None = None) -> CheckRep
 按相对路径稳定排序，递归检查 `.md`（扩展名不分大小写）。下列任一信号将文件纳入正式输入：
 
 - 文件名以大写连字符 ID 开头，例如 `REQ-001.md`、`SR-SYN-001-title.md`、`REQ-NNN.md`；对应模式为 `^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+`，后接分隔符或文件名末尾。
-- 起始 frontmatter 出现 `schemaVersion/id/kind/scope/contentState/upstream/targets/confirmation` 字段信号，或开头缺少分隔符但仍有这种元数据前缀。这里只做选择，实际字段、类型、重复键、版本和确认形状全部交给现有 parser。
+- 起始 frontmatter 出现 `schemaVersion/id/kind/scope/contentState/upstream/targets/confirmation` 字段信号，或开头缺少分隔符但仍有这种元数据前缀。首行可辨认但不合法的 `---`（例如多一个前导空格）也保留紧随其后的元数据候选；遇到普通正文或代码后不再搜索元数据前缀。这里只做选择，分隔符是否合法及实际字段、类型、重复键、版本和确认形状全部交给现有 parser。
 - 非代码/注释内的 H1 以同样的正式 ID 开头。精确 base 模式还保留历史上已识别为正式的当前路径，不能靠删掉全部元数据藏起修改。
 
 字段被删坏、没有 frontmatter 的正式文件仍会报输入错误，不会自动迁移或改写。没有任何身份/元数据信号的普通 README、说明或旧轻量正文只作 guide；检查器不能凭空恢复已彻底删除的身份。任意命名的文件只要保留正式元数据（包括 README）仍会检查。
@@ -122,6 +122,7 @@ run_check(root: str | os.PathLike[str], base_sha: str | None = None) -> CheckRep
 - 支持单行内联链接/图片、尖括号目的地址、可选单引号/双引号标题、引用定义与 full/collapsed reference links；已定义的 shortcut reference 也会解析。空格路径用 `%20` 或 `<path with spaces.md>`，目的地址可含一层括号。
 - 本地文件必须存在且在 root 内。fragment 匹配 parser 风格的独立 `<a id="ascii-anchor"></a>` 或 ATX 标题 slug：转小写、保留 Unicode 字母/数字及空格、`_`、`-`，空格转 `-`，重复标题加 `-1` 等后缀。标题 slug 只用于导航，不替代 owner 验收的显式锚点。非 Markdown fragment 返回 `UNSUPPORTED_FRAGMENT`。
 - 忽略反引号/波浪号 fenced code、四空格/tab 开头的代码行、单行 inline code 和 HTML 注释。外部 URI 不抓取；未定义的显式 `[label][reference]` 报错。Setext、跨行链接、复杂嵌套、原始 HTML `href` 和渲染器特有锚点不在本检查语法内；这不是完整 CommonMark/GFM renderer。
+- 围栏前的实际正文注释仍按注释处理；围栏信息字符串及内容不改变正文的注释状态。反引号围栏的信息字符串不得包含反引号，不能先移除其中的注释样文本再判合法。关闭围栏后继续读取真实链接和 owner 验收，保留原始行号。
 - 显式残留标记为 `待填写`、独立 token `TODO/TBD/PROJECT`、独立 `NNN`（含小写锚点）、`<slug/project/context/id>`、`{{字段}}`。从 parser 已读出的身份/关系/确认字段检查元数据占位，不把 YAML 注释当值；正文代码与注释里的示例不算占位。普通 `project` 一词不算占位。
 - `未决/待确认/not-run` 等有具体上下文的事实可以保留；检查器不补写业务决定。没有这些机械违反项也不代表语义完整、审批可信或行为执行成功。
 

@@ -165,9 +165,13 @@ def _formal(relative: str, source: str) -> bool:
             if _METADATA_MARKER.search(line):
                 return True
     preamble = True
-    for _, line in iter_markdown_lines(source):
+    for number, line in iter_markdown_lines(source):
         if line is None:
             preamble = False
+            continue
+        # A recognizable first delimiter keeps the metadata preamble open.
+        # Only the parser decides whether its whitespace is actually valid.
+        if number == 1 and re.fullmatch(r" {0,3}---[ \t]*", line):
             continue
         if preamble and _METADATA_MARKER.search(line):
             return True

@@ -10,7 +10,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–5 已完成各自的有限实现与范围复核；Task5 的独立审阅和十例只读使用观察已记录。Task6 Python 正式工件检查器已实现，等待独立审阅；Task7–18 尚未实施。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。下一步复核 Task6 的真实 diff/报告，不创建应用或自动继续 Task7。原 P3 原生/人工记录和增强整体完成状态不随之升级。
+**当前状态：** 任务 1–5 已完成各自的有限实现与范围复核；Task5 的独立审阅和十例只读使用观察已记录。Task6 的两项 Important 已完成第 1 轮限定修正与受影响模块回归，等待限定复审；Task7–18 尚未实施。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。下一步复核 Task6 第 1 轮的真实 diff/报告，不创建应用或自动继续 Task7。原 P3 原生/人工记录和增强整体完成状态不随之升级。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -28,7 +28,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口和 Task5 资料契约已完成本次范围复核，结果见各自记录。Task6 已实现、等待独立审阅；Task7–18 尚未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口和 Task5 资料契约已完成本次范围复核，结果见各自记录。Task6 第 1 轮两项修正已实现、等待限定复审；Task7–18 尚未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -96,15 +96,16 @@
 
 本节的工具测试只用于维护者完整 checkout，不随下游候选分发，也不是下游运行 parser/checker 的前提。下游使用说明只连接已分发的模块、contracts、依赖清单和开发登记；维护者的 RED/GREEN、测试数量、对象基线与历史导航留在本计划和[制作日志](../../logs/2026-10-15-ddd-alignment.md#task6)。
 
-任务 1 阶段没有创建 `.venv` 或安装包；任务 2 已先登记维护环境、创建 manifest，再恢复项目自己的 `.venv`，实际环境为 Python 3.13.15。现有 parser/schema 与 Task6 checker 测试使用这一环境，不安装新依赖。checker 的正式发现、精确 base 与 JSON 契约已实现，等待独立审阅；hooks/CI 仍是后续任务。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
+任务 1 阶段没有创建 `.venv` 或安装包；任务 2 已先登记维护环境、创建 manifest，再恢复项目自己的 `.venv`，实际环境为 Python 3.13.15。现有 parser/schema 与 Task6 checker 测试使用这一环境，不安装新依赖。checker 的正式发现、精确 base 与 JSON 契约已实现，第 1 轮两项修正已完成聚焦回归、等待限定复审；hooks/CI 仍是后续任务。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
 
 | 检查 | 明确 cwd | 可执行程序及参数 |
 |---|---|---|
 | 定向 Python 测试 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_artifact_check.py -v`；parser 定向时替换为 `test_artifact_io.py` |
+| Task6 修正的受影响模块回归 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p "test_artifact*.py" -v`；发现/执行/跳过另由实际 receipt 核对，不重跑无变化的 schema 套件充当修正证据 |
 | 全部工具测试 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v`；须另核对真实发现/执行/跳过数量 |
 | 维护工具源码与测试语法 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` |
-| 工件检查（已实现，待独立审阅） | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root <本次已解析根目录>`；JSON stdout，可显式加 `--report <已存在获准目录>\new-artifacts.json`，不覆盖旧报告 |
-| 显式历史比较（已实现，待独立审阅） | 当前仓库根 | 上行增加 `--base <已核对的完整 commit>`；精确对象不可读退出 2；保留完整当前正式库存，含未暂存/未跟踪文件，不是暂存区 hook |
+| 工件检查（第 1 轮修正待限定复审） | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root <本次已解析根目录>`；JSON stdout，可显式加 `--report <已存在获准目录>\new-artifacts.json`，不覆盖旧报告 |
+| 显式历史比较（Task6 关卡仍未关闭） | 当前仓库根 | 上行增加 `--base <已核对的完整 commit>`；精确对象不可读退出 2；保留完整当前正式库存，含未暂存/未跟踪文件，不是暂存区 hook |
 
 Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
@@ -240,7 +241,7 @@ class ArtifactIOTests(unittest.TestCase):
 
 **文件：** `check_artifacts.py`、`test_artifact_check.py`、utilities README、开发说明及 docs/tests instructions；必要共享行处理/字段定位保留在 `artifact_io.py`，只修正 verify-change 的直接耦合工具说明。未改四个 schema、32-kind、依赖、其他方法/入口、应用或后续工具。
 
-**当前状态：已实现，等待独立审阅。** 起始为干净 `fea6e3f7f5749f223528a0311734e062e392a1b3`；本次没有子代理/审阅者，保留历史结果，不自行关闭独立关卡。实际报告与本次提交由[追加日志](../../logs/2026-10-15-ddd-alignment.md#task6)定位。
+**当前状态：第 1 轮两项修正已实现，等待限定复审。** 初次实现起始为干净 `fea6e3f7f5749f223528a0311734e062e392a1b3`，历史结果见[原追加日志](../../logs/2026-10-15-ddd-alignment.md#task6)。本轮从 `b8d4f826db142de052038288f938d90b1581020e` 及暂停前保存的 RED 恢复，未重启 Task6；保留父会话的暂停/恢复追加内容，没有创建子代理或自行关闭独立关卡。修正报告与局部提交由[第 1 轮交接](../../logs/2026-10-15-ddd-alignment.md#task6-fix1)定位。以下原实现结果保留其历史对象，不充当修正后的结果。
 
 - [x] 编写真实文件失败测试：重复 ID、缺标题/元数据、正式工件残留占位、坏文件/锚点、非法基线、空目录；实际测试使用原 `temporary_workspace`，只在获准 `.venv` 下写夹具。原接口示意：
 
@@ -266,7 +267,10 @@ class ArtifactCheckTests(unittest.TestCase):
 - [x] 用当前解释器通过 `subprocess.run`、参数列表、显式 cwd 与 `shell=False` 测试真实脚本；含空格/Unicode、0/1/2、明确 JSON 输出和覆盖拒绝、40/64 位 Git 对象、未暂存/未跟踪文件及未改库存均有检查。定向 60 方法与原 parser 74 方法均已执行，0 跳过。
 - [x] 同一代码对象完整回归实际执行 204 方法（原 144 + 新 60）、0 跳过/失败/错误；9 次独立 CLI 使用及当前工作树 full/base 检查的源字节均保留。CHECK-14 的零发现/全跳过控制被证据门禁拒绝。实现、正反例及本段登记纳入本次局部提交，实际提交身份与最终文档/范围核对由 Git 和交接报告定位；不是独立审阅关闭。
 
-**退出边界：** 本任务承接 ENH-07 的机械检查，不是增强整体、业务 VT、覆盖图或暂存区 hook 验收；独立审阅仍待执行。Task7–18 不在本执行范围。
+- [x] 第 1 轮从已保存的 143 方法 / 26 失败 RED 继续：保留原 9 个新增测试方法及其字节，只修正 `_formal` 的首行分隔符候选保留和 `iter_markdown_lines` 的围栏/注释归属。新聚焦回归发现并执行 143 方法（checker 65、parser 78）、173 个子例，0 失败/错误/跳过；输入字节未被测试改写。旧 204 方法与 schema 结果不重写、不冒充本轮执行。
+- [ ] 两项 Important 的限定复审；真实 GREEN 和局部提交不等于审阅关闭，不自动推进 Task7。
+
+**退出边界：** 本任务承接 ENH-07 的机械检查，不是增强整体、业务 VT、覆盖图或暂存区 hook 验收；两项修正仍待限定复审。Task7–18 不在本执行范围，Task7 的来源入口选择仍待用户回答。
 
 ### 任务 7：模型视图、覆盖与影响核对
 
@@ -501,4 +505,4 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–5 的有限交付及范围复核已完成，Task6 正式工件检查器已实现、等待独立审阅；当前八方法、二十一 prompts、三模式。下一步复核 Task6，Task7–18 尚未实施，不自动进入后续任务。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–5 的有限交付及范围复核已完成，Task6 第 1 轮两项修正已实现、等待限定复审；当前八方法、二十一 prompts、三模式。下一步复核本轮 Task6 diff/报告，Task7–18 尚未实施，不自动进入后续任务。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。

@@ -157,6 +157,137 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual(1, report.attempted_count)
         self.finding(report, "MISSING_FRONTMATTER")
 
+    def test_fix1_indented_opening_stays_attempted_in_full_api_and_cli(self) -> None:
+        # Finding 1: neither filename nor H1 provides a fallback formal ID.
+        path = write_metadata(self.root, metadata(), "# Requirement\n", "ordinary.md")
+        path.write_bytes(b" " + path.read_bytes())
+        for companion, attempted, checked in ((False, 1, 0), (True, 2, 1)):
+            if companion:
+                write_artifact(self.root, id="SR-002", kind="software-requirement")
+            before = source_bytes(self.root)
+            report = run_check(self.root)
+            result = self.cli()  # Execute the actual script even when the API assertion fails.
+            for interface, payload, exit_code in (
+                ("api", report.to_dict(), None),
+                ("cli", json.loads(result.stdout), result.returncode),
+            ):
+                with self.subTest(companion=companion, interface=interface):
+                    if exit_code is not None:
+                        self.assertEqual(2, exit_code, result.stdout + result.stderr)
+                    self.assertEqual("input-error", payload["status"])
+                    self.assertEqual(attempted, payload["attempted_count"])
+                    self.assertEqual(checked, payload["checked_count"])
+                    self.assertNotIn("ordinary.md", [item["path"] for item in payload["excluded"]])
+                    self.assertEqual(
+                        [("MISSING_FRONTMATTER", str(path.resolve()), 1)],
+                        [(item["code"], item["path"], item["line"]) for item in payload["findings"]],
+                    )
+            self.assertEqual(before, source_bytes(self.root))
+
+    def test_fix1_malformed_opening_selection_does_not_search_prose_or_literals(self) -> None:
+        fields = (
+            "schemaVersion: 1\nid: REQ-001\nkind: stakeholder-requirement\n"
+            "scope: sample/CTX-001\ncontentState: draft\n"
+        )
+        for source in (
+            " ---\nOrdinary explanatory prose.\n" + fields + "# Guide\n",
+            " ---\n# Guide\n" + fields,
+            " ---\n```yaml\n" + fields + "```\n# Guide\n",
+            " ---\n~~~yaml\n" + fields + "~~~\n# Guide\n",
+            " ---\n<!--\n" + fields + "-->\n# Guide\n",
+            "Ordinary prose before the delimiter.\n ---\n" + fields + "# Guide\n",
+            "    ---\n" + "".join("    " + line + "\n" for line in fields.splitlines()) + "# Guide\n",
+            "\t---\n" + "".join("\t" + line + "\n" for line in fields.splitlines()) + "# Guide\n",
+        ):
+            with self.subTest(source=source):
+                path = self.root / "ordinary.md"
+                path.write_text(source, encoding="utf-8")
+                before = path.read_bytes()
+                report = run_check(self.root)
+                self.assertEqual("empty", report.status)
+                self.assertEqual((0, 0), (report.attempted_count, report.checked_count))
+                self.assertEqual((), report.findings)
+                self.assertIn(("ordinary.md", "LIGHTWEIGHT_GUIDE"),
+                              [(item.path, item.reason) for item in report.excluded])
+                self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_tilde_info_comment_keeps_broken_link_in_api_and_cli(self) -> None:
+        # Finding 2, verbatim body: the real missing link is on source line 12.
+        path = write_metadata(
+            self.root, metadata(),
+            "# Requirement\n~~~ text <!--\nexample\n~~~\n[broken](missing.md)\n"
+            '<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Observable condition\n',
+        )
+        before = path.read_bytes()
+        report = run_check(self.root)
+        result = self.cli()
+        for interface, payload, exit_code in (
+            ("api", report.to_dict(), None),
+            ("cli", json.loads(result.stdout), result.returncode),
+        ):
+            with self.subTest(interface=interface):
+                if exit_code is not None:
+                    self.assertEqual(1, exit_code, result.stdout + result.stderr)
+                self.assertEqual("invalid", payload["status"])
+                self.assertEqual((1, 1), (payload["attempted_count"], payload["checked_count"]))
+                self.assertEqual(
+                    [("BROKEN_LINK", str(path.resolve()), 12, "sample/CTX-001/REQ-001", "missing.md")],
+                    [(item["code"], item["path"], item["line"], item["owner"], item["target"])
+                     for item in payload["findings"]],
+                )
+        self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_supported_fences_keep_info_and_content_comments_literal(self) -> None:
+        for opener, short_close, closer in (
+            ("~~~ text <!--", "~~", "~~~"),
+            ("``` text <!--", "``", "```"),
+            ("   ~~~~ text <!--", "~~~", "  ~~~~~"),
+            ("  ```` text <!--", "```", "   `````"),
+            ("~~~ text `literal` <!--", "~~", "~~~~"),
+            ("~~~ text <!-- closed -->", "~~", "~~~"),
+            ("<!-- note -->~~~ text <!--", "~~", "~~~"),
+        ):
+            path = write_metadata(
+                self.root, metadata(),
+                f"# Requirement\n{opener}\n[hidden](hidden.md) <!--\n"
+                '<a id="req-001-ac-99"></a>\n### REQ-001-AC-99: Literal only\n'
+                f"{short_close}\n{closer}\n[broken](missing.md)\n"
+                '<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Observable condition\n',
+            )
+            before = path.read_bytes()
+            report = run_check(self.root)
+            result = self.cli()
+            for interface, payload, exit_code in (
+                ("api", report.to_dict(), None),
+                ("cli", json.loads(result.stdout), result.returncode),
+            ):
+                with self.subTest(opener=opener, interface=interface):
+                    if exit_code is not None:
+                        self.assertEqual(1, exit_code, result.stdout + result.stderr)
+                    self.assertEqual("invalid", payload["status"])
+                    self.assertEqual([("BROKEN_LINK", 15, "missing.md")],
+                                     [(item["code"], item["line"], item["target"])
+                                      for item in payload["findings"]])
+            self.assertEqual(before, path.read_bytes())
+
+    def test_fix1_fence_text_inside_document_comment_does_not_open_code(self) -> None:
+        path = write_metadata(
+            self.root, metadata(),
+            "# Requirement\n<!-- document comment\n~~~ text <!--\n[hidden](hidden.md)\n"
+            '<a id="req-001-ac-99"></a>\n### REQ-001-AC-99: Hidden\n-->\n'
+            '[broken](missing.md)\n<a id="req-001-ac-01"></a>\n'
+            "### REQ-001-AC-01: Observable condition\n",
+        )
+        before = path.read_bytes()
+        report = run_check(self.root)
+        result = self.cli()
+        self.assertEqual("invalid", report.status)
+        self.assertEqual([("BROKEN_LINK", 15, "missing.md")],
+                         [(item.code, item.line, item.target) for item in report.findings])
+        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+        self.assertEqual("invalid", json.loads(result.stdout)["status"])
+        self.assertEqual(before, path.read_bytes())
+
     def test_formal_h1_with_colon_does_not_hide_removed_metadata(self) -> None:
         (self.root / "ordinary.md").write_text("# REQ-001：Actual owner\n", encoding="utf-8")
         report = run_check(self.root)
