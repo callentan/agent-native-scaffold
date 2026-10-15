@@ -270,3 +270,14 @@ git --no-pager diff --check
 - 新 SEQ 是已知概念方向的部分说明；SWAS 缺真实 ABB/部署/风险/发布来源，九视图仅 requirements 为 partial、其余 unverified。没有 Gherkin parser/runner、Mermaid/PDF/演示渲染或应用行为执行；全部相应结果为 `not-run`。
 - Task13 正向应用生成/原生 runner 需要另选实际项目/栈/路径、命令/cwd/报告和授权；本次不为了声称成功要求创建应用。后续 checker/exporter、源接入、hooks/CI、平台/人工验收均未启动。
 - 下一步由父会话独立复核本次 33 文件、完整报告、十例实际副本与全部当前状态；接手先核对完整 commit、工作树和本机证据可访问性。Task5 尚未获得独立审查结论，不自动进入 Task6。
+
+<a id="task5-review"></a>
+## Task5 复核追加
+
+2026-10-15，父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 按既有增强执行授权关闭本次资料契约关卡。实际核对分支仍为 `callentan-repository-skeleton`，HEAD 为 `5d39f407630d557b8b0bd51fa12efdde0b5bfef8`；独立消费观察后 status 只有分支行，没有暂存、未暂存或未跟踪文件。本次只追加本日志并同步规格、计划和 roadmap 的当前状态，不改变 Task5 的实现或旧记录。
+
+Task5 的独立范围审阅返回无重大问题。父会话在上述实现对象运行的原始记录为本机会话 `files\ddd-alignment-execution\task5-parent-tests.json`：当前项目解释器、明确仓库 cwd、原 144 项工具测试、0 跳过、退出 0，实际用时 2.564 秒。这是对未改 parser/schema 的工具回归，不是新业务行为结果。
+
+独立修改后消费者记录在同一入口的 `task5-independent-use\task5-independent-report.md`。它实际只读固定十例、当前方法/规则/表单和 owner fixture，逐例区分可草拟、缺身份、非空冲突、缺运行输入、历史适用性及对应停点；没有另造修改前基线，没有运行 parser、应用或 renderer，也没有修改仓库。其观察中的 fixture 仍是 225 字节，摘要与前节原值相同。该报告仅支持本次显式文件使用和手工结构核对，不证明原生发现、人工对照或一般可靠性提升。上述完整报告和原始工具记录仅在本机可访问，换机须重新取得或执行相应检查。
+
+前节两个合成未覆盖目标继续保留，真正应用生成、Gherkin runner、客户端/人工、PDF/平台和批准均未验收。下一步按[任务 6](../docs/plan/2026-10-14-ddd-functional-alignment.md)实现有明确输入、定位、基线和退出码的 Python 工件检查器；不因此创建应用或安装后续可选依赖。接手仍须重新核对当前 Git、任务状态及证据可访问性。
