@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from artifact_io import Artifact, iter_markdown_lines
+from artifact_io import Artifact, ArtifactInputError, iter_markdown_lines
 from check_artifacts import _HEADING, _INLINE_LINK
 from check_traceability import section_lines
 
@@ -99,7 +99,8 @@ def plan_bytes(source: Artifact, raw: bytes) -> bytes:
 
     Pending explicit anchors belong to their next real heading, including the
     peer heading that terminates an excluded section. Literal text cannot lend a
-    heading to an anchor. No normalization of frontmatter, whitespace or CRLF.
+    heading to an anchor. Declared criteria cannot belong to omitted subtrees.
+    No normalization of frontmatter, whitespace or CRLF.
     """
     anchors = {a.location.line: a.name for a in source.anchors}
     pending, active = None, None
@@ -125,5 +126,10 @@ def plan_bytes(source: Artifact, raw: bytes) -> bytes:
             pending = None
     if active is not None:
         omitted.append((active, len(raw_lines) + 1))
+    declared = {target.criterion_anchor for target in source.targets}
+    for number, name in anchors.items():
+        if name in declared and any(start <= number < end for start, end in omitted):
+            raise ArtifactInputError("INVALID_CRITERION", source.path, number,
+                                     f"Declared criterion {name} belongs to an omitted runs/applicability subtree")
     return b"".join(line.encode("utf-8") for number, line in enumerate(raw_lines, 1)
                     if not any(start <= number < end for start, end in omitted))

@@ -1477,5 +1477,113 @@ class Task8BridgeTests(ModelFixture):
                         output.unlink()  # Test-owned cleanup after reproducing a bad write.
 
 
+class Task8Fix1DomainReservationTests(ModelFixture):
+    """T8-I1: optional read gaps never grant writes to declared source locations."""
+
+    def domain_report(self):
+        from collect_implementation_report import build_report
+        seed_implementation_fixture(self.root)
+        domain = self.workspace / "fix1 领域"
+        seed_git_repo(domain)
+        (domain / "model").mkdir()
+        (domain / "model/rule.txt").write_bytes(b"Fixed source input, never an output location.\n")
+        git(domain, "add", "--", ".")
+        git(domain, "commit", "--quiet", "-m", "Fix1 fixed local domain input")
+        config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
+        config["domainSources"] = [{"id": "fixed-domain", "kind": "git", "root": "../fix1 领域",
+                                    "path": "model", "baseline": git(domain, "rev-parse", "HEAD"), "readOnly": True}]
+        write_yaml(self.root / "bc-config.yaml", config)
+        git(self.root, "add", "--", ".")
+        git(self.root, "commit", "--quiet", "-m", "Fix1 explicit read-only domain selection")
+        report = build_report(self.root, git(self.root, "rev-parse", "HEAD"), [])
+        path = write_yaml(self.root / "reports/implementation.yaml", report)
+        return domain, report, path
+
+    def select_changed_report(self, path, data):
+        write_yaml(path, data)
+        self.manifest(self.select("verification", path))
+
+    def refused_output_preserves_sources(self, output):
+        before = source_bytes(self.workspace)
+        result = self.cli("--output", str(output))
+        try:
+            self.assertFalse(output.exists(), f"Unverified declaration allowed creation of {output.relative_to(self.workspace)}")
+            self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+            self.assertIn("REPORT_CONFLICT", result.stdout)
+            self.assertEqual(before, source_bytes(self.workspace))
+        finally:
+            if output.exists():
+                output.unlink()  # Clean up only a test-owned wrongly created output.
+
+    def test_i1_missing_baseline_still_protects_resolvable_domain_and_descendants(self):
+        domain, report, path = self.domain_report()
+        del report["domainSources"][0]["baseline"]
+        self.select_changed_report(path, report)
+        before = source_bytes(self.workspace)
+        model = self.export()
+        self.assertEqual("unverified", model["views"]["verification"]["state"])
+        self.assertEqual([], model["implementationReports"])
+        self.assertEqual(before, source_bytes(self.workspace))
+        self.refused_output_preserves_sources(domain / "model/new-model.yaml")
+
+    def test_i1_invalid_baseline_values_do_not_disable_location_reservation(self):
+        domain, report, path = self.domain_report()
+        for baseline in (None, False, "HEAD", {"not": "a baseline"}):
+            with self.subTest(baseline=baseline):
+                changed = copy.deepcopy(report)
+                changed["domainSources"][0]["baseline"] = baseline
+                self.select_changed_report(path, changed)
+                self.refused_output_preserves_sources(domain / "model/new-model.yaml")
+
+    def test_i1_incomplete_or_unresolvable_locations_block_even_unrelated_output(self):
+        _, report, path = self.domain_report()
+        declarations = (
+            {"root": "../fix1 领域"}, {"path": "model"}, {},
+            {"root": None, "path": "model"}, {"root": "../fix1 领域", "path": None},
+            {"root": "https://example.invalid/domain", "path": "model"},
+            {"root": "../fix1 领域", "path": "../outside"},
+        )
+        for declaration in declarations:
+            with self.subTest(declaration=declaration):
+                changed = copy.deepcopy(report)
+                changed["domainSources"] = [declaration]
+                self.select_changed_report(path, changed)
+                before = source_bytes(self.workspace)
+                self.assertEqual("unverified", self.export()["views"]["verification"]["state"])
+                self.assertEqual(before, source_bytes(self.workspace))
+                self.refused_output_preserves_sources(self.root / "unrelated-output.yaml")
+
+    def test_i1_malformed_domain_declaration_container_cannot_authorize_output(self):
+        _, report, path = self.domain_report()
+        for declarations in (None, "unresolved source", [None], {"root": "../fix1 领域", "path": "model"}):
+            with self.subTest(declarations=declarations):
+                changed = copy.deepcopy(report)
+                changed["domainSources"] = declarations
+                self.select_changed_report(path, changed)
+                self.refused_output_preserves_sources(self.root / "unrelated-output.yaml")
+
+    def test_i1_resolvable_missing_baseline_does_not_block_safe_unrelated_output(self):
+        domain, report, path = self.domain_report()
+        del report["domainSources"][0]["baseline"]
+        self.select_changed_report(path, report)
+        before = source_bytes(self.workspace)
+        output = self.root / "safe-new-model.yaml"
+        result = self.cli("--output", str(output))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertEqual("unverified", json.loads(result.stdout)["views"]["verification"]["state"])
+        self.assertEqual([domain / "model/rule.txt"], list((domain / "model").iterdir()))
+        after = source_bytes(self.workspace)
+        del after[output.relative_to(self.workspace).as_posix()]
+        self.assertEqual(before, after)
+
+    def test_i1_shared_yaml_node_keeps_domain_declaration_context(self):
+        _, report, path = self.domain_report()
+        incomplete = {"path": "model"}  # Acyclic YAML alias, not another source ledger.
+        report["domainSources"] = [incomplete]
+        report["otherReference"] = incomplete  # Traversed first by the LIFO reader.
+        self.select_changed_report(path, report)
+        self.refused_output_preserves_sources(self.root / "unrelated-output.yaml")
+
+
 if __name__ == "__main__":
     unittest.main()

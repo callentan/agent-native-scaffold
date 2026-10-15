@@ -225,19 +225,25 @@ class _Sources:
 
     def reserve_declarations(self, data: dict) -> None:
         """Inspect the whole already-parsed document before the first dereference."""
-        pending, visited = [data], set()
+        pending, visited = [(data, False)], set()
         while pending:
-            node = pending.pop()
-            if not isinstance(node, (dict, list)) or id(node) in visited:
+            node, domain_declaration = pending.pop()
+            if domain_declaration and not isinstance(node, dict):
+                self.reservation_errors.add("INVALID_PATH")
+            identity = (id(node), domain_declaration)
+            if not isinstance(node, (dict, list)) or identity in visited:
                 continue
-            visited.add(id(node))
+            visited.add(identity)
             if isinstance(node, list):
-                pending.extend(node)
+                pending.extend((item, False) for item in node)
                 continue
-            domain_location = {"root", "path", "baseline"} <= node.keys()
+            # Location protection is independent of evidence validity. A known
+            # domainSources entry also keeps its context when root/path is absent
+            # or when the same YAML node was already visited through another key.
+            domain_location = domain_declaration or {"root", "path"} <= node.keys()
             if domain_location:
                 try:
-                    _, path = _domain_location(self.root, node["root"], node["path"])
+                    _, path = _domain_location(self.root, node.get("root"), node.get("path"))
                     # The declaration may be a missing file or a directory.
                     # Reserve both the location and descendants before validation.
                     self.reserved_paths.add(path)
@@ -257,7 +263,15 @@ class _Sources:
                         # still owns value validation; an unresolved location also
                         # prevents a writer from claiming output/source isolation.
                         self.reservation_errors.add(error.code)
-            pending.extend(node.values())
+            for field, value in node.items():
+                if field == "domainSources":
+                    if isinstance(value, list):
+                        pending.extend((item, True) for item in value)
+                    else:
+                        self.reservation_errors.add("INVALID_PATH")
+                        pending.append((value, True))  # Still preserve any resolvable location.
+                else:
+                    pending.append((value, False))
 
     def read(self, relative: str) -> tuple[Path, bytes]:
         path = self.path(relative)

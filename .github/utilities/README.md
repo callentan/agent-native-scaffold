@@ -249,7 +249,7 @@ canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope
 
 声明位置本身非法、不能安全登记时，默认只读派生仍可报告可选 gap，但显式创建输出返回 `REPORT_CONFLICT`，不假称已建立输入/输出隔离。正常的新输出路径可导出后原样检查，不自动成为自身源。`REPORT_CONFLICT / REPORT_WRITE_ERROR` 退出 2；主输入失败不创建输出，写入中失败可能留下不完整的新文件。无网络、fetch、filters/textconv、hook 或来源命令执行，不自动修订清单基线。
 
-实施报告中明确的领域 `root/path/baseline` 同样先登记再核验，保护该位置和子路径；即使报告或领域基线失效、verification 仅有 gap，也不能将新 model 写进其只读来源目录。登记不代表这些数据可读、有效或获准写入。
+实施报告中明确的领域 `root/path` 同样先登记再核验，保护该位置和子路径，不要求 baseline 已存在或有效。`domainSources` 的位置声明不完整或不能安全解析时，默认读取仍可报告 optional gap，但显式输出必须返回 `REPORT_CONFLICT`；可解析位置则仍保护全部子路径。登记不代表这些数据可读、有效或获准写入。
 
 <a id="implementation-report"></a>
 ## 从现有 VT 收集实施摘要

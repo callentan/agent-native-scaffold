@@ -467,6 +467,15 @@ class _Collection:
             if row["reason"]:
                 execution["reason"] = row["reason"]
             result[target.target] = (execution, self.applicability(source, anchor, target))
+        if mode == "command" and executed:
+            # Count validated executed identities, not criteria or command words.
+            # One test may cover multiple criteria; other actual tests may also
+            # have run without being mapped to this selected VT's targets.
+            executed_ids = {target.test_id for target in source.targets
+                            if rows[target.criterion_anchor]["status"] in ("pass", "fail")}
+            if len(executed_ids) > done:
+                raise ArtifactInputError("INVALID_EXECUTION", source.path, 1,
+                                         "Distinct executed testIds exceed the recorded executed count")
         return result
 
     def build(self, evidence_files) -> dict:

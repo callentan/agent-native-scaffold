@@ -682,5 +682,171 @@ class Task8BoundaryTests(ImplementationFixture):
         self.error("INVALID_EVIDENCE_SELECTION", {"verification/VT-002.md": "copied status is not an evidence selector"})
 
 
+class Task8Fix1EvidenceTests(ImplementationFixture):
+    """T8-I2/I3: source-owned accounting and protected committed criteria."""
+
+    def assert_input_error_preserves_sources(self, code, selector):
+        before = source_bytes(self.root)
+        try:
+            return self.error(code, [selector])
+        finally:
+            self.assertEqual(before, source_bytes(self.root))
+
+    def test_i2_distinct_executed_ids_cannot_fit_one_recorded_execution(self):
+        for number, second in enumerate(("pass", "fail"), 1):
+            with self.subTest(second=second):
+                selector, _ = self.run_record(
+                    number=number, statuses={"record": "pass", "no-write": second},
+                    counts=f"exit={0 if second == 'pass' else 1}; discovered=1; executed=1; skipped=0",
+                )
+                self.assert_input_error_preserves_sources("INVALID_EXECUTION", selector)
+
+    def test_i2_one_test_covering_independent_criteria_is_counted_once(self):
+        self.replace_in_vt("testId: test_no_write", "testId: test_record")
+        (self.root / "native tests/验证.txt").write_text(
+            "# Self-owned TEXT locator; no native test is executed.\n"
+            f"# verifies: {DELIVERY[2]} testId=test_record\n"
+            f"# verifies: {DELIVERY[3]} testId=test_record\n"
+            "test_record(): one test text location covering two independent criteria\n",
+            encoding="utf-8", newline="\n",
+        )
+        self.commit()
+        selector, raw = self.run_record(statuses={"record": "pass", "no-write": "pass"},
+                                        steps="fixture-input-only-runner test_record")
+        previous = digest(raw.read_bytes())
+        raw.write_bytes(b"SYNTHETIC INPUT ONLY: test_record observed record and no-write criteria.\n")
+        self.replace_in_vt(previous, digest(raw.read_bytes()))
+        before = source_bytes(self.root)
+        entries = self.entries(self.collect([selector]))
+        for target in DELIVERY[2:]:
+            self.assertEqual("pass", entries[target]["execution"]["status"])
+            self.assertEqual("test_record", entries[target]["testRefs"][0]["testId"])
+        self.assertEqual(before, source_bytes(self.root))
+
+    def test_i2_additional_actual_tests_outside_mapped_criteria_are_allowed(self):
+        selector, _ = self.run_record(statuses={"record": "pass", "no-write": "pass"},
+                                     counts="exit=0; discovered=4; executed=3; skipped=1")
+        before = source_bytes(self.root)
+        entries = self.entries(self.collect([selector]))
+        self.assertEqual(["pass", "pass"], [entries[target]["execution"]["status"] for target in DELIVERY[2:]])
+        self.assertEqual(before, source_bytes(self.root))
+
+    def test_i2_skip_not_run_and_names_in_command_text_do_not_inflate_executed_ids(self):
+        for number, second in enumerate(("not-run", "skipped"), 1):
+            with self.subTest(second=second):
+                skipped = int(second == "skipped")
+                selector, _ = self.run_record(
+                    number=number, statuses={"record": "pass", "no-write": second},
+                    steps="fixture-input-only-runner test_record test_no_write extra_unmapped_name",
+                    counts=f"exit=0; discovered={1 + skipped}; executed=1; skipped={skipped}",
+                )
+                before = source_bytes(self.root)
+                entries = self.entries(self.collect([selector]))
+                self.assertEqual("pass", entries[DELIVERY[2]]["execution"]["status"])
+                self.assertEqual(second, entries[DELIVERY[3]]["execution"]["status"])
+                self.assertEqual(before, source_bytes(self.root))
+
+    def test_i2_manual_observations_need_no_command_execution_counts(self):
+        selector, _ = self.run_record(vt="VT-001", mode="manual", counts=None,
+                                     statuses={"allow": "pass", "reject": "pass"})
+        before = source_bytes(self.root)
+        entries = self.entries(self.collect([selector]))
+        self.assertEqual(["pass", "pass"], [entries[target]["execution"]["status"] for target in DELIVERY[:2]])
+        self.assertEqual(before, source_bytes(self.root))
+
+    def test_i2_no_executed_rows_remain_skip_or_not_run_with_zero_executions(self):
+        for number, status in enumerate(("skipped", "not-run"), 1):
+            with self.subTest(status=status):
+                skipped = 2 if status == "skipped" else 0
+                selector, _ = self.run_record(
+                    number=number, statuses={"record": status, "no-write": status},
+                    steps="未执行", report=False,
+                    counts=f"exit=0; discovered={skipped}; executed=0; skipped={skipped}",
+                )
+                before = source_bytes(self.root)
+                entries = self.entries(self.collect([selector]))
+                self.assertEqual([status, status], [entries[target]["execution"]["status"] for target in DELIVERY[2:]])
+                self.assertEqual(before, source_bytes(self.root))
+
+    def misplaced_criterion(self, section, *, criterion="record", changed=True):
+        """Commit the misplaced plan FIRST; append a genuinely owned run later."""
+        path = self.root / "verification/VT-002.md"
+        text = path.read_text(encoding="utf-8")
+        start = text.index(f'<a id="{criterion}"></a>')
+        end = text.index('<a id="', start + 1)
+        block = text[start:end]
+        text = text[:start] + text[end:]
+        if section == "runs":
+            heading = '<a id="runs"></a>\n## 实际执行\n\n'
+            self.assertIn(heading, text)
+            text = text.replace(heading, heading + block)
+        else:
+            text += '\n<a id="applicability"></a>\n## 当前适用性复核\n\n' + block
+        path.write_text(text, encoding="utf-8", newline="\n")
+        self.commit()
+        old = ("有效请求新增一条关联会员的记录。" if criterion == "record"
+               else "超额请求返回拒绝且前后记录完全相同。")
+        new = ("有效请求删除所有关联会员记录。" if criterion == "record"
+               else "超额请求返回许可并重写既有记录。")
+        committed = git(self.root, "show", self.object + ":verification/VT-002.md")
+        self.assertIn(old, committed)
+        self.assertLess(committed.index(f'<a id="{section}"></a>'),
+                        committed.index(f'<a id="{criterion}"></a>'))
+        if changed:
+            self.replace_in_vt(old, new)
+        selector, _ = self.run_record()  # One pass ID / one execution: not masked by I2.
+        if section == "applicability":
+            text = path.read_text(encoding="utf-8")
+            split = text.index('<a id="vt-002-run-01"></a>')
+            prefix, run = text[:split], text[split:]
+            # Keep the new child under runs, BEFORE the closing applicability H2.
+            prefix = prefix.replace('<a id="applicability"></a>', run + '\n<a id="applicability"></a>')
+            path.write_text(prefix, encoding="utf-8", newline="\n")
+        if changed:
+            self.assertIn(new, path.read_text(encoding="utf-8"))
+            self.assertNotIn(new, committed)
+        return selector
+
+    def test_i3_changed_criterion_committed_under_runs_is_not_an_old_plan_pass(self):
+        selector = self.misplaced_criterion("runs")
+        self.assert_input_error_preserves_sources("INVALID_CRITERION", selector)
+
+    def test_i3_changed_criterion_committed_under_applicability_is_protected(self):
+        selector = self.misplaced_criterion("applicability")
+        self.assert_input_error_preserves_sources("INVALID_CRITERION", selector)
+
+    def test_i3_unexecuted_declared_criterion_cannot_be_omitted_from_plan_comparison(self):
+        selector = self.misplaced_criterion("applicability", criterion="no-write")
+        self.assert_input_error_preserves_sources("INVALID_CRITERION", selector)
+
+    def test_i3_misplaced_unchanged_criterion_is_explicitly_unsupported(self):
+        selector = self.misplaced_criterion("runs", changed=False)
+        self.assert_input_error_preserves_sources("INVALID_CRITERION", selector)
+
+    def test_i3_genuine_appends_keep_criteria_unicode_and_crlf_bytes_protected(self):
+        path = self.root / "verification/VT-002.md"
+        raw = path.read_bytes().replace(
+            b'<a id="runs"></a>',
+            ("Known plan note：" + "\u2028" * 3 + '\n<a id="runs"></a>').encode("utf-8"),
+        )
+        path.write_bytes(b"\xef\xbb\xbf" + raw.replace(b"\n", b"\r\n"))
+        self.commit()
+        committed_prefix = path.read_bytes()
+        selector, _ = self.run_record()
+        self.assertTrue(path.read_bytes().startswith(committed_prefix))
+        with path.open("a", encoding="utf-8", newline="\r\n") as output:
+            output.write('\n<a id="applicability"></a>\n## 当前适用性复核\n\n'
+                         '| 复核日期与记录者 | 原运行/结果及目标链接 | 当前对象、需求与 VT 基线 | 适用性 | 理由、影响与待重查事项 |\n'
+                         '|---|---|---|---|---|\n'
+                         f'| 2026-10-16; recorder=fixture reviewer | [运行](#{selector.split("#")[1]}) [判据](#record) '
+                         f'| object={self.object}; requirement={self.scope}/SR-001@{self.object}; vt={self.object} '
+                         '| 适用 | Independently supplied synthetic applicability for these exact bases. |\n')
+        before = source_bytes(self.root)
+        entry = self.entries(self.collect([selector]))[DELIVERY[2]]
+        self.assertEqual("pass", entry["execution"]["status"])
+        self.assertEqual("applicable", entry["applicability"]["state"])
+        self.assertEqual(before, source_bytes(self.root))
+
+
 if __name__ == "__main__":
     unittest.main()

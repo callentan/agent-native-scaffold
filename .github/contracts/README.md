@@ -245,9 +245,11 @@ entries:
 
 二列表格值沿用现有 reader，目前不能包含 `|`（包括转义形式）；用 `;` 分隔的 owner/报告列表不能在单项内再含分号。含空格路径的 Markdown 链接用 `[说明](<../reports/原始 报告.txt>)`。这是有限输入语法，不是任意 Markdown/本地 runner 报告的通用导入器。
 
-baseline 为原始 `sha256:` 或完整本地 Git commit（原始报告还接受 blob）。要求基线若不是 object_sha，须逐 owner 验证**整个文件 bytes 相同**；VT 基线须验证计划内容相同。VT 计划投影只排除真实 `runs`、`applicability` 两个 H2 节（含其子块），其他 frontmatter/正文/换行 bytes 必须一致。当前供应的 VT 同样与对象计划比较；修改目标、判据、方法或未被排除的内容不能借追加运行复用旧结果。
+baseline 为原始 `sha256:` 或完整本地 Git commit（原始报告还接受 blob）。要求基线若不是 object_sha，须逐 owner 验证**整个文件 bytes 相同**；VT 基线须验证计划内容相同。VT 计划投影只排除真实 `runs`、`applicability` 两个 H2 节（含其子块），其他 frontmatter/正文/换行 bytes 必须一致。任何已声明 `criterionAnchor` 都不得位于被排除的子树内，即使本次该判据为 not-run；比较时明确返回 `INVALID_CRITERION`，不让判据随运行记录一起被丢弃。当前供应的 VT 同样与对象计划比较；修改目标、判据、方法或未被排除的内容不能借追加运行复用旧结果。
 
 pass/fail 行须有独立、具体的观察及其原始报告链接；该链接必须对应本运行报告字段中已验证的路径/片段/基线。报告必须可读且非空，Markdown 片段为真实显式锚点，JSON/YAML 片段为顶层键，其他文件不支持片段。fail 还保留差异原因。command 中零发现、零实际执行、全跳过、无对应 testId 或纯成功字样均不能形成 pass/fail。混合 pass/fail 保留每项结果，不归并为全局通过。只有 pass、但 command 非零退出的自相矛盾记录拒绝。manual 使用实际具体步骤和逐项观察，不要求命令或捏造的数量。
+
+command 的 `executed` 还必须不少于 pass/fail 行实际归属的**不同 testId 数量**，不足则为 `INVALID_EXECUTION`。同一个已定位测试覆盖多个独立判据只计一次；实际执行数多于已映射测试可以保留。skipped/not-run 不消耗此执行下限，manual 不套用命令运行计数；不能从命令文本中出现的测试名推算数量。
 
 没有选中本目标的运行时，目标仍在 entries 中，执行为 not-run、空 evidenceRefs 和明确理由。选中的 not-run/skipped 保留其理由与原记录引用，不借另一目标的成功补位。收集结果仅说明读到了满足这些结构/基线条件的**源声明**；它不能证明外部事件确实发生，更不能认证人工批准。
 
@@ -261,7 +263,7 @@ pass/fail 行须有独立、具体的观察及其原始报告链接；该链接�
 
 ### 4.4 只读输出与 model 桥接
 
-API 和默认 CLI 不写文件。CLI 明确使用 `--root`、`--object`，可重复 `--evidence`；仅 `--output` 创建指定的新 `.json/.yaml/.yml`，父目录须已存在。拒绝覆盖任何已有位置，也不得占用对象文件、BC/领域/VT/原始报告或已声明的可选来源位置，即使该位置当前缺失。报告声明的领域 `root + path + baseline` 在基线校验前保护该位置及其子路径；可选报告失效仍不能向该领域目录写新 model。退出 0 表示成功收集（可全为 not-run），1 表示收集到逐项 fail，2 表示输入/输出错误；不把 CLI 的退出当作源 VT 的退出。
+API 和默认 CLI 不写文件。CLI 明确使用 `--root`、`--object`，可重复 `--evidence`；仅 `--output` 创建指定的新 `.json/.yaml/.yml`，父目录须已存在。拒绝覆盖任何已有位置，也不得占用对象文件、BC/领域/VT/原始报告或已声明的可选来源位置，即使该位置当前缺失。报告声明的领域 `root + path` 在基线校验前保护该位置及其子路径，不以 baseline 存在或有效为前提。`domainSources` 的位置声明不完整或不可安全解析、容器非法时，只读视图仍可保留 optional gap，但任何显式输出均须拒绝；不能把读取缺口变成写入许可。位置可完整解析但仅缺 baseline 时，仍可在不相交的新位置输出，不伪造有效来源。退出 0 表示成功收集（可全为 not-run），1 表示收集到逐项 fail，2 表示输入/输出错误；不把 CLI 的退出当作源 VT 的退出。
 
 报告可按既有 `model-sources.yaml` 的 `verification` 列表**另行显式选择**，无新的选择清单。adapter 验证报告 schema、scope、源引用基线与可重建性后，model 的 `implementationReports` 和 verification 视图只保存报告文件及其 baseline，不复制 entries、状态、观察或适用性。其他八视图及原有 verification 来源仍按既有选择读取；九视图缺源/gap 语义不变。报告没有 views，治理/风险/SEQ/QAS/release 引用不伪装成执行 evidenceRefs。构建报告不自动改来源清单。
 

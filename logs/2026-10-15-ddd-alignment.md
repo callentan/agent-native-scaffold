@@ -509,3 +509,32 @@ Task7 的有限实现和范围复核关卡关闭，没有遗留的本任务审�
 Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows/Python 3.13.15 实测；Python 3.11、其他宿主、人工身份/审批及真实业务执行均未据此认证。支持有限且明确的字段/selector/marker 语法，不承诺通用历史记录导入；不能认证外部事件实际发生。一个原始报告 I/O 拒绝控制采用窄边界注入，不冒充宿主 ACL 验证。
 
 没有 subagent/reviewer/workflow、新 worktree、安装、权限或 hook/CI 配置、amend、push、PR、应用、远端及 Task9–18 操作。完成新局部提交和报告后停止；调用方下一步应核对精确 commit、源差异、全量 receipt、只读保护及报告可访问性，再进行独立 review。原 P3 和后续任务的未执行关卡保持原状。
+
+<a id="task8-fix1"></a>
+## Task8 第 1 轮限定修正（1/5）：T8-I1、T8-I2、T8-I3
+
+2026-10-16，按用户本轮限定请求，从干净的 `7f747e55e480b92822c5599d1e9f54dccba98d9d`、原 `callentan-repository-skeleton` 分支开始。独立审阅/父会话给出的是静态反例，未提供新的运行复现；本轮先写真实文件/Git/CLI 测试，再改生产代码，不把上一轮 378 方法记录当作这三个反例的验证。
+
+### 范围与修正
+
+- T8-I1：仅调整 [声明位置登记](../.github/utilities/export_model.py)。root/path 的保护与 baseline 是否存在/有效分开；不完整或不可解析的 domainSources 声明阻止显式输出，但默认可选读取仍保留 gap。可解析位置继续保护子路径；YAML alias 不丢声明上下文。
+- T8-I2：仅在[运行收集](../.github/utilities/collect_implementation_report.py)已有逐目标/判据核对之后，以 pass/fail 行的不同 testId 核对 recorded executed 下限。同一测试覆盖多个独立判据只计一次，额外实际执行可保留；不从命令文本、manual、skipped 或 not-run 推算数量。
+- T8-I3：仅在[计划投影](../.github/utilities/vt_records.py)排除子树前检查全部声明 criterion 的真实正文锚点；位于 runs/applicability 被排除区的判据明确失败，不让修改后的判据冒充旧计划。原标题归属、严格判据边界及 Unicode/BOM/CRLF bytes 保留。
+- 测试只增加在两个已有 collector/model 模块；直接文档仅澄清这三处规则并同步当前状态。五份 schema、32 kinds、九视图、8/21/3 不变，没有新的结果输入账本。
+
+### 实际证据入口
+
+本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-report.md` 追加本轮完整报告；新 receipts 均在其 `task8-evidence\fix1-*`。这些材料仅本机可访问，不是下游运行依赖。
+
+- `fix1-before.json` 保存 120 个源文件、1305 个旧任务材料及本报告/原日志前缀身份。
+- `fix1-red-01-all-findings.json`：生产代码未变时 16 方法、18 个失败断言/子例、0 错误/跳过，退出 1。`fix1-red-verified.json` 确认三个生产文件仍等于起点，I3 未被其他 guard 掩盖。
+- `fix1-red-02-i1-files.json`：6 方法、13 个失败断言/子例，明确观察到不该创建的文件实际被写入受控 fixture；新增 alias 上下文控制。测试只清理自己的错误输出，没有写真实领域源。
+- `fix1-green-03-i1.json`、`fix1-green-04-i2.json`、`fix1-green-05-i3.json`：三个聚焦组分别 6、6、5 方法通过，0 跳过、退出 0；均核对输入 bytes/file-set。
+- `fix1-full-06-retained-new.json`：完整 retained+new 实际发现/执行 **395 方法**，0 失败、0 错误、0 跳过，退出 0，460.423 秒；受检源字节未变。原 378 项结果保留原对象，新结果不拼接旧 319/373/378 或 Task7 的历史结果。
+- 最终范围、链接/语法、旧材料与提交后字节核对，以及新 commit SHA，沿上述完整报告的最终追加查看；不在提交前预填自身 SHA。
+
+### 关卡与后续
+
+本轮本地修正和验证不等于独立批准，Task8 保持**等待限定复审**。合成 VT 记录只验证收集/归属/拒绝路径，不证明外部业务事件或人工审批；实测仍限 Windows/Python 3.13.15，其他宿主和 Python 3.11 未运行。
+
+未启动子代理、reviewer、工作流、Task9、应用/原生业务测试、安装、权限/持久 hook 配置、amend、push、PR 或远端操作。完成新范围内本地提交与报告后停止，由调用方核对本轮精确 commit、三处机制、全部新原始证据及旧记录保护，再做限定复审。
