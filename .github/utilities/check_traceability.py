@@ -152,13 +152,19 @@ def _selection(values, root: PathInput, pattern: re.Pattern, known: set[str],
 
 def trace_report(root: PathInput, delivery_ids) -> CheckReport:
     """Check the explicitly complete delivery against ALL actual plan targets."""
-    inventory = read_inventory(root)
+    return _trace_inventory(read_inventory(root), delivery_ids)
+
+
+def _trace_inventory(inventory, delivery_ids, *, allow_empty: bool = False) -> CheckReport:
+    """Reuse one acquired snapshot; only the full-inventory hook allows no ACs."""
     report = inventory.report
     if report.status == "input-error":
         return report  # Missing primary input cannot manufacture coverage findings.
+    root = report.baseline.root
     owners = {artifact.key: artifact for artifact in inventory.artifacts}
     acceptances = {entry.reference: entry for artifact in inventory.artifacts for entry in artifact.acceptances}
-    selected, errors = _selection(delivery_ids, root, _ACCEPTANCE, set(acceptances), "DELIVERY")
+    selected, errors = _selection(delivery_ids, root, _ACCEPTANCE, set(acceptances), "DELIVERY",
+                                  allow_empty=allow_empty)
     if errors:
         return _merge(report, errors, input_error=True)
     covered: set[str] = set()

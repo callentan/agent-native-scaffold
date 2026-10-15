@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–9 已完成各自的有限实现与范围复核，没有遗留的这些任务审阅发现。Task8 按用户单独选择复用现有 VT 运行；Task9 的文档审阅不声明真实批准或资格。当前仍是八方法、二十一 prompts、三模式，不是最终规划的九方法。Task10–18 未开始，下一步按既有授权实现可选 hooks/CI 并仅在受控本地 Git 夹具试验。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–9 已完成各自的有限实现与范围复核，没有遗留的这些任务审阅发现。Task8 按用户单独选择复用现有 VT 运行；Task9 的文档审阅不声明真实批准或资格。当前仍是八方法、二十一 prompts、三模式，不是最终规划的九方法。Task10 的可选 hooks/CI 已完成本地实现、自有 Git 夹具验证和自审，等待独立范围审阅；Task11–18 未开始。没有在真实工作树安装 hooks，托管 CI/required checks 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要和 Task9 文档已完成本次范围复核，结果见各自记录。Task10–18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要和 Task9 文档已完成本次范围复核，结果见各自记录。Task10 本地实现待独立复核；Task11–18 未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -98,13 +98,14 @@
 
 本节的工具测试只用于维护者完整 checkout，不随下游候选分发，也不是下游运行 parser/checker 的前提。下游使用说明只连接已分发的模块、contracts、依赖清单和开发登记；维护者的 RED/GREEN、测试数量、对象基线与历史导航留在本计划和[制作日志](../../logs/2026-10-15-ddd-alignment.md#task6)。
 
-任务 1 阶段没有创建 `.venv` 或安装包；任务 2 已先登记维护环境、创建 manifest，再恢复项目自己的 `.venv`，实际环境为 Python 3.13.15。现有 parser/schema 与 Task6 checker 测试使用这一环境，不安装新依赖。checker 的正式发现、精确 base 与 JSON 契约已实现，第 1 轮两项修正已完成聚焦回归和限定复审；hooks/CI 仍是后续任务。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
+任务 1 阶段没有创建 `.venv` 或安装包；任务 2 已先登记维护环境、创建 manifest，再恢复项目自己的 `.venv`，实际环境为 Python 3.13.15。现有 parser/schema 与 Task6 checker 测试使用这一环境，不安装新依赖。checker 的正式发现、精确 base 与 JSON 契约已实现，第 1 轮两项修正已完成聚焦回归和限定复审；hooks/CI 的当前本地范围见 [Task10](#task10)，不意味着托管运行通过。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
 
 | 检查 | 明确 cwd | 可执行程序及参数 |
 |---|---|---|
 | 定向 Python 测试 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_artifact_check.py -v`；parser 定向时替换为 `test_artifact_io.py` |
 | Task6 修正的受影响模块回归 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p "test_artifact*.py" -v`；发现/执行/跳过另由实际 receipt 核对，不重跑无变化的 schema 套件充当修正证据 |
-| 全部工具测试 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v`；须另核对真实发现/执行/跳过数量 |
+| 全部工具测试（带数量门禁） | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 -u .github\utilities\tests\run_tooling_tests.py --start-directory .github\utilities\tests --top-level-directory .github\utilities --pattern test_*.py`；可加精确 `--base`、新 `--report <new.json>`、`--raw-output <new.txt>`，父目录须已存在；零发现、全跳过、失败均非零 |
+| Task10 定向原生测试 | 当前仓库根 | 上行的 `--pattern` 改为 `test_hooks.py`；真实安装/commits 只发生在 `.venv` 下自有 Git 夹具，不在当前工作树安装 |
 | 维护工具源码与测试语法 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` |
 | 工件检查（已实现并经本次范围复核） | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root <本次已解析根目录>`；JSON stdout，可显式加 `--report <已存在获准目录>\new-artifacts.json`，不覆盖旧报告 |
 | 显式历史比较（已实现） | 当前仓库根 | 上行增加 `--base <已核对的完整 commit>`；精确对象不可读退出 2；保留完整当前正式库存，含未暂存/未跟踪文件，不是暂存区 hook |
@@ -141,7 +142,7 @@ Task6 的[真实文件/Git/CLI 用例](../../.github/utilities/tests/test_artifa
 | D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
 
 以上是任务 1 已完成的范围映射和原版边界记录，不是增强整体验收结论。Task 2
-的输入契约/parser、Task3–9 的有限交付与范围复核见下节；Task10–18 未实施，不能从本表推导整项增强完成。
+的输入契约/parser、Task3–9 的有限交付与范围复核见下节；Task10 本地实现待独立复核，Task11–18 未实施，不能从本表推导整项增强完成。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
@@ -382,21 +383,21 @@ class ImplementationReportTests(unittest.TestCase):
 
 - [x] 独立审阅核对全部 20 个 Markdown 变更及两项实际契约兼容风险，无 Critical/Important/Minor 发现。父会话独立 checker/trace CLI 保留 13 条合成记录及准确的 AC-02 未覆盖项，输入字节不变；这些是文档证据，不是人工 T17 或资格认证。
 
-**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
+**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10 的后续本地状态见下节；Task11–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
 
 <a id="task10"></a>
 ### 任务 10：可选 Git hooks 与 CI
 
 **文件：** Python hook 入口、`install_hooks.py`、`test_hooks.py`、validate-artifacts/tooling-tests workflows、工具/CI 使用说明。
 
-- [ ] 测试 installer 默认不更改 Git 配置、既有 hook 冲突不覆盖；显式安装只处理获准 hook，提供逐路径恢复说明，不改组织门禁。
-- [ ] 在本地 Git 夹具做真实提交试验：合法输入通过、非法暂存工件失败、含空格路径成功、缺解释器/依赖明确失败。hook 检查暂存快照，不用工作树未暂存修复掩盖即将提交的问题。
-- [ ] 实现 Python hook 入口与 installer；pre-commit 从 index 的已登记 blob 构造临时只读快照并检查，报告 index tree 与对象散列，不直接扫描被未暂存修改替换的文件。commit-msg 只能检查约定/提醒，不能认证 `reviewed-by` 身份。若 Git 宿主确需薄启动适配，适配中只调用同一 Python 逻辑；实际提交失败就修正后重测，不能以直接运行 Python 成功代替 hook 验证。
-- [ ] 制作仓库的 tooling-tests 运行 tools tests，下游 validate-artifacts 只调用候选内检查器与数据契约；不引用不会分发的 tests。都保存明确基线/报告，PR 输入采用精确 base commit。未知对象、回归测试零发现或全跳过失败，不做成功形状 fallback；空项目的文档扫描仍单独标 empty。
-- [ ] 原 ADO fan-out 的实际传播对象是 `.feature`，不是任意整仓覆盖。任务 11 的提案登记必须能表达来源场景→明确 BC 目标→文件范围→各自结果；托管平台实现可不同，但缺目标、无变化、冲突和失败不能一概报成功。
-- [ ] 用脚本/夹具验证 0/1/2 传播；真实托管运行和必需检查配置在任务 13 单独授权，未跑就 not-run。提交源码、workflow 与说明。
+- [x] installer 默认只提案，既有 hook/links/hooksPath 冲突不覆盖；只创建明确选中的 hook/ownership receipt，不改 Git 配置。恢复核对 bytes/mode/路径，owner 后续编辑或非法 receipt 为冲突；shared worktree metadata 明确拒绝。
+- [x] 自有本地 Git 夹具真实执行已安装 hook：合法、无效暂存/未暂存修复、有效暂存/未暂存损坏、删除/rename、partial commit 的实际 alternate index、空格/Unicode/引号路径、缺解释器/依赖均有原始输出，不以直接 Python 替代 native commit。
+- [x] 两份 Python 入口调用 `hook_checks.py`；只从真实 blobs 构造私有快照，保留 mode/blob/index tree/精确 base。完整 owner 验收交给共享覆盖规则；零 owner 与悬空 target 分别处理。原 checker/trace API 默认行为不变，无第二套检查算法。Windows Python shebang 实测未选中项目解释器后，才采用并实测最薄 Git `sh` launcher；commit-msg 的受管路径 `Reviewed-by` 政策只查文本，不认证身份。
+- [x] 下游 [validate-artifacts](../../.github/workflows/validate-artifacts.yml) 与制作专用 [tooling-tests](../../.github/workflows/tooling-tests.yml)分开；前者实测可在不含 maker tests/research/logs 的夹具调用。两者声明明确 cwd、lock、精确 PR head/base 和报告；[计数 runner](../../.github/utilities/tests/run_tooling_tests.py)实际拒绝零发现、全跳过并传播非空失败。YAML/本地 shell 语法核对不是 hosted pass。
+- [ ] **保留给 Task11/13，不在 Task10 实施：** 原 ADO fan-out 的实际对象是 `.feature`，不是整仓覆盖。提案登记仍须表达来源场景→明确 BC 目标→文件范围→各自结果；缺目标、无变化、冲突和失败不得混为成功。本轮没有新增传播 workflow。
+- [x] CLI/原生夹具保留 0/1/2 与 Git 非零拒绝；仅一次最终 retained+new 全套发现/执行 428、跳过 0、失败/错误 0（397 保留 + 31 新方法）。另行零/全跳过/fail/pass 和精确/非法 base 控制不混入这个数量。源码、workflow、说明按本任务本地提交授权交付，精确提交见交接报告。
 
-**退出：** ENH-10 的工具与本地接入；服务端门禁是否实际启用由真实平台结果决定。
+**当前退出状态：** Task10 本地实现与自审完成，等待独立范围审阅；[交接](../../logs/2026-10-15-ddd-alignment.md#task10)保留基线、逐项原始证据和限制。真实工作树/user/global 未安装或改配置，托管运行、POSIX 原生启动和服务端 required checks 仍为 not-run；不关闭整个 ENH-10 或 Task13。
 
 ### 任务 11：三方更新与多目标传播
 

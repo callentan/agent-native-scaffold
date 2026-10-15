@@ -34,6 +34,7 @@
 - 新表单保持 `draft`。实际审阅者、决定者的姓名/角色声明、责任依据、决定原文、日期、对象基线和适用范围分别需要来源；Agent 自审不得称为独立人工审阅。缺谁、缺什么证据、阻塞哪个结论要明确。
 - `confirmed` 必须按现有契约提供 `confirmation.by/reference/baseline`，只在 frontmatter 保存本记录的确认声明。记录被确认不等于其中的工具被批准或风险被接受；原决定也可能是拒绝或要求补充。schema 只检查声明形状，不认证身份、权限或签名，实际决定仍须回原文核对。
 - waiver 仅在确有适用要求及授权决定时记录：被豁免条款及其基线、理由、范围/期限或失效条件、补偿措施来源、具名决定与需复核项。没有授权者或证据就是提案，不能用空表、勾选、`Approved`、`Reviewed-by`、角色名称或 commit trailer 替代。
+- 可选 [commit-msg hook](../.github/hooks/README.md)仅在明确安装后检查受管暂存路径的 `Reviewed-by` 文本形状；不会验证姓名/角色/邮箱、生成 reviewer、改写消息或批准 waiver。禁用 hook 或使用原生 bypass 也不是已核实审阅；服务端门禁须另有真实配置与证据。
 - 对象、要求、工具版本/配置、用途或政策基线变化时，保留原决定和证据，按[影响方法](../.github/skills/verify-change/SKILL.md#impact)重新判断适用性。旧通过不自动成为新通过，也不能被改写成历史失败。
 
 <a id="intended-use"></a>

@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供 `artifact_io.py`、`check_artifacts.py`、`check_traceability.py` 和 `export_model.py`：分别负责解析、正式工件检查、覆盖/影响候选和确定性引用模型。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护。实施报告收集尚未提供；这些机械工具不证明业务执行或批准。
+本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型和只读实施报告收集；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -10,6 +10,26 @@
 - [requirements.lock](requirements.lock) 保存项目 `.venv` 成功解析后的六项实际版本。没有猜测 pins/hashes；pip 是 venv 自带安装工具，不是运行依赖。
 - 从仓库根执行 `python -m venv .venv` 后，用 `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` 恢复锁定环境，再运行 `.venv\Scripts\python.exe -m pip check`。
 - 不需要激活环境或全局 pip；没有媒体、DOCX/PDF、渲染、云端 SDK 或应用依赖。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
+
+<a id="native-hooks"></a>
+## 可选原生 hook 与同源 CI
+
+[hook 说明](../hooks/README.md)定义安装提案、显式应用、逐路径恢复、index 语义和
+受管路径 `Reviewed-by` 文本政策。`install_hooks.py` 默认不写，拒绝已有 hook、
+配置冲突和共享 worktree metadata；从不修改 Git 配置或自动 commit/push。
+
+`hook_checks.py pre-commit --root <checkout-root>` 也可由选定项目 Python 直接调用，
+使用实际 index 与原始 blobs，而不是工作文件；可给精确 `--base` 与新 `--report`。
+两份 Python hook 入口和下游资料 workflow 复用此模块。适配器仅负责快照/上下文与
+格式政策，工件、Markdown、owner AC/VC 和覆盖规则仍归现有三个模块。
+`read_inventory` 的私有 `_base_root` 只使临时快照从原 Git root 取得历史原始对象；
+`_trace_inventory` 复用同一已获取库存，零 owner 时仍反查 targets。公开本地
+`run_check`、`trace_report` 的工作树/非空交付选择契约不变。
+
+这组入口须与 `artifact_io.py`、`check_artifacts.py`、`check_traceability.py`、
+`artifact.schema.json`、依赖清单一起分发。制作仓的测试 runner/workflow、测试数据、
+研究和历史记录不成为下游依赖。native Git 失败与 JSON 的 0/1/2 各自保留；
+空库存不算业务通过，本地格式检查不认证 reviewer，YAML 存在不等于 hosted CI 已运行。
 
 ## Parser 接口
 

@@ -606,3 +606,72 @@ Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows
 原始审阅会话的结果定位与兼容性依据保存在本机会话 `files\ddd-alignment-execution\task9-review-result.md`。父会话已重查实际 head/parent/trailer、变更范围和干净 Git；独立 `task9-parent-consumer.json` 保存现有 checker/trace CLI 的真实参数、cwd、输出与前后字节：13 个正式合成记录 clean，仍精确发现 `task9/alpha/REQ-SYN-001#req-syn-001-ac-02` 在来源第 16 行未覆盖，输入未变。此故意保留的夹具缺口不是产品待办，也没有被伪造为通过。
 
 Task9 的文档实现/审阅关卡关闭，不认证真实专家决定、工具资格、风险接受、人工 T17 或权限。后续按[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10)实现可选 hooks/CI，并只在受控本地 Git 夹具试验；不在当前真实工作树安装 hook，不更改远端 required checks，也不从文档存在推断 CI 已运行。
+
+<a id="task10"></a>
+## Task10：可选 index hooks 与分开的本地/CI 接入
+
+### 会话、依据与 Git
+
+2026-10-16，按用户再次明确的 Task10-only 授权实施，依据为
+[任务 10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10)、ENH-10、
+固定矩阵 FRAMEWORK-05/08/09 及本机会话的完整 brief/16 个预备情形。
+没有重新打开 Task1–9 已关闭的范围关卡，也没有子代理、reviewer 或后续任务。
+
+起点 `7d22bd1d3889cd918d786991cfab9a9039292b97`，
+分支 `callentan-repository-skeleton`，实际检查暂存与工作树均干净。
+沿用已存在的隔离工作树、Python 3.13.15 项目 venv、Git 2.53.0.windows.4
+及原依赖 lock；不安装新依赖。写本节时，本轮源码/测试/workflow/说明及状态更新
+仍为该起点之上的 Task10 未提交范围，未暂存；获授权本地提交的精确对象与提交后
+状态由下述 `task10-report.md` 记录，不在提交内预填自身 SHA。
+
+### 本次变化
+
+- [Python hooks、安装与恢复说明](../.github/hooks/README.md)：默认提案，选定解释器和
+  hook，保留 owner bytes/config；已有 hooksPath/文件/links、共享 metadata 与
+  后续 owner 编辑明确冲突，不覆盖、不跳过后称完整。只在自有 Git 夹具执行安装。
+- [共享 index 适配](../.github/utilities/hook_checks.py)：原始 blobs、完整 staged
+  文件集、mode/blob/tree/基线与实际工具版本身份；含 Git partial commit 的真正
+  alternate index。只使用私有临时普通文件，不执行暂存源码、filters 或 gitlinks。
+  [安装器](../.github/utilities/install_hooks.py)不提交、不改 config、不推送。
+- checker 的私有历史根入口与 trace 的同库存函数作窄复用；没有改 schema、kind、
+  结果所有权或原公开工作树/非空交付选择语义。覆盖从所有 owner 验收出发；零 owner
+  不强造 AC，也不隐藏已声明的悬空 target。
+- commit-msg 的受管路径政策来自 FRAMEWORK-08 的 reviewed-by 文本能力，
+  不认证身份、不生成 reviewer、不改消息；merge/fixup/squash 标题没有特殊放行。
+- 下游 [validate-artifacts](../.github/workflows/validate-artifacts.yml)只调用分发模块；
+  制作专用 [tooling-tests](../.github/workflows/tooling-tests.yml)与
+  [计数 runner](../.github/utilities/tests/run_tooling_tests.py)不进入下游依赖。
+  两份 workflow 声明 lock、明确 cwd、精确 PR head/base 和保留报告，未远端运行。
+
+### 实际结果入口
+
+本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的
+`files\ddd-alignment-execution\task10-evidence\` 保存原始 receipt；
+同级 `task10-report.md` 是完整交接。均只在本机可访问，不是公共或 hosted CI 证据。
+
+| 原始入口 | 实际对象、观察及限制 |
+|---|---|
+| `native-startup.json` | 两个自有 Git 原生启动试验：绝对 Python shebang 未选到登记 venv，带引号版本也未成功；之后才采用最薄 Git `sh` launcher，并用实际 commit 验证。当前真实 index/config/hooks bytes 保持 |
+| `red-hooks\`、各 `green-*\` 与 `red-*\` | 先观察缺实现及具体边界失败，再作聚焦修正；Windows 路径断言、运行模块预检、目录别名、来源诊断、执行工具身份及 owner receipt 输入修正均保留原失败，不覆盖旧结果 |
+| `final-suite\suite.json`、`unittest.txt`、`command.json` | **仅一次**最终 retained+new：发现/运行/执行 428，跳过 0，失败/错误 0；397 个保留方法与 31 个新 hook 方法，源码/契约/入口读集前后不变，精确起点/base 与 raw 输出均保留 |
+| `final-suite\native-receipts\` | 31 个新方法的真实命令、cwd、输出/退出、index/工作文件/config/owner hook 摘要；实际安装后的 commit 没有隐藏 `--no-verify` 或临时关签名/hook |
+| `runner-controls-final\`、`green-runner-base\` | 独立真实零发现、全跳过、失败/成功套件控制，以及精确/短号/符号/不可用 base；预期失败确实非零，不混入 428 的回归数量 |
+| `static-pre-final-02\` | 8 份 Python 源语法、两份 YAML 与 4 个 shell 片段、本轮说明链接、环境一致性；真实共享工作树仅 inspect，拒绝共享安装且 bytes 不变。工件扫描 empty，不算业务通过 |
+
+`static-pre-final\failure.json` 保留最初未找到 packaged MinGit Bash 的检查中断；
+定位后使用**已经安装**的另一份 Bash 仅做 YAML run 片段语法检查，没有换用 Python
+执行验证或把语法检查称作 GitHub hosted run。原生 hook 仍由当前 Git 的 `sh` 调用
+登记 venv，空格/Unicode/引号路径与缺运行时失败都有真实提交结果。
+
+### 自审、限制与下一步
+
+本轮自审沿 Task10 文件清单、全部 16 个预备情形、分发依赖与旧新 API 语义核对；
+它不是独立 reviewer 或人工批准。**Task10 本地实现完成，等待独立范围审阅。**
+复核者应重新检查最终提交、31 个新方法及原生 receipts，尤其是 index 与工作树分离、
+精确 base/工具身份、owner hook/config 保留、空覆盖/错误及真实计数门禁。
+
+没有在当前工作树、主 checkout、用户/global 配置或其他项目安装 hooks；
+共享 metadata 默认安装明确拒绝。托管 CI、POSIX 原生启动、required checks、
+真实身份认证、应用与原 P3 平台/人工项仍为 `not-run` 或未验证。仅本地断言通过
+不能关闭整个 ENH-10；Task11 的 `.feature` fan-out 与多目标提案完全留待原任务。
+提交后停止等待本任务复核，不 amend、push、PR、传播、发布或自动继续后续任务。

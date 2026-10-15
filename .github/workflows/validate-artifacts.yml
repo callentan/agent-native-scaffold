@@ -1,0 +1,49 @@
+name: Validate project artifacts
+
+"on":
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore the project tool environment
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --requirement .github/utilities/requirements.lock
+          .venv/bin/python -m pip check
+      - name: Validate the exact candidate index and complete owner inventory
+        env:
+          VALIDATION_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          args=(pre-commit --root "$GITHUB_WORKSPACE" --report "$RUNNER_TEMP/artifact-validation.json")
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            args+=(--base "$VALIDATION_BASE")
+          fi
+          .venv/bin/python -B -X utf8 .github/utilities/hook_checks.py "${args[@]}"
+      - name: Retain the JSON result (raw output also remains in job logs)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-validation
+          path: ${{ runner.temp }}/artifact-validation.json
+          if-no-files-found: warn

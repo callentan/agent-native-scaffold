@@ -7,7 +7,7 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要与可选来源清单，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、可选来源清单和可选 hook/资料 CI 接入，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
@@ -35,8 +35,16 @@
 | 明确创建新模型 | 只读派生命令增加 `--output <获准的新 .json/.yaml/.yml>` | 与 `--check` 互斥；exclusive create、不建父目录，不占用登记来源路径 |
 | 收集实施摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root . --object <完整本地 commit>` | JSON stdout；按实际选择重复 `--evidence <VT相对路径[#运行锚点]>`，多 BC 须加 `--scope`；不执行 VT 命令 |
 | 明确创建新实施报告 | 收集命令增加 `--output <获准的新 .json/.yaml/.yml>` | exclusive create、不建父目录，不覆盖已有文件或占用缺失的声明来源；不自动登记 model 来源 |
+| 检查实际暂存快照 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\hook_checks.py pre-commit --root .` | JSON stdout；index/blob/tree 身份、全部 owner 验收和显式空覆盖；可加精确 `--base` 与新 `--report`，不自动修复/暂存 |
+| 查看可选 hook 安装提案 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\install_hooks.py --root . --python "<实际项目解释器绝对路径>" --hook pre-commit --hook commit-msg` | 默认无写入；报告目标/冲突及 shared metadata 范围；实际安装另需本次目标授权和 `--apply` |
 
 这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)与[实施摘要](../.github/utilities/README.md#implementation-report)分别约束其结果；API 不写文件。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖和成功收集都不等于业务通过。尖括号参数由本次实际输入替换。
+
+可选安装、恢复和原生运行边界见[hooks 说明](../.github/hooks/README.md)。
+Windows 薄 launcher 使用 Git 自带 `sh`，只启动准确项目解释器；不要求 PowerShell 7。
+installer 不覆盖 owner hook、不改 `core.hooksPath`，也拒绝默默影响 sibling worktrees。
+下游资料 workflow 只调用分发模块；制作仓回归 workflow/计数 runner 不分发。
+复制 YAML 不建立 required checks；托管运行与服务端配置须另有授权及实际证据。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目

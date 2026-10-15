@@ -580,12 +580,16 @@ def _baseline(root: Path, selected_base: str | None, tree: str | None,
                     hashlib.sha256(identity.encode("utf-8")).hexdigest(), files, base_files, tuple(changes))
 
 
-def read_inventory(root: PathInput, base_sha: str | None = None) -> Inventory:
+def read_inventory(root: PathInput, base_sha: str | None = None, *,
+                   _base_root: PathInput | None = None) -> Inventory:
     """Keep one checked read set; consumers must not reparse mutable source files."""
     base_raw_files: dict[str, bytes] = {}
     try:
         actual_root = _local_root(root)
-        selected_base, tree, base_files = (_base(actual_root, base_sha, raw_files=base_raw_files) if base_sha is not None
+        # The native hook's private snapshot adapter supplies the original Git
+        # root for raw history only. Current files still come solely from root.
+        history_root = actual_root if _base_root is None else _local_root(_base_root)
+        selected_base, tree, base_files = (_base(history_root, base_sha, raw_files=base_raw_files) if base_sha is not None
                                             else (None, None, ()))
     except ArtifactInputError as error:
         return Inventory(CheckReport("input-error", (_error(error),), 0, None, (), 0), (), (), ())

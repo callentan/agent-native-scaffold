@@ -1,0 +1,8 @@
+"""Python entry point; install explicitly, never copy this into Git by hand."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "utilities"))
+from hook_checks import main
+
+raise SystemExit(main(["pre-commit", *sys.argv[1:]]))

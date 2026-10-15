@@ -1,0 +1,53 @@
+name: Maintainer tooling tests
+
+"on":
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tooling:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore the maintainer tool environment
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --requirement .github/utilities/requirements.lock
+          .venv/bin/python -m pip check
+      - name: Run the retained suite with the real discovery gate
+        env:
+          VALIDATION_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          args=()
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            args+=(--base "$VALIDATION_BASE")
+          fi
+          .venv/bin/python -B -X utf8 .github/utilities/tests/run_tooling_tests.py \
+            --start-directory .github/utilities/tests --top-level-directory .github/utilities \
+            --report "$RUNNER_TEMP/tooling-tests.json" --raw-output "$RUNNER_TEMP/tooling-tests.txt" "${args[@]}"
+      - name: Retain counts and raw unittest output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintainer-tooling-tests
+          path: |
+            ${{ runner.temp }}/tooling-tests.json
+            ${{ runner.temp }}/tooling-tests.txt
+          if-no-files-found: warn
