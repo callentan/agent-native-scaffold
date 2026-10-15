@@ -65,6 +65,13 @@ frontmatter 的 `targets` 是目标关系的唯一声明，每项含完整 `scop
 
 非命令型检查说明不适用原因，不编造命令。输入不齐备时保持 `not-run` 并记录具体缺项。没有应用时，应用构建/测试对文档任务不适用；已规划的行为 VT 不因此变成通过或被删除。
 
+<a id="feature"></a>
+## Gherkin companion（按需）
+
+行为场景适用时，从[空白 feature 表单](verification-test.feature)复制到与本 VT 同一目录的同名 `.feature`，并按[companion 指引](../../verification/README.md#feature-companion)填写。删除本节提示后，只保留方法表中实际文件/基线导航；`.feature` 独占 Given/When/Then 场景正文，Markdown 不再维护第二份场景。
+
+`targets[].testId` 可定位实际存在的场景或原生测试标识；源文件名/场景名只证明文本位置，不等于 runner 可发现的测试。每个目标仍通过 `criterionAnchor` 拥有独立判据。安全/风险标签只能来自已提供的具名来源，空表不预置。没有应用、步骤实现、runner、命令/cwd 或报告时行为结果为 `not-run`，只能报告实际做过的文本、语法或映射检查。
+
 <a id="runs"></a>
 ## 实际执行记录
 

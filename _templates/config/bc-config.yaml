@@ -1,0 +1,21 @@
+# 可选数据表单，不是应用 manifest 或可执行命令。
+# 指引：../../architecture/README.md#bc-configuration
+# 契约：../../.github/contracts/bc-config.schema.json
+# 复制到获准项目根的 bc-config.yaml 后逐项填写；所有占位均不是已确认事实。
+schemaVersion: 1
+projectId: "PROJECT-TODO"
+boundedContexts:
+  - id: "CTX-TODO"
+domainSources:
+  - id: "SOURCE-TODO"
+    kind: "<local-or-git>"
+    root: "<explicit-source-root>"
+    path: "<repo-relative-source-path>"
+    baseline: "<full-fixed-git-object-or-sha256-digest>"
+    readOnly: true
+# 当前指向空白开发登记；路径可读不表示应用/命令已配置。
+developmentRegistration: docs/development.md#project-registration
+# root 与 path 分开核对；git 源只填实际完整 Git 对象，不填 HEAD/分支/缩写。
+# local 源可用实际 sha256:摘要；无领域源时须明确依据后使用空列表。
+# readOnly 是资料性质，不授予写入权限。不得加入命令、凭据或复制应用配置。
+# 填表不触发 clone/update/submodule/commit；路径/来源/基线未核实就停止依赖它的动作。

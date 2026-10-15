@@ -1,18 +1,28 @@
+---
+schemaVersion: 1
+id: ADR-NNN
+kind: architecture-decision
+scope: PROJECT/CTX-NNN
+contentState: draft
+upstream: []
+targets: []
+---
 # ADR-NNN：待填写
 
-> 可选决策表单，不代表已经作出决定。先读[ADR 指引](../../architecture/README.md#decisions)，有真实决策需要时才创建 `architecture\decisions\ADR-NNN-<slug>.md` 及其目录。复制后删除本提示、替换占位编号与锚点，并核对相对链接。
+> 可选决策表单，不代表已经作出决定。先读[ADR 指引](../../architecture/README.md#decisions)与[元数据约定](../../domain-model/README.md#artifact-metadata)，有真实决策需要时才创建 `architecture\decisions\ADR-NNN-<slug>.md` 及其目录。项目/上下文明确后替换全部占位并删除本提示；落点比表单多一层，须重新核对相对链接。
 
 <a id="context"></a>
 ## 背景与依据
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | 提案，未决 |
 | 日期、提出者 | 待填写 |
 | 决策问题与范围 | 待填写 |
-| 上游 REQ/SR、ABB 或明确任务依据 | 待填写：实际链接及基线 |
+| 来源阅读导航与决策理由 | 待填写：实际 REQ/SR、ABB、QAS、来件 ADR 或任务原文及基线 |
 | 业务上下文、事实归属与边界约束 | 待填写：规则或来源链接 |
 | 需要决策的原因与未知事实 | 待填写 |
+
+声明关系归 frontmatter 的 `upstream`，内容状态与确认记录也只在 frontmatter 维护。来件原文或实际决定缺失时记录缺口，不把文件标题、Accepted 字样或本地提案当成授权决定。
 
 <a id="options"></a>
 ## 备选方案与取舍
@@ -26,11 +36,12 @@
 ## 决定与影响
 
 - 拟议选择及理由：待填写。
-- 获授权者的实际决定、日期与确认依据：待填写；当前未决。
+- 决定的适用范围、生效条件与阅读导航：待填写；只有真实决定存在时才在 frontmatter 填确认人、依据与被确认基线。
 - 接受的代价、限制及需要调整的工件：待填写。
+- 受影响的上下文、消费者、接口与验证：待填写；通知仅为草稿，实际发送另行授权。
 - 被取代/取代本决定的记录链接：待填写；没有则说明。
 
-没有确认依据时保持提案，不能由表单或 Agent 自审生成“已接受”。
+没有确认依据时保持 `draft`，不能由表单或 Agent 自审生成“已接受”。源变化时保留旧决定及其适用基线，另列重审需要，不自动发布到外部 wiki 或改写来源。
 
 <a id="verification-needs"></a>
 ## 验证需要（按需）

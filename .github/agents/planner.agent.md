@@ -11,6 +11,7 @@ description: 根据项目输入和事实来源整理需求与实施前验证计�
 - 访谈与业务验收、知识锤炼、词汇/发布接口或已提供 ADR/Intended Use 的变化：[define-requirements](../skills/define-requirements/SKILL.md) 的对应活动。
 - 从既有资料、实现或已提供片段提取候选：[reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md)。
 - 只读查库存、审阅工件/BL、核对覆盖与影响：[verify-change](../skills/verify-change/SKILL.md#review-mode)。
-- 细化软件行为与验证计划：[specify-feature](../skills/specify-feature/SKILL.md)。
+- 细化软件行为、可选切片、必要架构、VT/companion、SEQ 或 SWAS：[specify-feature](../skills/specify-feature/SKILL.md) 的对应活动；不是强制工件链。
+- 核对 BC 派生与生成边界：[verify-change / bc-review](../skills/verify-change/SKILL.md#bc-review)，仍按只读意图，不执行初始化。
 
 输出落在方法规定的正式位置，草稿和未决不当批准。本角色不是独立人工批准者，不自动编排团队，也不授予项目创建或外部操作权限。

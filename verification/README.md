@@ -37,6 +37,18 @@
 
 实际执行选择 TS 或 VT 的一处记录作为所有者；若由 VT 持有，TS 只链接其运行块，不重复一份结果。每个目标独立记录执行结果、具体未执行原因及原始基线；当前适用性另记，不能把文档使用或 schema/parser 检查填成业务执行。
 
+<a id="feature-companion"></a>
+## Gherkin companion 与 BC 验证计划
+
+计划活动见 [specify-feature / plan-verification](../.github/skills/specify-feature/SKILL.md#plan-verification)。从实际 UC/INV/REQ/QAS、SR 或设计判据出发，不要求先造 US/ABB；需要的输入齐备后，VT 和架构设计可独立开展。
+
+行为适合 Gherkin 时使用[空白 feature](../_templates/items/verification-test.feature)，与所属 VT 同名、同目录。保留来源已知的正常、拒绝/负例、边界与错误路径；没有来源的参与者、响应指标、失败政策和安全关键标签不能预填。非行为 QAS 或缺度量只留规格/缺口，不强造可执行场景。
+
+- `.feature` 是 Given/When/Then 场景正文的唯一所有者。Markdown 持有目标元数据、独立判据、文件及基线导航、前提和证据，不复制第二份 Gherkin。
+- `targets[].testId` 只定位实际存在的场景/原生测试，`criterionAnchor` 对应当前 Markdown 的独立判据。文件/场景名是文本定位；runner 尚未配置时不能当作可执行选择器或声称已自动化。
+- 增加场景先核对原验收和完整覆盖，所有目标逐项判断。运行时同时记录 `.feature`、步骤实现、对象、要求及 VT 的实际基线；不让 companion 与计划分别漂移。
+- 文件存在、Approved 标签或测试文件名都不是通过/认证。没有应用、步骤实现、runner、授权命令/cwd 或报告时，行为验证保持 `not-run` 并列确切缺项。实际做了文本/语法/映射核对就只报告那一层，不称 Gherkin 执行成功。
+
 <a id="coverage-check"></a>
 ## 从全部验收项开始核对
 
@@ -87,7 +99,7 @@
 ## 领域规则、边界或要求改变时
 
 1. 记录改变的规则/上下文/验收 ID、来源、旧新基线及确认状态。影响行为但尚不明确的业务意图先澄清。
-2. 沿引用并结合语义检查依赖的 UC、INV、REQ、QAS、SR、ABB/ADR、场景/VT 和任务，列出受影响与待复核项；边界/接口变化还要核对 CAP、context map、Published Interface、伙伴及已采用的战术资料。**即使引用文件没有复制数值规则，仍可能受影响**；仅链接有效不能证明语义未变。
+2. 沿引用并结合语义检查依赖的 UC、INV、REQ、QAS、SR、ABB/ADR、SEQ/SWAS、场景/VT 及 companion 和任务，列出受影响与待复核项；边界/接口变化还要核对 CAP、context map、Published Interface、伙伴及已采用的战术资料。**即使引用文件没有复制数值规则，仍可能受影响**；仅链接有效不能证明语义未变。
 3. 更新确实受影响的行为边界、验收场景、设计约束、VT 预期及索引缺口。不要无故改动未受影响规则；判断无影响要有依据。
 4. 保留旧结果及原基线，把其对当前内容的适用性标为待复核。按新基线重新执行相关检查并追加结果；对象或环境不具备时保留 `not-run` 与原因。
 5. 在[交接记录](../logs/README.md#handoff)中指明变化、缺口、待复核与未执行项。文档一致性复查和业务/软件行为执行始终分开。

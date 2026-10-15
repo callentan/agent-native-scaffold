@@ -219,3 +219,54 @@ git --no-pager diff --check
 消费者还因相对输出路径歧义把十个临时文件写到仓库未跟踪的 `execution` 目录；父会话保留全部原字节并迁入本机会话 `task4-independent-observation`，空目录清理后 Git 无这些未跟踪文件，未修改或提交源文件。字节迁移和无效对照说明在 `task4-observation-relocation.json`；路径清理首次因目录属性失败，显式核对为空后才针对性删除。
 
 消费者报告本会话 callable skill 列表未包含新方法，使用显式文件读取完成；本次没有独立客户端加载 trace，因此仍保留原生发现未验证，不能扩大成所有客户端不支持。Task4 本次范围复核关闭，下一步 Task5 的 BC 方法；媒体/平台/业务/人工验收关卡不变。
+
+<a id="task5"></a>
+## Task5：BC 表单、方法与安全初始生成契约
+
+本节追加 Task5 实际记录，保留上文各阶段的历史观察。**当前 Task5 已实施，等待独立审查；本执行停于 Task5，Task6–18 为 `not-run`。**
+
+### 会话、任务与 Git 状态
+
+| 项目 | 实际记录 |
+|---|---|
+| 日期与执行者 | 2026-10-15；Task5 implementer 单会话实施与自用，无 subagent/reviewer |
+| 依据与授权 | 用户批准的 [Task5](../docs/plan/2026-10-14-ddd-functional-alignment.md#task5)、本机 task5-brief 与固定十案例；仅文档/方法/规则、有限检查、一次既有回归和含 coauthor 的本地提交 |
+| 起始分支/完整对象 | `callentan-repository-skeleton`；`d7693a8e481dd84effc155378ae16c255c04d9b7` |
+| 原有未提交内容 | 开始时工作树/暂存区干净，无需重复“先提交旧变更” |
+| 本次范围与对象 | 31 个分发文件加本计划状态和本日志追加，共 33 个文件；同批提交由 Git 文件历史定位，完整 SHA/提交后状态回本机 task5-report 读取 |
+| 不变边界 | 不修改 parser/schema/依赖/测试、Task3 领域表单、其他四个方法或 reviewer；不生成业务应用、运行后续工具、联网/安装、配置 hooks/CI、推送或 PR |
+
+### 实际变化
+
+- [SR](../_templates/items/software-requirement.md)、[US](../_templates/items/user-story.md)、[ABB](../_templates/items/architecture-building-block.md)、[ADR](../_templates/items/architecture-decision.md) 接入现有元数据，删除重复内容状态/关系表；VT 只补 [companion](../verification/README.md#feature-companion) 接入，原运行/适用性与全量目标盘点保留。
+- 增加 [SEQ/SWAS 与 BC 配置字段指引](../architecture/README.md)、空白 feature；九视图只引用来源，不制造模型导出、基础设施、质量度量、风险分类或批准。
+- [specify-feature](../.github/skills/specify-feature/SKILL.md) 提供 SR、可选切片、必要架构、VT/feature、SEQ/SWAS 聚焦小节；[generate-code](../.github/skills/generate-code/SKILL.md) 单独处理初始输入/路径/非空冲突/拟生成说明。既有维护仍用 implement-task，文档路径不依赖应用输入。
+- 新增三份有限代码规则和六个薄 prompts；planner/implementer 只作相关路由，reviewer 仍沿 verify 的原入口。原十五 prompts 无需手术式修订；通过共享方法可到达新分支。当前实数为 **8 方法、21 prompts、3 模式**，没有 Task11 的 update-template。
+- 分发内容没有依赖制作 design/plan/research、实际日志、tests 或本机会话产物；仅共享的日志指引/空表继续分发。原 P3 六方法/五 prompts/两规则的历史观察保留，不能升级为新入口原生发现已测。
+
+### 实际证据入口
+
+所有本轮辅助文件都在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的绝对授权 artifact 根内，没有仓库相对的 execution 输出目录。下表只给该本机入口内定位；不是跨机器证据或新分发工具。
+
+| 记录入口 | 实际对象与限制 |
+|---|---|
+| `files\ddd-alignment-execution\task5-report.md` | 本次完整报告、准确命令/cwd/路径、范围、真实检查、提交与限制；提交后重查实际 Git |
+| `task5-baseline-use\task5-baseline-report.md` | 唯一真实修改前基线；本次只读，控制原已正确，不补造 RED 或可靠性提升 |
+| `task5-after-use\start-state.json`、`copy-provenance.json` | 起始 94 个 tracked 文件与四份固定输入摘要；90 个实际分发副本、11 个表单复制前字节摘要 |
+| `task5-after-use\BC-USE-01.md` 至 `BC-USE-10.md` | 同一实施者对同一十例的有限操作/停点；原身份、项目、审批与旧报告缺项仍保留，不是独立审查 |
+| `task5-after-use\consumer-copy`、`use-check-01.json` | 九个实际填表 Markdown 经原 parser 解析、五个 owner-qualified 合成验收和三条目标；BC 使用真实本地输入摘要，九视图用现有 schema 校验；feature 只作文本/映射 |
+| `task5-after-use\tool-tests.json` | 当前 `.venv`、明确仓库 cwd，只运行一次原套件：`144 tests in 4.977s; OK`，0 跳过/失败/错误，退出 0 |
+
+初轮有限文档检查覆盖 90 个分发文件，其中 80 个 Markdown、63 份 YAML frontmatter、512 个本地链接；实际消费副本的 92 个 Markdown/568 个本地链接也可定位，六个已有外链未访问。最终状态/日志核对另留最终 receipt，不用这些数量证明业务语义或原生客户端运行。
+
+原 owner fixture 在预检与检查后仍为 225 字节，SHA-256 为 `2b060d2f641e7a1f02ccaf35c676f402aa49726ba06cef4a8b5b6921eda84466`。另一个合成 Markdown 修正严格只替换一个链接并保留周围字节；原 BC-USE-04 缺实际目标，未被该补充例假装解阻。错误 owner 的 VT 可解析但目标不存在，BC `HEAD` 基线被实际 schema 拒绝；空配置仍带明确占位而不是有效项目登记。
+
+本次没有为 Task5 消费副本建立 Git 仓库或提交。原 144 项套件内部按其既有 helpers 在受控临时目录构造并清理本地 Git/文件夹具，这是原套件的内部行为，不是新增业务工程或 Task5 生成活动；未修改 helper、安装 hook 或连接远端。
+
+### 缺口与下一步
+
+- 合成身份只用于局部结构例，不补原十案例未给的 owner/ID/源文件/基线。没有实际 UC/INV/CAP/QAS、参与者/错误/副作用/并发/失效政策或确认时，相关要求/US/架构仍为候选或阻塞。
+- 有界库存明确保留 `task5-synthetic/CTX-BORROW/SR-SYN-001#sr-syn-001-ac-02` 与 `task5-synthetic/CTX-BORROW/ABB-SYN-008#abb-syn-008-vc-01` 两个未覆盖目标；metadata/schema 与链接检查不等于这些验收通过。
+- 新 SEQ 是已知概念方向的部分说明；SWAS 缺真实 ABB/部署/风险/发布来源，九视图仅 requirements 为 partial、其余 unverified。没有 Gherkin parser/runner、Mermaid/PDF/演示渲染或应用行为执行；全部相应结果为 `not-run`。
+- Task13 正向应用生成/原生 runner 需要另选实际项目/栈/路径、命令/cwd/报告和授权；本次不为了声称成功要求创建应用。后续 checker/exporter、源接入、hooks/CI、平台/人工验收均未启动。
+- 下一步由父会话独立复核本次 33 文件、完整报告、十例实际副本与全部当前状态；接手先核对完整 commit、工作树和本机证据可访问性。Task5 尚未获得独立审查结论，不自动进入 Task6。

@@ -44,6 +44,19 @@ description: Use when assessing acceptance or domain artifacts, querying current
 
 查询不生成模型、不补写工件或持久索引。若有派生摘要，返回其来源并核对基线，不能以摘要替代原文；没有摘要就读现有资料。[当前 parser](../../utilities/README.md)只解析本地元数据、锚点及显式集合重号，不是跨文件追溯引擎，不调用未提供的检查器/导出命令。
 
+<a id="bc-review"></a>
+## BC 派生与实现边界审阅
+
+沿[完整验收](#coverage)核对实际 SR、可选 US、ABB/ADR、VT/companion、SEQ/SWAS 与来源基线，默认遵守[只读模式](#review-mode)，不自动生成或执行。正式关系和内容状态以现有元数据为准，正文只解释来源与独立判据；旧轻量资料不强制迁移。
+
+- REQ/UC/INV/CAP/QAS 是否足以支持已写的软件行为、拒绝/错误与禁止副作用？未确认来源、角色、指标和并发/失效政策是否仍明确未决？US 是否只组织切片而未成为强制桥梁，ABB/VT 是否只依赖各自必需输入？
+- ABB/ADR 是否只有有源的结构约束与真实取舍？代码相关审阅显式读[架构](../../instructions/architecture.instructions.md)、[编码](../../instructions/coding.instructions.md)、[安全](../../instructions/security.instructions.md)与适用[测试规则](../../instructions/tests.instructions.md)，即使真实目录未匹配。区分合法装配入口与业务逻辑绕过，不由边界名称推断权限。
+- VT 是否逐项反查真实 owner/锚点、独立判据及实际场景/测试定位？`.feature` 是否独占场景正文？没有应用、步骤实现、runner 或报告就保持 `not-run`；Approved、测试名和 parser 成功均不证明批准或执行。
+- SEQ 是否区分概念参与者和真实 ABB/接口、保留有源方向与异步契约而未发明传输保证？SWAS 的九类来源可读性是否回原文/基线核对，缺 ABB/部署/风险/发布时是否保留 gap 而不是虚构基础设施或批准？
+- 初始生成是否经过 [generate-code 预检](../generate-code/SKILL.md#preflight)，列明所有准确路径、来源/验收和授权范围？非空冲突、路径错配或缺开发输入必须有阻塞记录，跳过不算完整生成。既有维护核对任务/diff/复现，而非初始化覆盖；只读源和所有者内容应保留。
+
+发现按[已有字段](#domain-review)返回实际位置、基线、理由、影响与缺项。实际修改/执行仍需具体授权；本小节不新增 checker、安全审计或应用通过结论。
+
 <a id="backlog-review"></a>
 ## 开放问题与 BL 审阅
 
@@ -54,7 +67,7 @@ description: Use when assessing acceptance or domain artifacts, querying current
 <a id="impact"></a>
 ## 语义影响（执行前）
 
-1. 对照旧新规则、上下文、验收与基线，记录实际变更 ID/位置、来源和确认状态。沿引用及业务含义追踪依赖的模型、UC/INV、REQ/QAS、SR、设计、场景/VT 和任务；边界变化还核对 CAP、context map、Published Interface 与消费者。即使数值只存在于一个规则文件，引用方的行为边界仍可能受影响。只有实际提供且适用时才加入[来件 ADR](../define-requirements/SKILL.md#incoming-adr)、[Intended Use](../define-requirements/SKILL.md#intended-use)和治理/风险引用；缺源标明受影响判断不能完成，不代作风险决定。
+1. 对照旧新规则、上下文、验收与基线，记录实际变更 ID/位置、来源和确认状态。沿引用及业务含义追踪依赖的模型、UC/INV、REQ/QAS、SR、US、ABB/ADR、SEQ/SWAS、场景/VT 及 companion 和任务；边界变化还核对 CAP、context map、Published Interface 与消费者。即使数值只存在于一个规则文件，引用方的行为边界仍可能受影响。只有实际提供且适用时才加入[来件 ADR](../define-requirements/SKILL.md#incoming-adr)、[Intended Use](../define-requirements/SKILL.md#intended-use)和治理/风险引用；缺源标明受影响判断不能完成，不代作风险决定。
 2. 按[影响指引](../../../verification/README.md#change-impact)列受影响项及各自来源、理由、严重度、需谁确认什么和建议顺序；仅在变化已确认且修改获准后更新验收边界、错误/禁止副作用和 VT 预期，保留仍成立的回归场景。无影响的判断给出理由；未确认的业务变化先澄清，不擅改规则或删除原验收，建议顺序不是已执行的修改。
 3. 保留旧运行的实际结果及其原对象、要求和 VT 基线；在原结果的[适用性栏](../../../_templates/items/verification-test.md#applicability)追加对当前基线的“待复核”和影响理由。不能把旧成功改写为新成功或历史失败，新检查须追加独立记录。
 
