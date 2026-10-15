@@ -88,6 +88,87 @@ def write_artifact(
     return write_metadata(root, data, body, relative_path or f"{id}.md")
 
 
+def criterion_block(anchor: str, expected: str, method: str, constraints: str) -> str:
+    """An actual VT-form criterion, not an expected value derived from a tool."""
+    return (
+        f'<a id="{anchor}"></a>\n### {anchor}\n\n'
+        "| 本目标的判定信息 | 内容 |\n|---|---|\n"
+        f"| 本目标预期与独立判定标准 | {expected} |\n"
+        f"| 对应方法/步骤或实际测试标识 | {method} |\n"
+        f"| 前提、禁止副作用及未决事项 | {constraints} |\n\n"
+    )
+
+
+def write_delivery_fixture(root: Path, omit_software_reject: bool = False) -> tuple[str, ...]:
+    """Task7's four source-owned acceptances; omission changes ONLY software VT."""
+    delivery = (
+        "sample/CTX-001/REQ-001#req-001-ac-01",
+        "sample/CTX-001/REQ-001#req-001-ac-02",
+        "sample/CTX-001/SR-001#sr-001-ac-01",
+        "sample/CTX-001/SR-001#sr-001-ac-02",
+    )
+    write_metadata(root, metadata(id="DM-001", kind="domain-model"),
+                   '# DM-001：借用规则\n\n<a id="rule-001"></a>\n## RULE-001：额度\n'
+                   'Allowance limit: 2\n\n会员资格有效；资格失效与并发政策尚未确定。\n',
+                   "domain-model/DM-001.md")
+    write_metadata(
+        root, metadata(upstream=["sample/CTX-001/DM-001#rule-001"]),
+        '# REQ-001：借用业务\n\n<a id="req-001-ac-01"></a>\n'
+        '### REQ-001-AC-01：允许借用\n\n有效会员在源规则额度内能完成借用。\n\n'
+        '<a id="req-001-ac-02"></a>\n### REQ-001-AC-02：拒绝超额\n\n'
+        '超出源规则额度时不得形成新的业务借用。\n',
+        "stakeholder-requirements/REQ-001.md",
+    )
+    write_metadata(
+        root, metadata(id="SR-001", kind="software-requirement", upstream=list(delivery[:2])),
+        '# SR-001：软件借用行为\n\n<a id="sr-001-ac-01"></a>\n'
+        '### SR-001-AC-01：记录允许请求\n\n在源规则允许范围内提交后新增一条借用记录。\n\n'
+        '<a id="sr-001-ac-02"></a>\n### SR-001-AC-02：拒绝请求无副作用\n\n'
+        '超出额度提交时返回拒绝且借用记录不变。\n',
+        "software-requirements/SR-001.md",
+    )
+    business = [
+        {"target": delivery[0], "criterionAnchor": "allow"},
+        {"target": delivery[1], "criterionAnchor": "reject"},
+    ]
+    software = [
+        {"target": delivery[2], "criterionAnchor": "record"},
+        {"target": delivery[3], "criterionAnchor": "no-write"},
+    ]
+    plans = (
+        ("VT-001", "业务验收", business,
+         criterion_block("allow", "额度内会员取得一次新的借用。",
+                         "按规则准备额度内状态并办理借用，观察业务登记。",
+                         "资格已有效；不决定尚未知的失效与并发政策。")
+         + criterion_block("reject", "超额度会员没有形成新的借用。",
+                           "准备已达额度的会员再申请，观察拒绝后的业务登记。",
+                           "不得扣减或增加其他会员的借用；并发政策未确定。")),
+        ("VT-002", "软件行为", software[:1] if omit_software_reject else software,
+         criterion_block("record", "有效请求新增一条关联会员的记录。",
+                         "发送额度内提交请求并读取操作前后的记录集合。",
+                         "固定有效资格；未知的资格失效分支不作断言。")
+         + ("" if omit_software_reject else
+            criterion_block("no-write", "超额请求返回拒绝且前后记录完全相同。",
+                            "发送超过额度的请求，比较返回和提交前后记录。",
+                            "禁止新增或修改任何借用；并发策略仍待来源明确。"))),
+    )
+    for identifier, layer, targets, criteria in plans:
+        write_metadata(
+            root, metadata(id=identifier, kind="verification-test", targets=targets),
+            f'# {identifier}：独立验证计划\n\n<a id="plan"></a>\n## 计划与层次\n\n'
+            f'| 字段 | 内容 |\n|---|---|\n| 验证层次 | {layer} |\n\n'
+            '<a id="targets"></a>\n## 逐项目标与判据\n\n' + criteria
+            + '<a id="runs"></a>\n## 实际执行\n\nnot-run：尚无业务或软件执行环境。\n',
+            f"verification/{identifier}.md",
+        )
+    return delivery
+
+
+def source_bytes(root: Path) -> dict[str, bytes]:
+    return {path.relative_to(root).as_posix(): path.read_bytes()
+            for path in sorted(root.rglob("*")) if path.is_file()}
+
+
 def git(root: Path, *arguments: str) -> str:
     # No inherited repository/index, global hooks, signing or network operations.
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}

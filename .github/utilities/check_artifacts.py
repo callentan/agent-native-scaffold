@@ -96,6 +96,16 @@ class CheckReport:
         return result
 
 
+@dataclass(frozen=True, slots=True)
+class Inventory:
+    """The report and its actual read snapshot for bounded downstream tools."""
+
+    report: CheckReport
+    artifacts: tuple[Artifact, ...]
+    raw_files: tuple[tuple[Path, bytes], ...]
+    base_raw_files: tuple[tuple[str, bytes], ...]
+
+
 _FORMAL_NAME = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?=[-.\s:：]|$)")
 _METADATA_MARKER = re.compile(
     r"""(?:^|[{,])[ \t]*["']?(?:schemaVersion|id|kind|scope|contentState|upstream|targets|confirmation)["']?(?=[: \t]|$)"""
@@ -281,7 +291,8 @@ def _git(root: Path, *arguments: str) -> bytes:
     return result.stdout
 
 
-def _base(root: Path, base_sha: str) -> tuple[str, str, tuple[BaseFile, ...]]:
+def _base(root: Path, base_sha: str, *,
+          raw_files: dict[str, bytes] | None = None) -> tuple[str, str, tuple[BaseFile, ...]]:
     if not isinstance(base_sha, str) or not re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", base_sha):
         raise ArtifactInputError("INVALID_BASE", root, 1, "Base must be a full 40- or 64-hex Git commit ID")
     base_sha = base_sha.lower()
@@ -305,6 +316,8 @@ def _base(root: Path, base_sha: str) -> tuple[str, str, tuple[BaseFile, ...]]:
             if kind != "blob":
                 raise ArtifactInputError("BASE_UNAVAILABLE", root, 1, f"Not a historical file: {relative}")
             raw = _git(root, "cat-file", "blob", blob)
+            if raw_files is not None:
+                raw_files[relative] = raw
             # Historical bytes are comparison evidence, not newer-schema inputs.
             files.append(BaseFile(relative, blob, hashlib.sha256(raw).hexdigest(), len(raw),
                                   _formal(relative, raw.decode("utf-8-sig", errors="replace"))))
@@ -499,14 +512,15 @@ def _baseline(root: Path, selected_base: str | None, tree: str | None,
                     hashlib.sha256(identity.encode("utf-8")).hexdigest(), files, base_files, tuple(changes))
 
 
-def run_check(root: PathInput, base_sha: str | None = None) -> CheckReport:
-    """Validate the complete current inventory; a base adds comparison, not filtering."""
+def read_inventory(root: PathInput, base_sha: str | None = None) -> Inventory:
+    """Keep one checked read set; consumers must not reparse mutable source files."""
+    base_raw_files: dict[str, bytes] = {}
     try:
         actual_root = _local_root(root)
-        selected_base, tree, base_files = (_base(actual_root, base_sha) if base_sha is not None
+        selected_base, tree, base_files = (_base(actual_root, base_sha, raw_files=base_raw_files) if base_sha is not None
                                             else (None, None, ()))
     except ArtifactInputError as error:
-        return CheckReport("input-error", (_error(error),), 0, None, (), 0)
+        return Inventory(CheckReport("input-error", (_error(error),), 0, None, (), 0), (), (), ())
     findings: list[Finding] = []
     errors: list[Finding] = []
     excluded: list[Exclusion] = []
@@ -556,13 +570,24 @@ def run_check(root: PathInput, base_sha: str | None = None) -> CheckReport:
     complete = not any(error.code in _ACQUISITION_ERRORS for error in errors)
     baseline = _baseline(actual_root, selected_base, tree, records, base_files, complete)
     status = "input-error" if errors else "invalid" if findings else "clean" if artifacts else "empty"
-    return CheckReport(
+    report = CheckReport(
         status, tuple(sorted([*errors, *findings], key=lambda item: (item.path, item.line, item.code, item.target or ""))),
         len(artifacts), baseline, tuple(sorted(excluded, key=lambda item: (item.path, item.reason))), attempted,
     )
+    return Inventory(report, tuple(artifacts.values()), tuple(sorted(raw_files.items())),
+                     tuple(sorted(base_raw_files.items())))
+
+
+def run_check(root: PathInput, base_sha: str | None = None) -> CheckReport:
+    """Validate the complete current inventory; a base adds comparison, not filtering."""
+    return read_inventory(root, base_sha).report
 
 
 def _report_path(value: str, root: str) -> Path:
+    return _output_path(value, root, (".json",))
+
+
+def _output_path(value: str, root: str, suffixes: tuple[str, ...]) -> Path:
     try:
         if _network_path(value) or "://" in value:
             raise ArtifactInputError("REPORT_CONFLICT", value, 1, "The report destination must be local")
@@ -574,13 +599,26 @@ def _report_path(value: str, root: str) -> Path:
         if path.exists() or path.is_symlink():
             raise ArtifactInputError("REPORT_CONFLICT", path, 1, "A report may not replace any existing file or directory")
         path = path.resolve()
-        if path.suffix.lower() != ".json":
-            raise ArtifactInputError("REPORT_CONFLICT", path, 1, "An explicit new .json file is required")
+        if path.suffix.lower() not in suffixes:
+            raise ArtifactInputError("REPORT_CONFLICT", path, 1, f"An explicit new file with suffix {suffixes} is required")
         return path
     except (OSError, ValueError, RuntimeError) as error:
         if isinstance(error, ArtifactInputError):
             raise
         raise ArtifactInputError("REPORT_WRITE_ERROR", value, 1, str(error)) from error
+
+
+def _write_report(payload: dict, value: str, root: str) -> None:
+    """Shared protected JSON output only; no CLI dispatch or source execution."""
+    output = _report_path(value, root)
+    payload["report_output"] = {"path": str(output), "written": True}
+    try:
+        with output.open("x", encoding="utf-8", newline="\n") as destination:
+            destination.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    except FileExistsError as error:
+        raise ArtifactInputError("REPORT_CONFLICT", output, 1, str(error)) from error
+    except OSError as error:
+        raise ArtifactInputError("REPORT_WRITE_ERROR", output, 1, str(error)) from error
 
 
 def main() -> int:
@@ -593,16 +631,7 @@ def main() -> int:
     payload = report.to_dict()
     if arguments.report is not None:
         try:
-            output = _report_path(arguments.report, arguments.root)
-            payload["report_output"] = {"path": str(output), "written": True}
-            try:
-                # Exclusive creation prevents overwriting even after the precheck.
-                with output.open("x", encoding="utf-8", newline="\n") as destination:
-                    destination.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
-            except FileExistsError as error:
-                raise ArtifactInputError("REPORT_CONFLICT", output, 1, str(error)) from error
-            except OSError as error:
-                raise ArtifactInputError("REPORT_WRITE_ERROR", output, 1, str(error)) from error
+            _write_report(payload, arguments.report, arguments.root)
         except ArtifactInputError as error:
             report = replace(report, status="input-error", findings=(*report.findings, _error(error)))
             payload = report.to_dict()

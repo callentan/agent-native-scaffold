@@ -7,7 +7,7 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地元数据解析、正式工件检查与四类数据契约，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型与可选来源清单，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
@@ -28,8 +28,13 @@
 | 正式工件完整检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root .` | JSON stdout；不自动保存报告，empty/退出 0 不代表业务通过 |
 | 精确历史比较 | 上行增加 `--base <已核对的完整 commit ID>` | 验证目标仍是当前文件的完整正式库存，不只检查变更或暂存内容；精确对象不可读退出 2 |
 | 明确保存检查报告 | 检查命令增加 `--report <获准的新 JSON 路径>` | 相对路径以 root 为准；父目录须存在，已有文件一律拒绝，不改写源文件或历史记录 |
+| 完整交付覆盖 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --delivery <完整验收引用>` | 每个交付项重复 `--delivery`；stdout JSON，可选 `--report`；不从 VT 倒推范围，不执行 VT |
+| 规则变化影响候选 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --base <完整 commit>` | 可重复 `--task <实际 scope/id>`；合并旧新依赖，人工判断语义 |
+| 模型只读派生 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\export_model.py --root . --scope <实际 project/context>` | JSON stdout；从可选 `model-sources.yaml` 选择来源，主输入失败退出 2 |
+| 旧模型检查 | 上行增加 `--check <已有 .json/.yaml/.yml>` | 只读重算；来源变化/手改退出 1，输入错误退出 2，不修复源或模型 |
+| 明确创建新模型 | 只读派生命令增加 `--output <获准的新 .json/.yaml/.yml>` | 与 `--check` 互斥；exclusive create、不建父目录，不占用登记来源路径 |
 
-这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。检查器的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)是实际使用契约；`run_check(root, base_sha=None)` API 不写文件。当前没有跨文件验收覆盖或模型导出器，工件检查不能代替它们。尖括号参数由本次实际输入替换。
+这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)分别约束其结果；API 不写文件。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。模型完整性与结构覆盖都不等于业务通过；实施报告收集尚未提供。尖括号参数由本次实际输入替换。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目

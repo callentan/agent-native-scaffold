@@ -225,15 +225,15 @@ def _check_yaml_graph(node: Node, active: set[int], visited: set[int]) -> None:
     visited.add(identity)
 
 
-def _locations(node: Node, path: Path) -> dict[MetadataPath, SourceLocation]:
+def _locations(node: Node, path: Path, start_line: int = 2) -> dict[MetadataPath, SourceLocation]:
     result: dict[MetadataPath, SourceLocation] = {}
 
     def visit(current: Node, parts: MetadataPath) -> None:
-        result.setdefault(parts, SourceLocation(path, current.start_mark.line + 2))
+        result.setdefault(parts, SourceLocation(path, current.start_mark.line + start_line))
         if isinstance(current, MappingNode):
             for key, value in current.value:
                 child = (*parts, key.value)
-                result[child] = SourceLocation(path, key.start_mark.line + 2)
+                result[child] = SourceLocation(path, key.start_mark.line + start_line)
                 visit(value, child)
         elif isinstance(current, SequenceNode):
             for index, value in enumerate(current.value):
@@ -243,6 +243,16 @@ def _locations(node: Node, path: Path) -> dict[MetadataPath, SourceLocation]:
 
 
 def _load_metadata(text: str, path: Path) -> tuple[dict[str, Any], dict[MetadataPath, SourceLocation]]:
+    return _load_mapping(text, path, 2, "INVALID_METADATA", "Frontmatter must be a mapping")
+
+
+def load_yaml_mapping(text: str, path: Path) -> tuple[dict[str, Any], dict[MetadataPath, SourceLocation]]:
+    """Read a raw YAML/JSON mapping with the SAME safety, duplicate and location rules."""
+    return _load_mapping(text, path, 1, "INVALID_YAML", "Source document must be a mapping")
+
+
+def _load_mapping(text: str, path: Path, start_line: int, mapping_code: str,
+                  mapping_message: str) -> tuple[dict[str, Any], dict[MetadataPath, SourceLocation]]:
     loader = None
     try:
         loader = _UniqueSafeLoader(text)
@@ -251,15 +261,15 @@ def _load_metadata(text: str, path: Path) -> tuple[dict[str, Any], dict[Metadata
             _check_yaml_graph(node, set(), set())
         data = loader.construct_document(node) if node is not None else None
         if not isinstance(data, dict):
-            raise ArtifactInputError("INVALID_METADATA", path, 2, "Frontmatter must be a mapping")
-        return data, _locations(node, path)
+            raise ArtifactInputError(mapping_code, path, start_line, mapping_message)
+        return data, _locations(node, path, start_line)
     except yaml.YAMLError as error:
         mark = getattr(error, "problem_mark", None)
-        line = mark.line + 2 if mark else text[:getattr(error, "position", 0)].count("\n") + 2
+        line = mark.line + start_line if mark else text[:getattr(error, "position", 0)].count("\n") + start_line
         code = "DUPLICATE_YAML_KEY" if isinstance(error, _DuplicateKeyError) else "INVALID_YAML"
         raise ArtifactInputError(code, path, line, str(error)) from error
     except RecursionError as error:
-        raise ArtifactInputError("INVALID_YAML", path, 2, f"YAML nesting exceeds parser limits: {error}") from error
+        raise ArtifactInputError("INVALID_YAML", path, start_line, f"YAML nesting exceeds parser limits: {error}") from error
     finally:
         if loader is not None:
             loader.dispose()
@@ -273,7 +283,20 @@ def _deny_external_schema(uri: str) -> NoReturn:
 def _artifact_validator() -> Draft202012Validator:
     path = Path(__file__).resolve().parents[1] / "contracts" / "artifact.schema.json"
     try:
-        schema = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+    except OSError as error:
+        raise ArtifactInputError("CONTRACT_ERROR", path, 1, str(error)) from error
+    return _schema_validator(raw, path)
+
+
+def _schema_validator(raw: bytes, path: Path) -> Draft202012Validator:
+    """Local-only schema validation shared by the bounded data readers."""
+    try:
+        schema = json.loads(raw)
+        if (not isinstance(schema, dict) or schema.get("type") != "object"
+                or not isinstance(schema.get("$defs"), dict)
+                or not isinstance(schema.get("properties"), dict)):
+            raise ValueError("Expected a concrete local object contract with properties and $defs")
         Draft202012Validator.check_schema(schema)
 
         def check_local_refs(node: object) -> None:
@@ -426,6 +449,15 @@ def parse_artifact(path: PathInput, root: PathInput) -> Artifact:
         raw = actual.read_bytes()
     except OSError as error:
         raise ArtifactInputError("FILE_READ_ERROR", actual, 1, str(error)) from error
+    return _parse_artifact_bytes(raw, actual, actual_root)
+
+
+def _parse_artifact_bytes(raw: bytes, actual: Path, actual_root: Path) -> Artifact:
+    """Parse already acquired bytes, including exact historical Git blobs.
+
+    Callers own path/acquisition checks. This is the same frontmatter and owner
+    parser as parse_artifact, not a second historical/optional-source parser.
+    """
     try:
         source = raw.decode("utf-8-sig")
     except UnicodeDecodeError as error:

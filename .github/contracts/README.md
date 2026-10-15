@@ -2,7 +2,7 @@
 
 本目录定义工件元数据、可选 BC 配置、派生模型和实施报告的输入契约。这些是本仓的功能等价设计，**不是原六仓字段、文件格式或自动导入的兼容声明**。本页和同目录 schema 完整说明字段与示例，无需读取内部制作规格；工具调用与错误码见[工具说明](../utilities/README.md)。
 
-四份 schema 均为 JSON Schema Draft 2020-12，必填 `schemaVersion: 1`，拒绝未知字段。`$ref` 仅使用文件内部的 JSON Pointer；`$schema` URI 是方言标识，不要求联网下载，也不依赖制作仓的测试或历史记录。
+原四份 schema 的 v1 语义保持不变；可选来源清单有独立的第五份 schema。均为 JSON Schema Draft 2020-12，必填 `schemaVersion: 1`，拒绝未知字段。`$ref` 仅使用文件内部的 JSON Pointer；`$schema` URI 是方言标识，不要求联网下载，也不依赖制作仓的测试或历史记录。
 
 ## 共用表示
 
@@ -210,3 +210,83 @@ entries:
 ```
 
 没有全局“通过”字段；空 entries 或空证据不能建立通过。即使 pass 的数据结构有效，仍须回证据核对实际对象、逐项目标、执行数量与结果；schema 不认证报告真实性，不执行测试，不回写只读源。改变本版本字段需要显式版本/契约变更，不静默兼容未知字段。
+
+<a id="model-sources"></a>
+## 5. 可选 model 来源清单
+
+[model-sources.schema.json](model-sources.schema.json) 与[空白来源表单](../../_templates/config/model-sources.yaml)只登记来源选择。采用时放在所选资料根的 `model-sources.yaml`，不新增第二份 BC/模型/执行清单。原四类契约、32 个 kind 和九视图不变。
+
+清单只有 `schemaVersion: 1` 与 `scopes`。后者是以明确 `project/context` 为键的 map；每个 scope 的值是九视图中所需视图的 map，每个视图对应非空的 `{path, baseline}` 列表。`scopes: {}` 是合法空表，不代表已登记真实项目；scope 值 `{}` 表示尚未选择任何视图源。重复 YAML key、同一视图重复路径或同一路径相互冲突的基线是配置错误，不作覆盖合并。
+
+`path` 是 root 内的实际文件相对路径，允许中文和空格，拒绝网络/绝对路径、父级跳转、锚点、反斜杠、控制字符及首尾空白；解析后的 symlink/junction 也不能出界。`baseline` 是原始文件字节的 `sha256:` 摘要，或完整小写本地 Git commit/blob ID。commit 必须能在明确 checkout 根定位同一路径的普通 blob，blob 必须与当前所读字节完全一致；不能用分支、HEAD、短号、tag/tree、textconv 或联网替代。清单不是权限，不含 root/URL、命令、凭据、正文、结果、批准或写回开关。
+
+结构示意如下；路径及 digest 均须由实际本地输入替换，不是已存在资料：
+
+```yaml
+schemaVersion: 1
+scopes:
+  sample/CTX-001:
+    requirements:
+      - path: software-requirements/SR-001.md
+        baseline: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  sample/CTX-002:
+    sequences:
+      - path: sources/sequences.yaml
+        baseline: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+
+主 root、scope、schema、正式库存或主基线错误始终失败；供应了非法清单也失败，不能降为“缺可选来源”。合法清单中的可选文件缺失、不可读、格式错误或基线不可核实，只使所选视图 `unverified`，空 refs 并列具体来源 gap。合法但不完整来源为 `partial`；来源完整为 `available`。这些仅描述来源，不解释为通过或批准。
+
+未提供清单、清单没有选定 scope、scope 没有某个 view 分别给出明确 gap。只要主库存中有该 scope，缺清单登记不阻塞主工件索引；不存在的主 scope 仍是输入错误，不能通过清单虚构。来源可以是已有正式 Markdown 工件或下节约定的已有 YAML/JSON 摘要，不要求为了导出复制一份模型正文。持久化派生 model 不能再作为来源。
+
+### 5.1 已有来源的两种读取形状
+
+优先选择原工件，不要为工具新抄一份业务模型。正式 Markdown 复用 artifact parser 和原显式锚点：来源版本用原始字节基线，内容声明留在元数据，含义与结果留在正文。视图保留实际 owner 的锚点、相关 `upstream` / `targets` 导航和文件基线。选中的工件及依赖没有该视图所需类别/章节时为 `partial`，不根据文件名补字段。
+
+| view | Markdown 所需来源及章节（只核对结构，不认证内容） |
+|---|---|
+| requirements | REQ、SR、UC；REQ/SR 的 owner AC，UC 的明确正文锚点 |
+| stories | US 的 `task`、`checklist` 和 SR 来源 |
+| architecture | ABB 的 `structure`、`interfaces`、`runtime` 与 ADR 的 `decision` |
+| sequences | SEQ 的 `basis`、`participants`、`paths`、`diagram`，UC 与 ABB 来源；时序、伙伴/异步含义回源阅读 |
+| verification | VT 的 `plan`、`targets`、`runs` 与 REQ/SR；计划结构不证明已有实际运行 |
+| quality | QAS 的 `scenario`、`measurement` 与 REQ、实际 TS/VT 目标；TS/feature 是场景来源，不复制场景正文 |
+| governance | review-record 的 `decision`；批准/waiver 含义仍归原记录 |
+| risk | risk-control 的 `analysis`、`control`、`residual` 与 REQ/VT 来源；不计算风险等级 |
+| release | development-log 的 `release`、`change-control`；生命周期/分类/版本仍归原发布记录 |
+
+仅有章节或一段泛化正文不足以定位原汇总字段。直接 Markdown 还核对以下**原所有者中的表格值**（二列表格），没有就保留字段级 `partial` gap，不根据代码箭头、元数据状态、文件名或常用值推断。版本由实际对象 baseline 定位，ID/关系仍从 parser 取得；这些不是新的 frontmatter 字段，也不要求为导出复制一个模型。
+
+| 来源位置 | 需要可定位的值（`/` 分隔可接受的原文标签） |
+|---|---|
+| US `task` | `任务进度/status`，不拿 contentState 代替任务进度 |
+| ABB `runtime` | `language/实现语言`、`framework/框架`；未选定则缺项，不选默认栈 |
+| SEQ `paths` | `hasAsync/异步交互` 的明确 `true/false` 声明，不从 Mermaid 箭头推断 |
+| SEQ `participants` | 已有 integration-partner upstream；没有时需 `externalPartners/外部伙伴` 的明确来源说明，包括已知无伙伴 |
+| VT `runs` | `lastRunDate/日期、执行者与方式`、`result/实际结果`、`automatedCount/自动检查数量`、`manualCount/人工检查数量`、`notes/报告可访问性与限制`；只有计划时保持缺口，不补执行结果 |
+| QAS `scenario` | 现有六要素表全部六个值；也接受 `stimulusSource/stimulus/environment/object/response/responseMeasure` 原字段标签 |
+| review-record `decision` | `status/审阅结论`、`notes/限制与说明`；读取声明不认证批准 |
+| risk-control `analysis` / `residual` | `preMitigationLevel/控制前风险`、`residualRiskLevel/残余风险`；不计算或接受风险 |
+| development-log `release` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease` 五个原字段值；变更控制仍通过其独立原文节定位 |
+
+同一字段的重复/缺值、明确未知、缺原文节或必要关联均为具体 gap。计数为非负十进制，布尔只接受 `true/false`，已知的零和 false 不视为缺值。只有表头/分隔行不是内容；SEQ 图代码必须在其真实 `diagram` 节，不能拿其他章节的示例补位。非支持形状的已有文档仍可被引用为部分来源，不自动迁移；有已有摘要时直接引用它。
+
+已有 YAML/JSON 汇总可直接选为来源。文件顶层包含下表对应的对象；允许同一文件有多个已知汇总，但**不是本工具派生的 model**。字段值仍由源维护，导出仅保存 `文件#汇总键 + baseline` 及下面的实际引用；不把 status/result/度量/安全分类抄进 model。JSON 使用同一个安全 YAML 数据读取器读取其兼容子集，拒绝重键、危险 tag 与循环别名。
+
+下表 `ref` 是已存在 owner/显式 anchor 的 canonical 引用，不是短 ID。`evidence` 是实际本地文件的 `{reference, baseline}`，baseline 同样必须能按原始字节或精确本地 Git 对象核实；Markdown fragment 为真实锚点，YAML/JSON fragment 为真实顶层键，其他文件只允许无 fragment 引用。数组的实际关系不会用 suffix/title 补齐。每个对象可另给 `evidenceRefs: [evidence]` 定位它已有的原始记录；这不是执行授权。
+
+| view / 顶层键 | 必要的源字段（源数据，不是 manifest 字段） |
+|---|---|
+| requirements / `srSummary` | `srVersion: text`, `entries: [{reqId: ref, srIds: [ref], ucId: ref, status: text, notes: text}]` |
+| stories / `storySummary` | `storyVersion: text`, `entries: [{srId: ref, usIds: [ref], status: text}]` |
+| architecture / `abbSummary` | `abbVersion/language/framework: text`, `blocks: [{abbId: ref, adrRef: ref}]`, `integrations: [ref]` |
+| sequences / `sequenceSummary` | `seqVersion: text`, `entries: [{seqId: ref, ucId: ref, title: text, hasAsync: boolean, externalPartners: [ref], status: text}]`；ABB/伙伴也沿 SEQ 原 `upstream` 定位 |
+| verification / `verificationSummary` | `vtVersion/lastRunDate: text`, `entries: [{usId: ref, vtIds: [ref], result: text, automatedCount: nonnegative integer, manualCount: nonnegative integer, notes: text}]` |
+| quality / `quality` | `qasRefs: [ref]`, `utilityTree: evidence`, `testScenarios: [ref 或 evidence]`；不新造 `qasSummary`，没有 feature 工件身份时用文件证据，不发明 canonical ID |
+| governance / `governanceSummary` | `govVersion: text`, `entries: [{govId: ref, status: text, ref: evidence, notes: text}]`；已有 `reqIds/waiverRefs: [ref]` 也保留 |
+| risk / `riskSummary` | `riskVersion: text`, `entries: [{riskId: ref, title: text, preMitigationLevel: text, rcIds: [ref], residualRiskLevel: text, reqIds: [ref], vtCoverage: [ref], status: text}]` |
+| release / `releaseStatus` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease: text`, `changeControlRef: evidence`；已有 `releaseRef: ref`、`bcRefs: [ref]` 也保留 |
+
+缺少整个汇总对象或字段类型错误是可选源格式错误：`unverified`、空 refs。存在合法对象但缺具体字段、null/空文本或缺必要关联条目时为 `partial`，gap 带源文件及完整字段路径，例如 `sequenceSummary.entries[0].externalPartners`；已知 ref 和来源指针继续保留。显式空 `entries/blocks` 表示可核对的空汇总；`srIds/usIds/vtIds/qasRefs/testScenarios` 空列表则报告缺关联，`externalPartners/integrations/rcIds/reqIds/vtCoverage` 显式空列表不推导不存在的对象。`false`、计数 `0` 是有效源值，但字符串布尔与布尔计数不是有效类型。引用的 owner/anchor、文件或基线无法核实时为 `unverified`，不保留无法确认的引用。
+
+同一视图有多个来源时，任一来源无法核实使该视图 `unverified` 并清空 refs；全部可核实但有结构缺项则为 `partial`。其他视图不受牵连。每个状态都只说明所选来源的结构/可定位性；完整文本、数值/异步含义、批准真实性和结果适用性仍须回到原所有者判断。

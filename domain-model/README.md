@@ -146,3 +146,10 @@ RULE 仍由原领域文件的稳定锚点拥有，不增加第二份规则正文
 6. 将提示删除或转成明确问题，修正实际落点的所有相对 URL；文件路径示例用反斜杠。来源事实、推导候选和未决问题分开；`confirmed` 需要实际确认来源和被确认基线，模板不提供批准。
 
 不使用元数据的旧资料仍可照常阅读和维护；显式送给[当前 parser](../.github/utilities/README.md)才要求合法 frontmatter。parser 校验本文件元数据/判据锚点和显式集合内的重号，不核实跨文件覆盖、全部业务语义或批准身份，也不会自动迁移文件。结构检查、文档使用与实际业务执行须分别记录。
+
+<a id="derived-model"></a>
+## 可选派生引用视图
+
+需要机器索引时使用[模型工具](../.github/utilities/README.md#model-export)，显式给出真实 root 与 scope；不从目录猜上下文。可选[来源清单](../.github/contracts/README.md#model-sources)只选择已有工件/摘要及固定基线，不复制规则、模型正文或结果，也不授予外部读写权限。
+
+九视图的 `available/partial/unverified` 表示来源完整性。缺清单或可选源保留具体 gap；主库存非法则失败，不能把它降为可选缺项。默认只读，显式导出只创建新文件；旧模型可重算检查来源变化或手改，不自动覆盖。规则影响仍按[影响方法](../.github/skills/verify-change/SKILL.md#impact)核对，机械依赖候选不能替代语义和责任人决定。

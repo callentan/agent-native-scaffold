@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供 `artifact_io.py` 解析模块和 `check_artifacts.py` 正式工件检查器；不是应用、CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护。当前没有跨文件验收覆盖、模型导出或实施报告收集，不能从解析或文档检查成功推导这些能力已交付。
+本目录提供 `artifact_io.py`、`check_artifacts.py`、`check_traceability.py` 和 `export_model.py`：分别负责解析、正式工件检查、覆盖/影响候选和确定性引用模型。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护。实施报告收集尚未提供；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -153,6 +153,8 @@ Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat
 
 两个读点不一致报 `INPUT_CHANGED`。读集并非文件系统事务；记录调用所用工具版本，后续文件或工具改变后重新检查，不把摘要当批准证明。
 
+供同目录工具复用的 `read_inventory(root, base_sha=None) -> Inventory` 与 `run_check` 使用同一次完整发现/解析/检查。`Inventory` 的 `report` 就是上述 `CheckReport`，另保留不可变 tuple：`artifacts`、`raw_files`（实际路径与已读 bytes）和 `base_raw_files`（历史相对路径与原始 blob bytes）。消费者不重新读取 Markdown 猜测同一个快照。历史解析使用原 parser 的字节入口；独立 YAML/JSON 来源使用 `load_yaml_mapping(text, path)`，仍是同一 SafeLoader、重键/别名检查和 1-based 定位，不另有 frontmatter 或 owner parser。
+
 | 稳定 code | 分类 |
 |---|---|
 | 上方 parser 全部输入错误（包括 `DUPLICATE_ARTIFACT_ID`） | `input-error`；不吞错或转为空对象 |
@@ -165,6 +167,82 @@ Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat
 
 `--report` 只能显式创建本地新 `.json` 文件；相对路径以 root 为准，绝对路径按本次授权使用。父目录必须已经存在，不自动建目录，不覆盖任何已有文件（包括空文件、源文件和历史报告）。使用 exclusive create，失败退出 2；若已创建新文件后写入失败，可能留下不完整的新报告，不能当成功证据。CLI 的 `report_output={path,written}` 独立于保护的输入读集，默认/API 不产生此文件。CLI 参数用法错误由 argparse 输出到 stderr 并退出 2；其他已定义错误在 JSON 中返回。
 
+<a id="traceability"></a>
+## 完整交付覆盖
+
+```python
+trace_report(root, delivery_ids) -> CheckReport
+```
+
+从同目录 `check_traceability` 导入。`delivery_ids` 是调用者给定的**完整交付验收集合**，每项必须是实际 owner 的 `scope/id#anchor`，不是文件标题、短 ID 或由 VT 倒推的列表。空集合、单字符串、非法、重复或未知项均为输入错误。先读取完整正式库存，再从所有者提取 AC/VC；其他工件可作为引用上下文，但不会自动变成“本次交付”。
+
+反查每个实际 `targets`，包括不在交付集合里的目标。只有真实 owner 验收、兼容层次及独立判据均满足机械要求的 VT/TS 才计入覆盖。层次来自 VT 的 `plan` 节 `验证层次` 表格行，或 TS 的 `basis` 节 `业务范围与场景类型`，不从文件名推断，不扩展 frontmatter。VT 接受表单的四个明确层次；TS 接受上下文内、跨上下文、REQ 业务验收或 QAS 的明确业务声明。缺失、多值、未知声明必须报告。
+
+| owner kind | 目标层次 |
+|---|---|
+| stakeholder-requirement、use-case、invariant、quality-attribute-scenario、domain-model | business |
+| software-requirement | software |
+| architecture-building-block、architecture-decision、architecture-specification、sequence-diagram、published-interface | design |
+| development-log、backlog-item、user-story、tool-qualification、review-record | maintenance |
+| 其他 kind | 不猜层次，报告 `UNKNOWN_TARGET_LAYER` |
+
+判据按现有表单读取：VT 每个 `criterionAnchor` 下需要“本目标预期与独立判定标准”“对应方法/步骤或实际测试标识”“前提、禁止副作用及未决事项”三行实际表格值；TS 使用四条同名表单项目。仅锚点/标题、代码/注释、占位或泛化“全部通过”不满足要求。不同目标共用锚点或完全相同的判据内容会报告 `SHARED_CRITERION`。这是可解释的结构下限，不是自然语言语义证明；实际预期是否足以判断原验收仍需人工审阅。
+
+返回字段、正式文件 `checked_count/attempted_count` 和读集 `baseline` 复用上文契约；不是覆盖率分母，也不是测试运行数量。parser/库存输入错误优先，不把解析失败制造为“未覆盖”或成功。新增代码：
+
+| code | 状态 |
+|---|---|
+| `INVALID_DELIVERY`, `EMPTY_DELIVERY`, `INVALID_DELIVERY_ID`, `DUPLICATE_DELIVERY_ID`, `UNKNOWN_DELIVERY_ID` | `input-error` / 2 |
+| `DANGLING_TARGET`, `TARGET_NOT_ACCEPTANCE`, `INVALID_TARGET_SOURCE` | `invalid` / 1；保留实际引用方位置/target |
+| `UNKNOWN_VALIDATION_LAYER`, `UNKNOWN_TARGET_LAYER`, `LAYER_MISMATCH` | `invalid` / 1 |
+| `INSUFFICIENT_CRITERION`, `SHARED_CRITERION` | `invalid` / 1；定位判据声明 |
+| `UNCOVERED_ACCEPTANCE` | `invalid` / 1；定位实际验收 owner、路径、标题行与完整 target |
+
+命令为 `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root <资料根> --delivery <完整验收引用>`；每个交付 ID 重复一个 `--delivery`。stdout 是 `CheckReport` JSON，CLI 另保留实际 `delivery_ids`；可加 `--report <新 .json>`，沿用保护输出契约。无参数、错误用法退出 2；完整结构无发现退出 0，不表示 VT 被执行。
+
+<a id="impact-candidates"></a>
+## 精确基线的影响候选
+
+```python
+impact_report(root, base_sha, task_ids=()) -> dict
+```
+
+同属 `check_traceability`，采用明确完整 commit 和当前工作文件，不选 HEAD/分支、不只看暂存内容。返回 `CheckReport.to_dict()` 的字段及：
+
+- `changed_sources`：正式变更路径、added/modified/deleted、旧 blob/前后 SHA256；`before/after` 保存可解析的 `{key, path, sha256}`，没有对应侧为 null。
+- `candidates`：按 key 排序的传递依赖候选，保留同形状的 `before/after`、`requested_task` 和 `reasons`。每条 reason 有实际 `source/consumer/reference/relation/path/line/snapshot`；`relation` 为 upstream 或 target，`snapshot` 为 base/current。
+- `task_ids`：调用者明确指定的已有正式任务 key（不是验收集合）；空列表可用，非法、重复、未知项分别报告 `INVALID_TASK* / DUPLICATE_TASK_ID / UNKNOWN_TASK_ID`。没有提供的任务不会被发明。
+
+已变更 owner 是 `changed_sources` 中的种子，其余可达 owner 是候选；依赖图合并旧新两侧，删除源或移除引用不抹去历史链，循环只访问一次。只有规则文件的数值变化也可经 canonical 引用触及 REQ/SR、VT 和任务。历史正式文件无法解析报告 `HISTORICAL_INPUT_ERROR` / 2，并保留已知候选，不伪装为完整比较。此接口比 `run_check` 的原始历史字节比较多做历史身份解析。
+
+CLI 使用 `--base <完整 commit>` 代替 `--delivery`，可重复 `--task <scope/id>`；两种模式互斥。报告仍可显式写到新 `.json`。候选不是严重度、批准或业务影响的最终结论；非 canonical 的轻量链接、语义隐含依赖及 scope 外未知来源仍须按[共享影响方法](../skills/verify-change/SKILL.md#impact)补充。工具不改规则、不执行 VT、不重写旧结果。
+
+<a id="model-export"></a>
+## 九视图引用模型与漂移检查
+
+```python
+export_view(root, scope) -> dict
+check_model(root, scope, model_path) -> CheckReport
+```
+
+从同目录 `export_model` 导入。两 API 均不写文件。主输入复用完整库存和实际读集；选定 scope 必须在真实正式工件中存在，同号异 scope 不混合。所有正式来源必须有效，canonical upstream/targets 必须能定位真实 owner/anchor。非法 root/scope/契约/正式库存不能用九个空视图掩盖。导出 API 抛带 code/path/line 的 `ArtifactInputError`；check API 与 CLI 映射为输入错误 / 2。
+
+采用[可选 model-sources 契约](../contracts/README.md#model-sources)选择各 scope 的已有 Markdown 或 YAML/JSON 汇总。缺清单/缺 scope 登记/缺 view 各有具体 gap；主索引仍可用。供应了非法清单是 `INVALID_SOURCE_MANIFEST` / 2。单个可选源缺失、不可读、格式或基线问题为该 view 的 `unverified`，refs 清空；可读但字段/条目不完整为 `partial`；完整为 `available`。原九个键永不省略，值/正文/结果仍归源，不从状态推出批准。可选失败 gap 带选择路径、实际失败来源与 code；不输出个人绝对路径或原始敏感异常内容。
+
+主 `source.root` 固定为可移植的 `.`。各 artifact baseline 是实际读到的原始 bytes 的 `sha256:`（含 BOM/换行），upstream/targets、工件、视图、refs 与 gaps 确定排序。主 `source.baseline` 是以下对象经 `json.dumps(sort_keys=True, separators=(",", ":"))`、UTF-8 编码后的 `sha256:`：`scope`、按 path 排序的 Task6 `files` 读集记录、`manifest: absent/present`、排序的可选失败 `(选择路径, code)`、artifact/model/model-sources 三份所用契约的原始摘要。读集包括选择用 guide、清单、实际可选 YAML/JSON 与证据文件，不只包含正式 Markdown。无时间戳/随机数据；工具版本另随检查记录保存。
+
+canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope 消费者也能回源。代码/表头/普通 AC 提及不会自动成为 source 字段或 owner 验收。两次读取不一致返回 `INPUT_CHANGED` / 2；这不是文件系统事务，仍不保证抵御检查/打开之间的恶意替换。
+
+`check_model` 读取显式本地 `.json/.yaml/.yml`（可为 root 外另行授权的模型文件），校验并重算；主来源身份变化为 `STALE_MODEL_SOURCE` / 1，同源但手改结构为 `MODEL_MISMATCH` / 1。非法持久模型/schemaVersion/scope 为输入错误 / 2。它不修复旧模型，派生 model 也不能作为源或来源证据；清单自引用被拒绝。`implementationReports` 当前为空，尚无报告收集器，不捏造 Task8 数据。
+
+| CLI 参数（均需 `--root` 与 `--scope`） | 输出与退出 |
+|---|---|
+| 无输出参数 | 校验/派生到 JSON stdout，不创建文件；主输入可派生退出 0，即使有可选 gap |
+| `--check <已有模型>` | JSON CheckReport；无漂移 0、发现漂移 1、输入错误 2 |
+| `--output <新模型>` | 显式 exclusive create 本地 `.json/.yaml/.yml`，stdout 仍是 schema-valid model；父目录须存在 |
+
+`--check` 与 `--output` 互斥。输出路径复用 Task6 的本地/冲突约束：任何已存在源、模型、报告、空文件或目录均不覆盖；登记为来源或清单的路径即使当前缺失也不能被模型占用。`REPORT_CONFLICT / REPORT_WRITE_ERROR` 退出 2；主输入失败不创建输出，写入中失败可能留下不完整的新文件。root 内的新模型本身不进入源读集。无网络、fetch、filters/textconv、hook 或来源命令执行，不自动修订清单基线。
+
 ## 使用范围
 
-下游使用只依赖本目录已提供的模块、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。那些维护资料不随下游候选分发。正式工件检查不覆盖普通 guide 的全部链接、跨文件 canonical target/层次/验收覆盖，不生成模型或运行 `.feature`、应用和业务 VT，也不认证批准人。
+下游使用只依赖本目录已提供的模块、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选和模型各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。

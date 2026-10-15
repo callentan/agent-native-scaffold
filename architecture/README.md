@@ -40,7 +40,7 @@
 
 - `requirements/stories/architecture/sequences/verification/quality/governance/risk/release` 只导航真实原文/证据与基线，不成为第二份领域事实、关系或结果库。
 - 缺可选来源保留 `unverified` 与具体 gap；部分可读则 `partial` 并保留可核对导航；所需来源完整才为 `available`，均不表示通过/批准。不适用需要范围依据。必需主输入错误仍阻塞，不能用九个空视图掩盖。
-- model 存在时先核对其来源基线再回原文；没有 model、ABB、风险或发布资料就明确不可用，不伪造模型导出、部署、风险分类或审批。此处只提供 Markdown 汇编，不提供 PDF/演示渲染器。
+- model 存在时先用[只读检查](../.github/utilities/README.md#model-export)核对其来源基线并回原文。可选[来源清单](../.github/contracts/README.md#model-sources)能登记多个明确 scope 的真实文件/基线，未登记或缺可选源各有 gap；不制造 ABB、部署、风险分类或审批。模型是引用索引，SWAS 仍是 Markdown 汇编，不提供 PDF/演示渲染器。
 
 <a id="bc-configuration"></a>
 ## 可选 BC 数据配置

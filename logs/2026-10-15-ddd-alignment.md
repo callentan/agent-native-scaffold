@@ -391,3 +391,36 @@ API 不写入；CLI 默认只输出 JSON，只有显式新 `.json` 路径才写�
 Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选择了“使用可选 model-sources.yaml 来源清单（推荐）”；上一节执行者未收到该后续决定，其“仍待选择”是起始上下文，不作为当前未决状态。Task7 将依此登记来源路径和固定基线，不复制正文、结果或批准状态；正式来源清单、模型导出和覆盖工具尚未创建，不获得外部读写权限。
 
 本次同步规格、计划、roadmap 的当前状态，保留全部旧观察。计划中 Task8 的旧示意也与已实现的报告 schema 对齐为 `entries[].execution` / `evidenceRefs`，没有新增全局结果字段或声称 Task8 已运行。下一步按[Task7](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7)继续；应用、平台及发布关卡不变。
+
+<a id="task7"></a>
+## Task7：完整覆盖、影响候选与九视图模型
+
+### 会话、范围与 Git
+
+按用户原执行授权、“恢复执行”及另行选择的可选 `model-sources.yaml`，仅实施[Task7 / ENH-06、ENH-08](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7)。起点为 `def03cdc0f58414eeb4d59da61928d451b431aaa`，分支 `callentan-repository-skeleton`，现有 App-isolated worktree，暂存区及工作树起始均干净；无需重复初始提交或 Task6 修正。状态为**已实施，等待独立复核**，不是实现者关闭独立关卡。
+
+### 本次变化
+
+- 新增[来源 schema](../.github/contracts/model-sources.schema.json)和[空表](../_templates/config/model-sources.yaml)，清单只保存多个明确 scope 下的视图路径/固定基线。原四份 schema、32 kind、九视图输出和 8/21/3 方法/入口/模式数量不变；没有创建正式项目清单。
+- [覆盖/影响工具](../.github/utilities/check_traceability.py)读取完整实际库存，区分显式交付与上下文，反查所有目标、原所有者 AC/VC、正文层次和独立判据。精确 base 的旧新依赖图保留删除/移除引用，产生候选与源位置，不改规则或结果。
+- [模型工具](../.github/utilities/export_model.py)引用真实 Markdown 或已有摘要，保留 scope-qualified refs、证据路径/固定基线及具体 gap。YAML/证据/清单均进入来源身份；缺主输入失败，缺可选源保留固定视图。检查重算不修复，显式输出不覆盖已有文件或占用登记源路径。
+- parser/checker 仅抽出共享已读库存、原始 YAML mapping/历史 blob 解析与保护输出；保留 Task6 的围栏/注释处理和全部原测试。更新实际契约、工具/开发/领域/验证/架构指引及 verify 方法的工具入口，未重写方法或增加代理流程。
+
+### 实际证据入口
+
+完整报告与提交后实况在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task7-report.md`。新 receipts、辅助脚本及保留的合成来源都仅在同目录 `task7-evidence`，单元测试的瞬时夹具只在仓库忽略的 `.venv`。这些入口仅本机可访问，不是已分发的跨机器证据。
+
+- `baseline-213.json`：在起点**新跑** 213 方法、0 跳过、退出 0，未将 Task6 的旧全套结果当作本次基线。
+- `manifest-red*.json` / `manifest-green.json`、`trace-impact-red.json` / `trace-impact-green.json`、`model-red.json` / `model-first-green.json`：先有独立预期和实际失败，再实现并重跑。来源 schema 初始 10 方法、覆盖/影响初始 25 方法、导出初始 28 方法；不是只看语法或虚构 baseline。
+- `self-review-boundaries-red.json` 及各聚焦 `*-green.json`：自审复现后修正来源合并、字段完整性、跨 scope/嵌套证据定位、同一 schema 读点和输出冲突等边界；保留真实失败，不把首次未通过记成 GREEN。
+- `final-full-suite.json`：完整保留与新增套件实际发现/执行 **293 方法**，0 失败、0 错误、0 跳过，退出 0，106.635 秒；包含原 schema 70、parser 78、checker 65，以及 Task7 trace 27、model/manifest 53。命令/cwd/stdout/stderr 和逐源前后字节摘要在该 receipt；测试期间仓库输入字节未变。
+- `observations\observations.json` 和同目录 `outputs`：保留真实四项交付、仅软件拒绝遗漏、规则 2→3 的源文件/旧新 Git 身份，以及九视图模型、检查和手改副本。省略项精确为 `sample/CTX-001/SR-001#sr-001-ac-02`；两 owner 文件未删改，规则单改追到 REQ/SR/两 VT/任务五个候选。两脚本实际 CLI 分别观察到 0/1/2，输入和旧输出字节保持不变。
+
+这是本地维护工具的行为验证，不是业务或软件 VT 执行。完整结果、19 个输入案例的对应测试、自审和提交清单回报告/receipts 核对，日志不维护另一份验收结果表。
+
+### 限制与停点
+
+- 实测为 Windows / Python 3.13.15；Python 3.11、其他宿主和更大真实项目未运行。I/O 故障注入已在测试中明确标注，不冒充实际权限配置。
+- 覆盖判据和直接 Markdown/摘要适配是已说明的机械结构检查，不证明自然语言判据充分、风险可接受、批准真实或已发布。只处理实际 canonical 依赖，隐含语义/轻量链接仍需责任人核对。读取不是文件系统事务。
+- 未执行独立 reviewer/Agent 压力测试、Task8–18、应用/Gherkin、hooks/CI、媒体、平台/远端操作；未安装依赖、改权限、amend、push 或 PR。实施报告字段仍为空，未创建 Task8 收集器。
+- 本次完成范围内本地提交和报告后停止。下一步由调用方核对精确 commit、20 文件范围、原始证据及完整来源契约，再决定 Task7 独立复核；不能从局部 GREEN 推导完整功能等价。

@@ -28,6 +28,8 @@ description: Use when assessing acceptance or domain artifacts, querying current
 2. 逐项搜索 VT/业务场景的目标字段，检查方法、前提、边界和独立判据是否足以判断该验收。再**反查每个实际目标**：文件/锚点存在吗，完整 ID 与所有者/条目一致吗，层次正确吗，判据是否真正覆盖目标？有元数据时按 `scope/id#anchor` 查找；旧资料仍按原所有者 ID 与稳定链接核对，不为查找而迁移。同号异主、泛化标题、漏项和悬空目标分别列出精确 ID/位置；输入没给身份时记录实际可得来源与缺项，请求补充，不发明目标编号。
 3. 核对来源关系：上游依据留在 [SR](../../../software-requirements/README.md#traceability)，目标关系留在 [VT/场景的目标声明](../../../verification/README.md#domain-scenarios)。采用元数据时，`upstream` / `targets` 归 frontmatter，正文判据由 `criterionAnchor` 定位；旧记录保留其原有字段。[验证索引](../../../verification/README.md#coverage-index)只登记导航、基线、缺口和引用差异，不复制验收正文、反向映射或另一张结果表。
 
+获准执行工具时按[实际覆盖接口](../../utilities/README.md#traceability)调用 `trace_report(root, delivery_ids)`，完整清单来自第 1 步，不能从 VT 重建。反查所有实际 targets，保留输入错误与源定位；分层和判据检查是机械下限，不能代替第 2 步的语义审阅或证明执行。
+
 <a id="domain-review"></a>
 ## 领域工件审阅
 
@@ -42,7 +44,7 @@ description: Use when assessing acceptance or domain artifacts, querying current
 
 按给定根目录、对象类型、scope 与问题读取真实文件，按路径和完整身份稳定排序，返回匹配项、实际读取/未读范围、数量、来源版本与精确缺口。没有正式对象与无法读取是不同结论；不从空白表单、目录名或未来文件推导对象。仅查某类库存不等于全量验收覆盖；问覆盖时仍从[全部验收](#coverage)开始。
 
-查询不生成模型、不补写工件或持久索引。若有派生摘要，返回其来源并核对基线，不能以摘要替代原文；没有摘要就读现有资料。[parser 与正式工件检查器](../../utilities/README.md#artifact-checker)可处理元数据、身份、约定结构、占位和本地链接，不是跨文件验收覆盖引擎。只读模式不运行它；获准执行时按工具契约记录明确 root、完整当前库存、可选精确 base、实际计数与读集摘要，`empty` 不能当通过。模型导出命令仍未提供。
+查询不生成模型、不补写工件或持久索引。若有派生摘要，返回其来源并核对基线，不能以摘要替代原文；没有摘要就读现有资料。[parser 与正式工件检查器](../../utilities/README.md#artifact-checker)处理元数据、身份、结构、占位和本地链接，与覆盖接口分工。只读审阅模式不运行工具；获准执行时记录明确 root、完整当前库存、可选精确 base、实际计数与读集摘要，`empty` 不能当通过。另获模型派生/检查授权时用[模型接口](../../utilities/README.md#model-export)和[可选本地来源清单](../../contracts/README.md#model-sources)，九视图的来源状态不是业务结果；只有显式新输出授权才写文件。
 
 <a id="bc-review"></a>
 ## BC 派生与实现边界审阅
@@ -70,6 +72,8 @@ description: Use when assessing acceptance or domain artifacts, querying current
 1. 对照旧新规则、上下文、验收与基线，记录实际变更 ID/位置、来源和确认状态。沿引用及业务含义追踪依赖的模型、UC/INV、REQ/QAS、SR、US、ABB/ADR、SEQ/SWAS、场景/VT 及 companion 和任务；边界变化还核对 CAP、context map、Published Interface 与消费者。即使数值只存在于一个规则文件，引用方的行为边界仍可能受影响。只有实际提供且适用时才加入[来件 ADR](../define-requirements/SKILL.md#incoming-adr)、[Intended Use](../define-requirements/SKILL.md#intended-use)和治理/风险引用；缺源标明受影响判断不能完成，不代作风险决定。
 2. 按[影响指引](../../../verification/README.md#change-impact)列受影响项及各自来源、理由、严重度、需谁确认什么和建议顺序；仅在变化已确认且修改获准后更新验收边界、错误/禁止副作用和 VT 预期，保留仍成立的回归场景。无影响的判断给出理由；未确认的业务变化先澄清，不擅改规则或删除原验收，建议顺序不是已执行的修改。
 3. 保留旧运行的实际结果及其原对象、要求和 VT 基线；在原结果的[适用性栏](../../../_templates/items/verification-test.md#applicability)追加对当前基线的“待复核”和影响理由。不能把旧成功改写为新成功或历史失败，新检查须追加独立记录。
+
+获准执行工具时，使用[影响候选接口](../../utilities/README.md#impact-candidates) `impact_report(root, base_sha, task_ids=())`。传入精确完整 commit 及已提供任务 key，读取当前快照；旧新依赖、删除源和移除引用均保留理由。候选不代表最终业务影响、严重度或确认；非 canonical 的依赖和未知语义继续按上文核对，工具不回写规则/原结果，也不执行 VT。
 
 ## 执行与记录
 

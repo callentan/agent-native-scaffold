@@ -10,7 +10,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–6 已完成各自的有限实现与范围复核；Task6 的两项 Important 已修正并完成限定复审。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task7–18 尚未实施；下一步按既有授权进入 Task7，并采用用户另行确认的可选 `model-sources.yaml` 来源清单。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
+**当前状态：** 任务 1–6 已完成各自的有限实现与范围复核；Task6 的两项 Important 已修正并完成限定复审。Task7 的覆盖/影响候选、模型与可选 `model-sources.yaml` 已实施，等待独立复核。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task8–18 尚未实施，本执行停于 Task7 本地提交/交接，不自动推进。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -28,7 +28,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约和 Task6 检查器已完成本次范围复核，结果见各自记录。Task7–18 尚未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约和 Task6 检查器已完成本次范围复核，结果见各自记录。Task7 已实施待独立复核，Task8–18 未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -106,6 +106,8 @@
 | 维护工具源码与测试语法 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` |
 | 工件检查（已实现并经本次范围复核） | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root <本次已解析根目录>`；JSON stdout，可显式加 `--report <已存在获准目录>\new-artifacts.json`，不覆盖旧报告 |
 | 显式历史比较（已实现） | 当前仓库根 | 上行增加 `--base <已核对的完整 commit>`；精确对象不可读退出 2；保留完整当前正式库存，含未暂存/未跟踪文件，不是暂存区 hook |
+| Task7 定向回归 | 当前仓库根 | 与完整测试相同的 unittest discovery 命令，将 `-p` 分别设为 `test_traceability.py`、`test_model_export.py`；全套仍保留既有 schema/parser/checker |
+| Task7 覆盖/影响与模型 | 当前仓库根 | 按[实际工具契约](../../.github/utilities/README.md#traceability)使用 `check_traceability.py --root <资料根> --delivery <完整 ID>`，或 `--base <完整 commit> --task <任务 key>`；模型用 `export_model.py --root <资料根> --scope <scope>`，仅显式 `--output` 写新文件，`--check` 重算不修复 |
 
 Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
@@ -135,7 +137,7 @@ Task6 的[真实文件/Git/CLI 用例](../../.github/utilities/tests/test_artifa
 | D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
 
 以上是任务 1 已完成的范围映射和原版边界记录，不是增强整体验收结论。Task 2
-的输入契约/parser、Task3–6 的有限交付与范围复核见下节；Task7–18 尚未实施，不能从本表推导整项增强完成。
+的输入契约/parser、Task3–6 的有限交付与范围复核见下节；Task7 已实施待独立复核，Task8–18 未实施，不能从本表推导整项增强完成。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
@@ -275,22 +277,23 @@ class ArtifactCheckTests(unittest.TestCase):
 <a id="task7"></a>
 ### 任务 7：模型视图、覆盖与影响核对
 
+**当前状态：已实施，等待独立复核。** 干净起点 `def03cdc0f58414eeb4d59da61928d451b431aaa`，同一既有分支/worktree；没有重复 Task6 修正、安装依赖或创建应用。真实 RED/GREEN、完整回归与源字节证据通过[追加日志](../../logs/2026-10-15-ddd-alignment.md#task7)定位；实现者自审不关闭独立关卡。
+
 **文件：** `export_model.py`、`check_traceability.py`、`test_model_export.py`、`test_traceability.py`、必要的共享 helpers、model/verification 指引与 verify 方法；按用户选择增加 `.github\contracts\model-sources.schema.json`、`_templates\config\model-sources.yaml` 及契约/工具/开发说明。只提供空表，不在制作仓创建正式项目 `model-sources.yaml`。
 
-- [ ] 定义可选来源清单的多 scope 路径/固定基线契约，复用既有九视图输出而不增加结果/批准字段。清单不复制源正文；可选源的缺失/格式/基线问题与必需主输入错误分开。缺省不联网、不回写、不把 `model.yaml` 读作其自身事实来源。该入口方式已由用户于恢复后单独选择，不是从“继续”推断的授权。
-- [ ] 在 `helpers.py` 定义 `write_delivery_fixture(root, omit_software_reject=False)`，写真实 REQ/SR 四项验收、两个分层 VT 及其判据，返回四个完整交付 ID。`True` 只省略 VT-002 的软件拒绝目标，不删 SR 原验收。另复制悬空、同号异主、外部源不可读、规则变化与旧视图副本。
-- [ ] 先写精确缺口与确定性导出测试：
+- [x] 定义可选来源清单的多 scope 路径/固定基线契约，复用既有九视图输出而不增加结果/批准字段。清单不复制源正文；可选源的缺失/格式/基线问题与必需主输入错误分开。缺省不联网、不回写、不把 `model.yaml` 读作其自身事实来源。该入口方式已由用户于恢复后单独选择，不是从“继续”推断的授权。
+- [x] 在 `helpers.py` 定义 `write_delivery_fixture(root, omit_software_reject=False)`，写真实 REQ/SR 四项验收、两个分层 VT 及其判据，返回四个完整交付 ID。`True` 只省略 VT-002 的软件拒绝目标，不删 SR 原验收。另有悬空、同号异主、本地可选源不可读、规则变化与旧视图副本。
+- [x] 先写精确缺口与确定性导出测试：
 
 ```python
-import tempfile
 import unittest
 from pathlib import Path
 from check_traceability import trace_report
-from tests.helpers import write_delivery_fixture
+from tests.helpers import temporary_workspace, write_delivery_fixture
 
 class TraceabilityTests(unittest.TestCase):
     def test_missing_software_acceptance_is_reported(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with temporary_workspace() as directory:
             root = Path(directory)
             delivery = write_delivery_fixture(root, omit_software_reject=True)
             report = trace_report(root, delivery)
@@ -298,13 +301,13 @@ class TraceabilityTests(unittest.TestCase):
             self.assertEqual({"sample/CTX-001/SR-001#sr-001-ac-02"}, missing)
 ```
 
-- [ ] 分别运行 `test_traceability.py`、`test_model_export.py` 看到失败；实现库存优先的双向核对，精确定位 source/anchor/layer/criterion，不把缺目标的摘要算覆盖。
-- [ ] 用含 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 和 quality/QAS 引用的 fixture 核对 `export_view` 原样保留 canonical artifact/evidence/baseline 引用；删除任一可选 source 时仍输出对应 view 的 `unverified` 与具体 gap，不能复制正文或把 `state` 映射为 passed/approved。
-- [ ] 实现确定排序、来源散列与关系导出；相同输入字节输出相同结构，源变化/手改 view 检查失败。视图不复制业务正文、结果或审批，显式导出不回写源。
-- [ ] 2→3 规则变化给出受影响 REQ/SR/VT/任务候选及原因；即使引用方未抄数字也可受影响。共享方法负责语义判定、原结果保留与新运行，机械图不宣布业务正确。
-- [ ] 重跑正反例与前后散列；提交两脚本、tests、方法和格式说明。
+- [x] 分别运行 `test_traceability.py`、`test_model_export.py` 看到失败；实现库存优先的双向核对，精确定位 source/anchor/layer/criterion，不把缺目标的摘要算覆盖。
+- [x] 用含 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 和 quality/QAS 引用的 fixture 核对 `export_view` 保留 canonical artifact/evidence/baseline 引用；删除任一可选 source 时仍输出对应 view 的 `unverified` 与具体 gap，不能复制正文或把 `state` 映射为 passed/approved。
+- [x] 实现确定排序、来源散列与关系导出；相同输入字节输出相同结构，源变化/手改 view 检查失败。视图不复制业务正文、结果或审批，显式导出不回写源。
+- [x] 2→3 规则变化给出受影响 REQ/SR/VT/任务候选及原因；即使引用方未抄数字也可受影响。共享方法负责语义判定、原结果保留与新运行，机械图不宣布业务正确。
+- [x] 重跑正反例与前后散列：完整 293 方法、0 跳过，保留原 schema/parser/checker；原始命令、结果和字节证据由追加日志定位。两脚本、tests、方法和格式说明随本次局部提交交接，实际 commit/干净状态以 Git 与最终报告为准。
 
-**退出：** ENH-06/08；无 US 也能覆盖，原范围不删，旧结果仍绑定旧基线。
+**退出：** 本任务承接 ENH-06/08 的机械工具范围；无 US 也能覆盖，原范围不删，旧结果仍绑定旧基线。独立复核未执行，Tasks8–18 未开始，不是完整功能等价或业务/应用通过。
 
 ### 任务 8：只读领域输入下的实施摘要桥接
 
@@ -509,4 +512,4 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–6 的有限交付及范围复核已完成；当前八方法、二十一 prompts、三模式。下一步 Task7 按用户已选择的可选来源清单推进，Task7–18 尚未实施。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–6 的有限交付及范围复核已完成，Task7 已实施等待独立复核；当前八方法、二十一 prompts、三模式。Tasks8–18 尚未实施，本执行不进入 Task8。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
