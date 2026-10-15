@@ -134,13 +134,13 @@
 
 ### 任务 2：元数据、schema 与工具环境
 
-**文件：** 四个 contracts、`artifact_io.py`、依赖/工具 README、`tests\helpers.py`、`test_artifact_io.py`、`docs\development.md`。
+**文件：** 四个 contracts 及其 README、`artifact_io.py`、依赖/工具 README、`tests\__init__.py`、`tests\helpers.py`、`test_artifact_io.py`、`test_contracts.py`、`.gitignore`、`docs\development.md`；本段与当日日志只记录 Task 2。
 
-- [ ] 审阅规格 3.1/3.2 的事实归属、作用域、状态及现有资料无损演进；冻结 schemaVersion `1`，unknown version 是错误，不降级解释。
-- [ ] 按规格 3.2.1 分开测试必需主输入错误和可选视图缺项：root/schema/scope/工件基线失败是 input-error；单个可选摘要缺失、不可读或格式无效时该视图为 unverified+空引用+具体 gap，其余视图保留；合法但部分缺项是 partial，不把结果误写成 passed/approved。
-- [ ] 将 `kind` 固定为规格列出的 32 个值，并为每个值各写至少一个可解析且 schema-valid 的真实 fixture：`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`、`quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`；未知 kind 必须失败，不添加通用扩展入口。
-- [ ] 先创建 `.github\utilities\requirements.txt`（规格两项 direct pins）与工具环境登记，再在项目 `.venv` 恢复依赖，核对 Python 3.11+ 和 unittest 发现路径。这一步没有解析器实现，不把缺解释器/包当功能 RED。
-- [ ] 编写真实夹具测试：正常文档、两个 scope 同号、同 scope 重号、重复 YAML 键、未知状态/版本、越界路径、缺必要字段。最小测试形状如下：
+- [x] 按已冻结规格与 Task 2 brief 核对事实归属、作用域、状态及现有资料无损演进；schemaVersion `1`，unknown version、布尔/字符串等类型错误不降级解释；旧正文和表单未修改。
+- [x] 按规格 3.2.1 分开测试主输入与可选视图**数据契约**：parser 对真实 root/schema/scope 错误失败，model schema 拒绝缺失/非法主对象基线；九个视图分别验证 unverified+空引用+具体 gap、partial+已知引用+gap，以及 available 的结构。可选源实际查找/派生和基线真实性留给 Task 7/8，本任务不假造 exporter 运行。
+- [x] 将 `kind` 固定为规格列出的 32 个值，并为每个值各写至少一个可解析且 schema-valid 的真实 fixture：`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、`invariant`、`validation-scenario`、`backlog-item`、`stakeholder-requirement`、`software-requirement`、`user-story`、`architecture-building-block`、`architecture-decision`、`verification-test`、`review-record`、`tool-qualification`、`development-log`、`quality-attribute-scenario`、`context-map`、`published-interface`、`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、`domain-event`、`integration-partner`、`intended-use`、`risk-control`、`architecture-specification`、`sequence-diagram`；32 个 parser 正例和另 32 个 schema 正例实际运行，未知 kind 失败。
+- [x] 先创建 `.github\utilities\requirements.txt`（两项 direct pins）与工具环境登记，再创建本项目 `.venv` 并恢复。实际 Python 3.13.15，六项依赖按 `pip freeze` 锁定，`pip check` 无冲突；没有全局/媒体/云端安装。
+- [x] 先编写真实夹具测试：正常文档、两个 scope 同号、同 scope 重号、任意层重复 YAML 键、未知状态/版本、越界路径、缺必要字段。保留以下最小测试形状，完整用例在实际测试文件：
 
 ```python
 import tempfile
@@ -163,12 +163,14 @@ class ArtifactIOTests(unittest.TestCase):
                 parse_artifact(path, root)
 ```
 
-- [ ] 用最小 model fixture 验证 `views` 的九个固定键及 `state`/`artifactRefs`/`evidenceRefs`/`gaps` 形状；保留 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 的 canonical 引用和 source baseline 指针，缺可选源时输出 `unverified` 加具体 gap，而不是省略或填造数据。
-- [ ] 定向运行 `test_artifact_io.py`；失败应是缺解析/校验行为，不是错的 cwd 或缺已配置解释器。
-- [ ] 实现 dataclass、SafeLoader、重复键拒绝、本地 schema 和准确行号，不启用远程 `$ref` 或联网解析；实测后保存传递依赖 lock。对既有正式文档只在确认作用域后补元数据，保留原正文与锚点，未确认的 scope 不猜。
-- [ ] 重跑并登记实际数量/结果；工具环境单列，根开发说明仍不声称有业务应用。提交契约、解析器、测试与环境说明。
+- [x] 用真实 model 数据验证九个固定视图，单独保留 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 的 canonical 引用与 source baseline 指针；缺视图、缺字段、伪造 passed/approved 状态及空 gap 均有反例。只验证数据，不宣称读取过对应可选来源。
+- [x] 先运行得到模块不存在的初始错误，再运行可读真实文件但不校验的最小实现：6 个 parser 测试方法产生 12 个行为失败；四个 permissive schema 的 4 个方法产生 14 个失败（均含参数化子例，不将失败数当方法数）。
+- [x] 实现不可变 dataclass、SafeLoader、原始 YAML node 图和归一化后重键检查、本地 schema 与准确行号。自审先补 RED 再修复 BOM 错误位置、嵌套 `<<` 重键及 safe-tag 无效值的异常归一化，保留原始原因；不联网、不执行正文。
+- [x] 重跑：143 个测试方法发现/执行、0 跳过、0 失败/错误；73 个 parser、70 个 schema/Git 数据测试。5 个实际 Python 文件通过 compileall，4 个文档示例实际解析/校验。提交范围限本任务，证据与限制见[当日日志](../../logs/2026-10-15-ddd-alignment.md#task2)。
 
 `helpers.py` 只为测试创建真实文件/Git：`seed_git_repo(root)` 在临时目录写一份 README，显式测试身份提交并返回完整 commit，不建远端；`write_artifact(root, schema_version, id, scope, kind, upstream, targets, acceptance_ids)` 写本规格格式的实际 Markdown。后续 trace 夹具由任务 7 扩展该文件。期望值由测试独立给出，不调用被测解析器生成期望。
+
+**已落实的接口选择：** `parse_artifacts(paths, root) -> tuple[Artifact, ...]` 只检查显式集合内的重复 scope/id；`Artifact.acceptance_ids` 保存 `scope/id#anchor`，`acceptances` 另保留完整标题 ID 与两处行号。BC 使用 `developmentRegistration` 引用已有登记，model 使用 `source` / `implementationReports`，实施报告按 `entries[].execution` / `applicability` 分离历史结果和适用性。字段与唯一示例见[契约说明](../../.github/contracts/README.md)，不是原字段兼容声明。
 
 **退出：** ENH-02、ENH-06 的输入契约；新语法与旧保留方式都可定位，读取空白模板无需先安装工具。
 

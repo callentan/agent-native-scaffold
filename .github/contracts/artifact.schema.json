@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-native-scaffold:artifact:1",
+  "title": "Artifact frontmatter v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "kind", "scope", "contentState"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "id": {"$ref": "#/$defs/identifier"},
+    "kind": {"$ref": "#/$defs/kind"},
+    "scope": {"$ref": "#/$defs/scope"},
+    "contentState": {"enum": ["draft", "confirmed", "retired"]},
+    "upstream": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifactReference"}
+    },
+    "targets": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/target"}
+    },
+    "confirmation": {"$ref": "#/$defs/confirmation"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"contentState": {"const": "confirmed"}},
+        "required": ["contentState"]
+      },
+      "then": {"required": ["confirmation"]}
+    }
+  ],
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "scope": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "anchor": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "artifactReference": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z][A-Za-z0-9._:-]*)?$",
+      "not": {"pattern": "\\s"}
+    },
+    "acceptanceReference": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*#[A-Za-z][A-Za-z0-9._:-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "kind": {
+      "enum": [
+        "domain-model", "subdomain", "bounded-context", "capability", "use-case",
+        "invariant", "validation-scenario", "backlog-item",
+        "stakeholder-requirement", "software-requirement", "user-story",
+        "architecture-building-block", "architecture-decision", "verification-test",
+        "review-record", "tool-qualification", "development-log",
+        "quality-attribute-scenario", "context-map", "published-interface",
+        "aggregate", "entity", "value-object", "factory", "domain-service", "policy",
+        "domain-event", "integration-partner", "intended-use", "risk-control",
+        "architecture-specification", "sequence-diagram"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "criterionAnchor"],
+      "properties": {
+        "target": {"$ref": "#/$defs/acceptanceReference"},
+        "criterionAnchor": {"$ref": "#/$defs/anchor"},
+        "testId": {"$ref": "#/$defs/text"}
+      }
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["by", "reference", "baseline"],
+      "properties": {
+        "by": {"$ref": "#/$defs/text"},
+        "reference": {"$ref": "#/$defs/text"},
+        "baseline": {"$ref": "#/$defs/text"}
+      }
+    }
+  }
+}

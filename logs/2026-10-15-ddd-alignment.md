@@ -49,3 +49,27 @@
 完成来源矩阵/范围的一致性审阅后进入任务 2：四个数据契约、类型化解析器与真实文件 tests，明确输入错误、重复 YAML 键、未知版本/状态、scope/ID、路径与确认声明。先看到测试的预期失败再实现，依赖只在 manifest 就绪后恢复。
 
 接手先检查 Git 与本日志之后的真实提交、计划 ledger 和来源可访问性，不重复获取/重做已完成来源组，也不把旧“仅规划”状态当当前未授权。发布、PR、业务项目和外部数据发送没有新增授权。
+
+<a id="task2"></a>
+## Task 2：元数据契约、parser 与维护工具环境
+
+本节追加 Task 2 实际结果，不改写前面的 Task 1 当时状态。依据为[增强计划 Task 2](../docs/plan/2026-10-14-ddd-functional-alignment.md)及获准的 `ddd-alignment-execution\task2-brief.md`；范围只含本任务列出的 17 个仓库文件。起点为干净工作树、分支 `callentan-repository-skeleton`、完整 commit `81ffd45b3b9b7643d643a9162b533af92613c553`。此前 README 排版提交不重复执行。
+
+新增[四个数据契约](../.github/contracts/README.md)、[不可变 parser 与显式集合接口](../.github/utilities/README.md)、独立 schema/parser 测试及真实文件/Git helpers。`.gitignore` 只增加项目 `.venv` 和 Python 字节码；[开发登记](../docs/development.md#maintenance-tools)将维护环境与尚未配置的业务应用分开。原技能、表单、业务资料、源码、hooks、workflow 和远端均未修改。
+
+| 实际记录入口 | 对象与依据 | 可访问性与限制 |
+|---|---|---|
+| 本会话获准报告 `files\ddd-alignment-execution\task2-report.md` | Task 2 起点及本段同批文件的 Git 提交；完整 SHA、RED/GREEN 命令、原始输出摘要、版本和自审修复均在报告 | 会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的本机 artifact，不进入仓库或分发候选；不是跨机器 CI 证据 |
+| [parser 行为测试](../.github/utilities/tests/test_artifact_io.py) 与[四类 schema 测试](../.github/utilities/tests/test_contracts.py) | 32 kind 各有 parser/schema 正例；九个视图的数据、完整引用、主输入错误和证据约束分别核对 | 可用已登记环境重跑；测试源码不是结果，本次运行定位在上行报告 |
+| [实际依赖 lock](../.github/utilities/requirements.lock) 与[维护命令](../docs/development.md#maintenance-tools) | 先建 manifest 后创建 `.venv`；Python 3.13.15，六项实际依赖版本，`pip check` 无冲突 | 当前 Windows 环境；未声称其他 Python/OS 已实际验证 |
+
+验证先有初始模块缺失错误，再用故意不校验的可读文件实现运行行为 RED：6 个 parser 方法产生 12 个失败，4 个 schema 方法产生 14 个失败；这些数含子例，不是额外发现的方法。实现后首轮 140 项通过；自审补充并复现 BOM 行号偏移、merge 归一化吞掉嵌套重复 `<<`、safe-tag 无效值泄漏内建异常，逐项修复后全量为 **143 个方法发现/执行、0 跳过、0 失败/错误**（parser 73、schema/Git 数据 70）。5 个 Python 文件通过语法检查，4 个契约文档示例实际解析/校验。完整命令与关键失败详情回报告读取。
+
+Windows 的外部/内部目录 junction 和真实文件字节锁测试均已执行，没有用 skip 隐藏边界覆盖。`ArtifactInputError` 保留 code、文件、1-based 行号、错误信息与原始异常链；同 scope 重复只针对显式集合，不扫描或改写全仓。
+
+### Task 2 限制与下一步
+
+- Task 2 完成的是 ENH-02、ENH-06 的输入契约与 parser，不是六仓增强全部完成。九个视图的真实源读取/派生、跨文件存在性/层次/覆盖、主基线真实性及手改检测仍由 Task 7/8 执行，当前为 `not-run`，没有为了“通过”增加 exporter。
+- 业务应用、媒体/PDF、外部来源接入、hook/CI、传播、发布、PR 和远端写入均未执行；相应独立授权关卡保持不变。schema-valid 的确认或 pass 声明也不认证人或证据真实性。
+- Markdown 读取限于已记录的显式 anchor + owner ATX 标题模式；没有通用 Markdown 渲染、隐式 anchor 推断或自动旧格式转换。Windows junction 的结果不泛化为其他宿主全部链接类型，路径检查也不是防并发恶意替换的 OS sandbox。
+- 没有已知阻塞 Task 2 的缺项。父会话按实际提交和报告进行范围复核后，再分派后续任务；本执行者未启动 Task 3 或任何嵌套代理/审阅者。接手重新核对 Git 与本机报告可访问性，不能只继承本摘要的通过结论。
