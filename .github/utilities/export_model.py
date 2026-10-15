@@ -240,7 +240,9 @@ class _Sources:
             # Location protection is independent of evidence validity. A known
             # domainSources entry also keeps its context when root/path is absent
             # or when the same YAML node was already visited through another key.
-            domain_location = domain_declaration or {"root", "path"} <= node.keys()
+            # Outside that context keep the established provenance shape:
+            # ordinary business root/path keys alone do not declare a location.
+            domain_location = domain_declaration or {"root", "path", "baseline"} <= node.keys()
             if domain_location:
                 try:
                     _, path = _domain_location(self.root, node.get("root"), node.get("path"))

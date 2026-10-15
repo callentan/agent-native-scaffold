@@ -1585,5 +1585,51 @@ class Task8Fix1DomainReservationTests(ModelFixture):
         self.refused_output_preserves_sources(self.root / "unrelated-output.yaml")
 
 
+class Task8Fix2TreeTests(ModelFixture):
+    """T8-F1-N1: business tree keys are not baseline-free domain declarations."""
+
+    quality_sources = Fix1QualityTests.quality_sources
+
+    def assert_tree_round_trip(self, data, output):
+        _, tree, selected = self.quality_sources()
+        write_yaml(tree, {"tree": data})
+        selected["quality"][1]["baseline"] = byte_baseline(tree)
+        self.manifest(selected)  # Use the real refreshed bytes, never a stale selection.
+        output.parent.mkdir(parents=True, exist_ok=True)
+        before = source_bytes(self.workspace)
+        try:
+            model = self.export()
+            self.assertEqual("available", model["views"]["quality"]["state"])
+            self.assertEqual([], model["views"]["quality"]["gaps"])
+            self.assertIn({"reference": "evidence/utility.yaml#tree", "baseline": byte_baseline(tree)},
+                          model["views"]["quality"]["evidenceRefs"])
+            self.assertNotIn("response-time", json.dumps(model))
+            result = self.cli("--output", str(output))
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertTrue(output.is_file())
+            self.assertEqual(model, json.loads(result.stdout))
+            self.assertEqual(model, yaml.safe_load(output.read_bytes()))
+            checked = self.cli("--check", str(output))
+            self.assertEqual(0, checked.returncode, checked.stdout + checked.stderr)
+            self.assertEqual("clean", json.loads(checked.stdout)["status"])
+            self.assertEqual({"tree": data}, yaml.safe_load(tree.read_bytes()))
+        finally:
+            after = source_bytes(self.workspace)
+            after.pop(output.relative_to(self.workspace).as_posix(), None)
+            self.assertEqual(before, after)  # All source bytes/file sets are unchanged.
+
+    def test_valid_tree_root_mapping_and_path_list_export_and_check_round_trip(self):
+        self.assert_tree_round_trip(
+            {"root": {"label": "quality"}, "path": ["response-time"]},
+            self.workspace / "safe 模型 export.yaml",
+        )
+
+    def test_business_root_path_labels_do_not_reserve_phantom_source_directories(self):
+        self.assert_tree_round_trip(
+            {"root": "quality", "path": "response-time"},
+            self.root / "quality/response-time/safe 模型 export.yaml",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

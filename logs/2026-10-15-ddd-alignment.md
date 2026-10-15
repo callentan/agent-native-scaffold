@@ -538,3 +538,20 @@ Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows
 本轮本地修正和验证不等于独立批准，Task8 保持**等待限定复审**。合成 VT 记录只验证收集/归属/拒绝路径，不证明外部业务事件或人工审批；实测仍限 Windows/Python 3.13.15，其他宿主和 Python 3.11 未运行。
 
 未启动子代理、reviewer、工作流、Task9、应用/原生业务测试、安装、权限/持久 hook 配置、amend、push、PR 或远端操作。完成新范围内本地提交与报告后停止，由调用方核对本轮精确 commit、三处机制、全部新原始证据及旧记录保护，再做限定复审。
+
+<a id="task8-fix2"></a>
+## Task8 第 2 轮限定修正（2/5）：T8-F1-N1
+
+2026-10-16，按本轮限定请求，从干净的 `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` 和原分支/worktree 开始。第 1 轮限定复审已将原 T8-I1/I2/I3 判为 **ADDRESSED**，本轮不重开；只处理业务 tree 的 root/path 被误作领域位置而拒绝合法输出的新 Important。审阅中的这一新反例是静态追踪，下面是新的运行证据。
+
+- 先只改 `test_model_export.py`，复用现有完整 QAS/utility-tree 夹具，写入审阅给出的 mapping/list 数据并刷新实际 baseline。另加字符串业务标签控制，确认不会生成虚假的受保护目录。两例均通过真实 CLI 导出与 check 往返核对，除显式新输出外全部源 bytes/file-set 保持原样。
+- `fix2-red-01-tree-roundtrip.json`：生产代码未改时 2 方法失败，实际只读 quality 为 available，但合法输出被 `REPORT_CONFLICT` / 2 拒绝，0 错误/跳过。
+- 生产修改仅在 [reserve_declarations](../.github/utilities/export_model.py) 的一个判断条件及注释：缺 baseline 的特殊保护仍在真正的 domainSources 条目上下文生效；其余节点恢复完整 root/path/baseline 的既有 provenance 形状要求，不凭两个业务键猜目录。没有禁用/改名 tree 键，没有改 tree adapter 或 I1 的缺失/不完整/alias/目录保护，也没有改 reference/path+baseline 处理。
+- `fix2-green-02-tree-roundtrip.json`：2 方法 GREEN，0 跳过，退出 0，3.580 秒。
+- `fix2-model-03-complete.json`：只选择整个 model 模块，实际发现/执行 **94 方法**，0 失败/错误/跳过，退出 0，160.163 秒，受检源字节未变。原 92 个模型测试均保留，新增 2；未重跑 395 全套或 collector 套件。
+
+新材料在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-evidence\fix2-*`；完整报告追加至同处 `task8-report.md`。`fix2-before.json` 保存 120 个源文件、1322 个旧任务材料及原报告/日志前缀身份。旧 395 全套及父会话在起点运行的 153 方法记录保留其原范围和对象，不计作此次新反例的执行证据。
+
+本轮只改一处生产机制、同一模型测试文件、直接契约说明和最小状态/日志。schema、32 kinds、九视图和 8/21/3 不变；原 I1/I2/I3 addressed 判定保留，Task8 仍**等待限定复审**。实际新提交与提交后状态沿完整报告最终追加查看。
+
+没有子代理/reviewer、Task9、应用/原生执行、安装、持久权限/hook 变更、amend、push、PR 或远端操作。实测仅 Windows/Python 3.13.15；来源可读/可导出不认证业务结果、人工批准或跨宿主资格。局部提交和交接后停止，由调用方继续限定复审。
