@@ -17,7 +17,7 @@ from jsonschema import Draft202012Validator
 from referencing import Registry
 import yaml
 
-from artifact_io import ArtifactInputError
+from artifact_io import ArtifactInputError, parse_artifact
 from tests.helpers import (
     CONTRACTS, VIEW_NAMES, WORKTREE, git, metadata, seed_git_repo, source_bytes,
     temporary_workspace, write_artifact, write_delivery_fixture, write_metadata,
@@ -1225,6 +1225,88 @@ class Fix1RunTests(ModelFixture):
         self.assertEqual("partial", view["state"])
         self.assertTrue(any("ambiguous" in gap and "no-write" in gap and "vt-002-run-01" in gap
                             for gap in view["gaps"]))
+
+
+class Fix2RunOwnershipTests(ModelFixture):
+    """F1-N1: an anchor belongs to its actual heading, not the preceding interval."""
+
+    # Reuse the exact positive run fixture without rerunning its class by inheritance.
+    run_block = Fix1RunTests.run_block
+    verification_source = Fix1RunTests.verification_source
+
+    def owned(self, path):
+        before = source_bytes(self.root)
+        result = self.tool()._owned_runs(parse_artifact(path, self.root))
+        self.assertEqual(before, source_bytes(self.root))
+        return result
+
+    def readonly_view(self):
+        before = source_bytes(self.root)
+        try:
+            return self.export()["views"]["verification"]
+        finally:
+            self.assertEqual(before, source_bytes(self.root))
+
+    def test_fix2_peer_h2_heading_alone_cannot_supply_an_owned_run(self):
+        path = self.verification_source(self.run_block())
+        original = path.read_bytes()
+        self.assertEqual(1, original.count(b"### VT-002-RUN-01"))
+        changed = original.replace(b"### VT-002-RUN-01", b"## VT-002-RUN-01", 1)
+        path.write_bytes(changed)
+        self.manifest(self.select("verification", path))  # Refresh only the selected byte baseline.
+        self.assertEqual(changed, path.read_bytes())  # Every table/criterion remains intact.
+        view = self.readonly_view()
+        self.assertEqual("partial", view["state"])
+        self.assertIn("owned run block", " ".join(view["gaps"]))
+        self.assertEqual((), self.owned(path))
+        self.assertNotIn("verification/VT-002.md#vt-002-run-01",
+                         [item["reference"] for item in view["evidenceRefs"]])
+
+    def test_fix2_valid_h3_and_blank_comment_gap_still_belong_to_runs(self):
+        for gap in ("", "\n<!-- source-owned note -->\n\n"):
+            with self.subTest(gap=gap):
+                block = self.run_block().replace(
+                    '<a id="vt-002-run-01"></a>\n', '<a id="vt-002-run-01"></a>\n' + gap)
+                path = self.verification_source(block)
+                self.assertEqual(("vt-002-run-01",), self.owned(path))
+                self.assertEqual("available", self.readonly_view()["state"])
+
+    def test_fix2_ancestor_h1_is_not_owned_and_primary_title_error_is_preserved(self):
+        path = self.verification_source(self.run_block().replace("### VT-002-RUN-01", "# VT-002-RUN-01", 1))
+        # The raw parser legitimately returns this body; the document checker
+        # independently rejects its second H1. Do not change either parser for this fix.
+        self.assertEqual((), self.owned(path))
+        with self.assertRaises(ArtifactInputError) as caught:
+            self.readonly_view()
+        self.assertEqual("MULTIPLE_TITLES", caught.exception.code)
+
+    def test_fix2_valid_child_does_not_merge_a_following_peer_record(self):
+        first = self.run_block(1)
+        peer = self.run_block(2, result="fail").replace("### VT-002-RUN-02", "## VT-002-RUN-02", 1)
+        path = self.verification_source(first + peer)
+        self.assertEqual(("vt-002-run-01",), self.owned(path))
+        view = self.readonly_view()
+        self.assertEqual("available", view["state"])  # The peer is not a conflicting child run.
+        refs = [item["reference"] for item in view["evidenceRefs"]]
+        self.assertIn("verification/VT-002.md#vt-002-run-01", refs)
+        self.assertNotIn("verification/VT-002.md#vt-002-run-02", refs)
+
+    def test_fix2_record_after_a_following_section_cannot_fill_missing_run(self):
+        block = '<a id="later-section"></a>\n## 后续来源\n\n' + self.run_block()
+        path = self.verification_source(block)
+        self.assertEqual((), self.owned(path))
+        self.assertEqual("partial", self.readonly_view()["state"])
+
+    def test_fix2_unpaired_anchor_does_not_borrow_a_later_heading(self):
+        for interruption in ("该锚点后先是说明，不是运行标题。\n",
+                             "```text\n### VT-002-RUN-01：字面示例\n```\n",
+                             '<a id="another-owner-section"></a>\n'):
+            with self.subTest(interruption=interruption):
+                block = self.run_block().replace(
+                    '<a id="vt-002-run-01"></a>\n', '<a id="vt-002-run-01"></a>\n' + interruption)
+                path = self.verification_source(block)
+                self.assertEqual((), self.owned(path))
+                self.assertEqual("partial", self.readonly_view()["state"])
 
 
 if __name__ == "__main__":

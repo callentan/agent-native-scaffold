@@ -453,3 +453,17 @@ Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选�
 ### 限制与停点
 
 本轮自审与测试不关闭审阅关卡；Task7 保持**待限定复审**。Windows / Python 3.13.15 实测，不声称 Python 3.11、其他宿主、自然语言语义、人工批准或业务执行已验证。只读来源状态不是 pass/approval/release；未实施 Task8–18，没有 reviewer/subagent/workflow、安装、权限变更、hook 安装、远程操作、amend、push 或 PR。完成新局部提交及报告追加后停止，由调用方核对五项修正、完整 diff 和新旧证据保护。
+
+<a id="task7-fix2"></a>
+## Task7 第 2 轮局部修正：新 F1-N1
+
+2026-10-16，按用户限定请求从干净的 `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` 开始。fix1 限定复审已将原 T7-I1–I5 标为 addressed；本轮只处理新 Important F1-N1，不重新打开原五项。审阅者和父会话仅给出静态机制，以下是本轮新运行证据。
+
+- 先在原正例中仅将 `### VT-002-RUN-01` 改为 `## VT-002-RUN-01`，完整表格/判据不变并刷新该来源基线。`fix2-red.json` 实际复现错误 available；六个聚焦方法出现六个失败断言/子例，0 错误/跳过。当时只改 `test_model_export.py`。
+- 生产修改仅在 `_owned_runs`：锚点和紧随的真实标题关联，所属 `runs` H2 必须先建立，再接收下级标题；遇 peer/ancestor 标题立即结束，不能先接收其前置锚点。空行/注释可保留关联，说明、代码或另一锚点会打断未配对关联。`section_lines`、raw parser 和共享字面扫描器均未修改。
+- `fix2-focused-green.json`：六个新方法和七个保留的运行记录控制，共 13 方法 GREEN。覆盖 H2 唯一变更、H1 ancestor、有效 H3、随后 peer/外部章节隔离及未配对锚点；H1 的原 MULTIPLE_TITLES 输入错误仍保留。各工具调用前后都核对实际输入字节。
+- `fix2-model-suite.json`：只运行整个 `test_model_export.py` selector，实际发现/执行 **77 方法**，0 失败、0 错误、0 跳过，退出 0，40.500 秒。没有重跑或重标旧 313 全套、父会话 243 方法或独立 schema 套件。
+
+新证据与辅助脚本只保存在本机会话 `files\ddd-alignment-execution\task7-evidence\fix2-*`，原报告的 fix2 追加位于 `task7-report.md`；起点摘要保存 116 个源文件、266 个旧证据文件及原日志/报告前缀。上述结果是局部工具与来源结构验证，不是业务执行或独立批准。
+
+Task7 保持**待限定复审**。本轮只有该函数、同一模型测试文件、直接契约说明和当前状态/本日志变更；四份原 schema、32 kind、九视图与 8/21/3 不变。完成新局部提交和报告追加后停止；没有 subagent、Task8、应用、安装、权限/hook 配置、amend、push、PR 或远程操作。

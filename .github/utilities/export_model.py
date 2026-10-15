@@ -536,23 +536,32 @@ def _owned_runs(source: Artifact) -> tuple[str, ...]:
     start = next((a.location.line for a in source.anchors if a.name == "runs"), None)
     if start is None:
         return ()
-    end = source.body_start_line + len(source.body.splitlines())
-    heading_seen = False
+    anchors = {a.location.line: a.name for a in source.anchors}
+    pattern = re.compile(re.escape(source.id.lower()) + r"-run-[0-9]+")
+    pending, inside, runs = "runs", False, []
     for number, line in iter_markdown_lines(source.body, source.body_start_line):
-        if number <= start or line is None:
+        if number <= start:
+            continue
+        if line is None:
+            pending = None
+            continue
+        if number in anchors:
+            pending = anchors[number]
             continue
         heading = _HEADING.fullmatch(line)
         if heading:
-            if not heading_seen:
-                if len(heading[1]) != 2:
+            if not inside:
+                if pending != "runs" or len(heading[1]) != 2:
                     return ()
-                heading_seen = True
+                inside = True
             elif len(heading[1]) <= 2:
-                end = number
-                break
-    pattern = re.compile(re.escape(source.id.lower()) + r"-run-[0-9]+")
-    return tuple(a.name for a in source.anchors
-                 if start < a.location.line < end and pattern.fullmatch(a.name)) if heading_seen else ()
+                break  # A preceding anchor belongs to this closing peer/ancestor.
+            elif pending is not None and pattern.fullmatch(pending):
+                runs.append(pending)
+            pending = None
+        elif line.strip():
+            pending = None  # Do not attach an unpaired anchor to a later heading.
+    return tuple(runs)
 
 
 def _run_results(source: Artifact, anchor: str, lines: tuple[tuple[int, str], ...]) -> tuple[dict, list[str]]:

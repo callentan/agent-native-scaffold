@@ -10,7 +10,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–6 已完成各自的有限实现与范围复核；Task6 的两项 Important 已修正并完成限定复审。Task7 首次独立审阅提出五项 Important，第 1 轮修正待限定复审。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task8–18 尚未实施，本执行停于 Task7 修正的本地提交/交接，不自动推进。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
+**当前状态：** 任务 1–6 已完成各自的有限实现与范围复核；Task6 的两项 Important 已修正并完成限定复审。Task7 原 T7-I1–I5 已在限定复审中标为 addressed；新 F1-N1 的第 2 轮局部修正待复审。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task8–18 尚未实施，本执行停于 Task7 修正的本地提交/交接，不自动推进。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -277,7 +277,7 @@ class ArtifactCheckTests(unittest.TestCase):
 <a id="task7"></a>
 ### 任务 7：模型视图、覆盖与影响核对
 
-**当前状态：第 1 轮修正待限定复审。** 初始实现 `fe1acd39e1e25025d037e0c072e437824e848911` 的干净起点为 `def03cdc0f58414eeb4d59da61928d451b431aaa`；初始 RED/GREEN 和 293 方法结果保留在[原追加日志](../../logs/2026-10-15-ddd-alignment.md#task7)。首次独立审阅为静态审阅，不当作新的运行证据；五项 Important 的本轮修正从 `fe1acd39e1e25025d037e0c072e437824e848911` 开始，先补全部失败回归再改代码，证据见[修正追加](../../logs/2026-10-15-ddd-alignment.md#task7-fix1)。实现者不关闭独立关卡，不重复 Task6 或进入 Task8。
+**当前状态：第 2 轮局部修正待限定复审。** 原 T7-I1–I5 已在 fix1 限定复审中标为 addressed；新 Important F1-N1 是运行锚点被误归入前一章节，不重新打开原五项。初始实现/293 方法结果见[原日志](../../logs/2026-10-15-ddd-alignment.md#task7)，fix1/313 方法结果见[第 1 轮追加](../../logs/2026-10-15-ddd-alignment.md#task7-fix1)。fix2 从干净的 `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` 开始，只处理 `_owned_runs` 的锚点/标题归属及相关测试；新 RED/GREEN 与模型模块回归见[第 2 轮追加](../../logs/2026-10-15-ddd-alignment.md#task7-fix2)。静态复审不是运行复现，实现者不关闭独立关卡或进入 Task8。
 
 **文件：** `export_model.py`、`check_traceability.py`、`test_model_export.py`、`test_traceability.py`、必要的共享 helpers、model/verification 指引与 verify 方法；按用户选择增加 `.github\contracts\model-sources.schema.json`、`_templates\config\model-sources.yaml` 及契约/工具/开发说明。只提供空表，不在制作仓创建正式项目 `model-sources.yaml`。
 
@@ -515,4 +515,4 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–6 的有限交付及范围复核已完成，Task7 第 1 轮修正等待限定复审；当前八方法、二十一 prompts、三模式。Tasks8–18 尚未实施，本执行不进入 Task8。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–6 的有限交付及范围复核已完成，Task7 新 F1-N1 的第 2 轮局部修正等待限定复审；当前八方法、二十一 prompts、三模式。Tasks8–18 尚未实施，本执行不进入 Task8。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
