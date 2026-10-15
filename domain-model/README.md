@@ -153,3 +153,5 @@ RULE 仍由原领域文件的稳定锚点拥有，不增加第二份规则正文
 需要机器索引时使用[模型工具](../.github/utilities/README.md#model-export)，显式给出真实 root 与 scope；不从目录猜上下文。可选[来源清单](../.github/contracts/README.md#model-sources)只选择已有工件/摘要及固定基线，不复制规则、模型正文或结果，也不授予外部读写权限。
 
 九视图的 `available/partial/unverified` 表示来源完整性。缺清单或可选源保留具体 gap；主库存非法则失败，不能把它降为可选缺项。默认只读，显式导出只创建新文件；旧模型可重算检查来源变化或手改，不自动覆盖。规则影响仍按[影响方法](../.github/skills/verify-change/SKILL.md#impact)核对，机械依赖候选不能替代语义和责任人决定。
+
+实现侧的[实施报告](../.github/contracts/README.md#implementation-report)复用既有 VT 运行及其对象/要求/计划基线，领域源只读核对。需要连接 model 时另行在现有 verification 来源中选择该报告；`implementationReports` 只存文件引用与已核实基线，不搬入逐项结果，也不改写领域 model 或来源清单。未选择报告或缺源保持原有空引用/gap，不能因一次收集成功推导当前适用或批准。

@@ -7,7 +7,7 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型与可选来源清单，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要与可选来源清单，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
@@ -33,8 +33,10 @@
 | 模型只读派生 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\export_model.py --root . --scope <实际 project/context>` | JSON stdout；从可选 `model-sources.yaml` 选择来源，主输入失败退出 2 |
 | 旧模型检查 | 上行增加 `--check <已有 .json/.yaml/.yml>` | 只读重算；来源变化/手改退出 1，输入错误退出 2，不修复源或模型 |
 | 明确创建新模型 | 只读派生命令增加 `--output <获准的新 .json/.yaml/.yml>` | 与 `--check` 互斥；exclusive create、不建父目录，不占用登记来源路径 |
+| 收集实施摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root . --object <完整本地 commit>` | JSON stdout；按实际选择重复 `--evidence <VT相对路径[#运行锚点]>`，多 BC 须加 `--scope`；不执行 VT 命令 |
+| 明确创建新实施报告 | 收集命令增加 `--output <获准的新 .json/.yaml/.yml>` | exclusive create、不建父目录，不覆盖已有文件或占用缺失的声明来源；不自动登记 model 来源 |
 
-这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)分别约束其结果；API 不写文件。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。模型完整性与结构覆盖都不等于业务通过；实施报告收集尚未提供。尖括号参数由本次实际输入替换。
+这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)与[实施摘要](../.github/utilities/README.md#implementation-report)分别约束其结果；API 不写文件。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖和成功收集都不等于业务通过。尖括号参数由本次实际输入替换。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目

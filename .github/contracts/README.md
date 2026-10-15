@@ -165,6 +165,7 @@ views:
 
 本 schema 只校验视图数据的形状，不查找实际来源、不派生字段，也不核实范围/基线一致性或手改情况。调用者仍需核对真实来源和证据；schema-valid 不表示模型已经由导出器生成或经过运行验证。
 
+<a id="implementation-report"></a>
 ## 4. 实施报告
 
 [implementation-report.schema.json](implementation-report.schema.json) 把对象、来源、执行记录和适用性分开。
@@ -210,6 +211,59 @@ entries:
 ```
 
 没有全局“通过”字段；空 entries 或空证据不能建立通过。即使 pass 的数据结构有效，仍须回证据核对实际对象、逐项目标、执行数量与结果；schema 不认证报告真实性，不执行测试，不回写只读源。改变本版本字段需要显式版本/契约变更，不静默兼容未知字段。
+
+### 4.1 收集范围和精确对象
+
+`collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` 读取既有 VT，不引入另一个执行输入账本。`root` 必须是明确的本地 Git checkout 根，`object_sha` 必须是可读的完整 commit ID；拒绝 None、分支、短号、tag/tree/blob 和不可用对象，不回退 HEAD/index、不 fetch。报告的 `object.root` 为 `.`。
+
+主 `bc-config.yaml`、正式工件及代码/测试文本从该 commit 的普通 blob 读取；当前工作文件、index 或另一个 HEAD 不替换它们。按配置的项目/上下文选择 scope：只有一个 BC 时可省略；多个时须明确传 `scope` / `--scope`，不能选第一项。先盘点该 scope 的全部 owner AC/VC，包括没有 VT 的项，再收集证据；无实际 scope 或无验收是输入错误。其他 scope 的上游只作来源，不自动增加交付项。
+
+配置的 `developmentRegistration` 必须在该对象中有真实文件/锚点。领域 `root` 为相对此 checkout 的明确本地目录（可用 `../领域源` 选择已获准的独立本地源），不展开环境变量，不接受 URL、UNC 或个人绝对路径；`path` 只相对这个源根解释。SHA256 基线用于一个文件的原始 bytes；完整 Git commit 用于同路径文件或目录，必须与本地实际文件集/字节一致。目录比较不跟随链接、不初始化 gitlink，Git 源只接受 commit。`readOnly` 保留原配置声明，false 也不授予写入权限；收集器始终不改源、index、config 或权限。与主对象重叠的领域文件也须与对象内的 bytes 相符。
+
+### 4.2 VT 文件与运行选择
+
+`evidence_files` 是字符串列表，元素为 root 相对的 `verification/VT-001.md` 或 `verification/VT-001.md#vt-001-run-01`，不是包含复制状态的 JSON/YAML。文件须是该对象内同路径、同 owner/scope 的 VT。它可以在测试对象之后追加运行；当前文件及原始报告以各自实际字节摘要引用，绝不标作测试对象里的新 bytes。
+
+无参数（CLI）或空列表（API）表示未选择运行，不隐式扫描当前 VT 来补结果。路径不存在/越界、重复选择、未知锚点均报输入错误。无片段的文件仅在恰有一个 owned run 时选中它；零运行保留逐目标 not-run，多运行必须选择锚点。不同选中运行若涉及同一目标，无论结果相同、冲突或基线不同都报歧义，不采用最新/最后/最有利结果，也不跨运行拼字段。
+
+只读取本 VT `runs` H2 内、属于本 owner 的 `vt-…-run-NN` 子标题；复用严格节边界及注释/围栏排除。H2/H1 同级或上级标题、示例代码、注释、文件名和 Approved 都不是运行。每个选中的 run 必须有原表单的四列逐判据结果，所有已声明 criterion 各有且只有一行，不要求在父标题前复制执行表。
+
+收集支持以下**原表单字段的有限值语法**；不符合的既有记录明确报输入错误，不自动迁移或猜自然语言：
+
+| 原字段 | 支持的值 |
+|---|---|
+| 日期、执行者与方式 | `YYYY-MM-DD; recorder=具名记录者; mode=command` 或 `mode=manual`；仅定位声明，不认证身份 |
+| 实际对象基线 | 本次请求的完整 commit ID |
+| 当时的需求/设计/任务依据基线 | `scope/OWNER@baseline`，多个 owner 以 `;` 分隔；恰好覆盖此 VT 的目标所有者 |
+| 当时的 VT 基线 | 该 VT 的完整本地 commit 或对象内原始文件的 `sha256:`；不是当前新增运行后的摘要 |
+| 实际环境与工具版本 | 实际具名环境说明；不得为“未配置”等占位 |
+| 实际工作目录 | command 模式为对象中存在的相对目录或 `.`；manual 可说明非命令型检查 |
+| 实际命令或人工步骤/测试标识 | 实际命令文本或具体人工操作；只读，永不执行。command 的已执行目标须给出其真实 testId |
+| 退出码、发现/执行/跳过数量（适用时） | command：`exit=0; discovered=2; executed=2; skipped=0`。executed 不含 skipped，discovered 必须等于两者之和；不由这些总数推算 auto/manual 分量。manual 不要求此行或虚构数量 |
+| 原始报告与具体位置 | `[说明](相对本 VT 的文件路径#可选锚点) @ baseline`；多个以 `;` 分隔。只有未执行/跳过时可为 `not-run` |
+| 报告可访问性与限制 | 实际访问范围/限制说明 |
+
+二列表格值沿用现有 reader，目前不能包含 `|`（包括转义形式）；用 `;` 分隔的 owner/报告列表不能在单项内再含分号。含空格路径的 Markdown 链接用 `[说明](<../reports/原始 报告.txt>)`。这是有限输入语法，不是任意 Markdown/本地 runner 报告的通用导入器。
+
+baseline 为原始 `sha256:` 或完整本地 Git commit（原始报告还接受 blob）。要求基线若不是 object_sha，须逐 owner 验证**整个文件 bytes 相同**；VT 基线须验证计划内容相同。VT 计划投影只排除真实 `runs`、`applicability` 两个 H2 节（含其子块），其他 frontmatter/正文/换行 bytes 必须一致。当前供应的 VT 同样与对象计划比较；修改目标、判据、方法或未被排除的内容不能借追加运行复用旧结果。
+
+pass/fail 行须有独立、具体的观察及其原始报告链接；该链接必须对应本运行报告字段中已验证的路径/片段/基线。报告必须可读且非空，Markdown 片段为真实显式锚点，JSON/YAML 片段为顶层键，其他文件不支持片段。fail 还保留差异原因。command 中零发现、零实际执行、全跳过、无对应 testId 或纯成功字样均不能形成 pass/fail。混合 pass/fail 保留每项结果，不归并为全局通过。只有 pass、但 command 非零退出的自相矛盾记录拒绝。manual 使用实际具体步骤和逐项观察，不要求命令或捏造的数量。
+
+没有选中本目标的运行时，目标仍在 entries 中，执行为 not-run、空 evidenceRefs 和明确理由。选中的 not-run/skipped 保留其理由与原记录引用，不借另一目标的成功补位。收集结果仅说明读到了满足这些结构/基线条件的**源声明**；它不能证明外部事件确实发生，更不能认证人工批准。
+
+### 4.3 代码/测试文本定位与适用性
+
+支持普通 UTF-8 源文件中的独占行注释 `# implements: scope/OWNER#ac symbol=name`、`# verifies: scope/OWNER#ac testId=test_name`，也支持 `//` 注释前缀。下一条非空、非行注释文本须含给定的标识符及 `(`；标识符限 ASCII 字母/下划线开头的单一标识符。此窄规则是文本定位，不是语言解析、runner 发现或测试执行；不支持的 marker 明确报错。Markdown、JSON/YAML、表单、依赖目录不是代码标记输入。路径来自实际 Git blobs，不猜代码/测试目录或文件名。
+
+标记必须引用实际完整 owner 验收；同短号的其他 scope 不满足本目标。VT 已声明 `testId` 时须与实际标记和位置一致。报告只保存路径、对象 baseline、显式 symbol/testId；无 marker 则引用为空，不从文件名推导实现。
+
+默认适用性为 unverified。独立复核沿用 VT 的 `applicability` 原表：`原运行/结果及目标链接` 值为 `[运行](#vt-001-run-01) [判据](#allow)`；`当前对象、需求与 VT 基线` 为 `object=完整commit; requirement=scope/OWNER@baseline; vt=baseline`。日期/记录者使用 `YYYY-MM-DD; recorder=记录者`，适用性用“待复核／适用／不适用”，理由须具体。只有 run、criterion、对象及已验证的要求/计划基线均匹配的一行可支持对应状态；多个匹配复核行报歧义，其他对象的历史复核不沿用。它和执行结果独立，pass 或同 commit 不会自动产生 applicable。
+
+### 4.4 只读输出与 model 桥接
+
+API 和默认 CLI 不写文件。CLI 明确使用 `--root`、`--object`，可重复 `--evidence`；仅 `--output` 创建指定的新 `.json/.yaml/.yml`，父目录须已存在。拒绝覆盖任何已有位置，也不得占用对象文件、BC/领域/VT/原始报告或已声明的可选来源位置，即使该位置当前缺失。报告声明的领域 `root + path + baseline` 在基线校验前保护该位置及其子路径；可选报告失效仍不能向该领域目录写新 model。退出 0 表示成功收集（可全为 not-run），1 表示收集到逐项 fail，2 表示输入/输出错误；不把 CLI 的退出当作源 VT 的退出。
+
+报告可按既有 `model-sources.yaml` 的 `verification` 列表**另行显式选择**，无新的选择清单。adapter 验证报告 schema、scope、源引用基线与可重建性后，model 的 `implementationReports` 和 verification 视图只保存报告文件及其 baseline，不复制 entries、状态、观察或适用性。其他八视图及原有 verification 来源仍按既有选择读取；九视图缺源/gap 语义不变。报告没有 views，治理/风险/SEQ/QAS/release 引用不伪装成执行 evidenceRefs。构建报告不自动改来源清单。
 
 <a id="model-sources"></a>
 ## 5. 可选 model 来源清单
@@ -296,3 +350,9 @@ auto/manual 数量只能来自该运行块中明确的 `automatedCount/自动检
 缺少整个汇总对象或字段类型错误是可选源格式错误：`unverified`、空 refs。来源已提供但缺具体字段、null/空文本或缺必要关联条目时为 `partial`，gap 带源文件及完整字段路径，例如 `sequenceSummary.entries[0].externalPartners`；已知 ref 和来源指针继续保留。quality 的 QAS/utility-tree 是必需的来源组成，缺任一来源优先按 unverified 处理，不能降为普通字段 partial。显式空 `entries/blocks` 表示可核对的空汇总；`srIds/usIds/vtIds/testScenarios` 空列表报告缺关联，`externalPartners/integrations/rcIds/reqIds/vtCoverage` 显式空列表不推导不存在的对象。`false`、计数 `0` 是有效源值，但字符串布尔与布尔计数不是有效类型。引用的 owner/anchor、文件或基线无法核实时为 `unverified`，不保留无法确认的引用。
 
 同一视图有多个来源时，任一来源无法核实使该视图 `unverified` 并清空 refs；全部可核实但有结构缺项则为 `partial`。其他视图不受牵连。每个状态都只说明所选来源的结构/可定位性；完整文本、数值/异步含义、批准真实性和结果适用性仍须回到原所有者判断。
+
+### 5.2 显式引用实施报告
+
+verification 来源还可选择 [v1 实施报告](#implementation-report)。仍使用同一个 `{path, baseline}` 选择项，baseline 必须与已生成报告的 bytes 相符，不复制执行条目进 manifest。adapter 只读重建报告核对其原对象/owned VT 引用；报告对象不可读、手改、scope 错配或原始记录漂移时，该可选视图为 unverified，并清空其报告引用。主库存的非法输入仍失败。
+
+原有 verification 来源可与报告并列选择；model 只增加文件/基线指针，不将 entries、result 或 applicability 复制到视图，其他来源的 canonical/evidence/baseline 保持原语义。报告 `available` 不是 pass；未显式选择报告时 `implementationReports` 保持空数组。报告构建不会修改清单或源 model。

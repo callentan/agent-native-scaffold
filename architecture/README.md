@@ -51,6 +51,8 @@
 
 schema 只校验结构，不访问/下载来源或核实其授权。使用前明确读目录、写目录、来源基线与登记相符；配置不授权 clone、更新、提交或修改只读源。当前没有来源接入工具，不通过填写配置暗示安装成功。
 
+已有 BC 需要实施摘要时，按[收集契约](../.github/contracts/README.md#implementation-report)给出明确 commit、scope 和原 VT 记录。收集器核对配置中的本地领域 root/path/固定基线，不 clone、不回写；源配置和代码/测试位置绑定测试对象，新增运行保留自己的 bytes 基线。[输出表单](../_templates/reports/implementation-report.yaml)不是执行输入账本。报告另行显式登记到 model 的 verification 来源后，只以报告引用连接；九视图仍归 model，不把治理/风险/序列等来源冒充执行证据。
+
 ## 维护入口
 
 真实 ABB/ADR/SEQ/SWAS 创建后在这里添加链接。普通工作进度写[开发日志](../logs/README.md)，规则或需求变化按[语义影响检查](../verification/README.md#change-impact)复核设计及旧结果；不把日志当设计决策来源的替代品。

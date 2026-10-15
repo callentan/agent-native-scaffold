@@ -10,7 +10,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–7 已完成各自的有限实现与范围复核；Task7 的原五项 Important 和后续 F1-N1 均已处理，未保留开放的本任务审阅问题。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task8–18 尚未实施，下一步按既有授权处理实施摘要桥接。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
+**当前状态：** 任务 1–7 已完成各自的有限实现与范围复核；Task7 的原五项 Important 和后续 F1-N1 均已处理，未保留开放的本任务审阅问题。Task8 已按用户单独选择复用现有 VT 运行，完成只读摘要/引用桥接和本地全量验证，等待独立复核。当前八方法、二十一 prompts、三模式，不是最终规划的九方法。Task9–18 未开始，本轮在 Task8 本地提交与报告后停止。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -28,7 +28,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器和 Task7 模型/追溯已完成本次范围复核，结果见各自记录。Task8–18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器和 Task7 模型/追溯已完成本次范围复核，结果见各自记录。Task8 已实施、待独立复核，Task9–18 未实施；不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -108,6 +108,8 @@
 | 显式历史比较（已实现） | 当前仓库根 | 上行增加 `--base <已核对的完整 commit>`；精确对象不可读退出 2；保留完整当前正式库存，含未暂存/未跟踪文件，不是暂存区 hook |
 | Task7 定向回归 | 当前仓库根 | 与完整测试相同的 unittest discovery 命令，将 `-p` 分别设为 `test_traceability.py`、`test_model_export.py`；全套仍保留既有 schema/parser/checker |
 | Task7 覆盖/影响与模型 | 当前仓库根 | 按[实际工具契约](../../.github/utilities/README.md#traceability)使用 `check_traceability.py --root <资料根> --delivery <完整 ID>`，或 `--base <完整 commit> --task <任务 key>`；模型用 `export_model.py --root <资料根> --scope <scope>`，仅显式 `--output` 写新文件，`--check` 重算不修复 |
+| Task8 定向回归 | 当前仓库根 | 完整 unittest discovery 命令的 `-p` 设为 `test_implementation_report.py`；bridge 与保留模型机制使用 `test_model_export.py`，最终仍执行完整 `test_*.py` |
+| Task8 收集实施报告 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root <本地 checkout> --object <完整 commit>`，可重复 `--evidence <VT相对路径[#owned运行]>`，多 BC 用 `--scope`；仅显式 `--output` 创建新本地报告 |
 
 Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
@@ -312,14 +314,15 @@ class TraceabilityTests(unittest.TestCase):
 
 - [x] 两轮限定复审已关闭原五项与新 F1-N1。父会话分别保留 fix1 的 243 方法结果，以及 `23c06b6` 上 `test_model_export.py` 的 77 方法、0 跳过、退出 0、48.748 秒结果；不拼成同一对象的全套结果。
 
-**退出：** 本任务承接 ENH-06/08 的机械工具及本次范围复核完成；无 US 也能覆盖，原范围不删，旧结果仍绑定旧基线。Tasks8–18 未开始，不是完整功能等价或业务/应用通过。
+**退出：** 本任务承接 ENH-06/08 的机械工具及本次范围复核完成；无 US 也能覆盖，原范围不删，旧结果仍绑定旧基线。Task7 退出时 Tasks8–18 未开始；当前 Task8 状态见下一节，不是完整功能等价或业务/应用通过。
 
+<a id="task8"></a>
 ### 任务 8：只读领域输入下的实施摘要桥接
 
 **文件：** `collect_implementation_report.py`、`test_implementation_report.py`、`tests\helpers.py`、报告表单、BC/config/model 说明及 handoff 方法。
 
-- [ ] 在测试 helper 定义 `seed_implementation_fixture(root)`：写入符合契约的 BC 配置、固定本地领域输入、四项验收/两 VT、带来源 ID 的自有代码文本，并提交该完整夹具，返回 object commit。代码文本不运行应用。给报告的原始证据分别为已执行、not-run、基线不符和不存在。
-- [ ] 先测不会把链接或 commit 当执行：
+- [x] 在测试 helper 定义 `seed_implementation_fixture(root)`：写入符合契约的 BC 配置、固定本地领域输入、四项验收/两 VT、带来源 ID 的自有代码文本，并提交该完整夹具，返回 object commit。代码文本不运行应用。给报告的原始证据分别为已执行、not-run、基线不符和不存在。
+- [x] 先测不会把链接或 commit 当执行：
 
 ```python
 import tempfile
@@ -340,13 +343,17 @@ class ImplementationReportTests(unittest.TestCase):
                 self.assertEqual([], entry["execution"]["evidenceRefs"])
 ```
 
-- [ ] 实现 BC/领域 baseline、相关 SR/US/ABB/VT、代码/测试标识与实际结果入口的摘要；缺证据不伪造 pass，越界或基线错配报输入错误。
-- [ ] 在 report fixture 中同时保留 sequence/governance/risk/release 与 quality/QAS 的 artifact/evidence/baseline 引用；分别删除可选源、源不可读和执行证据缺失，确认每种情况都保留 `unverified`/具体 gap 或 `not-run`，不从 view 状态生成批准或实际结果。
-- [ ] 以来源 BC-12/DOMAIN-19 核对 sequence、QAS、治理/风险、release 关联都能用工件/证据引用表达；不因我们使用较窄摘要而丢失原消费方需要的视图，也不把源正文复制进摘要或写回只读领域。
-- [ ] 在显式本地输出写摘要，领域源前后散列不变；model 仅引用摘要。跨仓提交/回写属于独立获授权操作，没有权限就停止该副作用。
-- [ ] 重跑、提交工具和表单，记录可访问性；不保存私有日志、凭据或完整聊天。
+- [x] 实现 BC/领域 baseline、相关 SR/US/ABB/VT、代码/测试标识与实际结果入口的摘要；缺证据不伪造 pass，越界或基线错配报输入错误。
+- [x] 在 report/model fixture 中同时保留 sequence/governance/risk/release 与 quality/QAS 的 artifact/evidence/baseline 引用；九视图仍归 model，报告不增加 views 或把治理来源塞入执行 evidenceRefs。分别删除可选源、源不可读和执行证据缺失，保留原有 `unverified`/具体 gap 或逐目标 not-run。
+- [x] 以来源 BC-12/DOMAIN-19 核对 sequence、QAS、治理/风险、release 关联都能用工件/证据引用表达；不因我们使用较窄摘要而丢失原消费方需要的视图，也不把源正文复制进摘要或写回只读领域。
+- [x] 在显式本地输出写摘要，领域源前后散列不变；model 仅引用摘要。跨仓提交/回写属于独立获授权操作，没有权限就停止该副作用。
+- [x] 完整重跑工具和表单相关验证，记录可访问性；局部提交的实际 SHA 与提交后状态以本轮报告的最终追加为准，不保存私有日志、凭据或完整聊天。
 
-**退出：** ENH-12；实施报告可追溯而不成为第二份审批/结果或不受控写回。
+**本地验证（2026-10-16）：** 起点 `d30b87b805a133bca54d25ce5887e06071e605c1` 的干净 worktree。先保留 319 方法完整基线，再按真实 RED/GREEN 完成收集、报告 adapter 和源边界；最终完整套件实际发现/执行 **378 方法**，0 失败/错误/跳过，退出 0，386.857 秒。逐测试身份比较确认全部 319 个原方法保留，新增 59；未把不同对象的 313/243/77 历史结果拼成当前证据。
+
+原始命令、cwd、stdout/stderr、退出码、计数、前后字节和文档检查入口见[本轮日志](../../logs/2026-10-15-ddd-alignment.md#task8)及其本机会话报告。合成 VT pass/fail 只验证收集器，不证明业务运行；Windows/Python 3.13.15 的结果不外推 Python 3.11 或其他宿主。
+
+**退出：** ENH-12 本轮实现/本地验证已交接，**等待独立复核**；实施报告是可重建引用，不成为第二份审批/结果输入或不受控写回。Task9–18、应用、平台与远端操作未开始，完整增强未获批准。
 
 ### 任务 9：人工审阅与工具资格记录
 

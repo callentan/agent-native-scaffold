@@ -231,11 +231,13 @@ check_model(root, scope, model_path) -> CheckReport
 
 直接 quality 同时核对实际 QAS 和 utility-tree 来源（可显式选已有顶层 `tree` mapping/list 文件）；缺源为 unverified，已知源缺字段/条目才 partial。直接 verification 读取当前 VT 表单的所属子运行块和四列结果表，逐运行记录缺项/冲突并保留原锚点；不从总数推算自动/人工数量，不把相邻运行或 criterion 内容拼合。SEQ 完整性读取受共享注释/围栏状态约束的真实图代码，不回扫原始字面示例。具体源形状仍以契约说明为准。
 
-主 `source.root` 固定为可移植的 `.`。各 artifact baseline 是实际读到的原始 bytes 的 `sha256:`（含 BOM/换行），upstream/targets、工件、视图、refs 与 gaps 确定排序。主 `source.baseline` 是以下对象经 `json.dumps(sort_keys=True, separators=(",", ":"))`、UTF-8 编码后的 `sha256:`：`scope`、按 path 排序的 Task6 `files` 读集记录、`manifest: absent/present`、排序的可选失败 `(选择路径, code)`、artifact/model/model-sources 三份所用契约的原始摘要。读集包括选择用 guide、清单、实际可选 YAML/JSON 与证据文件，不只包含正式 Markdown。无时间戳/随机数据；工具版本另随检查记录保存。
+主 `source.root` 固定为可移植的 `.`。各 artifact baseline 是实际读到的原始 bytes 的 `sha256:`（含 BOM/换行），upstream/targets、工件、视图、refs 与 gaps 确定排序。主 `source.baseline` 是以下对象经 `json.dumps(sort_keys=True, separators=(",", ":"))`、UTF-8 编码后的 `sha256:`：`scope`、按 path 排序的 Task6 `files` 读集记录、`manifest: absent/present`、排序的可选失败 `(选择路径, code)`、artifact/model/model-sources 所用契约的原始摘要；采用实施报告 adapter 时还包括 bc-config/implementation-report 契约。读集包括选择用 guide、清单、实际可选 YAML/JSON 与证据文件，不只包含正式 Markdown。无时间戳/随机数据；工具版本另随检查记录保存。
 
 canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope 消费者也能回源。代码/表头/普通 AC 提及不会自动成为 source 字段或 owner 验收。两次读取不一致返回 `INPUT_CHANGED` / 2；这不是文件系统事务，仍不保证抵御检查/打开之间的恶意替换。
 
-`check_model` 读取显式本地 `.json/.yaml/.yml`（可为 root 外另行授权的模型文件），校验并重算；主来源身份变化为 `STALE_MODEL_SOURCE` / 1，同源但手改结构为 `MODEL_MISMATCH` / 1。非法持久模型/schemaVersion/scope 为输入错误 / 2。它不修复旧模型，派生 model 也不能作为源或来源证据；清单自引用被拒绝。`implementationReports` 当前为空，尚无报告收集器，不捏造 Task8 数据。
+`check_model` 读取显式本地 `.json/.yaml/.yml`（可为 root 外另行授权的模型文件），校验并重算；主来源身份变化为 `STALE_MODEL_SOURCE` / 1，同源但手改结构为 `MODEL_MISMATCH` / 1。非法持久模型/schemaVersion/scope 为输入错误 / 2。它不修复旧模型，派生 model 也不能作为源或来源证据；清单自引用被拒绝。
+
+实施报告须在既有清单的 `verification` 来源中另行显式选择。专用 adapter 核对 v1 schema、scope、报告 baseline，并从其精确对象/owned VT 引用只读重建；手改且无法重建为 `REPORT_MISMATCH`，原始报告缺失/漂移也只保留该可选视图的 gap，不接受一个 schema-valid pass 声明。model 的 `implementationReports` 与 verification 视图只保存报告的 `reference + baseline`，不复制 entries/执行/适用性。其他八视图及原有来源不被报告替换；没有选择报告时仍为空列表。`available` 仅表示引用可核对，不能推出执行通过。
 
 | CLI 参数（均需 `--root` 与 `--scope`） | 输出与退出 |
 |---|---|
@@ -247,6 +249,35 @@ canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope
 
 声明位置本身非法、不能安全登记时，默认只读派生仍可报告可选 gap，但显式创建输出返回 `REPORT_CONFLICT`，不假称已建立输入/输出隔离。正常的新输出路径可导出后原样检查，不自动成为自身源。`REPORT_CONFLICT / REPORT_WRITE_ERROR` 退出 2；主输入失败不创建输出，写入中失败可能留下不完整的新文件。无网络、fetch、filters/textconv、hook 或来源命令执行，不自动修订清单基线。
 
+实施报告中明确的领域 `root/path/baseline` 同样先登记再核验，保护该位置和子路径；即使报告或领域基线失效、verification 仅有 gap，也不能将新 model 写进其只读来源目录。登记不代表这些数据可读、有效或获准写入。
+
+<a id="implementation-report"></a>
+## 从现有 VT 收集实施摘要
+
+```python
+build_report(root, object_sha, evidence_files, *, scope=None) -> dict
+```
+
+从同目录 `collect_implementation_report` 导入。API 只读，返回既有 [implementation-report v1](../contracts/README.md#implementation-report)，没有根级 execution/views。完整字段及支持的 **VT 选择、原表单字段/基线、注释 marker、适用性语法**均在该契约说明；不另建输入 manifest 或复制结果账本。[空白报告表单](../../_templates/reports/implementation-report.yaml)只是输出结构导航，不是实际结果。
+
+- 主 BC 配置、全部 owner 验收和代码/测试位置来自给定完整本地 commit；不是 HEAD、index 或当前文件快照。多个配置上下文时须明确 scope，无实际 scope/验收时失败。
+- 当前供应的 VT 可在对象之后追加记录；只接受原 owner/同路径的 owned child run，单文件多运行必须带锚点。原记录 bytes、测试对象、要求基线、VT 计划与原始报告各自核对，不将新证据标为旧对象中的 bytes。
+- 每项目标独立处理。未选中运行为 not-run、空 evidenceRefs 和原因；fail/skipped 及原因保留。原始报告的存在、测试文本定位、Approved、数量零、全跳过和视图 available 都不能替代执行。
+- 源运行、报告、日期、观察和命令是**被收集的数据**，不是收集器自己的运行结果。收集器不执行源命令、不运行应用/测试，也不能认证人或证明外部事件发生。人工记录用具体步骤，不编造 auto/manual 数量。
+- 领域输入按配置的 root/path 和固定基线读取并比对，始终不写回。报告的对象根为 `.`；无个人绝对路径、原始敏感正文或业务摘要复制。
+
+| CLI 参数 | 行为与退出 |
+|---|---|
+| `--root <checkout> --object <完整 commit>` | stdout 为逐目标报告，不写文件；可重复 `--evidence <VT相对路径[#运行锚点]>`，多个 BC 增加 `--scope <project/context>` |
+| 增加 `--output <明确的新 .json/.yaml/.yml>` | exclusive create，父目录须存在；不创建报告目录、不改来源选择。已有或登记/引用的源路径即使缺失也不能成为输出 |
+| 成功收集且无 fail | 退出 0，可全部 not-run/skipped；仅说明收集动作完成，不表示目标通过 |
+| 收集到某目标 fail | 仍输出完整逐目标报告，退出 1；不改成成功 |
+| 输入/来源/输出错误 | JSON `status: input-error` 与带 code/path/line/message 的 findings，退出 2；不输出伪造的空成功 |
+
+主要诊断包括 `INVALID_BASE / BASE_UNAVAILABLE / OBJECT_PATH_MISSING / BASE_MISMATCH / PLAN_MISMATCH / OBJECT_MISMATCH`（对象/来源）、`AMBIGUOUS_SCOPE / INVALID_SCOPE / UNKNOWN_SCOPE / EMPTY_ACCEPTANCE`（范围）、`INVALID_EVIDENCE_OWNER / SCOPE_MISMATCH / REQUIREMENT_MISMATCH`（所有者）、`DUPLICATE_EVIDENCE / AMBIGUOUS_RUN / UNKNOWN_RUN / AMBIGUOUS_RESULT / INVALID_RUN`（选择/记录）、`INVALID_EXECUTION / INVALID_OBSERVATION / INVALID_EVIDENCE / MISSING_TEST_REFERENCE / INVALID_MARKER`（实际定位/证据）、`INVALID_APPLICABILITY / AMBIGUOUS_APPLICABILITY`（独立复核）。共用文件/schema 诊断仍保留；`REPORT_CONFLICT / REPORT_WRITE_ERROR` 不会静默覆盖旧报告。
+
+报告可重建但不是来源事务：读取期间发现同一路径字节变化会失败；不宣称防御所有并发恶意替换。报告写入中断可能留下不完整的新文件，下一次仍拒绝覆盖。领域源 `readOnly: false` 也不授权写入；不执行 hooks、filter、replace-ref、fetch 或配置中的任何命令。
+
 ## 使用范围
 
-下游使用只依赖本目录已提供的模块、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选和模型各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
+下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型和实施摘要各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。

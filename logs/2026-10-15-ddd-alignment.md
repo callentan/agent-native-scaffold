@@ -476,3 +476,36 @@ Task7 保持**待限定复审**。本轮只有该函数、同一模型测试文�
 本机会话 `files\ddd-alignment-execution\task7-fix2-review-result.md` 保存本轮逐项依据；`task7-fix2-parent-tests.json` 保存父会话在 `23c06b6` 的实际项目解释器、cwd、`test_model_export.py` 和原始输出：77 方法、0 跳过、退出 0，48.748 秒。此前 `task7-fix1-review-result.md` 与 `task7-fix1-parent-tests.json` 分别保存五项判定/新问题及 `d622b14e` 上的 243 方法结果。这些不同对象和范围不拼成一次新全套通过，旧 RED/报告仍保留。
 
 Task7 的有限实现和范围复核关卡关闭，没有遗留的本任务审阅发现；不是增强整体、真实业务执行或跨宿主资格通过。本次只同步规格、计划、roadmap 和本日志。下一步按既有授权处理 Task8 的实施摘要桥接；真实结果仍归 VT/原始报告，不能由模型 available、commit 或测试文件存在推导。
+
+<a id="task8"></a>
+## Task8：从既有 owned VT 记录收集只读实施摘要
+
+### 2026-10-16：任务、Git 与边界
+
+按原执行授权、“恢复执行”以及用户单独选择“直接复用现有 VT 运行记录（推荐）”，只实施 [Task8 / ENH-12](../docs/plan/2026-10-14-ddd-functional-alignment.md#task8)。起点为 `d30b87b805a133bca54d25ce5887e06071e605c1`、分支 `callentan-repository-skeleton`，现有 App-isolated worktree；起始工作树/暂存区均干净。Task7 的两轮修正和复审关闭结论保留，未重做其审阅。
+
+本节写入前再次检查暂存区为空，未提交内容仅属本轮工具、测试、表单及直接资料导航。局部提交的实际对象和提交后状态以本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-report.md` 最终追加为准；不在提交前编造自身 SHA。该报告/receipts 只在本机可访问，接手者须取得该会话材料。
+
+### 本次变化
+
+- [收集器](../.github/utilities/collect_implementation_report.py) 从明确 commit 读取 BC、验收、代码和测试文本，单独读取后追加的 VT owned runs/原始报告。scope、owner、criterion、对象/要求/计划基线和源码 marker 都需实际匹配；无记录保留逐目标 not-run，冲突失败，不建立另一个执行输入账本。
+- [共用 VT reader](../.github/utilities/vt_records.py) 窄提取原 owned-run/四列结果读取，保留 H3 与关闭 H2/H1 的归属、注释/围栏和严格节隔离；安全 Git/固定 bytes 检查沿原模块共享。自查又用 RED/GREEN 覆盖共享判据、适用性表隔离、Unicode 行边界和声明来源保护。
+- [model 桥接](../.github/utilities/export_model.py) 使用既有 verification 来源选择，验证报告 schema/scope/baseline 和可重建性，仅增加报告引用。其余 canonical/evidence/baseline 与九视图 gap 保留，不复制 entries/执行/适用性，也不向领域源写新 model。
+- [报告空表](../_templates/reports/implementation-report.yaml)、[字段契约](../.github/contracts/README.md#implementation-report)、[使用入口](../.github/utilities/README.md#implementation-report)、开发/BC/验证说明及 handoff 直达导航已补齐。五份 schema、32 kinds、九视图、8/21/3 均未扩展；没有真实业务 BC/config/model/VT/application 写入生产目录。
+
+### 实际结果入口
+
+本轮原始证据在同一会话 `files\ddd-alignment-execution\task8-evidence\`。JSON 保存真实解释器、参数列表、cwd、stdout/stderr、退出、发现/执行/跳过和受检输入字节；不是日志重建的业务结果表。
+
+- `baseline-retained.json`：在本轮起点实际运行 319 方法，0 跳过，退出 0。保留旧 313/243/77 的日期、范围和对象，不重标。
+- `red-01/02` 至 `green-10`：先缺收集器 RED，再验证逐目标收集与 model bridge。保留安装夹具遗漏共用 reader 的一次失败及修正，不通过删测试解阻。合成源 pass/fail 只是输入，文本 fixture 不运行应用。
+- `full-11-retained-new.json`：当时 373 方法全套通过；最终自查后新增五个控制，不能用此结果替代新对象。
+- `red-12-final-boundaries.json`、`red-13-shared-criterion.json`、`green-14-final-boundaries.json`：按实际文件复现并修正声明来源目录写入、共享判据、适用性字面隔离、Unicode 投影和错误 evidence collection 形状。夹具的换行修正与产品缺陷分别记录。
+- `full-17-final-retained-new.json`：**378 方法实际发现/执行，0 失败、0 错误、0 跳过，退出 0，386.857 秒**；受检输入 bytes 未变。`retained-inventory-comparison.json` 确认全部 319 个原测试身份保留，新增 59；最终含 contract 70、parser 78、checker 65、trace 29、model 86、collector 50。
+- 文档/范围检查及原日志、报告前缀保护见 `check-16-docs-scope.json` 和报告的最终检查追加。辅助脚本最初未保留 checkout 的 CRLF 语义，其失败已留原输出，只修正辅助脚本参数，未改仓库配置。正式工件检查仍是 empty/0，不是业务通过。
+
+### 缺口与下一步
+
+Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows/Python 3.13.15 实测；Python 3.11、其他宿主、人工身份/审批及真实业务执行均未据此认证。支持有限且明确的字段/selector/marker 语法，不承诺通用历史记录导入；不能认证外部事件实际发生。一个原始报告 I/O 拒绝控制采用窄边界注入，不冒充宿主 ACL 验证。
+
+没有 subagent/reviewer/workflow、新 worktree、安装、权限或 hook/CI 配置、amend、push、PR、应用、远端及 Task9–18 操作。完成新局部提交和报告后停止；调用方下一步应核对精确 commit、源差异、全量 receipt、只读保护及报告可访问性，再进行独立 review。原 P3 和后续任务的未执行关卡保持原状。

@@ -17,7 +17,7 @@ description: Use when pausing or finishing a task, handing work to another sessi
 
 1. 读取[日志指引](../../../logs/README.md#recording)，使用[日志表单](../../../_templates/items/development-log.md#session)填“会话、任务与 Git 状态”。重新检查 Git，不预填干净；区分起始基线、当前 commit、已提交范围、原有与本次未提交范围及暂存情况。已有任务直接链接；确无持久来源的维护请求才填写表单的可选任务依据栏。
 2. 在“本次变化”列实际路径/工件 ID、有关规则/需求/VT/任务及变化依据，说明未完成或无法保留的状态。长期决策引用其正式来源，不用进度日志替代需求或设计正文。
-3. 在[实际结果入口](../../../_templates/items/development-log.md#verification)逐类链接真正存在的 VT 运行、报告或独立文档检查记录，以及其基线和访问限制。没有证据只写未执行或不可访问，不把旧摘要当新结果，不复制结果状态表。
+3. 在[实际结果入口](../../../_templates/items/development-log.md#verification)逐类链接真正存在的 VT 运行、报告或独立文档检查记录，以及其基线和访问限制。已有[实施摘要](../../utilities/README.md#implementation-report)时沿其逐目标引用回到原 VT/报告，核对各自对象、要求和计划基线；收集动作不代表重新执行或当前适用。没有证据只写未执行或不可访问，不把旧摘要当新结果，不复制结果状态表。
 4. 在[缺口与影响栏](../../../_templates/items/development-log.md#follow-up)写完整未覆盖/悬空验收 ID、受影响工件、当前适用性待复核入口、`not-run` 动作及原因；用 [verify-change](../verify-change/SKILL.md)核对来源。保留旧结果及原基线。
 5. 在“阻塞与下一步”写需谁补什么、下一步的输入和授权前提、接手要重查的 Git/证据/外部状态。只保存必要事实与链接，不存完整聊天、凭据、个人绝对路径或敏感输出；本机报告注明局限，不称为跨机器证据。
 

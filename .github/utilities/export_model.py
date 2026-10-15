@@ -17,10 +17,11 @@ from artifact_io import (
     _schema_validator, iter_markdown_fences, iter_markdown_lines, load_yaml_mapping,
 )
 from check_artifacts import (
-    CheckReport, Finding, Inventory, _anchors, _baseline, _decode, _error, _exclusion,
-    _git, _HEADING, _INLINE_LINK, _local_root, _network_path, _output_path, _read, read_inventory,
+    CheckReport, Finding, Inventory, _anchors, _baseline, _decode, _domain_location, _error, _exclusion,
+    _fixed_file, _HEADING, _local_root, _network_path, _output_path, _read, read_inventory,
 )
 from check_traceability import _meaningful, _table_values, section_lines
+from vt_records import owned_runs as _owned_runs, result_rows
 
 
 _SCOPE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*")
@@ -182,9 +183,10 @@ class _Sources:
         self.validators = {}
         self.failures: set[tuple[str, str]] = set()
         self.reserved_paths = {self.root / "model-sources.yaml"}
+        self.reserved_directories: set[Path] = set()
+        self.implementation_reports: dict[tuple[str, str], dict] = {}
         self.reservation_errors: set[str] = set()
         self.selection = "absent"
-        self.git_root_checked = False
         self.verified: set[tuple[Path, str, str]] = set()
         for name in ("artifact", "model", "model-sources"):
             path = Path(__file__).resolve().parents[1] / "contracts" / (name + ".schema.json")
@@ -232,8 +234,20 @@ class _Sources:
             if isinstance(node, list):
                 pending.extend(node)
                 continue
+            domain_location = {"root", "path", "baseline"} <= node.keys()
+            if domain_location:
+                try:
+                    _, path = _domain_location(self.root, node["root"], node["path"])
+                    # The declaration may be a missing file or a directory.
+                    # Reserve both the location and descendants before validation.
+                    self.reserved_paths.add(path)
+                    self.reserved_directories.add(path)
+                except ArtifactInputError as error:
+                    self.reservation_errors.add(error.code)
             # These are location declarations, not commands or a new data model.
             for field in ("reference", "path"):
+                if field == "path" and domain_location:
+                    continue
                 value = node.get(field)
                 if isinstance(value, str) and (field == "reference" or "baseline" in node):
                     try:
@@ -255,33 +269,7 @@ class _Sources:
         identity = _sha(raw)
         if (path, baseline, identity) in self.verified:
             return
-        if baseline.startswith("sha256:"):
-            if baseline != identity:
-                raise ArtifactInputError("BASE_MISMATCH", path, 1, "Source bytes differ from the supplied sha256")
-        else:
-            if not self.git_root_checked:
-                top = Path(_git(self.root, "rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve()
-                if top != self.root:
-                    raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source Git objects require the explicit checkout root")
-                self.git_root_checked = True
-            kind = _git(self.root, "cat-file", "-t", baseline).strip()
-            blob = baseline
-            if kind == b"commit":
-                relative = path.relative_to(self.root).as_posix()
-                entries = _git(self.root, "--literal-pathspecs", "ls-tree", "-r", "-z",
-                               "--full-tree", baseline, "--", relative).split(b"\0")
-                entries = [entry for entry in entries if entry]
-                if len(entries) != 1:
-                    raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source path is absent/ambiguous at the exact commit")
-                header, name = entries[0].split(b"\t", 1)
-                mode, object_kind, object_id = header.decode("ascii").split()
-                if name.decode("utf-8") != relative or object_kind != "blob" or mode not in ("100644", "100755"):
-                    raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Exact commit source is not a regular blob")
-                blob = object_id
-            elif kind != b"blob":
-                raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source baseline must be an exact commit or blob")
-            if _git(self.root, "cat-file", "blob", blob) != raw:
-                raise ArtifactInputError("BASE_MISMATCH", path, 1, "Source bytes differ from the exact local Git blob")
+        _fixed_file(self.root, path, raw, baseline)
         self.verified.add((path, baseline, identity))
 
     def document(self, path: Path, raw: bytes) -> dict:
@@ -531,88 +519,9 @@ def _section_has_content(source: Artifact, anchor: str) -> bool:
     return False
 
 
-def _owned_runs(source: Artifact) -> tuple[str, ...]:
-    """Current VT-form child runs inside its H2 runs section only."""
-    start = next((a.location.line for a in source.anchors if a.name == "runs"), None)
-    if start is None:
-        return ()
-    anchors = {a.location.line: a.name for a in source.anchors}
-    pattern = re.compile(re.escape(source.id.lower()) + r"-run-[0-9]+")
-    pending, inside, runs = "runs", False, []
-    for number, line in iter_markdown_lines(source.body, source.body_start_line):
-        if number <= start:
-            continue
-        if line is None:
-            pending = None
-            continue
-        if number in anchors:
-            pending = anchors[number]
-            continue
-        heading = _HEADING.fullmatch(line)
-        if heading:
-            if not inside:
-                if pending != "runs" or len(heading[1]) != 2:
-                    return ()
-                inside = True
-            elif len(heading[1]) <= 2:
-                break  # A preceding anchor belongs to this closing peer/ancestor.
-            elif pending is not None and pattern.fullmatch(pending):
-                runs.append(pending)
-            pending = None
-        elif line.strip():
-            pending = None  # Do not attach an unpaired anchor to a later heading.
-    return tuple(runs)
-
-
 def _run_results(source: Artifact, anchor: str, lines: tuple[tuple[int, str], ...]) -> tuple[dict, list[str]]:
-    """Read the form's per-criterion four-column table; do not synthesize results."""
-    expected = {target.criterion_anchor for target in source.targets}
-    results, gaps = {}, []
-    prefix = f"{source.relative_path}#{anchor}"
-    labels = ("判据链接（目标由 frontmatter 定位）", "实际观察及原始报告定位",
-              "实际结果", "未执行/跳过原因或失败差异")
-    header, tables, previous = None, 0, 0
-    for number, line in lines:
-        if number != previous + 1:
-            header = None
-        previous = number
-        if not line.strip().startswith("|"):
-            header = None
-            continue
-        cells = [cell.strip().replace(r"\|", "|") for cell in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
-        if all(label in cells for label in labels):
-            tables += 1
-            if len(cells) != len(labels) or len(set(cells)) != len(labels):
-                gaps.append(f"{prefix}: ambiguous verificationSummary.result table header")
-                header = None
-            else:
-                header = {label: cells.index(label) for label in labels}
-            continue
-        if header is None or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
-            continue
-        if len(cells) != len(labels):
-            gaps.append(f"{prefix}:{number}: malformed verificationSummary.result row")
-            continue
-        link = _INLINE_LINK.fullmatch(cells[header[labels[0]]])
-        criterion = link[1].strip("<>").removeprefix("#") if link and link[1].strip("<>").startswith("#") else None
-        status = cells[header["实际结果"]]
-        if criterion not in expected:
-            gaps.append(f"{prefix}:{number}: unknown local criterion in verificationSummary.result")
-        elif criterion in results:
-            gaps.append(f"{prefix}:{number}: ambiguous verificationSummary.result for {criterion}")
-        elif (status not in ("not-run", "pass", "fail", "skipped")
-              or not cells[header["实际观察及原始报告定位"]]
-              or status in ("not-run", "skipped") and not cells[header["未执行/跳过原因或失败差异"]]):
-            gaps.append(f"{prefix}:{number}: incomplete verificationSummary.result for {criterion}")
-        else:
-            results[criterion] = status
-    if tables != 1:
-        gaps.append(f"{prefix}: missing or ambiguous verificationSummary.result table")
-    for criterion in sorted(expected - results.keys()):
-        gaps.append(f"{prefix}: missing verificationSummary.result for {criterion}")
-    if not expected:
-        gaps.append(f"{prefix}: missing declared criterion targets for verificationSummary.result")
-    return results, gaps
+    rows, gaps = result_rows(source, anchor, lines)
+    return {criterion: row["status"] for criterion, row in rows.items()}, gaps
 
 
 def _run_source(source: Artifact, baseline: str) -> tuple[list[dict], list[str]]:
@@ -711,7 +620,28 @@ def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: st
             "kinds": {reader.owners[key].kind for key in visited}}
 
 
-def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
+def _implementation_source(reader: _Sources, path: Path, baseline: str, data: dict, scope: str) -> dict:
+    """The v1 report is an explicitly selected reference, not another result owner."""
+    from collect_implementation_report import _validate_collected_report
+    collection = _validate_collected_report(reader.root, data, path, scope)
+    reader.reserved_paths.update(item.resolve() for item in collection.protected)
+    reader.reserved_directories.update(collection.directories)
+    for source_path, raw in collection.raw.items():
+        if source_path.is_relative_to(reader.root):
+            _, current = reader.read(source_path.relative_to(reader.root).as_posix())
+            if raw != current:
+                raise ArtifactInputError("INPUT_CHANGED", source_path, 1, "Report adapter observed different source bytes")
+    for name in ("bc-config", "implementation-report"):
+        contract = Path(__file__).resolve().parents[1] / "contracts" / (name + ".schema.json")
+        try:
+            reader.contracts[contract.name] = _sha(contract.read_bytes())
+        except OSError as error:
+            raise ArtifactInputError("CONTRACT_ERROR", contract, 1, str(error)) from error
+    pointer = {"reference": path.relative_to(reader.root).as_posix(), "baseline": baseline}
+    return {"artifactRefs": set(), "evidenceRefs": [pointer], "gaps": [], "implementationReports": [pointer]}
+
+
+def _view(reader: _Sources, view: str, selected: list[dict], *, scope: str | None = None) -> dict:
     references: set[str] = set()
     evidence: dict[tuple[str, str], dict] = {}
     gaps: set[str] = set()
@@ -719,6 +649,7 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
     direct_kinds: set[str] = set()
     has_direct = False
     utility_tree = False
+    implementation_reports = {}
     for entry in sorted(selected, key=lambda item: (item["path"], item["baseline"])):
         try:
             path, raw = reader.read(entry["path"])
@@ -731,6 +662,8 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
             elif path.suffix.lower() in (".yaml", ".yml", ".json"):
                 if view == "quality" and "quality" not in data and "tree" in data:
                     part = _tree_source(reader, path, entry["baseline"], data)
+                elif view == "verification" and ("bcConfig" in data or "object" in data and "entries" in data):
+                    part = _implementation_source(reader, path, entry["baseline"], data, scope)
                 else:
                     part = _summary_source(reader, view, path, raw, entry["baseline"], data)
             else:
@@ -740,6 +673,8 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
                 evidence[(item["reference"], item["baseline"])] = item
             gaps.update(part["gaps"])
             utility_tree = utility_tree or part.get("utility_tree", False)
+            for item in part.get("implementationReports", []):
+                implementation_reports[(item["reference"], item["baseline"])] = item
         except ArtifactInputError as error:
             if error.code in ("INPUT_CHANGED", "CONTRACT_ERROR"):
                 raise
@@ -767,6 +702,8 @@ def _view(reader: _Sources, view: str, selected: list[dict]) -> dict:
             gaps.add(f"{view}: {selection}: missing {kind} source")
         if view == "quality" and not kinds.intersection({"validation-scenario", "verification-test"}):
             gaps.add(f"{view}: {selection}: missing quality testScenarios source")
+    if not failed:
+        reader.implementation_reports.update(implementation_reports)
     return {
         "state": "unverified" if failed else "partial" if gaps else "available",
         "artifactRefs": [] if failed else sorted(references),
@@ -785,7 +722,7 @@ def _derive(inventory: Inventory, scope: str) -> tuple[dict, CheckReport, _Sourc
                   f"model-sources.yaml scope {scope} is absent" if scope not in manifest else
                   f"model-sources.yaml view {name} is absent for scope {scope}" if name not in manifest[scope] else None)
         views[name] = ({"state": "unverified", "artifactRefs": [], "evidenceRefs": [],
-                        "gaps": [f"{name}: {absent}"]} if absent else _view(reader, name, manifest[scope][name]))
+                        "gaps": [f"{name}: {absent}"]} if absent else _view(reader, name, manifest[scope][name], scope=scope))
     baseline = _baseline(reader.root, None, None, reader.records, (), True)
     identity = {
         "scope": scope, "files": [asdict(item) for item in baseline.files],
@@ -806,7 +743,9 @@ def _derive(inventory: Inventory, scope: str) -> tuple[dict, CheckReport, _Sourc
     result = _ordered({
         "schemaVersion": 1, "scope": scope,
         "source": {"root": ".", "baseline": _sha(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode("utf-8"))},
-        "artifacts": artifacts, "implementationReports": [], "views": views,
+        "artifacts": artifacts,
+        "implementationReports": [reader.implementation_reports[key] for key in sorted(reader.implementation_reports)],
+        "views": views,
     })
     violation = next(reader.validators["model"].iter_errors(result), None)
     if violation:
@@ -891,7 +830,7 @@ def main() -> int:
             path = _output_path(arguments.output, arguments.root, (".json", ".yaml", ".yml"))
             if reader.reservation_errors:
                 raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Malformed declared source/evidence locations prevent safe output isolation")
-            if path in reader.reserved_paths:
+            if path in reader.reserved_paths or any(path.is_relative_to(directory) for directory in reader.reserved_directories):
                 raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output is a registered source/selection path, even if absent")
             content = (json.dumps(model, ensure_ascii=False, sort_keys=True, indent=2)
                        if path.suffix.lower() == ".json" else yaml.safe_dump(model, allow_unicode=True, sort_keys=True).rstrip())

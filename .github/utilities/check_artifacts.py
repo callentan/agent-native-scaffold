@@ -145,6 +145,33 @@ def _local_root(root: PathInput) -> Path:
     return _resolve_root(root, str(root))
 
 
+def _domain_location(root: Path, source_root: str, relative: str) -> tuple[Path, Path]:
+    """Resolve a declared local domain root/path, without requiring its existence.
+
+    Writers reserve this location before any baseline/dereference can fail.
+    Readers separately require existence, regular bytes and the declared basis.
+    """
+    if (not isinstance(source_root, str) or not source_root or source_root.strip() != source_root
+            or _network_path(source_root) or re.search(r"[\\:\x00-\x1f$%~]", source_root)
+            or Path(source_root).is_absolute()):
+        raise ArtifactInputError("INVALID_ROOT", root, 1, "Use an explicit local relative domain root")
+    if (not isinstance(relative, str) or not relative or relative.strip() != relative
+            or re.search(r"[\\:#\x00-\x1f]", relative) or relative.startswith("/") or relative.endswith("/")
+            or relative != "." and any(part in ("", ".", "..") for part in relative.split("/"))):
+        raise ArtifactInputError("INVALID_PATH", root, 1, "Use an explicit path within the domain source root")
+    if _exclusion(source_root) == "TOOL_DATA" or _exclusion(relative) == "TOOL_DATA":
+        raise ArtifactInputError("EXCLUDED_TARGET", root, 1, "Tool data cannot be a domain input")
+    try:
+        actual_root = (root / source_root).resolve()
+        lexical = actual_root / relative
+        path = lexical.resolve()
+    except (OSError, ValueError, RuntimeError) as error:
+        raise ArtifactInputError("INVALID_PATH", root, 1, "Cannot resolve the declared domain location") from error
+    if not path.is_relative_to(actual_root) or path != lexical:
+        raise ArtifactInputError("OUTSIDE_ROOT", lexical, 1, "Domain paths cannot traverse links or escape their source root")
+    return actual_root, path
+
+
 def _exclusion(relative: str) -> str | None:
     """Rules are relative to the selected root, never to its ancestors."""
     parts = PurePosixPath(relative).parts
@@ -291,8 +318,8 @@ def _git(root: Path, *arguments: str) -> bytes:
     return result.stdout
 
 
-def _base(root: Path, base_sha: str, *,
-          raw_files: dict[str, bytes] | None = None) -> tuple[str, str, tuple[BaseFile, ...]]:
+def _commit_tree(root: Path, base_sha: str) -> tuple[str, str, bytes]:
+    """Exact readable local commit and raw manifest, without checkout or filters."""
     if not isinstance(base_sha, str) or not re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", base_sha):
         raise ArtifactInputError("INVALID_BASE", root, 1, "Base must be a full 40- or 64-hex Git commit ID")
     base_sha = base_sha.lower()
@@ -304,6 +331,47 @@ def _base(root: Path, base_sha: str, *,
             raise ArtifactInputError("BASE_UNAVAILABLE", root, 1, "The exact supplied object is not a commit")
         tree = _git(root, "rev-parse", f"{base_sha}^{{tree}}").decode("ascii").strip()
         entries = _git(root, "ls-tree", "-r", "-z", "--full-tree", base_sha)
+        return base_sha, tree, entries
+    except (UnicodeError, ValueError) as error:
+        if isinstance(error, ArtifactInputError):
+            raise
+        raise ArtifactInputError("BASE_UNAVAILABLE", root, 1, f"Unreadable Git manifest: {error}") from error
+
+
+def _fixed_file(root: Path, path: Path, raw: bytes, baseline: str) -> None:
+    """Verify acquired file bytes against a raw digest or exact local commit/blob."""
+    if not isinstance(baseline, str) or not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64}|sha256:[0-9a-f]{64})", baseline):
+        raise ArtifactInputError("INVALID_BASE", path, 1, "A full local Git object or raw sha256 is required")
+    if baseline.startswith("sha256:"):
+        if baseline != "sha256:" + hashlib.sha256(raw).hexdigest():
+            raise ArtifactInputError("BASE_MISMATCH", path, 1, "Source bytes differ from the supplied sha256")
+        return
+    top = Path(_git(root, "rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve()
+    if top != root:
+        raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source Git objects require the explicit checkout root")
+    kind = _git(root, "cat-file", "-t", baseline).strip()
+    blob = baseline
+    if kind == b"commit":
+        relative = path.relative_to(root).as_posix()
+        entries = [entry for entry in _git(root, "--literal-pathspecs", "ls-tree", "-r", "-z",
+                                          "--full-tree", baseline, "--", relative).split(b"\0") if entry]
+        if len(entries) != 1:
+            raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source path is absent/ambiguous at the exact commit")
+        header, name = entries[0].split(b"\t", 1)
+        mode, object_kind, object_id = header.decode("ascii").split()
+        if name.decode("utf-8") != relative or object_kind != "blob" or mode not in ("100644", "100755"):
+            raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Exact commit source is not a regular blob")
+        blob = object_id
+    elif kind != b"blob":
+        raise ArtifactInputError("BASE_UNAVAILABLE", path, 1, "Source baseline must be an exact commit or blob")
+    if _git(root, "cat-file", "blob", blob) != raw:
+        raise ArtifactInputError("BASE_MISMATCH", path, 1, "Source bytes differ from the exact local Git blob")
+
+
+def _base(root: Path, base_sha: str, *,
+          raw_files: dict[str, bytes] | None = None) -> tuple[str, str, tuple[BaseFile, ...]]:
+    base_sha, tree, entries = _commit_tree(root, base_sha)
+    try:
         files = []
         for entry in entries.split(b"\0"):
             if not entry:

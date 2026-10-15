@@ -1,6 +1,6 @@
 # 六仓功能对齐：增强规格
 
-**状态：执行中，任务 1–7 的有限实现与范围复核已完成，完整增强尚未交付。** Task7 原五项 Important 和后续 F1-N1 均已修正并完成限定复审，最新修正对象为 `23c06b6`；当前八方法、二十一 prompts、三模式。现有工具提供覆盖/影响候选和带可选来源清单的九视图；Task8–18 尚未实施，下一步是实施摘要桥接。代码生成方法已经提供，但实际应用生成与运行尚未验收。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
+**状态：执行中，任务 1–7 的有限实现与范围复核已完成，Task8 已实施并经本地验证、等待独立复核，完整增强尚未交付。** Task7 原五项 Important 和后续 F1-N1 均已修正并完成限定复审，最新修正对象为 `23c06b6`；当前八方法、二十一 prompts、三模式。现有工具提供覆盖/影响候选、带可选来源清单的九视图，以及按用户单独选择复用现有 VT 运行的只读实施摘要。Task9–18 未开始，本轮在 Task8 本地提交和交接后停止等待 review。代码生成方法已经提供，但实际应用生成与运行尚未验收。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
 
 原 P1/P2/P3 实现基线为 `453189135af07f8ba5ab65dd4dd58879b8741c17`，规划修订为 `f9aab56`。本轮按用户要求将 README 排版单独提交为 `1a6f594` 后开始，起点工作树干净；不再把这两处排版视为未提交。原 P1/P2 的 38 文件与[原 P3 未完成项](../plan/roadmap.md#actual-acceptance)继续保留，不被新实施状态抹掉。
 
@@ -79,7 +79,7 @@ Task7 第 1 轮修正按下表的原语义补足 QAS/utility-tree 缺源判断�
 
 #### 3.2.1 视图桥接契约
 
-跨仓实施桥接只暴露一个不重复事实的 `views` map，固定键为
+九视图只在派生 model 中保存；实施报告沿用独立 v1 的 `entries[].execution/applicability`，没有根级 execution/views。报告另行显式选择为 verification 来源后，model 只保存经基线/可重建性核对的报告引用，不复制执行条目。跨仓来源的 `views` map 固定键为
 `requirements`、`stories`、`architecture`、`sequences`、`verification`、
 `quality`、`governance`、`risk`、`release`。每个视图必须具有以下形状；视图
 只保存引用和可定位缺口，不复制领域正文、审批声明或实际结果：
@@ -128,7 +128,7 @@ views:
 
 增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。词汇对齐/发布接口、知识锤炼、ADR 来件、Intended Use 变更、只读 query、backlog/追溯和 SWAS/SEQ 各有明确输入/产出入口，按职责复用这九个方法，不为每个 prompt 新建角色或流程引擎。
 
-工具位于 `.github\utilities\`，职责限于本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响与模型视图已完成本次范围复核，其他工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)，不是 index-only hook。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖，没有安装全局、媒体或云端包。
+工具位于 `.github\utilities\`，职责限于本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响与模型视图已完成本次范围复核，Task8 实施摘要已完成本地验证但独立复核待办，其余工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)，不是 index-only hook。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖，没有安装全局、媒体或云端包。
 
 校验、导出、报告收集、更新比较和 hook 处理的可重复逻辑统一写在 Python 中，本地与 CI 直接调用同一套脚本，不交付必需的 `.ps1` 包装层，也不要求额外的 PowerShell 7 运行时。使用 `pathlib.Path`、参数列表和显式 cwd；调用子进程使用 `shell=False`，失败保留实际输出与退出码。PowerShell 可以是用户当前的 Windows 终端，但不再承载另一套维护逻辑。
 
@@ -158,7 +158,7 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 | `export_model.export_view(root, scope)` | 返回 JSON 可序列化字典及约定的 `views` map，不写文件；来源散列与工件关系确定排序。脚本层检查/显式写入另行处理 |
 | `export_model.check_model(root, scope, model_path)` | 校验并重算显式本地模型，返回 `CheckReport`；来源身份变化和手改视图分别报告，不自动修复 |
 | `check_traceability.impact_report(root, base_sha, task_ids=())` | 精确 commit 与当前快照的 canonical 传递依赖候选；保留旧新身份、源位置和理由，不是语义批准 |
-| `collect_implementation_report.build_report(root, object_sha, evidence_files)` | 读取精确 Git 对象和实际报告，返回可定位摘要；缺证据保持 `not-run` 或输入错误，不推导 pass，不运行应用 |
+| `collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` | 从精确本地 commit 盘点完整 BC 验收，读取显式既有 VT 文件/owned run 及原始报告；单 BC 保持三参数 API，多 BC 须选 scope。缺证据为逐目标 not-run，冲突/基线错误失败；不运行应用、复制结果账本或写回来源 |
 | `plan_template_update.plan_update(base, local, candidate)` | 返回 `UpdatePlan`，包含 `changes`、`conflicts`、`preserved`；三方目录不写入。修改与删除均只给提案，缺旧基线是错误 |
 
 `Artifact`、`Finding`、`CheckReport`、`UpdatePlan` 为窄用途 dataclass，定义在对应模块，不另建通用领域/执行框架。测试辅助函数只在工具 tests 内维护。

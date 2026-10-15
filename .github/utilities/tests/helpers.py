@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import subprocess
 import tempfile
@@ -193,6 +194,56 @@ def seed_git_repo(root: Path) -> str:
     (root / "README.md").write_text("# Local baseline fixture\n", encoding="utf-8")
     git(root, "add", "--", "README.md")
     git(root, "commit", "--quiet", "-m", "Seed local fixture")
+    return git(root, "rev-parse", "HEAD")
+
+
+def seed_implementation_fixture(root: Path) -> str:
+    """Task8: commit four acceptances, two plans and self-owned TEXT locators.
+
+    No application/runner is created or run. Synthetic VT results are appended
+    separately AFTER this object by individual collector behavior tests.
+    """
+    root.mkdir(parents=True, exist_ok=True)
+    seed_git_repo(root)
+    targets = write_delivery_fixture(root)
+    vt = root / "verification/VT-002.md"
+    _, frontmatter, body = vt.read_text(encoding="utf-8").split("---", 2)
+    data = yaml.safe_load(frontmatter)
+    for target, test_id in zip(data["targets"], ("test_record", "test_no_write")):
+        target["testId"] = test_id
+    write_metadata(root, data, body.lstrip("\n"), "verification/VT-002.md")
+    (root / "docs").mkdir()
+    (root / "docs/development.md").write_text(
+        '# Fixture registration\n<a id="project-registration"></a>\n## Text only\n'
+        'Collector locator fixture; there is no application or runnable business test.\n',
+        encoding="utf-8", newline="\n",
+    )
+    domain = root / "domain-model/DM-001.md"
+    config = {
+        "schemaVersion": 1, "projectId": "sample", "boundedContexts": [{"id": "CTX-001"}],
+        "domainSources": [{"id": "owned-domain", "kind": "local", "root": ".",
+                           "path": "domain-model/DM-001.md",
+                           "baseline": "sha256:" + hashlib.sha256(domain.read_bytes()).hexdigest(),
+                           "readOnly": True}],
+        "developmentRegistration": "docs/development.md#project-registration",
+    }
+    (root / "bc-config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    (root / "source code").mkdir()
+    (root / "native tests").mkdir()
+    (root / "source code/借用.txt").write_text(
+        "# TEXT LOCATORS ONLY; not an application.\n"
+        f"# implements: {targets[2]} symbol=record\nrecord(): owned text location\n"
+        f"// implements: {targets[3]} symbol=reject\nreject(): owned text location\n",
+        encoding="utf-8", newline="\n",
+    )
+    (root / "native tests/验证.txt").write_text(
+        "# TEXT LOCATORS ONLY; not discovered or executed by any runner.\n"
+        f"# verifies: {targets[2]} testId=test_record\ntest_record(): owned text location\n"
+        f"// verifies: {targets[3]} testId=test_no_write\ntest_no_write(): owned text location\n",
+        encoding="utf-8", newline="\n",
+    )
+    git(root, "add", "--", ".")
+    git(root, "commit", "--quiet", "-m", "Task8 self-owned text and plan fixture")
     return git(root, "rev-parse", "HEAD")
 
 

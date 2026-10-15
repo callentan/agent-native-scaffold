@@ -19,7 +19,7 @@ import yaml
 
 from artifact_io import ArtifactInputError, parse_artifact
 from tests.helpers import (
-    CONTRACTS, VIEW_NAMES, WORKTREE, git, metadata, seed_git_repo, source_bytes,
+    CONTRACTS, VIEW_NAMES, WORKTREE, git, metadata, seed_git_repo, seed_implementation_fixture, source_bytes,
     temporary_workspace, write_artifact, write_delivery_fixture, write_metadata,
 )
 
@@ -789,7 +789,7 @@ class ModelBoundaryTests(ModelFixture):
         contract_dir = tool_dir.parent / "contracts"
         tool_dir.mkdir(parents=True)
         contract_dir.mkdir()
-        for name in ("artifact_io.py", "check_artifacts.py", "check_traceability.py", "export_model.py"):
+        for name in ("artifact_io.py", "check_artifacts.py", "check_traceability.py", "vt_records.py", "export_model.py"):
             source = WORKTREE / ".github" / "utilities" / name
             self.assertTrue(source.is_file(), "Task7 module is not implemented")
             (tool_dir / name).write_bytes(source.read_bytes())
@@ -1307,6 +1307,174 @@ class Fix2RunOwnershipTests(ModelFixture):
                 path = self.verification_source(block)
                 self.assertEqual((), self.owned(path))
                 self.assertEqual("partial", self.readonly_view()["state"])
+
+
+class Task8BridgeTests(ModelFixture):
+    """ENH-12 / BRIDGE-11,12: report references, never a second result catalog."""
+
+    def implementation_source(self, *, executed=False):
+        from collect_implementation_report import build_report
+        from tests.test_implementation_report import ImplementationFixture
+        seed_implementation_fixture(self.root)
+        sources, paths, selection = self.summary_sources()
+        git(self.root, "add", "--", ".")
+        git(self.root, "commit", "--quiet", "-m", "All nine controlled model sources")
+        self.object = git(self.root, "rev-parse", "HEAD")
+        evidence = []
+        if executed:
+            selector, _ = ImplementationFixture.run_record(self)
+            evidence.append(selector)
+        # Real producer output is INPUT to the model adapter. Expectations below
+        # are independently stated, never produced by the collector/exporter.
+        report = build_report(self.root, self.object, evidence)
+        path = write_yaml(self.root / "reports/implementation.yaml", report)
+        selection["verification"].extend(self.select("verification", path)["verification"])
+        self.manifest(selection)
+        return report, path, sources, paths, selection
+
+    def test_reference_only_report_round_trip_preserves_all_nine_source_views(self):
+        report, path, _, _, selection = self.implementation_source(executed=True)
+        before = source_bytes(self.root)
+        model = self.export()
+        pointer = {"reference": "reports/implementation.yaml", "baseline": byte_baseline(path)}
+        self.assertEqual([pointer], model["implementationReports"])
+        self.assertIn(pointer, model["views"]["verification"]["evidenceRefs"])
+        self.assertEqual("available", model["views"]["verification"]["state"])
+        self.assertEqual(sorted(VIEW_NAMES), sorted(model["views"]))
+        self.assertEqual("pass", next(e for e in report["entries"]
+                                     if e["target"] == self.scope + "/SR-001#sr-001-ac-01")["execution"]["status"])
+        for forbidden in ('"entries"', '"execution"', '"applicability"', "SOURCE-OWNED-CONTENT", "source-declared-before"):
+            self.assertNotIn(forbidden, json.dumps(model))
+        without_report = copy.deepcopy(selection)
+        without_report["verification"] = without_report["verification"][:1]
+        self.manifest(without_report)
+        previous = self.export()
+        for name in ("requirements", "stories", "architecture", "sequences", "quality", "governance", "risk", "release"):
+            self.assertEqual(previous["views"][name], model["views"][name], name)
+        self.manifest(selection)
+        self.assertEqual(before, source_bytes(self.root))
+        persisted = write_yaml(self.workspace / "persisted model.yaml", model)
+        self.assertEqual("clean", self.tool().check_model(self.root, self.scope, persisted).status)
+
+    def test_report_requires_later_explicit_selection_and_build_does_not_mutate_manifest(self):
+        _, path, _, _, selection = self.implementation_source()
+        selection["verification"] = selection["verification"][:1]
+        self.manifest(selection)
+        before = source_bytes(self.root)
+        self.assertEqual([], self.export()["implementationReports"])
+        selection["verification"].extend(self.select("verification", path)["verification"])
+        self.manifest(selection)
+        self.assertEqual([{"reference": "reports/implementation.yaml", "baseline": byte_baseline(path)}],
+                         self.export()["implementationReports"])
+        # The only write above is the explicit test-owned selection.
+        after = source_bytes(self.root)
+        before.pop("model-sources.yaml")
+        after.pop("model-sources.yaml")
+        self.assertEqual(before, after)
+
+    def test_report_alone_is_a_verification_reference_not_copied_entries(self):
+        _, path, _, _, _ = self.implementation_source()
+        self.manifest(self.select("verification", path))
+        model = self.export()
+        self.assertEqual("available", model["views"]["verification"]["state"])
+        self.assertEqual([], model["views"]["verification"]["artifactRefs"])
+        self.assertEqual([{"reference": "reports/implementation.yaml", "baseline": byte_baseline(path)}],
+                         model["implementationReports"])
+        for name in set(VIEW_NAMES) - {"verification"}:
+            self.assertEqual("unverified", model["views"][name]["state"])
+            self.assertTrue(model["views"][name]["gaps"])
+
+    def test_missing_or_malformed_report_keeps_optional_gap_without_false_reference(self):
+        _, path, _, _, selection = self.implementation_source()
+        raw = path.read_bytes()
+        for changed in (None, b"schemaVersion: 1\nentries: []\n"):
+            with self.subTest(changed=changed):
+                if changed is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(changed)
+                    selection["verification"][-1]["baseline"] = byte_baseline(path)
+                    self.manifest(selection)
+                model = self.export()
+                self.assertEqual("unverified", model["views"]["verification"]["state"])
+                self.assertEqual([], model["implementationReports"])
+                self.assertTrue(model["views"]["verification"]["gaps"])
+                self.assertEqual("available", model["views"]["risk"]["state"])
+                path.write_bytes(raw)
+
+    def test_hand_edited_schema_valid_report_is_not_verified_by_its_file_hash_alone(self):
+        report, path, _, _, selection = self.implementation_source()
+        report["entries"][0]["applicability"] = {"state": "applicable", "reason": "Invented applicable result without independent record."}
+        write_yaml(path, report)
+        selection["verification"][-1]["baseline"] = byte_baseline(path)
+        self.manifest(selection)
+        model = self.export()
+        self.assertEqual("unverified", model["views"]["verification"]["state"])
+        self.assertIn("REPORT_MISMATCH", " ".join(model["views"]["verification"]["gaps"]))
+        self.assertEqual([], model["implementationReports"])
+
+    def test_unreadable_or_drifted_original_run_report_removes_only_optional_bridge(self):
+        _, path, _, _, selection = self.implementation_source(executed=True)
+        raw_report = self.root / "reports/原始 VT-002-1.txt"
+        raw_report.write_bytes(raw_report.read_bytes() + b"unrecorded drift")
+        before = source_bytes(self.root)
+        model = self.export()
+        self.assertEqual("unverified", model["views"]["verification"]["state"])
+        self.assertIn("BASE_MISMATCH", " ".join(model["views"]["verification"]["gaps"]))
+        self.assertEqual([], model["implementationReports"])
+        self.assertEqual(before, source_bytes(self.root))
+
+    def test_optional_quality_risk_gaps_do_not_erase_valid_report_or_other_views(self):
+        _, path, _, paths, _ = self.implementation_source()
+        paths["quality"].unlink()
+        paths["risk"].write_text("riskSummary: [invalid type]\n", encoding="utf-8")
+        model = self.export()
+        self.assertEqual("unverified", model["views"]["quality"]["state"])
+        self.assertEqual("unverified", model["views"]["risk"]["state"])
+        self.assertEqual("available", model["views"]["sequences"]["state"])
+        self.assertEqual("available", model["views"]["verification"]["state"])
+        self.assertEqual([{"reference": "reports/implementation.yaml", "baseline": byte_baseline(path)}],
+                         model["implementationReports"])
+
+    def test_primary_invalid_artifact_still_errors_even_with_valid_optional_report(self):
+        self.implementation_source()
+        path = self.root / "software-requirements/SR-001.md"
+        path.write_text("id: SR-001\nNo valid frontmatter.\n", encoding="utf-8")
+        with self.assertRaises(ArtifactInputError):
+            self.export()
+
+    def test_final_report_domain_declarations_protect_output_even_when_optional_validation_fails(self):
+        from collect_implementation_report import build_report
+        seed_implementation_fixture(self.root)
+        domain = self.workspace / "领域 read-only"
+        seed_git_repo(domain)
+        (domain / "model").mkdir()
+        (domain / "model/rule.txt").write_bytes(b"Explicit local domain input.\n")
+        git(domain, "add", "--", ".")
+        git(domain, "commit", "--quiet", "-m", "Fixed local domain")
+        baseline = git(domain, "rev-parse", "HEAD")
+        config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
+        config["domainSources"] = [{"id": "external-domain", "kind": "git", "root": "../领域 read-only",
+                                    "path": "model", "baseline": baseline, "readOnly": True}]
+        write_yaml(self.root / "bc-config.yaml", config)
+        git(self.root, "add", "--", ".")
+        git(self.root, "commit", "--quiet", "-m", "Select independent local domain")
+        report = build_report(self.root, git(self.root, "rev-parse", "HEAD"), [])
+        path = write_yaml(self.root / "reports/implementation.yaml", report)
+        (domain / "model/rule.txt").write_bytes(b"Drift: optional report adapter must now produce a gap.\n")
+        for value in (byte_baseline(path), "sha256:" + "0" * 64):
+            with self.subTest(report_baseline=value):
+                self.manifest(self.select("verification", path, value))
+                output = domain / "model/never-occupy.yaml"
+                before = source_bytes(self.workspace)
+                result = self.cli("--output", str(output))
+                try:
+                    self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+                    self.assertIn("REPORT_CONFLICT", result.stdout)
+                    self.assertEqual(before, source_bytes(self.workspace))
+                finally:
+                    if output.exists():
+                        output.unlink()  # Test-owned cleanup after reproducing a bad write.
 
 
 if __name__ == "__main__":
