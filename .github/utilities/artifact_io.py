@@ -391,7 +391,7 @@ def _body_entries(
 
 def parse_artifact(path: PathInput, root: PathInput) -> Artifact:
     """Parse one explicitly selected local file; relative paths are relative to root."""
-    actual_root = _resolve_root(root, str(path))
+    actual_root = _resolve_root(root, str(root))
     actual = _resolve_file(path, actual_root)
     try:
         raw = actual.read_bytes()

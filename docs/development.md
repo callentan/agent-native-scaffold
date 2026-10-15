@@ -1,19 +1,19 @@
 # 开发说明
 
-**维护工具与业务应用分别登记。** 用户已在增强计划 Task 2 中选择 Python 优先的本地维护工具；这不为下游业务应用选择技术栈。业务应用仍未配置，没有应用项目、依赖或运行命令。资料填写和文档维护可以继续；应用构建与测试对当前空白骨架不适用，不代表应用验证通过。若已规划业务或软件行为 VT，它仍保持 `not-run`，并记录缺少对象或环境的原因。
+**维护工具与业务应用分别登记。** 可选的本地维护工具使用 Python；这不为下游业务应用选择技术栈。业务应用仍未配置，没有应用项目、依赖或运行命令。资料填写和文档维护可以继续；应用构建与测试对当前空白骨架不适用，不代表应用验证通过。若已规划业务或软件行为 VT，它仍保持 `not-run`，并记录缺少对象或环境的原因。
 
 <a id="maintenance-tools"></a>
 ## 仓库维护工具（不是业务应用）
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；增强 Task 2 的本地元数据解析、四类数据契约及回归测试 |
-| 相对位置与原生布局 | `.github\utilities\`；测试在其 `tests\`，JSON Schema 在 `.github\contracts\` |
-| 技术栈 | Python 3.11+、标准库 `unittest`、PyYAML 6.0.2、jsonschema 4.23.0 |
+| 标识与范围 | `artifact-maintenance`；本地元数据解析与四类数据契约，不是业务应用 |
+| 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
+| 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
 | 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；先建 manifest，再恢复，未猜测传递版本 |
-| 授权与验收依据 | [增强计划 Task 2](plan/2026-10-14-ddd-functional-alignment.md)、[规格 3.1–3.5](design/ddd-functional-alignment.md)；音频、渲染、云端与应用不在本次环境中 |
-| 当前执行状态 | 2026-10-15 在项目 `.venv`、Python 3.13.15 实际恢复；143 个工具测试执行、0 跳过，详情见 [Task 2 记录](../logs/2026-10-15-ddd-alignment.md#task2)。其他宿主/Python 版本尚未执行 |
+| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)；不包含音频、渲染、云端或业务应用 |
+| 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
 
 以下命令均以仓库根目录 `.` 为 cwd，Windows 使用 `.venv\Scripts\python.exe`；其他宿主应使用其实际项目解释器（例如 `.venv/bin/python`），不要照搬 Windows 路径。无需激活环境或修改全局 PATH。
 
@@ -21,13 +21,12 @@
 |---|---|---|
 | 初始化本地环境 | `python -m venv .venv` | 当前终端；先核对所用 Python 为 3.11+ |
 | 首次恢复直接依赖 | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.txt` | 当前终端；仅在 manifest 已创建后执行 |
-| 恢复已锁定依赖 | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` | 当前终端；本次已复核六项均与安装环境一致 |
-| 核对锁定版本 | `.venv\Scripts\python.exe -m pip freeze` | 当前终端；成功恢复后将实际输出记录为 `requirements.lock`，不能猜版本 |
+| 恢复已锁定依赖 | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` | 当前终端；按锁定版本恢复本地环境 |
+| 核对安装版本 | `.venv\Scripts\python.exe -m pip freeze` | 当前终端；与 lock 核对实际版本，不自动更新锁定清单 |
 | 核对环境一致性 | `.venv\Scripts\python.exe -m pip check` | 当前终端；不能用退出 0 代替行为测试 |
-| 工具回归 | `.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v` | 当前终端及本次获准的会话报告；必须记录发现、执行、跳过和失败数 |
-| 源码与测试语法 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` | 当前终端；只作语法检查，不替代行为测试 |
+| 工具源码语法 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` | 当前终端；只检查已分发源码的语法，不替代行为验证 |
 
-这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包。此阶段没有工件扫描器/模型导出器；它们仍由后续任务实现。
+这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。当前没有完整工件扫描器或模型导出器，不把上述环境检查称为这些功能。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目
@@ -64,7 +63,7 @@
 <a id="document-checks"></a>
 ## 当前可做的文档检查
 
-本仓库尚无完整文档扫描器或语言 CI；Task 2 的 schema/parser 回归只检查维护工具自身。可按本次任务核对文件与相对链接、占位与事实、[验收覆盖和语义影响](../verification/README.md#coverage-check)，明确检查对象和判据后记录实际操作。
+本仓库尚无完整文档扫描器或语言 CI；单文件解析和 schema 数据校验不替代全仓文档检查。可按本次任务核对文件与相对链接、占位与事实、[验收覆盖和语义影响](../verification/README.md#coverage-check)，明确检查对象和判据后记录实际操作。
 
 若使用已有本地工具检查，应记录实际工具、命令、工作目录、对象基线和原始结果入口；不把作者机器上的外部脚本当作仓库自带能力。人工核对记录所读工件、基线、观察和限制，不伪造命令。文档检查不能替代业务验收或软件行为执行。
 

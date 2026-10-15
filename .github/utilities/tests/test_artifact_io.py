@@ -412,6 +412,25 @@ class ArtifactIOTests(unittest.TestCase):
             with self.subTest(root=root):
                 self.assert_input_error(path, "INVALID_ROOT", root=root, line=1)
 
+    def test_invalid_root_errors_identify_root_in_both_apis(self) -> None:
+        artifact_path = write_artifact(self.root)
+        root_file = self.workspace / "not a root directory.txt"
+        root_file.write_text("A real file, not a root directory.\n", encoding="utf-8")
+        for invalid_root in (self.workspace / "missing root", root_file, None, 9):
+            for api, selected in (
+                (parse_artifact, artifact_path),
+                (parse_artifacts, (artifact_path,)),
+                (parse_artifacts, ()),
+            ):
+                with self.subTest(root=invalid_root, api=api.__name__, selected=selected):
+                    with self.assertRaises(ArtifactInputError) as caught:
+                        api(selected, invalid_root)
+                    error = caught.exception
+                    self.assertEqual(
+                        (error.code, error.path, error.line),
+                        ("INVALID_ROOT", str(invalid_root), 1),
+                    )
+
     def test_rejects_null_root_even_for_empty_collection(self) -> None:
         with self.assertRaises(ArtifactInputError) as caught:
             parse_artifacts((), None)

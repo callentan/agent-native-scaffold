@@ -73,3 +73,36 @@ Windows 的外部/内部目录 junction 和真实文件字节锁测试均已执�
 - 业务应用、媒体/PDF、外部来源接入、hook/CI、传播、发布、PR 和远端写入均未执行；相应独立授权关卡保持不变。schema-valid 的确认或 pass 声明也不认证人或证据真实性。
 - Markdown 读取限于已记录的显式 anchor + owner ATX 标题模式；没有通用 Markdown 渲染、隐式 anchor 推断或自动旧格式转换。Windows junction 的结果不泛化为其他宿主全部链接类型，路径检查也不是防并发恶意替换的 OS sandbox。
 - 没有已知阻塞 Task 2 的缺项。父会话按实际提交和报告进行范围复核后，再分派后续任务；本执行者未启动 Task 3 或任何嵌套代理/审阅者。接手重新核对 Git 与本机报告可访问性，不能只继承本摘要的通过结论。
+
+<a id="task2-review-1"></a>
+## Task 2：范围审阅反馈修正，第 1 轮
+
+2026-10-15 12:44 的反馈给出三个修正：根错误定位、分发文档对排除资料的依赖、计划当前状态矛盾。开始时实际核对分支仍为 `callentan-repository-skeleton`，HEAD 为 `4b833dfad154e71e982e7e107d6cb9ae0cdc0464`，工作树与暂存区干净。反馈另报告父会话已在该对象独立执行 143 项、0 跳过；这是父会话的运行，不冒充本轮新证据。
+
+本轮仅修改 7 个既有文件：`.github\utilities\artifact_io.py`、`.github\utilities\tests\test_artifact_io.py`、`.github\contracts\README.md`、`.github\utilities\README.md`、`docs\development.md`、`docs\plan\2026-10-14-ddd-functional-alignment.md`、`logs\2026-10-15-ddd-alignment.md`。另在原会话 `files\ddd-alignment-execution\task2-report.md` 追加完整记录；报告仍是本机 artifact，不进入提交。
+
+- `parse_artifact` 只改一行根错误上下文为 `str(root)`，与集合 API 一致。新增真实文件回归同时断言两个 API 的 `code/path/line`，包含缺失根、实际文件充当根、null、错误类型及空选择。
+- 分发文档移除内部规格/计划/制作日志链接与依赖被排除 tests 的命令，契约字段及示例保留自包含。维护者测试与历史导航统一放在[制作仓检查约定](../docs/plan/2026-10-14-ddd-functional-alignment.md#maintainer-checks)及本日志，不新增检查器或文档文件。
+- 计划页首、页尾与相关状态句改为 Task 1 完成、Task 2 实现在范围审阅中、后续任务 `not-run`。原 P3、源码盘点和初始 `4b833df` 的 143 项结果保留其基线；Task 3–18 内容及 ENH 覆盖表与本轮基线逐字对比无变化。
+
+本轮所有命令 cwd 均为仓库根，复用现有 `.venv`，没有安装或恢复依赖。定向回归命令：
+
+```text
+.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_artifact_io.py -v -k test_invalid_root_errors_identify_root_in_both_apis
+```
+
+先运行新增测试：1 个方法、12 个子例，其中单文件 API 的 4 个子例失败；错误都是 `INVALID_ROOT.path` 指向 `REQ-001.md` 而不是无效根，code 和行号仍为 `INVALID_ROOT` / 1。原输出为 `Ran 1 test in 0.009s; FAILED (failures=4)`，退出 1。只修一行后，同命令为 `Ran 1 test in 0.007s; OK`，退出 0，没有削弱断言。
+
+分发依赖诊断用现有解释器执行限定 inline Python，读取 3 份分发文档并按已排除路径检查真实相对链接，同时检查是否要求 `unittest discover`：原来 19 条本地链接中有 5 条指向排除资料，另有 2 条下游命令依赖排除 tests，共 7 个问题、退出 1；修改后为 `3 documents, 16 local links, 0 findings`、退出 0。诊断不作为新工具分发，完整执行代码与输出追加在原 Task 2 报告。
+
+覆盖套件和语法检查实际执行：
+
+```text
+.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v
+.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities
+git --no-pager diff --check
+```
+
+全量输出 `Ran 144 tests in 5.440s; OK`：144 个方法发现/执行、0 跳过、0 失败/错误；语法及 diff 检查退出 0。独立执行计数复核为 parser 74、schema/Git 数据 70、参数化子例 327（子例不另加到方法数），同样 0 跳过/失败/错误。限定的 5 份 Markdown 共 39 个相对链接及锚点均有效；3 份分发文档无排除目标依赖；4 个保留的契约示例实际解析/校验有效。完整诊断代码、输出与提交对象追加在原报告，不用旧 143 项替代当前证据。
+
+本轮未修改 schema、依赖、共享技能/表单或后续工具，没有子代理/审阅者、安装、hook、workflow、push、PR 或其他远端操作。提交后停在 Task 2，等待父会话核对本轮实际 diff 与证据；“修正已实现”不等于审阅已关闭或增强全部交付。

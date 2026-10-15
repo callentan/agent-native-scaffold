@@ -10,9 +10,9 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** README 排版已按用户要求单独提交为 `1a6f594`；以干净工作树开始本计划。任务 1 的六仓源码盘点完成，详见[能力矩阵](../research/ddd-capability-matrix.md)；增强方法/工具尚未交付，现有 38 文件和原 P3 证据不改写为增强通过。
+**当前状态：** README 排版已按用户要求单独提交为 `1a6f594`；以干净工作树开始本计划。任务 1 的来源盘点与范围确认已完成，详见[能力矩阵](../research/ddd-capability-matrix.md)。任务 2 的契约、parser、维护环境及测试已实现，初始提交为 `4b833df`，目前处于范围审阅及反馈修正阶段；任务 3–18 均为 `not-run`。整项增强尚未完成，现有 38 文件和原 P3 证据不改写为增强通过。
 
-**2026-10-15 修订：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。此修订不开始实现，也不将新增自动化一概归为原仓已有功能。
+**2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
 **同日执行期补充：** 完整读取后确认存在原计划未承接的持续能力，用户选择完整纳入。原任务 3/4/5/8/9/10/11 扩展实际工件与活动，新增任务 15–18 承接可选领域源接入、来源适配、图/文档导出和交互账本；这些任务按依赖在 12–14 收口前完成，编号不表示可跳过依赖。
 
@@ -28,7 +28,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- 这里提到的工具、schema、测试与新工件均是拟创建文件，不是当前可执行功能。
+- 文件清单中的 Task 2 契约、parser、维护环境与测试已实现，正处于范围审阅；其他拟建工具和新工件仍为 `not-run`，不能把计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -91,16 +91,22 @@
 
 任务 4/5 都触及原方法与模式，按 4→5 串行，不能并行覆盖这些入口。任务 8/9/10/11 的工具测试可在各自依赖满足后独立验证，但 shared methods/开发说明的修改仍按一个写入者串行合入。不因可独立验证而另起工作流或扩大代理数。
 
-## 3. 执行命令与测试约定
+<a id="maintainer-checks"></a>
+## 3. 制作仓维护者的执行命令与测试约定
 
-以下为执行约定；任务 1 尚未创建 `.venv` 或安装包。任务 2 先登记工具环境并创建 manifest，之后才在仓库自己的 `.venv` 恢复依赖。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
+本节的工具测试只用于维护者完整 checkout，不随下游候选分发，也不是下游运行 parser 的前提。下游使用说明只连接已分发的模块、contracts、依赖清单和开发登记；维护者的 RED/GREEN、测试数量、对象基线与历史导航留在本计划和[制作日志](../../logs/2026-10-15-ddd-alignment.md#task2)。
+
+任务 1 阶段没有创建 `.venv` 或安装包；任务 2 已先登记维护环境、创建 manifest，再恢复项目自己的 `.venv`，实际环境为 Python 3.13.15。现有 parser/schema 测试可在该环境执行，后续 checker 命令仍是标明 `not-run` 的计划，不代表功能已实现。多步维护逻辑放入 `.py`，调用子进程使用参数列表、显式 cwd 与 `shell=False`；本地、hooks 和 CI 直接复用脚本，不把个人绝对路径写进模板。
 
 | 检查 | 明确 cwd | 可执行程序及参数 |
 |---|---|---|
 | 定向 Python 测试 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_artifact_io.py -v`；逐任务替换为其明确测试文件名 |
 | 全部工具测试 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v` |
-| 工件检查 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -u .github\utilities\check_artifacts.py --root <本次已解析根目录> --report <获准结果目录>\artifacts.json` |
-| 显式变更基线 | 当前仓库根 | 在上行增加 `--base <已核对的完整 commit>`；不存在则退出 2，不换分支或回退暂存区 |
+| 维护工具源码与测试语法 | 当前仓库根 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` |
+| 工件检查（尚未实现，not-run） | 当前仓库根 | 计划命令：`.venv\Scripts\python.exe -X utf8 -u .github\utilities\check_artifacts.py --root <本次已解析根目录> --report <获准结果目录>\artifacts.json` |
+| 显式变更基线（尚未实现，not-run） | 当前仓库根 | 计划在上行增加 `--base <已核对的完整 commit>`；不存在则退出 2，不换分支或回退暂存区 |
+
+Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
 表中使用 Windows 路径，直接执行项目 Python，不需要 `.ps1`。其他宿主按实际环境登记解释器位置，不把 Windows 的 `.venv\Scripts\python.exe` 照搬到 Linux。尖括号表示执行时从当前工作区解析的路径/Git 对象参数，不是虚构的可执行值。检查器使用 `pathlib.Path` 处理路径，每个参数单独传递；命令与 cwd 的真实记录在执行时保存。
 
@@ -125,14 +131,16 @@
 | D10 | 轻量 DDD 只要求术语、关系、规则、上下文职责/交互和来源，不强制战术模式 | Task 3 / ENH-03、Task 4 / ENH-04、Task 5 / ENH-05、Task 8 / ENH-12、Task 16 / ENH-16 分别承接新增领域工件、派生、桥接和候选提取；不改变轻量项目的最低填写边界 |
 | D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
 
-以上是已完成的范围映射和原版边界记录；Task 2 是下一步，后续任务与 ENH
-仍未实施，不能从本表推导完成状态。
+以上是任务 1 已完成的范围映射和原版边界记录，不是增强验收结论。Task 2
+已有实现、正在范围审阅；后续任务仍为 `not-run`，不能从本表推导整项增强完成。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
-**本次结果：** 来源盘点完成，目标功能仍未实现。矩阵 44 组 current 能力存在交叉，不能把数量当交付进度；6 组上游提案、1 组未解析依赖单列。四处超出文件末尾的来源行号已按实际 manifest 修正，没有改动源码或掩盖未读内容。
+**任务 1 结果：** 来源盘点完成；这一阶段不包含目标功能实现，Task 2 的实现和审阅状态见下节。矩阵 44 组 current 能力存在交叉，不能把数量当交付进度；6 组上游提案、1 组未解析依赖单列。四处超出文件末尾的来源行号已按实际 manifest 修正，没有改动源码或掩盖未读内容。
 
 ### 任务 2：元数据、schema 与工具环境
+
+**当前状态：实现已提交，范围审阅中。** 下列勾选记录实施步骤和已有执行证据，不代表父会话审阅已关闭。初始对象为 `4b833df`；本轮评审反馈修正及新的运行证据追加在[制作日志](../../logs/2026-10-15-ddd-alignment.md#task2-review-1)和原 Task 2 会话报告，后续任务未启动。
 
 **文件：** 四个 contracts 及其 README、`artifact_io.py`、依赖/工具 README、`tests\__init__.py`、`tests\helpers.py`、`test_artifact_io.py`、`test_contracts.py`、`.gitignore`、`docs\development.md`；本段与当日日志只记录 Task 2。
 
@@ -166,7 +174,7 @@ class ArtifactIOTests(unittest.TestCase):
 - [x] 用真实 model 数据验证九个固定视图，单独保留 `sequenceSummary`、`governanceSummary`、`riskSummary`、`releaseStatus` 的 canonical 引用与 source baseline 指针；缺视图、缺字段、伪造 passed/approved 状态及空 gap 均有反例。只验证数据，不宣称读取过对应可选来源。
 - [x] 先运行得到模块不存在的初始错误，再运行可读真实文件但不校验的最小实现：6 个 parser 测试方法产生 12 个行为失败；四个 permissive schema 的 4 个方法产生 14 个失败（均含参数化子例，不将失败数当方法数）。
 - [x] 实现不可变 dataclass、SafeLoader、原始 YAML node 图和归一化后重键检查、本地 schema 与准确行号。自审先补 RED 再修复 BOM 错误位置、嵌套 `<<` 重键及 safe-tag 无效值的异常归一化，保留原始原因；不联网、不执行正文。
-- [x] 重跑：143 个测试方法发现/执行、0 跳过、0 失败/错误；73 个 parser、70 个 schema/Git 数据测试。5 个实际 Python 文件通过 compileall，4 个文档示例实际解析/校验。提交范围限本任务，证据与限制见[当日日志](../../logs/2026-10-15-ddd-alignment.md#task2)。
+- [x] 初始实现 `4b833df` 重跑：143 个测试方法发现/执行、0 跳过、0 失败/错误；73 个 parser、70 个 schema/Git 数据测试。5 个实际 Python 文件通过 compileall，4 个文档示例实际解析/校验。此处保留原基线结果；修正后的新结果另行追加，证据与限制见[当日日志](../../logs/2026-10-15-ddd-alignment.md#task2)。
 
 `helpers.py` 只为测试创建真实文件/Git：`seed_git_repo(root)` 在临时目录写一份 README，显式测试身份提交并返回完整 commit，不建远端；`write_artifact(root, schema_version, id, scope, kind, upstream, targets, acceptance_ids)` 写本规格格式的实际 Markdown。后续 trace 夹具由任务 7 扩展该文件。期望值由测试独立给出，不调用被测解析器生成期望。
 
@@ -478,4 +486,4 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1 只确认来源盘点，增强功能与 tests 尚未实施。后续从依赖已满足的任务推进；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用未来计划或源码存在代替通过。
+执行状态按本计划和制作日志更新：任务 1 的来源盘点与范围确认已完成；任务 2 的契约、parser、环境与测试已实现，正处于范围审阅及反馈修正阶段；任务 3–18 均为 `not-run`，整项增强尚未完成。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
