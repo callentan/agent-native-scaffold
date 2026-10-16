@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import copy
+import importlib.metadata
 import json
+import re
+import sys
 import unittest
 from pathlib import Path
 
@@ -11,7 +14,7 @@ from jsonschema import Draft202012Validator
 from referencing import Registry
 
 from tests.helpers import (
-    CONTRACTS, KINDS, VIEW_NAMES, git, metadata, seed_git_repo, temporary_workspace,
+    CONTRACTS, KINDS, VIEW_NAMES, WORKTREE, git, metadata, seed_git_repo, temporary_workspace,
 )
 
 
@@ -414,3 +417,45 @@ for _view in VIEW_NAMES:
     setattr(ContractTests, "test_view_accepts_refs_" + _view, _view_positive_case(_view))
     setattr(ContractTests, "test_view_rejects_incomplete_or_false_state_" + _view,
             _view_negative_case(_view))
+
+
+class DependencyLockTests(unittest.TestCase):
+    def active_lock(self, version):
+        """Evaluate only this lock's bounded pin/python_version-marker grammar."""
+        selected = {}
+        for line in (WORKTREE / ".github/utilities/requirements.lock").read_text(encoding="utf-8").splitlines():
+            line = line.split("#", 1)[0].strip()
+            if not line:
+                continue
+            pin, separator, marker = line.partition(";")
+            name, equals, value = pin.strip().partition("==")
+            self.assertEqual("==", equals)
+            if separator:
+                match = re.fullmatch(r"""python_version\s*<\s*(['"])(\d+)\.(\d+)\1""", marker.strip())
+                self.assertIsNotNone(match, "Unexpected lock marker: " + marker)
+                if version >= (int(match[2]), int(match[3])):
+                    continue
+            selected[re.sub(r"[-_.]+", "-", name).lower()] = value.strip()
+        return selected
+
+    def test_fix1_lock_selects_the_observed_referencing_dependency_only_below_313(self):
+        # Literal independent inventories. Actual uv restore/check receipts
+        # additionally exercise native package-manager marker evaluation.
+        six = {"attrs": "26.1.0", "jsonschema": "4.23.0",
+               "jsonschema-specifications": "2025.9.1", "pyyaml": "6.0.2",
+               "referencing": "0.37.0", "rpds-py": "2026.9.1"}
+        for version, expected in (
+            ((3, 11), dict(six, **{"typing-extensions": "4.16.0"})),
+            ((3, 13), six),
+        ):
+            with self.subTest(version=version):
+                self.assertEqual(expected, self.active_lock(version))
+        self.assertIn("typing-extensions>=4.4.0; python_version < '3.13'",
+                      importlib.metadata.requires("referencing"))
+
+    def test_fix1_runtime_inventory_contains_no_undeclared_noninstaller_dependency(self):
+        active = self.active_lock(sys.version_info[:2])
+        installed = {re.sub(r"[-_.]+", "-", dist.metadata["Name"]).lower(): dist.version
+                     for dist in importlib.metadata.distributions()
+                     if dist.metadata["Name"].lower() not in ("pip", "setuptools", "wheel")}
+        self.assertEqual(active, installed)

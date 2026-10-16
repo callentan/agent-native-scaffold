@@ -27,6 +27,7 @@ MANAGED_DIRS = {
 }
 MANAGED_FILES = {"bc-config.yaml", "model-sources.yaml", "model.yaml", "model.json"}
 EXIT = {"clean": 0, "empty": 0, "invalid": 1, "input-error": 2}
+PINNED_DEPENDENCIES = {"PyYAML": "6.0.2", "jsonschema": "4.23.0"}
 
 
 class HookInputError(ValueError):
@@ -37,6 +38,47 @@ class HookInputError(ValueError):
     def finding(self):
         return {"code": self.code, "path": self.path, "line": 1,
                 "owner": None, "target": None, "message": self.message, "related": None}
+
+
+def _check_runtime(runtime, *, selected_python=None, selected_prefix=None):
+    """One startup contract for installer probes and both hook entry points."""
+    executable, prefix = Path(sys.executable).absolute(), Path(sys.prefix).absolute()
+    selected = Path(selected_python) if selected_python is not None else executable
+    environment = Path(selected_prefix) if selected_prefix is not None else prefix
+    config = environment / "pyvenv.cfg"
+    runtime.update(executable=str(executable), version=sys.version,
+                   version_info=list(sys.version_info[:3]), prefix=str(prefix), base_prefix=sys.base_prefix,
+                   selected_executable=str(selected), selected_prefix=str(environment),
+                   pyvenv_cfg=str(config))
+    recovery = ("Restore the selected Python 3.11+ project venv, including pyvenv.cfg, "
+                "and its requirements.lock dependencies; explicitly reinstall hooks if its path changed. "
+                "No base/global interpreter fallback is allowed.")
+    if (not selected.is_absolute() or executable != selected
+            or sys.version_info[:2] < (3, 11)):
+        raise HookInputError("INTERPRETER_UNAVAILABLE", selected, recovery)
+    if (not environment.is_absolute() or prefix != environment
+            or prefix == Path(sys.base_prefix).absolute()):
+        raise HookInputError("ENVIRONMENT_UNAVAILABLE", environment, recovery)
+    try:
+        if config.is_symlink() or config.resolve() != config or not config.is_file():
+            raise OSError("Selected venv configuration is missing or not a local regular file")
+        raw = config.read_bytes()
+        if not raw.strip():
+            raise OSError("Selected venv configuration is empty")
+        runtime["pyvenv_cfg_sha256"] = hashlib.sha256(raw).hexdigest()
+    except OSError as error:
+        raise HookInputError("ENVIRONMENT_UNAVAILABLE", config, f"{recovery} {error}") from error
+    try:
+        runtime["dependencies"] = {name: importlib.metadata.version(name) for name in PINNED_DEPENDENCIES}
+        if runtime["dependencies"] != PINNED_DEPENDENCIES:
+            raise HookInputError("DEPENDENCY_UNAVAILABLE", selected,
+                                 f"{recovery} Required direct versions: {PINNED_DEPENDENCIES}")
+        # Metadata alone does not establish that the selected environment can
+        # import the dependencies (including their conditional transitives).
+        import yaml  # noqa: F401
+        import jsonschema  # noqa: F401
+    except ImportError as error:
+        raise HookInputError("DEPENDENCY_UNAVAILABLE", selected, f"{recovery} {error}") from error
 
 
 def git_environment(overrides=None):
@@ -346,26 +388,24 @@ def _tool_sources():
             for path in sorted(set(paths))}
 
 
-def run_hook(hook, root, *, base=None, message=None):
+def run_hook(hook, root, *, base=None, message=None, selected_python=None, selected_prefix=None):
     payload = {"hook": hook, "status": "clean", "exit_code": 0, "findings": [],
                "checked_count": 0, "attempted_count": 0, "snapshot": {},
                "runtime": {"executable": str(Path(sys.executable).absolute()), "version": sys.version,
                            "prefix": sys.prefix}}
     try:
-        # Imports are deliberately inside the error boundary: missing selected
-        # dependencies are input errors, not an unrelated-interpreter fallback.
+        # Refuse a lost/replaced selected venv before importing validators or
+        # acquiring any source/index input, even if base packages are visible.
+        _check_runtime(payload["runtime"], selected_python=selected_python, selected_prefix=selected_prefix)
+        runtime_identity = dict(payload["runtime"])
         import artifact_io
         import check_artifacts
         from check_traceability import _trace_inventory  # noqa: F401
-        payload["runtime"]["dependencies"] = {
-            package: importlib.metadata.version(package) for package in ("PyYAML", "jsonschema")
-        }
         payload["runtime"]["tool_root"] = str(Path(__file__).resolve().parents[2])
         payload["runtime"]["tool_sources"] = _tool_sources()
         actual, index, original, manifest, env, entries = acquire_index(root, base, payload["snapshot"])
         if hook == "pre-commit":
-            scratch_parent = sys.prefix if sys.prefix != sys.base_prefix else None
-            with tempfile.TemporaryDirectory(prefix="artifact-index-", dir=scratch_parent) as name:
+            with tempfile.TemporaryDirectory(prefix="artifact-index-", dir=sys.prefix) as name:
                 temporary = Path(name)
                 snapshot_root = temporary / "files"
                 snapshot_root.mkdir()
@@ -389,6 +429,11 @@ def run_hook(hook, root, *, base=None, message=None):
             raise HookInputError("INPUT_CHANGED", index, "Index or HEAD changed during the check; retry on a stable snapshot")
         if payload["runtime"]["tool_sources"] != _tool_sources():
             raise HookInputError("INPUT_CHANGED", __file__, "Validator sources changed during the check; retry on stable tools")
+        current_runtime = {}
+        _check_runtime(current_runtime, selected_python=selected_python, selected_prefix=selected_prefix)
+        if runtime_identity != current_runtime:
+            raise HookInputError("INPUT_CHANGED", runtime_identity["pyvenv_cfg"],
+                                 "Selected environment inputs changed during validation; restore and retry")
     except ImportError as error:
         failure = HookInputError("DEPENDENCY_UNAVAILABLE", sys.executable,
                                  "Restore matching distributed tool modules and the selected interpreter "
@@ -413,9 +458,14 @@ def main(argv=None):
     parser.add_argument("--root", required=True)
     parser.add_argument("--base")
     parser.add_argument("--report")
+    parser.add_argument("--selected-python", help="Installed launcher's exact selected executable")
+    parser.add_argument("--selected-prefix", help="Installed launcher's selected project venv")
     parser.add_argument("message", nargs="?")
-    args = parser.parse_args(argv)
-    payload = run_hook(args.hook, args.root, base=args.base, message=args.message)
+    # Native Git supplies the optional message after --root. Python 3.11's
+    # parse_args otherwise consumes this positional as absent before the option.
+    args = parser.parse_intermixed_args(argv)
+    payload = run_hook(args.hook, args.root, base=args.base, message=args.message,
+                       selected_python=args.selected_python, selected_prefix=args.selected_prefix)
     if args.report:
         try:
             from check_artifacts import _write_report

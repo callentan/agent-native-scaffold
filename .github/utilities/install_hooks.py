@@ -35,10 +35,16 @@ def _interpreter(value, root):
     if any(ord(c) < 32 for c in str(path)) or not path.is_file():
         raise HookInputError("INTERPRETER_UNAVAILABLE", path, "Selected interpreter is missing or invalid; no fallback")
     probe = (
-        "import sys,json,importlib.metadata,yaml,jsonschema;"
-        "print(json.dumps({'executable':sys.executable,'prefix':sys.prefix,"
-        "'base_prefix':sys.base_prefix,'version':list(sys.version_info[:3]),"
-        "'dependencies':{n:importlib.metadata.version(n) for n in ('PyYAML','jsonschema')}}))"
+        "import sys,json\n"
+        f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\n"
+        "from hook_checks import HookInputError, _check_runtime\n"
+        "facts = {}\n"
+        "try:\n"
+        f"    _check_runtime(facts, selected_python={str(path)!r})\n"
+        "except HookInputError as error:\n"
+        "    print(json.dumps({'error': error.finding(), 'runtime': facts}))\n"
+        "    raise SystemExit(2)\n"
+        "print(json.dumps(facts))\n"
     )
     try:
         result = subprocess.run([str(path), "-B", "-X", "utf8", "-c", probe],
@@ -47,25 +53,25 @@ def _interpreter(value, root):
     except (OSError, subprocess.TimeoutExpired) as error:
         raise HookInputError("INTERPRETER_UNAVAILABLE", path, str(error)) from error
     if result.returncode:
-        raise HookInputError("DEPENDENCY_UNAVAILABLE", path,
-                             "Restore the selected project environment from requirements.lock: "
+        if result.stdout:
+            failure = json.loads(result.stdout).get("error")
+            if failure:
+                raise HookInputError(failure["code"], failure["path"], failure["message"])
+        raise HookInputError("INTERPRETER_UNAVAILABLE", path,
+                             "Restore the selected project venv/pyvenv.cfg and requirements.lock: "
                              + result.stderr.decode("utf-8", errors="replace").strip())
     facts = json.loads(result.stdout)
-    if (facts["version"][:2] < [3, 11] or facts["prefix"] == facts["base_prefix"]
-            or Path(facts["executable"]).resolve() != path.resolve()
-            or facts["dependencies"] != {"PyYAML": "6.0.2", "jsonschema": "4.23.0"}):
-        raise HookInputError("INTERPRETER_UNAVAILABLE", path,
-                             "Use the selected Python 3.11+ project venv with the pinned tool dependencies")
     return path, facts
 
 
-def _launcher(root, hook, python):
+def _launcher(root, hook, python, prefix):
     entry = root / ".github" / "hooks" / hook
     # Git for Windows' Python shebang dispatch was observed using a different
     # interpreter even with an absolute path. Git's bundled sh preserves the
     # selected interpreter. POSIX gets a direct Python shebang when representable.
     if os.name == "nt" or any(c.isspace() for c in str(python)) or len(os.fsencode(python)) > 120:
-        args = [python.as_posix(), "-B", "-X", "utf8", entry.as_posix(), "--root", root.as_posix()]
+        args = [python.as_posix(), "-B", "-X", "utf8", entry.as_posix(), "--root", root.as_posix(),
+                "--selected-python", str(python), "--selected-prefix", prefix]
         quoted = " ".join(shlex.quote(arg) for arg in args)
         text = ("#!/bin/sh\n# artifact-maintenance: startup only; no validation policy here.\n"
                 f"if [ ! -x {shlex.quote(python.as_posix())} ]; then\n"
@@ -76,8 +82,47 @@ def _launcher(root, hook, python):
     text = (f"#!{python}\n# artifact-maintenance: startup only.\n"
             "import os, sys\n"
             f"os.execv({str(python)!r}, [{str(python)!r}, '-B', '-X', 'utf8', "
-            f"{str(entry)!r}, '--root', {str(root)!r}, *sys.argv[1:]])\n")
+            f"{str(entry)!r}, '--root', {str(root)!r}, '--selected-python', {str(python)!r}, "
+            f"'--selected-prefix', {prefix!r}, *sys.argv[1:]])\n")
     return text.encode("utf-8"), "selected Python shebang"
+
+
+def _create_owned(path, raw, payload, created):
+    # Account for exclusive creation before write, context entry, flush or
+    # close can fail. A partial file must not disappear from the recovery list.
+    stream = path.open("xb")
+    record = {"path": str(path), "expected_sha256": _sha(raw), "write_complete": False}
+    created.append(record)
+    payload["written"].append(str(path))
+    with stream as output:
+        if output.write(raw) != len(raw):
+            raise OSError(f"Short write creating {path}; inspect retained partial file")
+    record["write_complete"] = True
+
+
+def _recovery(created):
+    files = []
+    for record in created:
+        path = Path(record["path"])
+        item = dict(record, state="retained", bytes=None, sha256=None, matches_expected=False)
+        try:
+            if not path.exists() and not path.is_symlink():
+                item["state"] = "absent"
+            elif not _regular(path):
+                item["state"] = "owner-conflict"
+            else:
+                raw = path.read_bytes()
+                item.update(bytes=len(raw), sha256=_sha(raw),
+                            matches_expected=_sha(raw) == record["expected_sha256"],
+                            mode=stat.S_IMODE(path.stat().st_mode))
+        except OSError as error:
+            item.update(state="unreadable", error=str(error))
+        files.append(item)
+    # Retain even byte-identical completed files. An I/O failure is not proof
+    # that a later owner's replacement/edit may safely be removed.
+    return {"state": "manual-required", "automatic_cleanup": False, "files": files,
+            "message": "Installation is incomplete. Inspect these exact retained/partial paths and owner changes; "
+                       "reconcile ownership before retrying installation or restoration. No files were deleted."}
 
 
 def install(root, hooks, python=None, *, apply=False, restore=False):
@@ -152,7 +197,7 @@ def install(root, hooks, python=None, *, apply=False, restore=False):
             selected, facts = _interpreter(python or "", actual)
             payload["interpreter"] = facts
             for action in payload["actions"]:
-                raw, runtime = _launcher(actual, action["hook"], selected)
+                raw, runtime = _launcher(actual, action["hook"], selected, facts["prefix"])
                 path, receipt = Path(action["path"]), Path(action["receipt"])
                 action.update(launcher=runtime, sha256=_sha(raw), prior_state="absent")
                 prepared.append((path, raw, receipt, None))
@@ -170,26 +215,20 @@ def install(root, hooks, python=None, *, apply=False, restore=False):
             else:
                 directory.mkdir(exist_ok=True)
                 for path, raw, receipt, _ in prepared:
-                    with path.open("xb") as out:
-                        out.write(raw)
-                    created.append((path, raw))
+                    _create_owned(path, raw, payload, created)
                     path.chmod(0o755)
                     record = {"owner": OWNER, "root": str(actual), "git_dir": str(git_dir),
                               "path": str(path), "sha256": _sha(raw),
                               "mode": stat.S_IMODE(path.stat().st_mode),
                               "interpreter": str(selected), "prior_state": "absent", "config_changes": []}
                     receipt_bytes = (json.dumps(record, ensure_ascii=True, indent=2) + "\n").encode("utf-8")
-                    with receipt.open("xb") as out:
-                        out.write(receipt_bytes)
-                    created.append((receipt, receipt_bytes))
-                    payload["written"].extend([str(path), str(receipt)])
+                    _create_owned(receipt, receipt_bytes, payload, created)
                 payload["status"] = "installed"
     except (HookInputError, OSError, ValueError) as error:
-        # Only files exclusively created by this call, still byte-identical, may
-        # be rolled back. No recursive cleanup, config reset or owner overwrite.
-        for path, raw in reversed(created):
-            if path.exists() and _regular(path) and path.read_bytes() == raw:
-                path.unlink()
+        # No speculative rollback of partially written or later owner-edited
+        # files. Report every exclusive creation and its observable state.
+        if created:
+            payload["recovery"] = _recovery(created)
         code = getattr(error, "code", "INSTALLATION_ERROR")
         payload.update(status="conflict" if "CONFLICT" in code or code == "SHARED_HOOKS_SCOPE" else "input-error",
                        exit_code=2)

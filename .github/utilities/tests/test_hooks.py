@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import unittest
 import venv
 
@@ -153,6 +154,31 @@ class HookFixture(unittest.TestCase):
     def finding_codes(self, payload):
         return {finding["code"] for finding in payload["findings"]}
 
+    def private_runtime(self, *, full_interpreter=False):
+        """Only fixture-local binaries/config/.pth; never install a package."""
+        environment = self.root / ".venv"
+        venv.EnvBuilder(with_pip=False).create(environment)
+        python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        site = environment / ("Lib/site-packages" if os.name == "nt"
+                              else f"lib/python{sys.version_info.major}.{sys.version_info.minor}/site-packages")
+        import yaml
+        dependencies = Path(yaml.__file__).parent.parent
+        (site / "maintenance.pth").write_text(str(dependencies) + "\n", encoding="utf-8")
+        copied = []
+        if full_interpreter and os.name == "nt":
+            # Real full binaries, not the stock Windows redirector and not a
+            # mocked prefix. This fixture needs explicit HOME/PATH below.
+            base = Path(sys._base_executable).parent
+            for name in ("python.exe", f"python{sys.version_info.major}{sys.version_info.minor}.dll",
+                         "python3.dll"):
+                source, target = base / name, python.parent / name
+                shutil.copyfile(source, target)
+                copied.append({"source": str(source), "destination": str(target),
+                               "sha256": sha(target.read_bytes())})
+        self.receipts.append({"observation": "private_runtime", "selected": str(python),
+                              "copied_real_binaries": copied, "global_installs": False})
+        return environment, python, site, dependencies
+
 
 class InstallerTests(HookFixture):
     def test_hook01_inspection_proposes_exact_selected_paths_without_writes(self):
@@ -252,8 +278,222 @@ class InstallerTests(HookFixture):
                 self.assertIn("OWNERSHIP_CONFLICT", self.finding_codes(json.loads(result.stdout)))
                 self.assertEqual(before, self.state())
 
+    def fault_install(self, target_name, failure, *, later_owner_edit=False):
+        """Inject only fixture file I/O; all Git/interpreter/filesystem work is real."""
+        target = self.root / ".git/hooks" / target_name
+        script = textwrap.dedent("""\
+            import errno, json, sys
+            from pathlib import Path
+            from unittest.mock import patch
+            sys.path.insert(0, sys.argv[1])
+            from install_hooks import install
+            target, failure = Path(sys.argv[3]), sys.argv[4]
+            owner_edit = sys.argv[5] == "yes"
+            original_open = Path.open
+            class ControlledFile:
+                def __init__(self, stream):
+                    self.stream = stream
+                def __enter__(self):
+                    return self
+                def write(self, raw):
+                    if failure in ("write", "short"):
+                        count = self.stream.write(raw[:17])
+                        self.stream.flush()
+                        if failure == "short":
+                            return count
+                        raise OSError(errno.ENOSPC, "controlled fixture write boundary")
+                    return self.stream.write(raw)
+                def __exit__(self, exc_type, exc, tb):
+                    try:
+                        if exc_type is None and failure == "flush":
+                            self.stream.flush()
+                            raise OSError(errno.ENOSPC, "controlled fixture flush boundary")
+                    finally:
+                        self.stream.close()
+                    if exc_type is None and failure == "close":
+                        if owner_edit:
+                            (target.parent / "pre-commit").write_bytes(b"later owner bytes\\n")
+                        raise OSError(errno.EIO, "controlled fixture close boundary")
+            def controlled_open(path, *args, **kwargs):
+                stream = original_open(path, *args, **kwargs)
+                return ControlledFile(stream) if path == target and args == ("xb",) else stream
+            with patch.object(Path, "open", controlled_open):
+                payload = install(sys.argv[2], ["pre-commit"], sys.executable, apply=True)
+            print(json.dumps(payload))
+            raise SystemExit(payload["exit_code"])
+            """)
+        return self.call([sys.executable, "-B", "-X", "utf8", "-c", script,
+                          str(self.root / ".github/utilities"), str(self.root),
+                          str(target), failure, "yes" if later_owner_edit else "no"])
+
+    def test_m1_partial_hook_and_receipt_write_flush_close_are_exactly_accounted(self):
+        hooks = self.root / ".git/hooks"
+        hooks.mkdir(exist_ok=True)
+        (hooks / "post-commit").write_bytes(b"unrelated owner bytes\n")
+        hook, receipt = hooks / "pre-commit", hooks / "pre-commit.artifact-maintenance.json"
+        for target in (hook, receipt):
+            for failure in ("write", "flush", "close"):
+                with self.subTest(target=target.name, failure=failure):
+                    before = self.state()
+                    try:
+                        result = self.fault_install(target.name, failure)
+                        self.assertEqual(2, result.returncode, self.receipts[-1])
+                        payload = json.loads(result.stdout)
+                        expected = [str(hook)] if target == hook else [str(hook), str(receipt)]
+                        self.assertEqual(expected, payload["written"])
+                        self.assertEqual("manual-required", payload["recovery"]["state"])
+                        self.assertFalse(payload["recovery"]["automatic_cleanup"])
+                        self.assertEqual(expected, [item["path"] for item in payload["recovery"]["files"]])
+                        self.assertFalse(payload["recovery"]["files"][-1]["write_complete"])
+                        for item in payload["recovery"]["files"]:
+                            raw = Path(item["path"]).read_bytes()
+                            self.assertEqual((len(raw), sha(raw)), (item["bytes"], item["sha256"]))
+                        after = self.state()
+                        for key in ("head", "entries", "index_sha256", "config_sha256", "files"):
+                            self.assertEqual(before[key], after[key], key)
+                        self.assertEqual(b"unrelated owner bytes\n", (hooks / "post-commit").read_bytes())
+                    finally:
+                        # Exact test-owned files only, so independent injections
+                        # share no residue. Production recovery never does this.
+                        for path in (receipt, hook):
+                            if path.is_file():
+                                path.unlink()
+
+    def test_m1_short_write_is_an_error_with_a_retained_partial_path(self):
+        result = self.fault_install("pre-commit", "short")
+        self.assertEqual(2, result.returncode, self.receipts[-1])
+        payload = json.loads(result.stdout)
+        hook = self.root / ".git/hooks/pre-commit"
+        self.assertEqual([str(hook)], payload["written"])
+        self.assertEqual(17, len(hook.read_bytes()))
+        self.assertFalse((hook.parent / "pre-commit.artifact-maintenance.json").exists())
+        self.assertEqual("manual-required", payload["recovery"]["state"])
+
+    def test_m1_recovery_keeps_later_owner_edits_and_refuses_automatic_reinstallation(self):
+        result = self.fault_install("pre-commit.artifact-maintenance.json", "close",
+                                    later_owner_edit=True)
+        self.assertEqual(2, result.returncode, self.receipts[-1])
+        payload = json.loads(result.stdout)
+        hook = self.root / ".git/hooks/pre-commit"
+        self.assertEqual(b"later owner bytes\n", hook.read_bytes())
+        self.assertEqual([str(hook), str(hook.parent / "pre-commit.artifact-maintenance.json")],
+                         payload["written"])
+        self.assertFalse(payload["recovery"]["files"][0]["matches_expected"])
+        before = self.state()
+        retry = self.installer("--apply", hooks=("pre-commit",))
+        self.assertEqual(2, retry.returncode)
+        self.assertIn("HOOK_CONFLICT", self.finding_codes(json.loads(retry.stdout)))
+        restore = self.installer("--apply", hooks=("pre-commit",), restore=True)
+        self.assertEqual(2, restore.returncode)
+        self.assertIn("OWNERSHIP_CONFLICT", self.finding_codes(json.loads(restore.stdout)))
+        self.assertEqual(before, self.state())
+
 
 class NativeHookTests(HookFixture):
+    def test_i1_native_unmanaged_commit_reaches_both_installed_hooks(self):
+        self.install()
+        (self.root / "unmanaged.txt").write_bytes(b"native unmanaged change\n")
+        self.git("add", "--", "unmanaged.txt")
+        result = self.native_commit("Unmanaged without a reviewer line")
+        self.assertEqual(0, result.returncode, self.receipts[-1])
+        reports = self.native_reports(result)
+        self.assertEqual(["pre-commit", "commit-msg"], [report["hook"] for report in reports])
+        self.assertFalse(reports[1]["policy"]["required"])
+        self.assertEqual(str(Path(sys.executable).absolute()), reports[1]["runtime"]["executable"])
+
+    def configuration_loss(self, *, full_interpreter):
+        environment, python, _, dependencies = self.private_runtime(full_interpreter=full_interpreter)
+        self.install(hooks=("pre-commit",), python=python)
+        native_env = dict(self.env, PYTHONPATH=str(dependencies),
+                          TEMP=str(self.workspace), TMP=str(self.workspace))
+        if full_interpreter and os.name == "nt":
+            native_env["PYTHONHOME"] = sys.base_prefix
+        self.receipts.append({
+            "observation": "configuration_loss_boundary",
+            "variant": "full-interpreter" if full_interpreter else "standard-loader",
+            "host": os.name, "POSIX_executed_on_Windows": False,
+            "environment": {key: native_env.get(key) for key in ("PYTHONHOME", "PYTHONPATH", "TEMP", "TMP")},
+        })
+        path = self.stage_artifact()
+        accepted = self.native_commit(env=native_env)
+        self.assertEqual(0, accepted.returncode, self.receipts[-1])
+        self.assertEqual(str(environment), self.native_reports(accepted)[0]["runtime"]["prefix"])
+        cfg = environment / "pyvenv.cfg"
+        cfg_hash, exe_hash = sha(cfg.read_bytes()), sha(python.read_bytes())
+        cfg.rename(environment / "pyvenv.cfg.saved")
+        control = self.call([
+            str(python), "-B", "-X", "utf8", "-c",
+            "import sys,json; print(json.dumps({'prefix':sys.prefix,'base_prefix':sys.base_prefix,"
+            "'executable':sys.executable}))",
+        ], env=native_env)
+        if full_interpreter or os.name != "nt":
+            self.assertEqual(0, control.returncode, self.receipts[-1])
+            facts = json.loads(control.stdout)
+            self.assertEqual(facts["base_prefix"], facts["prefix"])
+            self.assertEqual(str(python), facts["executable"])
+        else:
+            # This control already passed before the fix. The stock Windows
+            # loader, not hook_checks, refuses before Python can report JSON.
+            self.assertNotEqual(0, control.returncode)
+            self.assertIn(b"pyvenv.cfg", control.stderr)
+        path.write_bytes(path.read_bytes() + b"\nConfiguration-loss controlled change.\n")
+        self.git("add", "--", str(path))
+        before = self.state()
+        refused = self.native_commit(env=native_env)
+        self.assertNotEqual(0, refused.returncode, self.receipts[-1])
+        reports = self.native_reports(refused)
+        if full_interpreter or os.name != "nt":
+            self.assertEqual(1, len(reports))
+            self.assertEqual(2, reports[0]["exit_code"])
+            self.assertIn("ENVIRONMENT_UNAVAILABLE", self.finding_codes(reports[0]))
+            self.assertEqual({}, reports[0]["snapshot"])
+            self.assertNotIn("checks", reports[0])
+            self.assertIn("pyvenv.cfg", reports[0]["findings"][0]["message"])
+            self.assertIn("requirements.lock", reports[0]["findings"][0]["message"])
+        else:
+            self.assertEqual([], reports)
+            self.assertIn(b"pyvenv.cfg", refused.stderr)
+        after = self.state()
+        for key in ("head", "entries", "files", "config_sha256", "hooks"):
+            self.assertEqual(before[key], after[key], key)
+        self.assertFalse(cfg.exists())
+        self.assertEqual(cfg_hash, sha((environment / "pyvenv.cfg.saved").read_bytes()))
+        self.assertEqual(exe_hash, sha(python.read_bytes()))
+
+    def test_i2_native_configuration_loss_with_a_real_full_interpreter_cannot_use_base(self):
+        self.configuration_loss(full_interpreter=True)
+
+    def test_i2_native_standard_loader_configuration_loss_is_a_separate_control(self):
+        self.configuration_loss(full_interpreter=False)
+
+    def dependency_version_drift(self, hook):
+        environment, python, site, _ = self.private_runtime()
+        self.install(hooks=(hook,), python=python)
+        # Genuine local dist-info version drift, not a mocked import or prefix.
+        info = site / "jsonschema-0.0.dist-info"
+        info.mkdir()
+        (info / "METADATA").write_bytes(b"Metadata-Version: 2.1\nName: jsonschema\nVersion: 0.0\n")
+        self.stage_artifact()
+        before = self.state()
+        result = self.native_commit()
+        self.assertNotEqual(0, result.returncode, self.receipts[-1])
+        report = self.native_reports(result)[0]
+        self.assertEqual(2, report["exit_code"])
+        self.assertIn("DEPENDENCY_UNAVAILABLE", self.finding_codes(report))
+        self.assertEqual({}, report["snapshot"])
+        self.assertNotIn("checks", report)
+        self.assertIn("requirements.lock", report["findings"][0]["message"])
+        self.assertEqual(str(environment), report["runtime"]["prefix"])
+        after = self.state()
+        for key in ("head", "entries", "files", "config_sha256", "hooks"):
+            self.assertEqual(before[key], after[key], key)
+
+    def test_i2_native_pre_commit_refuses_dependency_version_drift_before_source_checks(self):
+        self.dependency_version_drift("pre-commit")
+
+    def test_i2_native_commit_msg_refuses_dependency_version_drift_before_source_checks(self):
+        self.dependency_version_drift("commit-msg")
+
     def test_runtime_tool_identity_is_not_mislabeled_as_the_staged_tool_blob(self):
         self.install(hooks=("pre-commit",))
         self.stage_artifact()
@@ -460,6 +700,23 @@ class NativeHookTests(HookFixture):
 
 
 class IndexValidationTests(HookFixture):
+    def test_i1_optional_message_after_root_and_before_root_have_the_same_contract(self):
+        self.stage_artifact()
+        message = self.workspace / "提交 message.txt"
+        message.write_text("Controlled review text" + REVIEW, encoding="utf-8")
+        before = self.state()
+        results = []
+        for arguments in (
+            ["commit-msg", "--root", str(self.root), str(message)],
+            ["commit-msg", str(message), "--root", str(self.root)],
+        ):
+            result = self.call([sys.executable, "-B", "-X", "utf8",
+                                str(self.root / ".github/utilities/hook_checks.py"), *arguments])
+            self.assertEqual(0, result.returncode, self.receipts[-1])
+            results.append(json.loads(result.stdout))
+        self.assertEqual(results[0]["policy"], results[1]["policy"])
+        self.assertEqual(before, self.state())
+
     def test_directory_case_aliases_are_rejected_before_snapshot_materialization(self):
         blob = self.git("hash-object", "-w", "--stdin", input=b"case aliases\n").strip()
         self.git("update-index", "--add", "--cacheinfo", "100644", blob, "Alias/a.txt")

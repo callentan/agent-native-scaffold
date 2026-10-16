@@ -675,3 +675,83 @@ Task9 的文档实现/审阅关卡关闭，不认证真实专家决定、工具�
 真实身份认证、应用与原 P3 平台/人工项仍为 `not-run` 或未验证。仅本地断言通过
 不能关闭整个 ENH-10；Task11 的 `.feature` fan-out 与多目标提案完全留待原任务。
 提交后停止等待本任务复核，不 amend、push、PR、传播、发布或自动继续后续任务。
+
+<a id="resume-task10"></a>
+## Task10 修复轮恢复
+
+2026-10-16 09:08 +08:00，用户再次要求“恢复执行”。父会话重读入口、当前任务和本机证据，实际分支仍为 `callentan-repository-skeleton`、HEAD 为 `92e3d2ae4c576b523cc9a584a542966bcf7b2965`，恢复检查时工作树/暂存区干净。Task1–9 不重复执行；Task10 两项 Important 和一项相关写入恢复问题仍待修正，旧实现的 428 项结果不是这些问题的修复证明。
+
+原执行代理在当前运行时不可用，未发现其遗留的活动工具命令。本机会话 `files\ddd-alignment-execution\task10-evidence\fix1\` 已保留：隔离 Python 3.11.15 的安装/环境记录、3.11 原生提交参数问题的两项真实失败，以及 3.11/3.13 配置丢失的受控观察；没有生产修复提交。已有测试解释器留在项目忽略区，不重复下载或创建；标准 Windows venv loader 的自身拒绝与受控完整解释器回退观察分别记录，不能称 POSIX 已测试。
+
+该次 3.11 环境恢复实际发现旧 lock 缺少 `referencing` 在 Python <3.13 下所需的条件依赖；旧失败和随后环境恢复记录都保留。后续只对支持版本所需的 lock 条件项及直接说明作必要修正，不升级原依赖或改主环境。恢复执行继续同一限定修复轮，沿本机 `task10-fix1-resume-brief.md` 重新核对源/运行时，再取得新修正结果与复审；不在真实工作树安装 hooks，不运行远端 CI 或推导资格、业务、跨宿主通过。
+
+<a id="task10-fix1"></a>
+## Task10 第 1 轮限定修正（恢复执行）
+
+### 任务、Git 与既有状态
+
+2026-10-16，继续用户 09:08 +08:00“恢复执行”所指的同一轮修正，不是重做
+[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10) 或推进后续任务。
+起点为 `92e3d2ae4c576b523cc9a584a542966bcf7b2965`，
+分支仍为 `callentan-repository-skeleton`；暂存区为空，原有未提交内容仅为上一节
+父会话的恢复说明。该说明和此前全部日志字节前缀保留。
+本轮按已有授权作一个带指定 coauthor 的本地提交；最终对象、准确文件清单与提交后
+状态由同一份本机 `task10-report.md` 追加段及其 delivery receipts 定位，不 amend。
+
+依据为原 Task10/ENH-10、原独立审阅 `task10-review-findings.md` 的 T10-I1/I2/M1
+和恢复 brief 的关联条件依赖授权。原 worker 已保存的解释器配置、依赖失败/恢复、
+I1 两项原生 RED 与配置丢失观察均从原记录读取，不重新下载、覆盖或改记为本轮动作。
+
+### 本轮变化
+
+- `hook_checks.py` 的共享参数解析兼容 3.11 的原生 commit-msg 顺序；受管与非受管
+  实际提交分别验证，不把验证逻辑移入 shell。
+- installer probe 与两份入口共用窄用途环境检查。launcher 保留准确所选 executable/
+  prefix；启动时先核对版本、venv/config、固定直接依赖及可导入性，再读 index/工件，
+  结束前重验配置/环境身份。配置丢失或 base 回退不再只是成功报告中的一个字段。
+- installer 在独占创建后立即记账；短写或 write/flush/close 失败保留准确路径、
+  预期/当前字节和手工恢复状态，不自动删除。实际 owner 后续编辑保持，重装/恢复
+  遇到残留或不匹配收据仍拒绝。错误通过受控 fixture I/O 注入，不制造真实磁盘满。
+- lock 仅追加已实际安装核对的 `typing-extensions==4.16.0` / Python `<3.13` 条件项。
+  原六项 pins 不变；现有 3.11 隔离环境离线从更新 lock 恢复并检查，主 3.13
+  只有 dry-run/一致性读取，仍选择原六项。直接说明及原生/依赖契约测试同步更新。
+
+### 实际结果入口与适用性
+
+本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的原
+`files\ddd-alignment-execution\task10-report.md` 追加本轮结果；新的原始证据全部
+在 `task10-evidence\fix1-resume\`，只在本机可访问，不是跨机器或 hosted 证据。
+
+- `baseline.json`、`saved-native-audit.json`：现场、原日志/报告前缀、旧证据身份和完整
+  原生收据读取；旧 3.11 RED 仍在 `fix1\red311-i1\`，没有覆盖。
+- `red313-runtime-recovery-lock\`、`red311-parser-lock\` 与各新 `green*`：
+  先观察配置回退/版本漂移、部分写入和条件 lock 的真实反例，再作逐项修正。
+  3.13 RED 的 8 方法有 12 条断言失败（含子测试），不是 12 个方法；0 errors/skips。
+- `runtime-lock.json`：3.11 离线 sync/check 的七项实际库存、元数据条件来源，以及
+  3.13 dry-run 的六项选择和未改环境。没有未声明的测试专用依赖。
+- `final311\suite.json`、`unittest.txt`、`command.json`：本轮仅一次完整最终
+  retained+new，3.11.15 实际发现/运行/执行 **439**、失败/错误/跳过均 0，
+  runner 723.375 秒。原 428 个测试身份全部保留，新增 11；源/测试读集前后不变。
+- `focused313-final\`：3.13.15 只执行 **42** 项聚焦 hook/依赖回归，失败/错误/
+  跳过均 0；没有为了重复证明再跑该版本完整套件。
+- `results-audit.json`：两个版本各有 31 次实际安装后的原生提交（13 接受、
+  18 按预期拒绝），无隐藏 bypass；受控 I/O 与发现/执行数量分别核对。
+- `runner-controls311\`：独立零发现、全跳过、失败、成功控制的实际退出
+  `1/1/1/0`，不混入 439 或 42 的方法数。`static-final\` 和 delivery receipts
+  保留文档/语法、精确 base 与真实 index/config/hooks/source 的只读及提交边界。
+
+标准 Windows venv loader 在配置丢失时已自行拒绝，不能算新增 guard 的预修正失败。
+完整 Windows 解释器副本则在明确的 PYTHONHOME/PYTHONPATH 边界条件下真实启动，
+丢失 venv prefix 后由共享 guard 返回输入错误，未执行工件/index 检查；没有向
+base/global 安装依赖。这些是本机 Windows 实验，**不是 POSIX/Ubuntu 的实测**。
+
+### 自审与下一步
+
+本轮自审只覆盖上述三项与关联 lock、直接文档/状态和全部现存回归身份；没有改变
+schema/kind、来源/报告所有权、原工具算法、workflows 或 Task1–9 的其他实现。
+**修正已实现，等待 Task10 限定复审，审阅关卡未关闭。**
+
+真实工作树/main checkout/user/global 未安装 hooks 或改配置；没有应用、
+POSIX/WSL/container 安装、远端 CI、required checks、push、PR、发布或新 worker。
+原 428 与新 439/42 的对象/运行各自保留；本机通过不推出托管、身份认证、业务或
+增强整体通过。保持分支/worktree，提交后停止，下一步仅为本轮独立限定复审。

@@ -7,7 +7,7 @@
 运行工具需要 Python 3.11+。环境及命令登记见[开发说明的维护工具一节](../../docs/development.md#maintenance-tools)，与下游业务应用分开；制作仓回归测试和执行历史不是下游使用前提。
 
 - [requirements.txt](requirements.txt) 只列获准的 PyYAML 6.0.2、jsonschema 4.23.0。
-- [requirements.lock](requirements.lock) 保存项目 `.venv` 成功解析后的六项实际版本。没有猜测 pins/hashes；pip 是 venv 自带安装工具，不是运行依赖。
+- [requirements.lock](requirements.lock) 保留 Python 3.13 环境实际解析的六项版本，另有 Python `<3.13` 所需、在 3.11 实际安装核对的 `typing-extensions==4.16.0` 条件项；3.11 选择七项，3.13 仍选择原六项。条件来自 `referencing` 的包元数据，不升级原 pins。pip 是环境安装工具，不是工具运行依赖；没有猜测 hashes。
 - 从仓库根执行 `python -m venv .venv` 后，用 `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` 恢复锁定环境，再运行 `.venv\Scripts\python.exe -m pip check`。
 - 不需要激活环境或全局 pip；没有媒体、DOCX/PDF、渲染、云端 SDK 或应用依赖。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
 
@@ -17,11 +17,16 @@
 [hook 说明](../hooks/README.md)定义安装提案、显式应用、逐路径恢复、index 语义和
 受管路径 `Reviewed-by` 文本政策。`install_hooks.py` 默认不写，拒绝已有 hook、
 配置冲突和共享 worktree metadata；从不修改 Git 配置或自动 commit/push。
+安装 I/O 失败时保留并逐项报告本次完整/部分创建，不猜测删除后续 owner 内容。
 
 `hook_checks.py pre-commit --root <checkout-root>` 也可由选定项目 Python 直接调用，
 使用实际 index 与原始 blobs，而不是工作文件；可给精确 `--base` 与新 `--report`。
 两份 Python hook 入口和下游资料 workflow 复用此模块。适配器仅负责快照/上下文与
 格式政策，工件、Markdown、owner AC/VC 和覆盖规则仍归现有三个模块。
+入口在读取 index/工件前核对选定解释器、项目 venv/prefix、`pyvenv.cfg`、
+Python 最低版本及固定直接依赖的版本/可导入性；配置丢失或回到 base 环境时拒绝，
+不是仅把实际 prefix 记入成功报告。原生 launcher 保存选定绝对路径与 prefix，
+检查前后还核对环境配置/依赖身份；不会自行恢复或切换解释器。
 `read_inventory` 的私有 `_base_root` 只使临时快照从原 Git root 取得历史原始对象；
 `_trace_inventory` 复用同一已获取库存，零 owner 时仍反查 targets。公开本地
 `run_check`、`trace_report` 的工作树/非空交付选择契约不变。

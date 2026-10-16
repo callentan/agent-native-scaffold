@@ -11,7 +11,7 @@
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
-| 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；先建 manifest，再恢复，未猜测传递版本 |
+| 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；原六项版本保留，`referencing` 在 Python `<3.13` 所需的 `typing-extensions` 另按实际元数据/安装结果锁定，3.11 选七项、3.13 选原六项 |
 | 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)；不包含音频、渲染、云端或业务应用 |
 | 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
 
@@ -43,6 +43,9 @@
 可选安装、恢复和原生运行边界见[hooks 说明](../.github/hooks/README.md)。
 Windows 薄 launcher 使用 Git 自带 `sh`，只启动准确项目解释器；不要求 PowerShell 7。
 installer 不覆盖 owner hook、不改 `core.hooksPath`，也拒绝默默影响 sibling worktrees。
+每次 hook 启动在读取工件/index 前重验选定 venv、配置和固定依赖；环境丢失时
+明确拒绝，不仅记录 prefix，也不回退全局。安装 I/O 失败保留完整/部分创建的
+逐路径恢复状态，不自动删除后续 owner 内容；恢复须按 hooks 说明核对所有权。
 下游资料 workflow 只调用分发模块；制作仓回归 workflow/计数 runner 不分发。
 复制 YAML 不建立 required checks；托管运行与服务端配置须另有授权及实际证据。
 

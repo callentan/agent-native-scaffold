@@ -9,6 +9,11 @@
 需要 Git、已选定的 Python 3.11+ **项目 venv** 及
 [锁定依赖](../utilities/requirements.lock)。解释器使用完整绝对路径；不会从 PATH
 寻找另一个 Python，也不安装包。命令与环境见[开发登记](../../docs/development.md#maintenance-tools)。
+安装提案和两份 hook 的启动共用同一 Python 环境检查：最低版本、所选绝对解释器、
+实际 venv/prefix、可读的本地 `pyvenv.cfg`，以及固定直接依赖的版本和可导入性。
+launcher 保留所选路径/prefix；配置丢失、运行到 base 环境或依赖漂移均在读取
+index/工件前拒绝并给出恢复 venv/lock 的提示，不因 base 中恰有包而继续。
+报告保留选定与实际环境和配置摘要，检查结束前再次核对环境输入；这不是 OS sandbox。
 
 两份入口只调用 `hook_checks.py`。该窄用途适配器获取 index 并复用
 `artifact_io.py`、`check_artifacts.py`、`check_traceability.py` 和
@@ -43,7 +48,8 @@ Git for Windows 的实际启动试验发现：绝对 Python shebang 没有选到
   提案说明共享范围并拒绝安装/恢复；本工具没有隐式切换 `extensions.worktreeConfig`
   或影响 sibling 的模式。需要共享接入时由所有者另行设计和授权，不以本命令解阻。
 - 工具/入口缺失或为跳转路径、解释器缺失、不是所选 venv、版本/依赖不符合登记时
-  明确退出 2，不安装剩余部分。安装期间发生错误只回收本次独占创建且字节未变的文件。
+  明确退出 2，不安装剩余部分。安装期间的部分写入与恢复边界见下节，不自动删除
+  已创建文件，也不把失败当作完整安装。
 - Git 入口引用本项目的工具源码，不复制并冻结另一套实现。后续更新源码会改变 hook
   行为，必须重新检查版本与适用性；本地可编辑工具不是对恶意修改的安全边界。
 
@@ -62,6 +68,15 @@ hook/receipt。后续所有者编辑、mode 改变、缺收据、链接或配置
 现状供所有者处理；不能靠再次安装来覆盖。其他 hooks/config/source/index 不变。
 不递归清理目录，安装时新建的空 hooks 目录可保留。恢复不要求原解释器仍可用，
 但运行安装器本身仍需要一个获准的 Python。
+
+安装 write/flush/close 或短写失败后，`written` 包含本次已经独占创建的每个准确
+路径，即使它只有部分字节；`recovery` 明确标为 `manual-required`，逐项报告
+写入/关闭是否完成、当前存在/不可读/owner 冲突状态、预期与实际摘要及大小。
+**不做自动 rollback**，连完整且字节相同的文件也保留，避免根据不充分的所有权
+推断删除后续编辑。所有者须先检查这些路径及实际内容、核对本次收据与后续改动，
+再决定如何协调；不能不加区分地重跑安装/恢复，或递归删除 hooks 目录。
+后续安装遇到残留 hook/receipt 仍是冲突；缺失、部分或不匹配的 receipt 不授予
+恢复删除权限。失败 JSON 是恢复线索，不是永久所有权认证或自动清理授权。
 
 ## pre-commit：检查真正准备提交的 index
 
