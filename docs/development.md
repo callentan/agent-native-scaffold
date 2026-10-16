@@ -46,6 +46,12 @@
 
 这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)、[实施摘要](../.github/utilities/README.md#implementation-report)与[只读更新提案](template-updates.md)分别约束其结果；这些检查/派生/提案 API 不写文件。[来源接入](domain-sources.md)的独立 apply API 另受准确目标、preflight 与授权限制，不因 readOnly 或已有配置获得许可。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖、成功收集或干净提案都不等于业务通过或传播完成。尖括号参数由本次实际输入替换。
 
+来源接入的配置 token 绑定实际读取/解析的 bytes，inspect 过程中变化也停止；
+新子模块的 index 同意不能撤销 owner 已暂存的 `.gitmodules` 删除。
+[Git 配置读取边界](domain-sources.md#git-config-boundary)在受影响命令前拒绝本地 include/
+includeIf、网络 metadata 指针和别名，不去包含位置探测或自动改配置。网络/真实项目
+接入仍需独立授权，不由资料可读或本地夹具结果授予。
+
 可选安装、恢复和原生运行边界见[hooks 说明](../.github/hooks/README.md)。
 Windows 薄 launcher 使用 Git 自带 `sh`，只启动准确项目解释器；不要求 PowerShell 7。
 installer 不覆盖 owner hook、不改 `core.hooksPath`，也拒绝默默影响 sibling worktrees。

@@ -160,6 +160,11 @@ run_check(root: str | os.PathLike[str], base_sha: str | None = None) -> CheckRep
 
 Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat-file`，不调用 diff/textconv、clean/smudge filters、hooks 或来源命令；清除继承的仓库/index/Git 配置环境，不用替换 refs 或 lazy fetch，不寻找 main/master 或新的 HEAD。失败保留诊断并返回输入错误。
 
+共享 reader 在 Git 命令前另检查本地 Gitfile/common/worktree metadata，拒绝
+`include` / `includeIf` 声明、网络指针、配置别名和不完整布局；不靠 transport 禁止
+推导 include 安全，也不调用 Git 探测被包含位置。[明确读取边界](../../docs/domain-sources.md#git-config-boundary)
+说明兼容限制；普通无 Git 的本地内容输入不要求建立仓库。
+
 <a id="checker-output"></a>
 ### JSON 字段、计数与稳定代码
 
@@ -188,6 +193,7 @@ Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat
 | `BROKEN_LINK`, `BROKEN_ANCHOR`, `UNRESOLVED_REFERENCE`, `UNSUPPORTED_FRAGMENT`, `INVALID_LINK` | `invalid`；本地链接或支持范围 |
 | `DIRECTORY_READ_ERROR`, `INPUT_CHANGED`, `EXCLUDED_TARGET` | `input-error`；读取或边界；其他路径/解码代码复用 parser |
 | `INVALID_BASE`, `BASE_UNAVAILABLE` | `input-error`；基线形状或精确对象读取失败 |
+| `GIT_CONFIG_INCLUDES_UNSUPPORTED`, `GIT_CONFIG_UNSAFE` | `input-error`；命令前拒绝不支持的本地 include 或不安全 Git metadata，不访问其外部位置 |
 | `REPORT_CONFLICT`, `REPORT_WRITE_ERROR` | `input-error`；输出冲突或写入失败 |
 
 `--report` 只能显式创建本地新 `.json` 文件；相对路径以 root 为准，绝对路径按本次授权使用。父目录必须已经存在，不自动建目录，不覆盖任何已有文件（包括空文件、源文件和历史报告）。使用 exclusive create，失败退出 2；若已创建新文件后写入失败，可能留下不完整的新报告，不能当成功证据。CLI 的 `report_output={path,written}` 独立于保护的输入读集，默认/API 不产生此文件。CLI 参数用法错误由 argparse 输出到 stderr 并退出 2；其他已定义错误在 JSON 中返回。
@@ -337,6 +343,11 @@ CLI 默认 stdout，三根模式为 `--base <旧根> --local <本地根> --candi
 register 只追加 BC 的来源条目，不 materialize 或暂存。可选本地 submodule 不编辑
 BC 配置，必须另给准确 target 与独立 index 同意；原始 blob 写入绕过 checkout/filters/hooks，
 原生 metadata 和 gitlink 变更逐项披露，不含 commit/push。非空目标/别名/冲突/漂移不跳过成功。
+
+BC token 只标识实际用于解析/规划的原始配置 bytes，inspect 内的后续读取变化也拒绝。
+新 native 目标不会复活 HEAD 中已由 owner 暂存删除的 `.gitmodules`，目标本身也不能
+占用 metadata 文件。共享 Git reader 与 native helper 都在命令前拒绝不支持的 includes，
+包括准确源仓、父仓、common/worktree config 和显式配置文件，不运行 include 检测命令。
 
 完整 API/CLI、可编辑配置布局、原生命令和保留部分状态的恢复边界见
 [领域源说明](../../docs/domain-sources.md)，字段仍归[原契约](../contracts/README.md#bc-configuration)。

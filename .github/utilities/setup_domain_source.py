@@ -20,13 +20,14 @@ import yaml
 
 from artifact_io import ArtifactInputError, _resolve_file, load_yaml_mapping
 from check_artifacts import (
-    _anchors, _checked_location, _decode, _domain_location, _git, _git_environment,
+    _anchors, _checked_location, _decode, _domain_location, _git, _git_config_file, _git_config_guard, _git_environment,
     _local_root, _TOOL_DIRS,
 )
 from source_baseline import Commit, domain_files, relative_path, validate_mapping
 
 
 _FIELDS = ("id", "kind", "root", "path", "baseline", "readOnly")
+_UNACQUIRED = object()
 _CONFLICTS = {
     "BASE_MISMATCH", "SOURCE_ID_CONFLICT", "DUPLICATE_DOMAIN_SOURCE", "SOURCE_ALIAS",
     "SOURCE_OUTPUT_OVERLAP", "TARGET_CONFLICT", "SUBMODULE_CONFLICT", "INDEX_CONFLICT",
@@ -116,8 +117,11 @@ def _read_file(path, *, optional=False):
         raise ArtifactInputError("FILE_READ_ERROR", path, 1, "Cannot read the explicit local file") from error
 
 
-def _file_identity(path):
-    raw = _read_file(path, optional=True)
+def _file_identity(path, *, acquired=_UNACQUIRED):
+    current = _read_file(path, optional=True)
+    if acquired is not _UNACQUIRED and current != acquired:
+        _fail("INPUT_CHANGED", path, "The bytes acquired for this plan changed during inspection")
+    raw = current if acquired is _UNACQUIRED else acquired
     return {"path": str(path), "sha256": None if raw is None else _sha(raw),
             "mode": None if raw is None else stat.S_IMODE(path.stat().st_mode)}
 
@@ -204,6 +208,13 @@ def _overlap(left, right):
 
 
 def _native(root, *args, payload=None, input=None, allowed=(0,), local_clone=False):
+    _git_config_guard(root)
+    if local_clone:
+        if not args or args[0] != "clone" or "--" not in args or len(args[args.index("--") + 1:]) != 2:
+            _fail("INVALID_OPERATION", root, "Local clone requires one exact source and target")
+        _git_config_guard(Path(args[args.index("--") + 1]))
+    if args and args[0] == "config" and "--file" in args:
+        _git_config_file(Path(root) / args[args.index("--file") + 1])
     command = [
         "git", "--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false",
         "-c", "core.hooksPath=" + os.devnull, "-c", "core.autocrlf=false",
@@ -253,6 +264,18 @@ def _index(root):
     return entries
 
 
+def _owner_head(root):
+    """Observe owner history for index protection, never select a source baseline."""
+    head = _native(root, "rev-parse", "--verify", "--quiet", "HEAD^{commit}", allowed=(0, 1)).strip()
+    if head:
+        return head.decode("ascii")
+    symbolic = _native(root, "symbolic-ref", "--quiet", "HEAD", allowed=(0, 1)).decode("utf-8").strip()
+    refs = _git(root, "for-each-ref", "--format=%(refname)").decode("utf-8").splitlines()
+    if symbolic.startswith("refs/heads/") and symbolic not in refs:
+        return None  # Genuinely unborn, not an unreadable existing owner commit.
+    _fail("BASE_UNAVAILABLE", root, "Owner HEAD is neither a readable commit nor a genuinely unborn branch")
+
+
 def _target_state(path):
     _checked_location(path, missing_ok=True)
     if not path.exists():
@@ -277,6 +300,8 @@ def _submodule(root, source_root, source, context, result):
     if source["kind"] != "git":
         _fail("INVALID_SOURCE_CONFIG", "domainSource.kind", "Local submodules require kind: git and an exact commit")
     target_value = _relative(context["target_value"], root)
+    if _overlap(root / target_value, root / ".gitmodules"):
+        _fail("TARGET_CONFLICT", root / target_value, "The checkout target overlaps its .gitmodules metadata file")
     target = _checked_location(root / target_value, missing_ok=True)
     _local_root(target.parent)  # Do not manufacture undeclared parent directories.
     result["target"] = {"path": str(target), "state": _target_state(target)}
@@ -325,6 +350,12 @@ def _submodule(root, source_root, source, context, result):
                         _fail("SUBMODULE_CONFLICT", gitmodules, "Another native module owns this target path")
     entries = _index(root)
     current_modules = entries.get(".gitmodules", [])
+    if any(name.casefold() == ".gitmodules" and name != ".gitmodules" for name in entries):
+        _fail("INDEX_CONFLICT", gitmodules, "Owner index metadata has a case-aliased path; preserve its exact identity")
+    if not current_modules:
+        head = _owner_head(root)
+        if head is not None and any(name.casefold() == ".gitmodules" for name in Commit(root, head).files):
+            _fail("INDEX_CONFLICT", gitmodules, "Owner .gitmodules deletion is staged; new setup cannot undo it")
     if current_modules and (len(current_modules) != 1 or current_modules[0][0] != "100644"
                             or current_modules[0][2] != "0" or raw_modules is None
                             or _git(root, "cat-file", "blob", current_modules[0][1]) != raw_modules):
@@ -405,6 +436,8 @@ def _prepare(root, source_config, operation, config_path, target, result):
     source_root = _local_root(source_root)
     config, raw_config, data, locations, registration = _config(actual, config_path)
     result["config"] = {"path": str(config), "sha256": _sha(raw_config), "state": "new"}
+    _git_config_guard(actual, required=False)
+    _git_config_guard(source_root, required=False)
     existing = [entry for entry in data["domainSources"] if entry["id"] == source["id"]]
     wanted = dict(source, root=target) if operation == "submodule" and target is not None else source
     if existing:
@@ -435,7 +468,7 @@ def _prepare(root, source_config, operation, config_path, target, result):
         _submodule(actual, source_root, source, context, result)
     identities = {
         "root": str(actual), "source": source, "operation": operation,
-        "config": _file_identity(config), "registration": registration,
+        "config": _file_identity(config, acquired=raw_config), "registration": registration,
         "project_repo": context["project_repo"], "source_repo": context["source_repo"],
         "source_files": {str(name): _sha(raw) for name, raw in files.items()},
         "target": result["target"], "actions": result["actions"],

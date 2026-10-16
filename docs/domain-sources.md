@@ -42,6 +42,26 @@ materialization 的目标，既有内容就是冲突，不能删除占位、覆�
 - URL、SCP 样式地址和 UNC 来源始终 unavailable/proposal-only。本工具没有网络授权开关，
   不探测 DNS、凭据或远端，不 fetch/clone 网络来源。需要网络资料时先在单独获授权的流程准备本地 checkout。
 
+<a id="git-config-boundary"></a>
+### Git 本地配置也属于读取边界
+
+`protocol.allow=never` 只限制 Git transport，不能阻止 `include.path` /
+`includeIf` 读取其他文件。调用共享原始 Git reader 或本工具原生命令前，先检查源仓与
+父仓的本地 Gitfile、commondir、config 和选定 metadata 中的 config.worktree（若存在）。
+metadata 必须是可核实的本地普通文件/目录；不解析网络指针，也不借用祖先仓库。
+没有 Git metadata 的普通 local 文件来源仍可按内容摘要检查，不因此要求建立仓库。
+
+本实现不支持 Git 配置 include，即使路径是本地或条件看似不会命中，也在运行受影响的
+Git 命令前返回 `GIT_CONFIG_INCLUDES_UNSUPPORTED`。检查只识别声明，不展开条件/路径，
+不调用 `git config` 去探测 include，不读取被包含文件，不修改或自动展开所有者配置。
+Gitfile/commondir 的网络指针、别名、非普通配置或不完整 metadata 返回
+`GIT_CONFIG_UNSAFE` / `BASE_UNAVAILABLE`，不通过 Git discovery 查找替代位置。
+原生本地 clone 前还会重查准确源仓；显式配置文件相对其命令 cwd 检查。
+
+需要 include 的项目应先由所有者在另一个获授权的范围准备自包含配置；本工具不删除
+这些声明或更改 user/global config。这是有限的执行前读取防护，不是通用 Git 配置
+解释器、OS ACL 或恶意并发文件系统的隔离保证。
+
 register 保留其他键、来源条目、注释及换行 bytes，只编辑 `domainSources`：
 可追加独立的 `domainSources: []` 或 block-style list；不为编辑 flow-style/JSON/无法安全定位的
 YAML 而重排全文件。不可安全追加时返回 `CONFIG_EDIT_UNSUPPORTED`，须由所有者在另一次明确维护中处理。
@@ -72,14 +92,16 @@ submodule 另需 `target` 与独立 `index_consent=True`。这些参数只是显
 | `source / location` | 原来源声明、解析后的源根、相对 path、准确 selected 路径与原 baseline；被拒绝的网络地址不回显 |
 | `ownership` | 原 readOnly、始终 false 的 source_writes 与 os_enforced；不把声明当访问控制 |
 | `config / target / actions` | 准确配置/目标及拟修改路径；submodule 单列 local config、metadata 和需要另行同意的 index |
-| `preflight` | 本次准确来源文件、登记、配置、目标和相关 Git index/refs/config 身份的摘要，不是批准或永久凭证 |
+| `preflight` | 本次准确来源文件、登记、配置、目标和相关 Git index/refs/config 身份的摘要；BC 配置绑定实际解析/规划的原始 bytes，不是批准或永久凭证 |
 | `findings / written / native` | 稳定 code、实际路径和原因；已写路径；真正执行的原生命令、cwd、退出码与原始 stdout/stderr |
 | `suggested_registration` | submodule 对应的新源根与原 path/版本；只是下一次独立登记的输入，不自动应用 |
 | `recovery` | 失败后的准确保留路径、可读状态/摘要和手工恢复要求；不会自动清理或恢复所有者内容 |
 
 `BASE_MISMATCH` 是 conflict；缺失/非法固定对象为 unavailable。
 `SOURCE_ID_CONFLICT / SOURCE_ALIAS / TARGET_CONFLICT / SUBMODULE_CONFLICT / INDEX_CONFLICT`
-保留冲突范围。`INPUT_CHANGED` 表示 inspect 后身份已变，必须重新核对而非沿用旧 token。
+保留冲突范围。`INPUT_CHANGED` 也包括 inspect 内部取得配置后发生的修改：
+已解析的原始 bytes 参与 token，后续一致性读取不符就停止，不返回“按 A 规划、用 B 标识”的 ready。
+必须重新核对，不能沿用旧 token；这些检查不构成完整的文件系统事务。
 `OWNERSHIP_CONSENT_REQUIRED / PREFLIGHT_REQUIRED / INDEX_CONSENT_REQUIRED` 不授予隐含许可。
 
 检查及打开间不构成 OS 事务，工具也不是恶意并发进程的 sandbox。
@@ -139,7 +161,13 @@ register 不提交、不暂存，也不将 readonly 登记解释成已 materiali
 来源必须有自包含本地对象，不支持 shallow/promisor/alternates；目标须为独立非共享 checkout，
 且源/父仓的 Git 对象格式一致（SHA1 或 SHA256，不混用）。
 已有模块 ID/path、staged 与 working `.gitmodules` 不符、owner lock、非空目标或残缺 metadata
-均停止。文件协议放行只限该次准确的本地 clone 命令，绝不改 user/global Git config。
+均停止。若 HEAD 已有 `.gitmodules`，但 index 中缺失，即使 working 文件仍在、新 checkout
+目标尚不存在，也按所有者已暂存删除处理，在 clone 前冲突；index 同意不能撤销该意图。
+大小写别名的 metadata 身份同样不能被静默重建。只有 HEAD 确无此 metadata，或确为
+unborn 父仓时，才可能按真正新建处理；不把不可读 HEAD 当作新仓。
+这里的 HEAD 只用于核对父仓 owner/index 意图，不替代领域来源的明确固定 baseline。
+checkout 目标不得与 `.gitmodules` 文件相同或重叠，包括大小写/后代路径。
+文件协议放行只限该次准确的本地 clone 命令，绝不改 user/global Git config。
 没有 commit/push 操作，也没有把 source readOnly、既有配置或 `--apply` 当作 index 同意。
 
 <a id="recovery"></a>

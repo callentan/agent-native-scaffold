@@ -1083,3 +1083,64 @@ sandbox。非空/别名/不支持布局/共享 metadata/漂移停止；部分状
 原 P3 与其他 ENH 的外部结果不升级。Task12–14、16–18 未实施，Task12 仍受 15–18
 前置约束。交付本次局部提交和完整本机报告后停止；后续先由协调者按实际基线安排
 Task15 独立审阅，不在本轮自动开展后续任务或外部操作。
+
+<a id="task15-fix1"></a>
+## Task15 fix1（1/5）：限定修正，待范围复审
+
+### 会话、任务与 Git 范围
+
+2026-10-16，按用户给定的完整独立审阅与四项修正要求，仅处理
+**Task15-I1/I2/I3/M1**。起点重查为干净
+`3a99245ee7448f99579399bd9d560f34b536c4ed`，仍在
+`callentan-repository-skeleton` 的原隔离 worktree，没有原有未提交内容。
+审阅与父会话当时只静态确认这些机制；下面的新 RED/GREEN 属于本轮执行，不归给 reviewer。
+本次仅两处源机制、一个新回归文件、直接指南/当前状态和本追加；准确局部提交 SHA
+及提交后 Git 状态由最终本机报告/Git 记录，不 amend/push/PR。
+
+### 本次变化与结果入口
+
+- **I1：** 首次新 checkout 前，区分 owner HEAD 中已有、index 缺失的 metadata 与真正
+  新建/unborn；已暂存删除和大小写别名均先 conflict，不因 index 同意撤销 owner 意图。
+  原始 HEAD/index/config/working bytes 保留；HEAD 只用于 owner 历史观察，不选来源版本。
+- **I2：** BC token 使用实际解析/规划的原始取得 bytes；后续一致性读变化即
+  INPUT_CHANGED。真实项目 ID/context A→B 控制修改在 inspect 内触发拒绝，保留 B，
+  不交付混合 token；不是消除一切恶意 TOCTOU 的声明。
+- **I3：** 共享原始 Git reader 与 native helper 在命令前检查本地普通 Gitfile、
+  commondir、common/worktree/显式 config，拒绝 include/includeIf 与不安全 metadata。
+  不调用 Git config 来发现 include，不打开声明目标；native clone 另重查准确源。
+  相对 config 绑定命令 cwd，不完整 metadata 不借祖先发现。只作窄边界防护，
+  不展开或改写 owner/user/global config，不增加通用 Git 配置模型。
+- **M1：** `.gitmodules` 本身及大小写/后代 checkout 重叠在预检拒绝，未创建部分
+  checkout/module metadata；原 register、raw blob 和其他 owner 内容保护保留。
+
+真实命令、cwd、解释器、计数、前后 hashes 与限制在本机会话
+`files\ddd-alignment-execution\task15-evidence\fix1\`，总入口仍为同层
+`task15-report.md` 的本轮追加。记录仅本机可访问，不分发为下游依赖：
+
+- `red-01-regressions.*` 实际 28 方法、28 个失败条目，0 错误/跳过；包括已正确的
+  五个保留控制，不将子例失败数当方法数。后续直接耦合边界另留 RED。
+  I1/I2/M1 使用真实文件、CLI/native；I3 使用安全的命令前/文件系统拦截，
+  **没有执行带 include 的风险 Git 命令或访问 UNC endpoint**。
+- `green-01`–`green-07` 各有准确选择器和原始结果，不拼接成一条新全套。
+  真正新建/unborn、普通 local、SHA1/SHA256、common metadata 可读与 shared native
+  拒绝等控制分别存在；没有模拟 Git stdout。
+- `final-minimum-suite.*` 是本轮唯一最终 3.11.15 保留＋新增全套：
+  **611 发现/执行，0 失败/错误/跳过，退出 0，runner 1443.297 秒**。
+  `test-identity-reconciliation.json` 反查全部 579 个原身份和 32 个新身份，
+  其中原 55 个来源方法实际保留；工具输入执行中和执行后未变。
+- `i1-* / i2-* / i3-*-pre-invocation / m1-*` 保存准确源/目标/metadata/输出 hashes；
+  I2 明确标出 harness 的 owner B 修改，I3 明确标出静态声明和拦截层次。
+  原 579/55 receipts、70 份旧证据、20125-byte 报告与 122389-byte 日志前缀分别受
+  原始 bytes guard 保护；原结果和基线未重写。正式工件检查仍为 empty、checked 0，
+  不是业务通过。
+
+### 缺口与停止边界
+
+I1/I2/I3/M1 的修正和本地自验证完成，**待限定复审**；不替独立 reviewer 关闭发现。
+schema、lock、原 tests/helpers、9/22/3 方法/prompt/模式及旧外部/native/client/human
+结果保持。没有装依赖、启动 subagent/reviewer 或新的真实 app/worktree，没有真实项目
+配置写入、网络/凭据探测、source hooks/filters、隐含 setup commit 或外部平台操作。
+
+本轮只交付新的局部 coauthored commit 和追加报告后停止，不开始 Task16 或其他后续任务。
+Task12 仍受 15–18 前置与相应审阅/授权关卡约束。后续由协调者在实际提交基线上
+安排限定复审；网络、POSIX、平台、应用、客户端、人工和发布结果仍为 not-run。

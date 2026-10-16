@@ -193,6 +193,109 @@ def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
         raise ArtifactInputError("INVALID_ROOT", "root", 1, "Cannot resolve the explicit local directory") from error
 
 
+def _git_metadata_bytes(path: PathInput) -> bytes | None:
+    """Read only a regular, explicitly local metadata file; never follow a pointer."""
+    value = os.fspath(path)
+    if _network_path(value) or "://" in value:
+        raise ArtifactInputError("GIT_CONFIG_UNSAFE", "Git metadata", 1, "Network metadata locations are unsupported")
+    actual = Path(path)
+    try:
+        actual = _checked_location(actual, missing_ok=True)
+        if not actual.exists():
+            return None
+        if not stat.S_ISREG(actual.stat().st_mode):
+            raise ValueError("Metadata must be a regular file")
+        return actual.read_bytes()
+    except (OSError, ValueError, RuntimeError) as error:
+        raise ArtifactInputError("GIT_CONFIG_UNSAFE", actual, 1,
+                                 "Git metadata must be a readable local regular file without aliases") from error
+
+
+def _git_config_file(path: PathInput) -> None:
+    """Refuse include declarations without asking Git to parse/follow them.
+
+    This is only an exposure guard, not a Git-config interpreter. Remove quoted
+    strings/comments and escaped characters before recognizing section headers;
+    includeIf conditions and include paths themselves are never evaluated.
+    """
+    raw = _git_metadata_bytes(path)
+    if raw is None:
+        return
+    logical = re.sub(rb"\\\r?\n", b"", raw.removeprefix(b"\xef\xbb\xbf"))
+    visible = bytearray()
+    quoted = comment = escaped = False
+    for character in logical:
+        if comment:
+            if character in (10, 13):
+                comment = False
+                visible.append(character)
+        elif escaped:
+            escaped = False
+            if not quoted:
+                visible.append(32)
+        elif character == 92:
+            escaped = True
+        elif character == 34:
+            quoted = not quoted
+            visible.append(32)
+        elif not quoted and character in (35, 59):
+            comment = True
+        elif not quoted:
+            visible.append(character)
+    if re.search(rb"(?:^|[\r\n\]])[ \t\r\v\f]*\[[ \t\r\v\f]*(?:include|includeif)(?=[ \t\r\v\f.\]])",
+                 visible, re.I):
+        raise ArtifactInputError("GIT_CONFIG_INCLUDES_UNSUPPORTED", path, 1,
+                                 "Repository-local include/includeIf configuration is unsupported for bounded local Git")
+
+
+def _git_config_guard(root: PathInput, *, required: bool = True) -> None:
+    """Check local Gitfile/common/worktree configuration BEFORE a Git invocation."""
+    actual = _local_root(_checked_location(root))
+    marker = actual / ".git"
+    try:
+        marker = _checked_location(marker, missing_ok=True)
+        if not marker.exists():
+            if required:
+                raise ArtifactInputError("BASE_UNAVAILABLE", actual, 1, "The explicit checkout metadata is absent")
+            return  # No Git discovery/ancestor borrowing for a plain local source.
+
+        def pointer(raw: bytes, parent: Path, context: Path, *, prefix: str = "") -> Path:
+            text = raw.decode("utf-8").strip()
+            if prefix:
+                if not text.startswith(prefix):
+                    raise ValueError("Unsupported Gitfile")
+                text = text[len(prefix):]
+            text = text.strip()
+            if (not text or _network_path(text) or "://" in text or re.search(r"[\x00-\x1f]", text)
+                    or re.match(r"^[A-Za-z][A-Za-z0-9+.-]+:", text)):
+                raise ValueError("Unsupported metadata pointer")
+            # The pointer was rejected as text before any resolve/stat/open of it.
+            return _checked_location(parent / text)
+
+        if marker.is_dir():
+            directory = marker
+        else:
+            directory = pointer(_git_metadata_bytes(marker) or b"", marker.parent, marker, prefix="gitdir: ")
+        common_data = _git_metadata_bytes(directory / "commondir")
+        common = directory if common_data is None else pointer(common_data, directory, directory / "commondir")
+        head = (_git_metadata_bytes(directory / "HEAD") or b"").strip()
+        if not ((head.startswith(b"ref:") and head[4:].strip().startswith(b"refs/"))
+                or re.fullmatch(rb"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", head)):
+            raise ArtifactInputError("BASE_UNAVAILABLE", marker, 1,
+                                     "Incomplete explicit checkout metadata cannot use ancestor Git discovery")
+        for name in ("objects", "refs"):
+            if not _checked_location(common / name).is_dir():
+                raise ValueError("Git storage metadata is not a regular local directory")
+        _git_config_file(common / "config")
+        _git_config_file(directory / "config.worktree")
+    except (OSError, ValueError, RuntimeError) as error:
+        if isinstance(error, ArtifactInputError) and error.code in (
+                "BASE_UNAVAILABLE", "GIT_CONFIG_INCLUDES_UNSUPPORTED", "GIT_CONFIG_UNSAFE"):
+            raise
+        raise ArtifactInputError("GIT_CONFIG_UNSAFE", marker, 1,
+                                 "Gitfile/common/worktree metadata must be regular, local and safely readable") from error
+
+
 def _domain_location(root: Path, source_root: str, relative: str) -> tuple[Path, Path]:
     """Resolve a declared local domain root/path, without requiring its existence.
 
@@ -356,6 +459,7 @@ def _git_environment() -> dict[str, str]:
 
 
 def _git(root: Path, *arguments: str) -> bytes:
+    _git_config_guard(root)
     try:
         result = subprocess.run(
             ["git", "--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false",
