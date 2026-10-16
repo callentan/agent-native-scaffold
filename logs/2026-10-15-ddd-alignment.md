@@ -1342,3 +1342,44 @@ DOCX 仍是明确子集。实际音频/服务失败仍 not-run，ENH-16 和后�
 后续只完成文档/format 与保护核对、一个局部 coauthored commit 后停止。
 当前为本地修正待范围复审，不代表四项 finding 被独立关闭，更不关闭音频、ENH-16、
 平台/真实项目/业务验收或推进后续任务。
+
+<a id="task16-review"></a>
+## Task16：离线范围限定复审与接续交接
+
+### 会话、任务与 Git
+
+2026-10-17，协调会话 `1ff56941`，继续用户已授权的增强计划。
+本次写入前核对原分支 `callentan-repository-skeleton`，HEAD 为修正对象
+`97d35aa57a4fb6687da995858ab6009ec23e1bce`，父提交为
+`9942e70a59577f3ead9049d006c2bd827a168101`，暂存区与工作树为空。
+本次仅同步增强规格、实施计划、路线图和本日志；该文档 checkpoint 由本文件
+Git 历史定位，不预填自身提交 hash。此前实施、自审、失败及待审记录保留原文和基线。
+
+### 复审结论与实际结果入口
+
+原 reviewer 对上述精确修正范围完成只读限定复审：T16-I1/I2/I3 三个 Important
+及 T16-M1 Minor 均为 ADDRESSED，修正及紧邻回归中无新的可执行发现。
+完整源单元/限定语、envelope 可知坐标、共享 Markdown 行前注释状态及无 grid
+矩形宽度的修正均已核对；这是本次代码范围结论，不是人工批准或完整 ENH-16 通过。
+reviewer 未运行命令或测试，其读取的执行记录不改称 reviewer 独立实测。
+
+本机证据入口为 `files\ddd-alignment-execution\` 下
+`task16-fix1-rereview.md`、`task16-report.md#task16-fix1` 和
+`task16-evidence\fix1\`，保留 review 来源、实际 RED/GREEN、707 方法最低版本
+执行及原始输出。协调者另在同一对象用既有 Python 3.11.15 执行来源/评分 86 方法，
+0 失败/错误/跳过，退出 0、62.672 秒、输入未变；准确 command/cwd/字节身份
+和原始输出回 `task16-fix1-parent311.json` 及相邻 invocation/unittest 文件读取。
+707、86 与旧 688/67 是不同范围/对象的记录，不相加或重标成另一轮全量运行。
+这些本机文件不是已提交的跨机器证据；接手者不可访问时须明确该限制。
+
+### 保留缺口与下一步
+
+本次只关闭离线实现及其四项审阅发现。来源 context、片段/hash、说话者不受认证；
+DOCX 仍是有界段落/表格子集，不代表任意 Office 兼容或工具资格。
+真实音频、真实服务失败、App/人工、平台、应用和整体功能等价仍为 not-run/open，
+音频 provider、模型、SDK、数据范围及发送授权缺项未被默认补齐。
+没有安装依赖、调用服务、推送、建 PR 或变更真实权限。
+
+下一步按[Task17](../docs/plan/2026-10-14-ddd-functional-alignment.md#task17)
+开展获准的本地关系图、SEQ/SWAS 与参数化演示导出，PDF/PPTX renderer 和实际格式验收
+继续单独设关卡；当前完整 ENH-16 和 Task12 前置未据此关闭。
