@@ -220,9 +220,9 @@ T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额
 
 用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
 
-源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–9 的有限实现与范围复核均已完成；Task9 文档的独立审阅无待修发现，但不代表资格或批准。当前八方法、二十一 prompts、三模式不变。Task10 原 I1/I2/M1 和条件 lock 已通过第 1 轮限定复审，现仅新增 Minor T10-F1-N1 的第 2 轮窄修正待限定复审；Task11–18 未开始。不直接初始化应用、安装到真实项目或更改远端门禁。
+源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–10 的有限本地实现与范围复核均已完成，无遗留的这些任务审阅发现，但不代表真实资格或批准。当前八方法、二十一 prompts、三模式不变。Task11–18 未开始，下一步为三方更新和多目标提案，不直接初始化应用、安装到真实项目或更改远端门禁。
 
-目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7 两轮限定复审已关闭相关发现；Task8 的报告仅引用源结果，model 仅引用报告，不产生执行或批准结论。Task9 的 10 个预备情形由 11 份实填合成表单及现有 parser/checker 演练，未知风险和缺决定不补值，审阅发现不改写 VT。Task10 的原实施和第 1 轮原生修正证据保留，本轮仅核对 main/报告的 CLI 导入边界，见[当前交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix2)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留。历史规划见[原日志](../../logs/2026-10-14-ddd-enhancement-plan.md)，[Task9 复审](../../logs/2026-10-15-ddd-alignment.md#task9-review)及 Task7/8 原记录不改写。
+目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7/8 的审阅修正已关闭；报告和模型仍只引用原始来源。Task9 演练不补未知风险或决定、不改写 VT。Task10 的原生启动、环境和报告边界结果分别保留，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留，历史记录不改写。
 
 2026-10-16 的 Task8 独立 review 提出三个 Important；[第 1 轮窄修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix1) 完成 RED/GREEN 和 395 方法全量验证后，限定复审关闭原三项并指出新兼容性问题。它不升级业务/审批或完整增强结论。
 

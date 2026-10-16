@@ -796,3 +796,25 @@ stdout/stderr/退出与前后摘要。两个版本最终各发现/执行 **9 方
 不改 schema、lock、workflow、installer 或后续任务；不安装/更改真实 hook/config，
 不重做原生环境实验，不安装运行时/依赖，不启动子代理、reviewer、应用或 Task11，
 不执行远端 CI、push、PR 或发布。POSIX/托管平台未执行限制保持，提交后停止。
+
+<a id="task10-review"></a>
+## Task10 本地范围复核关闭
+
+2026-10-16，原 I1/I2/M1 和 `<3.13` 条件依赖已由独立 reviewer 确认为 ADDRESSED；
+本次父会话直接读取 `edca016ca976642fb2bf93cef3f542018ba13e7a` 至
+`02657745e3b7212ebe2b3b58ec7a9a83713317f2` 的完整七文件局部 diff 与报告追加，
+确认 Minor T10-F1-N1 已处理，未发现该修正引入的新问题。只改初始校验标记与报告衔接，
+不复制报告 writer、不削弱正常环境的 exclusive/conflict 保护；不重复原 Task10 全量审阅。
+
+本机会话 `files\ddd-alignment-execution\task10-fix1-review-result.md` 与
+`task10-fix2-review-result.md` 分别保留两轮判定。父会话另在最新修正对象上用现有
+3.11.15/3.13.15 分别执行 6 个 `StartupReportTests`，均无失败、错误或跳过、退出 0；
+原始输出/receipt 在 `task10-evidence\fix2-parent311\`、`fix2-parent313\`。
+3.11 原始 unittest 用时 32.213 秒，3.13 为 26.847 秒；捕获开销另记，不混作测试时长。
+此前 `task10-fix1-parent311.json` 的 112 项和实现者 439/42 项保持原对象，不拼成新全套。
+
+实际 head/parent/coauthor、七个提交路径和干净工作树/暂存区已核对。Task10 的本地实现
+及有限范围审阅关卡关闭，无遗留的本任务发现；不是整个 ENH-10 或托管平台通过。
+真实项目安装、POSIX/Ubuntu 原生执行、服务端 required checks、应用和人工验收仍未执行。
+下一步按[Task11](../docs/plan/2026-10-14-ddd-functional-alignment.md#task11)实现本地三方更新
+及多目标提案，不因此授权 clone/fetch/远端写入/PR、自动合并或发布。
