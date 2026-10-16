@@ -995,5 +995,316 @@ class BatchProposalTests(UpdateFixture):
         self.assertEqual(before, source_bytes(self.workspace))
 
 
+class Fix1PathTests(UpdateFixture):
+    """ENH-11 / T11-I1..I3: actual topology/traversal/reservations, not mocked paths."""
+
+    def registration(self, relative="targets.yaml"):
+        source_file, target_file = "scenarios/allow.feature", "verification/allow.feature"
+        self.write(self.base, source_file, b"Feature: old\n")
+        self.write(self.candidate, source_file, b"Feature: candidate\n")
+        self.write(self.local, target_file, b"Feature: old\n")
+        self.write(self.local, "business/owner.md", b"Owner-only data stays in scope\n")
+        path = self.workspace / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        roots = {role: os.path.relpath(root, path.parent).replace("\\", "/")
+                 for role, root in (("base", self.base), ("local", self.local),
+                                    ("candidate", self.candidate))}
+        data = {
+            "schemaVersion": 1,
+            "source": {
+                "repository": "fixture/domain",
+                "base": {"root": roots["base"], "version": content_version(self.base, (source_file,))},
+                "candidate": {"root": roots["candidate"],
+                              "version": content_version(self.candidate, (source_file,))},
+                "files": [{"scenario": "fixture/CTX-domain/TS-001#allow", "path": source_file}],
+            },
+            "targets": [{
+                "id": "clean", "repository": "fixture/bc-clean", "scope": "fixture/CTX-clean",
+                "local": {"root": roots["local"], "version": content_version(self.local, (target_file,))},
+                "files": [{"source": source_file, "path": target_file}],
+            }],
+        }
+        self.save(path, data)
+        return path, data, source_file, target_file
+
+    def save(self, path, data):
+        path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8", newline="\n")
+
+    def batch_cli(self, registration, *targets, output=None):
+        script = WORKTREE / ".github/utilities/plan_template_update.py"
+        argv = [sys.executable, "-B", "-X", "utf8", str(script),
+                "--registration", str(registration)]
+        for target in targets:
+            argv.extend(("--target", target))
+        if output is not None:
+            argv.extend(("--output", str(output)))
+        run = subprocess.run(argv, cwd=self.workspace, shell=False, capture_output=True,
+                             text=True, encoding="utf-8")
+        self.assertTrue(run.stdout.strip(), run.stderr)
+        return run, json.loads(run.stdout)
+
+    def extra_target(self, data, root, target_file, *, id="unsafe"):
+        data["targets"].append({
+            "id": id, "repository": "fixture/bc-" + id, "scope": "fixture/CTX-" + id,
+            "local": {"root": root,
+                      "version": content_version(self.local, (target_file,))},
+            "files": [{"source": data["source"]["files"][0]["path"], "path": target_file}],
+        })
+
+    def assert_output_refused(self, registration, output, *selected, expected_states=None):
+        before = source_bytes(self.workspace)
+        run, payload = self.batch_cli(registration, *selected, output=output)
+        after = source_bytes(self.workspace)
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("input-error", payload["status"])
+        self.assertFalse(output.exists(), "A report cannot occupy the declared source hierarchy")
+        self.assertEqual(before, after, "Rejection must preserve every owned file and file set")
+        self.assertTrue(payload.get("findings"), run.stdout + run.stderr)
+        self.assertEqual("REPORT_CONFLICT", payload["findings"][0]["code"])
+        self.assertEqual(expected_states or ["proposed"], [t["status"] for t in payload["targets"]])
+
+    def test_fix1_i1_complete_tree_directory_case_alias_is_not_a_clean_add(self):
+        self.write(self.local, "settings/owner.md", b"Owner data must not be hidden\n")
+        self.write(self.candidate, "Settings", b"candidate file")
+        before = self.snapshot()
+        try:
+            self.error("PATH_TYPE_CONFLICT")
+        finally:
+            self.assertEqual(before, self.snapshot())
+
+    def test_fix1_i1_case_folded_file_parent_blocks_candidate_descendants(self):
+        self.write(self.local, "settings", b"owner regular file")
+        self.write(self.candidate, "Settings/child.md", b"new candidate child")
+        before = self.snapshot()
+        try:
+            self.error("PATH_TYPE_CONFLICT")
+        finally:
+            self.assertEqual(before, self.snapshot())
+
+    def test_fix1_i1_case_only_directory_prefixes_do_not_hide_owner_files(self):
+        self.write(self.local, "settings/owner.md", b"owner-only file")
+        self.write(self.candidate, "Settings/new.md", b"candidate-only file")
+        before = self.snapshot()
+        try:
+            self.error("PATH_COLLISION")
+        finally:
+            self.assertEqual(before, self.snapshot())
+
+    def test_fix1_i1_mapped_directory_file_alias_is_unavailable_beside_clean_target(self):
+        path, data, _, target_file = self.registration()
+        unsafe = self.workspace / "mapped owner"
+        self.write(unsafe, "settings.feature/owner.md", b"owner-only data")
+        self.extra_target(data, unsafe.name, "Settings.feature")
+        data["targets"][-1]["local"]["version"] = content_version(unsafe, ("Settings.feature",))
+        self.save(path, data)
+        before = source_bytes(self.workspace)
+        run, payload = self.batch_cli(path, "clean", "unsafe")
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual(["proposed", "unavailable"], [t["status"] for t in payload["targets"]])
+        self.assertEqual("PATH_TYPE_CONFLICT", payload["targets"][1]["findings"][0]["code"])
+        self.assertEqual(["verification/allow.feature"],
+                         [item["path"] for item in payload["targets"][0]["plan"]["changes"]])
+        self.assertEqual(before, source_bytes(self.workspace))
+
+    def test_fix1_i1_mapped_missing_file_checks_actual_directory_prefix_spelling(self):
+        path, data, source_file, target_file = self.registration()
+        (self.base / source_file).unlink()
+        (self.local / target_file).unlink()
+        data["source"]["base"]["version"] = content_version(self.base, (source_file,))
+        data["targets"][0]["local"]["version"] = content_version(self.local, (target_file,))
+        unsafe = self.workspace / "mapped owner"
+        self.write(unsafe, "settings/owner.md", b"Unselected owner content is not disposable\n")
+        self.extra_target(data, unsafe.name, "Settings/new.feature")
+        data["targets"][-1]["local"]["version"] = content_version(unsafe, ("Settings/new.feature",))
+        self.save(path, data)
+        before = source_bytes(self.workspace)
+        run, payload = self.batch_cli(path, "clean", "unsafe")
+        self.assertEqual(before, source_bytes(self.workspace))
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual(["proposed", "unavailable"], [t["status"] for t in payload["targets"]])
+        self.assertEqual("PATH_COLLISION", payload["targets"][1]["findings"][0]["code"])
+        self.assertEqual("add", payload["targets"][0]["plan"]["changes"][0]["action"])
+
+    def test_fix1_i2_source_junction_parent_cannot_substitute_a_shadow_tree(self):
+        path, data, source_file, _ = self.registration()
+        for role, root in (("base", self.base), ("candidate", self.candidate)):
+            git(root, "init", "--quiet", "--template=")
+            git(root, "add", "--", ".")
+            git(root, "commit", "--quiet", "-m", "Owned fix1 shadow source")
+            data["source"][role]["version"] = git(root, "rev-parse", "HEAD")
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        self.write(self.workspace / "other" / self.base.name, source_file, b"Different external old bytes\n")
+        self.write(self.workspace / "other" / self.candidate.name, source_file, b"Different external new bytes\n")
+        with directory_link(self.workspace / "link", inner):
+            for role, root in (("base", self.base), ("candidate", self.candidate)):
+                with self.subTest(role=role):
+                    original = data["source"][role]["root"]
+                    data["source"][role]["root"] = "link/../" + root.name
+                    self.save(path, data)
+                    before = source_bytes(self.workspace)
+                    try:
+                        result = self.tool().plan_batch(path, ("clean",))
+                        self.assertEqual(before, source_bytes(self.workspace))
+                        self.assertEqual("input-error", result.status)
+                        self.assertEqual("unavailable", result.targets[0].status)
+                        self.assertEqual("UNSAFE_ROOT", result.targets[0].findings[0].code)
+                    finally:
+                        data["source"][role]["root"] = original
+
+    def test_fix1_i2_selected_target_junction_parent_does_not_borrow_clean_target(self):
+        path, data, _, target_file = self.registration()
+        git(self.local, "init", "--quiet", "--template=")
+        git(self.local, "add", "--", ".")
+        git(self.local, "commit", "--quiet", "-m", "Owned fix1 shadow target")
+        exact = git(self.local, "rev-parse", "HEAD")
+        data["targets"][0]["local"]["version"] = exact
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        with directory_link(self.workspace / "link", inner):
+            self.extra_target(data, "link/../" + self.local.name, target_file)
+            data["targets"][-1]["local"]["version"] = exact
+            self.save(path, data)
+            before = source_bytes(self.workspace)
+            run, payload = self.batch_cli(path, "clean", "unsafe")
+            self.assertEqual(before, source_bytes(self.workspace))
+            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+            self.assertEqual(["proposed", "unavailable"], [t["status"] for t in payload["targets"]])
+            self.assertEqual("UNSAFE_ROOT", payload["targets"][1]["findings"][0]["code"])
+
+    def test_fix1_i2_missing_or_file_prefix_before_parent_is_not_an_existing_source(self):
+        path, data, _, _ = self.registration()
+        self.write(self.workspace, "ordinary-file", b"Not a traversable directory")
+        for prefix in ("not-there", "ordinary-file"):
+            with self.subTest(prefix=prefix):
+                data["source"]["base"]["root"] = prefix + "/../" + self.base.name
+                self.save(path, data)
+                before = source_bytes(self.workspace)
+                result = self.tool().plan_batch(path, ("clean",))
+                self.assertEqual(before, source_bytes(self.workspace))
+                self.assertEqual("unavailable", result.targets[0].status)
+                self.assertEqual("INVALID_ROOT", result.targets[0].findings[0].code)
+
+    def test_fix1_i2_direct_api_and_cli_check_canceled_junction_before_resolution(self):
+        self.triplet("rules.md", b"old", b"old", b"new")
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        with directory_link(self.workspace / "link", inner):
+            raw_base = self.workspace / "link" / ".." / self.base.name
+            before = source_bytes(self.workspace)
+            try:
+                self.error("UNSAFE_ROOT", raw_base, self.local, self.candidate)
+                run = self.cli("--base", raw_base)
+                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                self.assertEqual("UNSAFE_ROOT", json.loads(run.stdout)["findings"][0]["code"])
+            finally:
+                self.assertEqual(before, source_bytes(self.workspace))
+
+    def test_fix1_i2_normal_sibling_roots_keep_exact_git_versions_and_owner_bytes(self):
+        path, data, _, _ = self.registration("configuration/targets.yaml")
+        commits = []
+        for root in (self.base, self.local, self.candidate):
+            git(root, "init", "--quiet", "--template=")
+            git(root, "add", "--", ".")
+            git(root, "commit", "--quiet", "-m", "Owned fix1 sibling identity")
+            commits.append(git(root, "rev-parse", "HEAD"))
+        data["source"]["base"]["version"], data["source"]["candidate"]["version"] = commits[0], commits[2]
+        data["targets"][0]["local"]["version"] = commits[1]
+        self.save(path, data)
+        before = source_bytes(self.workspace)
+        run, payload = self.batch_cli(path, "clean")
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        plan = payload["targets"][0]["plan"]
+        self.assertEqual(["../old base", "../owner 本地", "../new candidate"],
+                         [source["root"] for source in plan["sources"]])
+        self.assertEqual(commits, [source["version"] for source in plan["sources"]])
+        self.assertEqual(before, source_bytes(self.workspace), "Local Git reads must not change owner or metadata bytes")
+
+    def test_fix1_i2_registration_path_cannot_erase_a_canceled_junction(self):
+        path, _, _, _ = self.registration()
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        with directory_link(self.workspace / "link", inner):
+            raw_registration = self.workspace / "link" / ".." / path.name
+            before = source_bytes(self.workspace)
+            run, payload = self.batch_cli(raw_registration, "clean")
+            self.assertEqual(before, source_bytes(self.workspace))
+            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+            self.assertEqual("UNSAFE_PATH", payload["findings"][0]["code"])
+
+    def test_fix1_i2_unselected_alias_reservation_blocks_output_not_clean_stdout(self):
+        path, data, _, target_file = self.registration()
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        with directory_link(self.workspace / "link", inner):
+            self.extra_target(data, "link/../" + self.local.name, target_file)
+            self.save(path, data)
+            before = source_bytes(self.workspace)
+            run, payload = self.batch_cli(path, "clean")
+            self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+            self.assertEqual(["proposed"], [t["status"] for t in payload["targets"]])
+            self.assertEqual(before, source_bytes(self.workspace))
+            self.assert_output_refused(path, self.workspace / "safe outside.json", "clean")
+
+    def test_fix1_i2_unresolved_parent_reservation_is_not_normalized_for_output(self):
+        path, data, _, target_file = self.registration()
+        self.extra_target(data, "not-there/../" + self.local.name, target_file)
+        self.save(path, data)
+        self.assert_output_refused(path, self.workspace / "safe outside.json", "clean")
+
+    def test_fix1_i2_output_traversal_cannot_be_rewritten_past_a_junction_or_missing_prefix(self):
+        self.triplet("rules.md", b"old", b"old", b"new")
+        inner = self.workspace / "other/inner"
+        inner.mkdir(parents=True)
+        with directory_link(self.workspace / "link", inner):
+            for prefix in ("link", "not-there"):
+                with self.subTest(prefix=prefix):
+                    output = self.workspace / prefix / ".." / ("out-" + prefix + ".json")
+                    before = source_bytes(self.workspace)
+                    run = self.cli("--output", output)
+                    after = source_bytes(self.workspace)
+                    self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                    self.assertEqual("REPORT_CONFLICT", json.loads(run.stdout)["findings"][0]["code"])
+                    self.assertEqual(before, after)
+                    self.assertFalse((self.workspace / ("out-" + prefix + ".json")).exists())
+
+    def test_fix1_i3_unselected_missing_target_file_ancestor_is_protected(self):
+        path, data, _, target_file = self.registration()
+        for root, output in (("proposal.json/checkout", "proposal.json"),
+                             ("deeper.json/future/checkout", "deeper.json")):
+            with self.subTest(root=root):
+                data["targets"] = data["targets"][:1]
+                self.extra_target(data, root, target_file, id="future")
+                self.save(path, data)
+                self.assert_output_refused(path, self.workspace / output, "clean")
+
+    def test_fix1_i3_selected_unavailable_target_keeps_clean_proposal_when_output_refused(self):
+        path, data, _, target_file = self.registration()
+        self.extra_target(data, "proposal.json/checkout", target_file, id="future")
+        self.save(path, data)
+        self.assert_output_refused(path, self.workspace / "proposal.json", "clean", "future",
+                                   expected_states=["proposed", "unavailable"])
+
+    def test_fix1_i3_missing_source_root_file_ancestor_is_also_protected(self):
+        path, data, source_file, _ = self.registration()
+        data["source"]["base"] = {
+            "root": "proposal.json/source",
+            "version": content_version(self.workspace / "proposal.json/source", (source_file,)),
+        }
+        self.save(path, data)
+        self.assert_output_refused(path, self.workspace / "proposal.json", "clean",
+                                   expected_states=["unavailable"])
+
+    def test_fix1_i3_equal_below_and_file_ancestor_guards_are_consistent(self):
+        path, data, _, target_file = self.registration()
+        self.extra_target(data, "reserved.json/checkout.json", target_file, id="future")
+        self.save(path, data)
+        for relative in ("reserved.json/checkout.json", "reserved.json/checkout.json/new.json",
+                         "reserved.json"):
+            with self.subTest(relative=relative):
+                self.assert_output_refused(path, self.workspace / relative, "clean")
+
+
 if __name__ == "__main__":
     unittest.main()

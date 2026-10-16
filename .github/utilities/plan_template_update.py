@@ -127,7 +127,8 @@ def _sha(raw: bytes) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
-def _root(value: PathInput) -> Path:
+def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
+    """Verify raw traversal before canonicalization, including canceled prefixes."""
     if not isinstance(value, (str, os.PathLike)) or isinstance(value, bytes):
         raise ArtifactInputError("INVALID_ROOT", "root", 1, "An explicit local directory is required")
     try:
@@ -137,17 +138,51 @@ def _root(value: PathInput) -> Path:
         requested = Path(value)
         if not os.fspath(value).strip() or requested.anchor and not requested.is_absolute():
             raise ArtifactInputError("INVALID_ROOT", "root", 1, "An unambiguous local directory is required")
-        # Keep the lexical location for the alias check; do not traverse a link
-        # and then reinterpret its destination as a newly authorized source.
-        lexical = Path(os.path.abspath(requested))
-        actual = _local_root(value)
-        if lexical != actual or actual.parent == actual:
-            raise ArtifactInputError("UNSAFE_ROOT", str(value), 1, "Root aliases and filesystem roots are not update inputs")
+        # Path joining retains ".."; abspath/resolve would erase the very
+        # junction, missing entry or regular-file prefix that must be checked.
+        requested = requested if requested.is_absolute() else Path.cwd() / requested
+        current = Path(requested.anchor)
+        parts = requested.parts[1:]
+        for index, part in enumerate(parts):
+            if part == "..":
+                current = current.parent
+                continue
+            current = current / part
+            try:
+                info = current.lstat()
+            except FileNotFoundError as error:
+                if not missing_ok:
+                    raise ArtifactInputError("INVALID_ROOT", "root", 1,
+                                             "A declared traversal prefix does not exist") from error
+                remaining = parts[index + 1:]
+                if ".." in remaining:
+                    raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
+                                             "Cannot verify parent traversal through a missing prefix") from error
+                current = current.joinpath(*remaining)
+                break
+            if (stat.S_ISLNK(info.st_mode)
+                    or getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
+                raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
+                                         "Declared traversal cannot pass through a link/reparse point")
+            if index < len(parts) - 1 and not stat.S_ISDIR(info.st_mode):
+                raise ArtifactInputError("INVALID_ROOT", "root", 1,
+                                         "A declared traversal prefix is not a directory")
+        actual = current.resolve(strict=not missing_ok)
+        if actual != current:
+            raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Declared traversal resolves through an alias")
         return actual
     except (OSError, ValueError, RuntimeError) as error:
         if isinstance(error, ArtifactInputError):
             raise
         raise ArtifactInputError("INVALID_ROOT", "root", 1, "Cannot resolve the explicit local directory") from error
+
+
+def _root(value: PathInput) -> Path:
+    checked = _checked_location(value)
+    actual = _local_root(checked)
+    if actual != checked or actual.parent == actual:
+        raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Root aliases and filesystem roots are not update inputs")
+    return actual
 
 
 def _exclusion(name: str) -> str | None:
@@ -220,7 +255,29 @@ def _snapshot(root: Path, role: str, selection: tuple[str, ...] | None = None) -
             raise ArtifactInputError("DIRECTORY_READ_ERROR", role, 1, "Cannot enumerate the selected tree") from error
         for relative in selection:
             current = root
-            for index, part in enumerate(relative.split("/")):
+            parts = relative.split("/")
+            for index, part in enumerate(parts):
+                # lstat alone can accept a differently-cased parent on Windows,
+                # or declare it absent on POSIX. Check actual names first.
+                try:
+                    with os.scandir(current) as entries:
+                        aliases = [entry for entry in entries if entry.name.casefold() == part.casefold()]
+                except OSError as error:
+                    raise ArtifactInputError("DIRECTORY_READ_ERROR", relative, 1,
+                                             "Cannot inspect a selected parent directory") from error
+                if len(aliases) > 1:
+                    raise ArtifactInputError("PATH_COLLISION", relative, 1, "Selected path has case-only aliases")
+                if aliases and aliases[0].name != part:
+                    try:
+                        mode = aliases[0].stat(follow_symlinks=False).st_mode
+                    except OSError as error:
+                        raise ArtifactInputError("FILE_READ_ERROR", relative, 1,
+                                                 "Cannot inspect a selected path alias") from error
+                    if (index == len(parts) - 1 and stat.S_ISDIR(mode)
+                            or index < len(parts) - 1 and stat.S_ISREG(mode)):
+                        raise ArtifactInputError("PATH_TYPE_CONFLICT", relative, 1,
+                                                 "A case-folded file/directory alias blocks the selected path")
+                    raise ArtifactInputError("PATH_COLLISION", relative, 1, "Selected path has a case-only alias")
                 current = current / part
                 try:
                     info = current.lstat()
@@ -233,7 +290,7 @@ def _snapshot(root: Path, role: str, selection: tuple[str, ...] | None = None) -
                             or getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT
                             or current.resolve(strict=True) != current):
                         raise ArtifactInputError("UNSAFE_PATH", relative, 1, "Selected input paths cannot traverse links")
-                    if index < len(relative.split("/")) - 1:
+                    if index < len(parts) - 1:
                         if not stat.S_ISDIR(info.st_mode):
                             raise ArtifactInputError("PATH_TYPE_CONFLICT", relative, 1, "A file blocks a selected parent directory")
                         directories.append(current.relative_to(root).as_posix())
@@ -320,6 +377,14 @@ def _stable(snapshots: tuple[_Snapshot, ...]) -> None:
 def _compare(snapshots: tuple[_Snapshot, ...],
              mappings: tuple[FileMapping, ...] | None = None) -> UpdatePlan:
     trees = [dict(snapshot.raw) for snapshot in snapshots]
+    topology = []
+    for snapshot, tree in zip(snapshots, trees):
+        files = {path.casefold(): path for path in tree}
+        directories = {path.casefold(): path for path in snapshot.directories}
+        if len(files) != len(tree) or len(directories) != len(snapshot.directories):
+            raise ArtifactInputError("PATH_COLLISION", snapshot.identity.role, 1,
+                                     "Selected tree has case-only file/directory aliases")
+        topology.append((files, directories))
     changes, conflicts, preserved = [], [], []
     rows = ([(path, path, path, path) for path in sorted(set().union(*trees))] if mappings is None
             else sorted((item.target, item.source, item.target, item.source) for item in mappings))
@@ -328,9 +393,21 @@ def _compare(snapshots: tuple[_Snapshot, ...],
         if path.casefold() in folded and folded[path.casefold()] != path:
             raise ArtifactInputError("PATH_COLLISION", path, 1, "Case-only path aliases require explicit owner resolution")
         folded[path.casefold()] = path
-        for location, snapshot, tree in zip(locations, snapshots, trees):
-            if location in snapshot.directories or any(parent.as_posix() in tree for parent in PurePosixPath(location).parents if parent.as_posix() != "."):
+        for location, (files, directories) in zip(locations, topology):
+            if location.casefold() in directories:
                 raise ArtifactInputError("PATH_TYPE_CONFLICT", path, 1, "File/directory topology differs across the selected trees")
+            if location.casefold() in files and files[location.casefold()] != location:
+                raise ArtifactInputError("PATH_COLLISION", path, 1, "Selected file has a case-only alias")
+            for parent in PurePosixPath(location).parents:
+                prefix = parent.as_posix()
+                if prefix == ".":
+                    continue
+                if prefix.casefold() in files:
+                    raise ArtifactInputError("PATH_TYPE_CONFLICT", path, 1,
+                                             "A case-folded file blocks a selected parent directory")
+                if prefix.casefold() in directories and directories[prefix.casefold()] != prefix:
+                    raise ArtifactInputError("PATH_COLLISION", path, 1,
+                                             "Selected parent directory has a case-only alias")
     for path, *locations in rows:
         old, owner, new = states = tuple(tree.get(location) for tree, location in zip(trees, locations))
         if owner == new:
@@ -402,7 +479,7 @@ def _declared_root(parent: Path, value, code: str) -> Path:
             or re.search(r"[\\:\x00-\x1f$%~]", value) or value.startswith("/")
             or value != "." and any(part in ("", ".") for part in value.split("/"))):
         raise ArtifactInputError(code, "root", 1, "Declare an explicit local root relative to the registration")
-    return Path(os.path.abspath(parent / value))
+    return parent / value
 
 
 def _location(parent: Path, value, code: str) -> Path:
@@ -434,7 +511,12 @@ def _registration(value: PathInput) -> tuple[Path, bytes, dict]:
     requested = Path(value)
     if requested.anchor and not requested.is_absolute():
         raise ArtifactInputError("REGISTRATION_UNAVAILABLE", "registration", 1, "Registration path is ambiguous")
-    path = Path(os.path.abspath(requested))
+    try:
+        path = _checked_location(requested)
+    except ArtifactInputError as error:
+        code = "UNSAFE_PATH" if error.code == "UNSAFE_ROOT" else "REGISTRATION_UNAVAILABLE"
+        raise ArtifactInputError(code, "registration", error.line,
+                                 "Cannot verify the declared local registration location") from error
     raw = _registration_bytes(path)
     try:
         data, _ = load_yaml_mapping(raw.decode("utf-8-sig"), path)
@@ -619,24 +701,29 @@ def plan_batch(registration: PathInput, target_ids) -> BatchPlan:
 
 def _proposal_path(value: str, roots: tuple[PathInput, ...]) -> Path:
     try:
-        output = _output_path(value, str(Path.cwd()), (".json",))
+        lexical = _checked_location(value, missing_ok=True)
+    except ArtifactInputError as error:
+        raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
+                                 "Cannot verify the declared output traversal") from error
+    try:
+        output = _output_path(str(lexical), str(Path.cwd()), (".json",))
     except ArtifactInputError as error:
         # A rejected URI may carry caller-supplied userinfo. Reuse the helper's
         # code, not its raw value/OS diagnostic, in this proposal's public output.
         raise ArtifactInputError(error.code, "output", error.line,
                                  "Output requires a new, unambiguous local JSON file") from error
-    lexical = Path(os.path.abspath(value))
     if lexical != output or output.parent.resolve() != output.parent:
         raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Output cannot traverse a directory alias")
     for value in roots:
         # Reserve the entire declaration, including missing paths and caches.
         try:
-            root = Path(os.path.abspath(value)).resolve()
+            root = _checked_location(value, missing_ok=True)
         except (OSError, ValueError, RuntimeError) as error:
             raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
                                      "Cannot safely reserve every declared source location") from error
-        if output.is_relative_to(root):
-            raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Output cannot occupy a source tree")
+        if output.is_relative_to(root) or root.is_relative_to(output):
+            raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
+                                     "Output cannot occupy a source location or block it as a file ancestor")
     return output
 
 

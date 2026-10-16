@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–10 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现。Task8 复用现有 VT 运行；Task9 不声明真实资格；Task10 的原发现、条件 lock 与 Minor 报告边界均已处理。Task11 的本地只读三方/多目标提案已实施，等待独立范围审阅；当前九方法、二十二 prompts、三模式。Task12–18 未执行，下一步仅为 Task11 审阅，不启动后续任务。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–10 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现。Task8 复用现有 VT 运行；Task9 不声明真实资格；Task10 的原发现、条件 lock 与 Minor 报告边界均已处理。Task11 初轮独立审阅发现三个 Important 和一个 Minor，fix1 已作有界修正，等待限定复审；当前九方法、二十二 prompts、三模式。Task12–18 未执行，下一步仅为 Task11 fix1 复审，不启动后续任务。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -409,7 +409,6 @@ class ImplementationReportTests(unittest.TestCase):
 **当前退出状态：** Task10 本地实现/范围审阅关卡关闭，无遗留的本任务发现；[初次交接](../../logs/2026-10-15-ddd-alignment.md#task10)、[第 1 轮](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)、[第 2 轮](../../logs/2026-10-15-ddd-alignment.md#task10-fix2)和[复核](../../logs/2026-10-15-ddd-alignment.md#task10-review)各自保留基线。真实工作树/user/global 未安装或改配置，托管运行、POSIX 原生启动和服务端 required checks 仍为 not-run；不关闭整个 ENH-10 或 Task13。下一步仅为 Task11 的本地提案实现，不授权传播。
 
 <a id="task11"></a>
-<a id="task11"></a>
 ### 任务 11：三方更新与多目标传播
 
 **文件：** `plan_template_update.py`、`test_template_update.py`、update-template 方法/prompt、template-updates 说明、proposal workflow。
@@ -443,10 +442,11 @@ class TemplateUpdateTests(unittest.TestCase):
 - [x] 新增计划中的第九方法、第二十二个薄 prompt、更新说明和 maintainer-only 手动 proposal workflow；同源 Python core，不分发为下游 runtime dependency。
 - [x] 记录真正同步的授权边界：没有 apply、clone/fetch、目标 commit/push/PR 或同步服务。实际跨仓/平台运行保留给任务 13；YAML/本地提案不是外部功能等价证据。
 - [x] 实际方法自用：正确既有方法基线保留，正例/冲突/缺基线取得 0/1/2，源未变；不是独立 Agent 压力实验、人工 T17 或原生客户端发现。
-- [x] 最终最低版保留＋新增全套、文档/核心 consumer 依赖与 append-only 保护核对：3.11.15 实际 506/506，0 失败/错误/跳过；3.13.15 另跑 61 新方法，均通过。范围内新 coauthored 提交的实际对象以本节所在提交和本机报告为准，不推送/PR。
-- [ ] 独立范围审阅；真实平台 fan-out/PR、POSIX 执行仍为 not-run，不在本任务执行。
+- [x] 初次实现的最终最低版保留＋新增全套、文档/核心 consumer 依赖与 append-only 保护核对：3.11.15 实际 506/506，0 失败/错误/跳过；3.13.15 另跑 61 新方法，均通过。这些结果属于 `94b4779`，不充当 fix1 的新执行证据。
+- [x] 初轮独立范围审阅完成，发现 T11-I1/I2/I3 和 M1；不关闭任务关卡。
+- [ ] fix1 的限定复审；真实平台 fan-out/PR、POSIX 执行仍为 not-run，不在本任务执行。
 
-**当前本地状态（2026-10-16）：** 从干净 `2a8c9a95ad991167756ba7b02ec5727b3100ed2c` 起步，
+**初次实现与验证（2026-10-16）：** 从干净 `2a8c9a95ad991167756ba7b02ec5727b3100ed2c` 起步，
 沿 TDD 聚焦迭代，自审复现选定文件 stat 后消失、来源/目标诊断混淆、输出保留位置解析
 失败与被拒绝 URI 原值回显，均先 RED 再窄修正。为不混用对象，尚未完成的第一份全套被中止，
 不计通过；最终完整 3.11.15 套件实际发现/执行 506、0 失败/错误/跳过，838.141 秒。
@@ -454,6 +454,16 @@ class TemplateUpdateTests(unittest.TestCase):
 最终全套、原始执行身份、字节保护与提交结果见[本次交接](../../logs/2026-10-15-ddd-alignment.md#task11)。
 ENH-11 的本地提案已实施，等待独立范围审阅；原远端 clone/push/PR 等差异仍保留，
 不能靠“有脚本”或本地测试宣布完整外部等价。
+
+**fix1（1/5）：** 从干净 `94b47794d66e14dd26d561d7240748a967d784f0` 开始，
+先用真实文件、Windows junction/父遍历、本地 Git 和 CLI 取得反例。只修正 I1 的统一
+大小写/目录/文件前缀检查、I2 的原始 traversal 身份验证及 I3 的双向输出保留；
+M1 仅移除相邻的重复 Task11 锚点。正常显式 sibling 根、独立目标结果、原始字节与
+脱敏错误不变；原报告/日志/506/61 与中止记录均保留。本轮一次最终 3.11.15 全套实际
+发现/执行 **524**，0 失败/错误/跳过，851.172 秒；原 506 个身份全部实际保留并执行，
+新增 18。3.13.15 仅另跑这 18 个新例，也均通过。输入/源/旧前缀保护已核对，
+当前实现等待限定复审，实际结果/新 coauthored 本地提交回[fix1 交接](../../logs/2026-10-15-ddd-alignment.md#task11-fix1)读取。
+没有 subagent/reviewer、依赖变化、Task15 或其他后续实现，也未执行 POSIX/平台/远程传播。
 
 ### 任务 12：增强候选、工具分发与原行为回归
 

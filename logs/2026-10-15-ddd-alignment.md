@@ -925,3 +925,76 @@ runner **838.141 秒**，原始 unittest **836.005 秒**。这是最终源码的
 下一步仅为独立 Task11 审阅；接手者须重新核对提交、差异、最终 receipt 与可访问性。
 POSIX/托管/self-hosted 执行、服务端 required checks、真实安装、远端 fan-out/PR、
 应用/人工 T17/新原生发现及 Tasks12–18 保持各自 not-run/授权关卡，本轮提交后停止。
+
+<a id="task11-fix1"></a>
+## Task11 fix1（1/5）：路径、根身份与输出保留
+
+2026-10-16，按本轮有界请求从干净
+`94b47794d66e14dd26d561d7240748a967d784f0`、原
+`callentan-repository-skeleton` worktree 开始。完整读取独立审阅的三个 Important
+（T11-I1/I2/I3）和一个 Minor（M1）；审阅者/父会话此前只有静态反例，
+本轮另取真实运行证据，不将其静态观察写作已复现。
+
+### 范围、保护与逐项修正
+
+本轮只改新 planner 的拓扑/根/输出路径逻辑、聚焦测试、直接更新说明、本计划及本日志。
+没有改依赖、共享 Git/YAML helpers、方法/prompt/角色、工作流、业务应用或 Task15。
+仍使用原 3.11.15 最低解释器与 3.13.15 主用解释器，无安装或全局环境变化。
+
+- I1：在缺席分类前统一文件、目录及父前缀的 case-folded 检查；映射读取也核对实际目录项，
+  不把大小写不同的 owner 目录视为可新增位置，不通过缩小完整 owner 范围解阻。
+- I2：原始 traversal 的每个实际前缀先核对存在/目录/链接身份，再 canonicalize。
+  根、登记文件、输出及所有声明的输出保留位置均不再先用 abspath 抹去 `..`；
+  正常显式 sibling 根和准确本地 Git 版本保持可用。未知缺失前缀后的父遍历拒绝。
+- I3：报告不得相等、位于声明根下方，或成为该根的文件祖先；缺失/未选目标及缺失源同样
+  保护。拒绝输出仍保留独立 selected target 的 stdout 结果、非零退出及原文件集。
+- M1：只删除相邻的一个重复 `task11` 锚点，不作无关 Markdown 清理。
+
+### 聚焦证据入口（仅本机）
+
+本会话 `files\ddd-alignment-execution\task11-evidence\fix1\` 独立保存本轮新证据，
+没有覆盖原中止记录或 506/61 receipt。`baseline.json` 捕获原 506 个测试身份（仅 discovery）、
+142 个 tracked 源、26,507-byte 报告前缀、110,283-byte 日志前缀及 50 份已有证据摘要。
+
+`red-01-all-findings` 在 planner/计划仍等于起点时实际执行 77 个 Task11 方法，
+包括新回归；有 16 个失败子例和两个断言取值错误。随后将这两个断言明确为“禁止文件祖先
+输出创建”，`red-02-findings-assertions` 对新组执行 16 方法、18 失败子例、0 错误/跳过，
+取得 I1/I2/I3 的真实 RED。已有正确的映射目录拒绝和普通 sibling/Git 例保留为控制。
+
+之后 I1 五方法、I2 十二方法、I3 六方法选择器分别 GREEN；登记文件 raw traversal
+和映射中缺席文件的目录前缀另有单例 RED，再取得对应 GREEN。全部使用真实文件、
+Windows junction、准确本地 Git 和当前解释器 CLI；没有 mock Git stdout 或替换实际
+文件身份。case/路径/状态的预期不从待测实现推导。控制例和单独选择器不能拼成全套。
+
+`native-04-traversal-policy.json` 只记录真实 Windows 的 junction/父路径观察：
+本机 Win32 读取会取 lexical shadow，本轮策略仍拒绝带已抵消 junction 的原始声明；
+这不是 POSIX 行为证据。提供的执行宿主为 Windows，本轮没有访问/创建 POSIX 宿主，
+POSIX runtime 保持 not-run，不安装 OS 或用 Git shell 冒充该项。
+
+本轮最终保留＋新增全套、完整原始执行身份、前缀保护与新本地提交的实际结果待本节追加，
+并追加在同一份本机 `task11-report.md`。实现不自行批准限定复审；平台/真实安装/远端
+传播/PR、人工与后续任务关卡不变。
+
+### fix1 最终运行、源保护与停止点
+
+本轮唯一一次最终最低版保留＋新增全套 `fix1\final-11-retained-new.json/.txt`：
+现有 Python 3.11.15 实际发现/执行 **524 方法**，0 失败/错误/跳过、退出 0；
+runner **851.172 秒**，原始 unittest **849.297 秒**。主用 3.13.15 的
+`focus-12-new313` 独立执行 18 个新案例，0 失败/错误/跳过、退出 0，
+capture 22.227 秒，unittest 21.262 秒；没有重跑完整基线。
+
+`integrity-16-full.json` 核对完整原始输出中的 524 个实际 `ok` 身份，
+恰为原 506＋新 18，无缺失/额外项；全套、79 项聚焦与 3.13 新例使用同一输入哈希。
+源及测试输入未变，`use-15-final-core.json` 保存当前 core 实际 API/CLI 的
+I1/I2/I3 拒绝、独立 clean 提案与正常 sibling/Git 0 退出，保护每次调用前后所有
+自有文件/文件集。没有把旧版本 506/61 或本轮选择器相加冒充新的全套。
+
+当前原 26,507-byte 报告、110,283-byte 日志前缀及 50 份旧证据全部保持原字节；
+M1 只有相邻锚点 2→1，现有九方法/二十二 prompts/三个角色和全部原生观察不变。
+有限文档检查、最终五文件范围与新提交的准确对象/parent/coauthor/提交后 Git 状态
+继续回同一份本机 `task11-report.md` 的 fix1 追加段读取，不在日志预填尚未发生的提交号。
+
+**I1/I2/I3/M1 的本轮修正已实现并自审，等待限定复审，不自行关闭关卡。**
+只按授权准备一个新本地 coauthored 提交，不 amend/push/PR，保留本 worktree。
+后续仅限 Task11 fix1 scope re-review；不启动 reviewer/subagent、Task15 或其他后续任务，
+也不执行 POSIX/托管/服务端/真实安装/远端传播/应用/人工或新原生入口验收。
