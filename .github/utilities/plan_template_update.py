@@ -12,7 +12,7 @@ import re
 import stat
 
 from artifact_io import ArtifactInputError, PathInput, load_yaml_mapping
-from check_artifacts import Exclusion, _commit_tree, _git, _local_root, _output_path, _TOOL_DIRS
+from check_artifacts import Exclusion, _checked_location, _commit_tree, _git, _local_root, _output_path, _TOOL_DIRS
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,56 +125,6 @@ class _Snapshot:
 
 def _sha(raw: bytes) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
-
-
-def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
-    """Verify raw traversal before canonicalization, including canceled prefixes."""
-    if not isinstance(value, (str, os.PathLike)) or isinstance(value, bytes):
-        raise ArtifactInputError("INVALID_ROOT", "root", 1, "An explicit local directory is required")
-    try:
-        text = os.fspath(value)
-        if isinstance(text, str) and (text.startswith(("//", "\\\\")) or "://" in text):
-            raise ArtifactInputError("INVALID_ROOT", "root", 1, "Select a local directory, not a network/URL input")
-        requested = Path(value)
-        if not os.fspath(value).strip() or requested.anchor and not requested.is_absolute():
-            raise ArtifactInputError("INVALID_ROOT", "root", 1, "An unambiguous local directory is required")
-        # Path joining retains ".."; abspath/resolve would erase the very
-        # junction, missing entry or regular-file prefix that must be checked.
-        requested = requested if requested.is_absolute() else Path.cwd() / requested
-        current = Path(requested.anchor)
-        parts = requested.parts[1:]
-        for index, part in enumerate(parts):
-            if part == "..":
-                current = current.parent
-                continue
-            current = current / part
-            try:
-                info = current.lstat()
-            except FileNotFoundError as error:
-                if not missing_ok:
-                    raise ArtifactInputError("INVALID_ROOT", "root", 1,
-                                             "A declared traversal prefix does not exist") from error
-                remaining = parts[index + 1:]
-                if ".." in remaining:
-                    raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
-                                             "Cannot verify parent traversal through a missing prefix") from error
-                current = current.joinpath(*remaining)
-                break
-            if (stat.S_ISLNK(info.st_mode)
-                    or getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
-                raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
-                                         "Declared traversal cannot pass through a link/reparse point")
-            if index < len(parts) - 1 and not stat.S_ISDIR(info.st_mode):
-                raise ArtifactInputError("INVALID_ROOT", "root", 1,
-                                         "A declared traversal prefix is not a directory")
-        actual = current.resolve(strict=not missing_ok)
-        if actual != current:
-            raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Declared traversal resolves through an alias")
-        return actual
-    except (OSError, ValueError, RuntimeError) as error:
-        if isinstance(error, ArtifactInputError):
-            raise
-        raise ArtifactInputError("INVALID_ROOT", "root", 1, "Cannot resolve the explicit local directory") from error
 
 
 def _root(value: PathInput) -> Path:

@@ -1,6 +1,7 @@
 # 可选数据表单，不是应用 manifest 或可执行命令。
 # 指引：../../architecture/README.md#bc-configuration
 # 契约：../../.github/contracts/bc-config.schema.json
+# 可选本地预检与明确操作：../../docs/domain-sources.md
 # 复制到获准项目根的 bc-config.yaml 后逐项填写；所有占位均不是已确认事实。
 schemaVersion: 1
 projectId: "PROJECT-TODO"
@@ -19,3 +20,5 @@ developmentRegistration: docs/development.md#project-registration
 # local 源可用实际 sha256:摘要；无领域源时须明确依据后使用空列表。
 # readOnly 是资料性质，不授予写入权限。不得加入命令、凭据或复制应用配置。
 # 填表不触发 clone/update/submodule/commit；路径/来源/基线未核实就停止依赖它的动作。
+# register 只维护明确的既有 BC 来源列表，不覆盖非空领域目录。
+# submodule materialization 与登记分开；本地目标/index 均需另行同意，不请求网络或隐含提交。

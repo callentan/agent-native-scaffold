@@ -17,7 +17,7 @@ description: Use when joining an existing repository, adopting this skeleton, or
 1. 核对实际工作目录、分支、commit、暂存区和未提交范围；读取[项目登记](../../../README.md#project)及现有规则。区分原有内容与本次拟合入内容，保留所有者标记、规则位置和无关修改。逐项比较差异，不整仓覆盖或搬移代码。
 2. 只把已确认的名称、阶段、范围摘要与来源版本填入项目登记；未知阶段不猜，版本无依据就保持原占位。目标、用户、范围与约束详情归[产品说明](../../../stakeholder-requirements/README.md#product)，不在 README 另存一份。
 3. 把缺项按所影响的阶段登记：影响当前资料或业务决定的问题，写入产品说明的未决栏并注明阻塞范围；只影响以后编码的输入，留在[开发登记](../../../docs/development.md#project-registration)及[缺项栏](../../../docs/development.md#troubleshooting)。纯文档任务可以继续，不能为展示“已完成”补造信息。
-4. 涉及业务时沿[领域来源](../../../domain-model/README.md#sources)核对事实，再使用 [define-requirements](../define-requirements/SKILL.md)；技术或文档维护可说明业务建模不适用。接入本身不初始化代码、不安装依赖、不选择技术栈。只有用户选择项目、技术栈、位置并授权，且[真实开发输入](../../../docs/development.md#creation-inputs)齐备后，才另行进入实施。
+4. 涉及业务时沿[领域来源](../../../domain-model/README.md#sources)核对事实，再使用 [define-requirements](../define-requirements/SKILL.md)；需要可选本地领域源时另读[登记与 materialization 的区别](../../../docs/domain-sources.md#operations)。技术或文档维护可说明业务建模不适用。接入本身不初始化代码、不安装依赖、不选择技术栈。只有用户选择项目、技术栈、位置并授权，且[真实开发输入](../../../docs/development.md#creation-inputs)齐备后，才另行进入实施。
 5. 核对本次登记和链接，说明哪些字段仍未确认。用[日志表单](../../../_templates/items/development-log.md#session)记录任务与 Git 范围，在“本次变化”“实际结果入口”“阻塞与下一步”留下有效交接；按 [record-handoff](../record-handoff/SKILL.md)收尾，不用完整聊天代替记录。
 
 ## 产出与完成

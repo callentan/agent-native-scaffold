@@ -51,7 +51,7 @@ governance/risk 来源可按需使用[审阅记录](../_templates/items/review-r
 
 `root` 是明确源根，`path` 是该根内的相对路径；固定基线须来自实际对象/摘要，Git 源不能用 HEAD、分支或缩写。空表中的占位不是 Git 事实，也未通过有效配置验收。`developmentRegistration` 只引用[实际开发登记](../docs/development.md#project-registration)，不复制命令、秘密或应用配置；指针可读不表示开发输入齐全。
 
-schema 只校验结构，不访问/下载来源或核实其授权。使用前明确读目录、写目录、来源基线与登记相符；配置不授权 clone、更新、提交或修改只读源。当前没有来源接入工具，不通过填写配置暗示安装成功。
+schema 只校验结构，不访问/下载来源或核实其授权。使用前明确读目录、写目录、来源基线与登记相符；配置不授权 clone、更新、提交或修改只读源。可用[本地领域源工具](../docs/domain-sources.md#operations)只读 inspect；明确 register 只维护既有配置，materialization/submodule 另选目标及 index 同意。填写配置或 ready 提案不表示已接入，不允许网络请求或隐含提交。
 
 已有 BC 需要实施摘要时，按[收集契约](../.github/contracts/README.md#implementation-report)给出明确 commit、scope 和原 VT 记录。收集器核对配置中的本地领域 root/path/固定基线，不 clone、不回写；源配置和代码/测试位置绑定测试对象，新增运行保留自己的 bytes 基线。[输出表单](../_templates/reports/implementation-report.yaml)不是执行输入账本。报告另行显式登记到 model 的 verification 来源后，只以报告引用连接；九视图仍归 model，不把治理/风险/序列等来源冒充执行证据。
 

@@ -15,14 +15,17 @@ import yaml
 
 from artifact_io import (
     Artifact, ArtifactInputError, PathInput, _parse_artifact_bytes, _resolve_file,
-    _schema_validator, load_yaml_mapping,
+    load_yaml_mapping,
 )
 from check_artifacts import (
-    _anchors, _commit_tree, _decode, _document_findings, _domain_location, _exclusion, _fixed_file,
+    _anchors, _decode, _document_findings, _domain_location, _exclusion, _fixed_file,
     _formal, _git, _INLINE_LINK, _local_root, _network_path, _output_path, _read,
 )
 from check_traceability import _criterion, _layer, _meaningful, _OWNER_LAYERS, _table_values, section_lines
 from vt_records import owned_runs, plan_bytes, result_rows
+from source_baseline import (
+    Commit as _Commit, domain_files, relative_path as _relative, validate_mapping as _validate,
+)
 
 
 _KEY = r"(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*"
@@ -35,64 +38,6 @@ _DATE = r"([0-9]{4}-[0-9]{2}-[0-9]{2}); recorder=([^;]+)"
 
 def _sha(raw: bytes) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
-
-
-def _validate(data: dict, name: str, path: Path) -> None:
-    contract = Path(__file__).resolve().parents[1] / "contracts" / (name + ".schema.json")
-    try:
-        validator = _schema_validator(contract.read_bytes(), contract)
-    except OSError as error:
-        raise ArtifactInputError("CONTRACT_ERROR", contract, 1, str(error)) from error
-    if type(data.get("schemaVersion")) is not int or data["schemaVersion"] != 1:
-        raise ArtifactInputError("UNSUPPORTED_SCHEMA_VERSION", path, 1, "Expected integer schemaVersion 1")
-    violation = next(validator.iter_errors(data), None)
-    if violation:
-        raise ArtifactInputError("INVALID_METADATA", path, 1,
-                                 f"{name} schema violation at {list(violation.absolute_path)} ({violation.validator})")
-
-
-def _relative(value: str, context: Path, *, directory: bool = False) -> str:
-    if directory and value == ".":
-        return value
-    if (not isinstance(value, str) or not value or value.strip() != value
-            or re.search(r"[\\:#\x00-\x1f]", value) or value.startswith("/") or value.endswith("/")
-            or any(part in ("", ".", "..") for part in value.split("/"))):
-        raise ArtifactInputError("INVALID_PATH", context, 1, "Use an explicit local root-relative path")
-    if _exclusion(value) == "TOOL_DATA":
-        raise ArtifactInputError("EXCLUDED_TARGET", context, 1, "Git, environment and dependency data are not sources")
-    return value
-
-
-class _Commit:
-    """One immutable object's blobs. No worktree snapshot, checkout or execution."""
-
-    def __init__(self, root: Path, object_sha: str) -> None:
-        self.root = root
-        self.sha, _, manifest = _commit_tree(root, object_sha)
-        self.files: dict[str, tuple[str, str, str]] = {}
-        self.raw: dict[str, bytes] = {}
-        try:
-            for entry in manifest.split(b"\0"):
-                if entry:
-                    header, name = entry.split(b"\t", 1)
-                    self.files[name.decode("utf-8")] = tuple(header.decode("ascii").split())
-        except (UnicodeError, ValueError) as error:
-            raise ArtifactInputError("BASE_UNAVAILABLE", root, 1, "Unreadable exact Git manifest") from error
-
-    def read(self, relative: str) -> bytes:
-        _relative(relative, self.root)
-        record = self.files.get(relative)
-        if record is None:
-            raise ArtifactInputError("OBJECT_PATH_MISSING", self.root / relative, 1, "File is absent at the selected commit")
-        mode, kind, blob = record
-        if mode not in ("100644", "100755") or kind != "blob":
-            raise ArtifactInputError("INVALID_OBJECT_FILE", self.root / relative, 1, "Source must be a regular Git blob")
-        if relative not in self.raw:
-            self.raw[relative] = _git(self.root, "cat-file", "blob", blob)
-        return self.raw[relative]
-
-    def directory(self, relative: str) -> bool:
-        return relative == "." or any(name.startswith(relative + "/") for name in self.files)
 
 
 def _field(source: Artifact, anchor: str, label: str) -> str:
@@ -200,40 +145,9 @@ class _Collection:
             source_root = _local_root(source_root)
             relative = source["path"]
             baseline = source["baseline"]
-            if baseline.startswith("sha256:"):
-                raw = self.live(path, source_root)
-                _fixed_file(source_root, path, raw, baseline)
-                files = {path: raw}
-            else:
-                source_object = _Commit(source_root, baseline)
-                if relative in source_object.files:
-                    names = [relative]
-                else:
-                    names = sorted(name for name in source_object.files
-                                   if relative == "." or name.startswith(relative + "/"))
-                    if not names:
-                        raise ArtifactInputError("OBJECT_PATH_MISSING", path, 1, "Domain path is absent at its fixed commit")
-                    self.directories.add(path)
-                    actual_names = set()
-                    def walk_error(error):
-                        raise ArtifactInputError("DIRECTORY_READ_ERROR", path, 1, str(error)) from error
-                    for directory, dirs, filenames in os.walk(path, followlinks=False, onerror=walk_error):
-                        dirs[:] = [name for name in dirs if name != ".git"]
-                        for name in [*dirs, *filenames]:
-                            item = Path(directory) / name
-                            if item.resolve() != item:
-                                raise ArtifactInputError("OUTSIDE_ROOT", item, 1, "Linked domain entries are unsupported")
-                        actual_names.update((Path(directory) / name).relative_to(source_root).as_posix()
-                                            for name in filenames if name != ".git")
-                    if set(names) != actual_names:
-                        raise ArtifactInputError("BASE_MISMATCH", path, 1, "Domain file set differs from its fixed commit")
-                files = {}
-                for name in names:
-                    expected = source_object.read(name)
-                    actual = self.live(source_root / name, source_root)
-                    if actual != expected:
-                        raise ArtifactInputError("BASE_MISMATCH", source_root / name, 1, "Domain bytes differ from the fixed commit")
-                    files[source_root / name] = actual
+            files, directory = domain_files(source_root, relative, baseline, self.live)
+            if directory:
+                self.directories.add(path)
             for file, raw in files.items():
                 if file.is_relative_to(self.root):
                     name = file.relative_to(self.root).as_posix()

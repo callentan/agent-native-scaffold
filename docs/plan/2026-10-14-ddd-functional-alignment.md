@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task12–18 未执行。按依赖下一步先实施 Task15 可选领域源接入，再推进 Task16–18，全部前置满足后才收口 Task12 候选。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现；Task15 本地实现与自验证完成，待独立范围审阅。当前九方法、二十二 prompts、三模式。Task12–14、16–18 未执行；本轮止于 Task15，不自动推进后续任务，全部前置满足后才收口 Task12 候选。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入和 Task11 有限提案已完成本次范围复核，结果见各自记录。Task12–18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入和 Task11 有限提案已完成本次范围复核，结果见各自记录。Task15 的本地实现尚待独立审阅；Task12–14、16–18 未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -115,6 +115,8 @@
 | Task8 收集实施报告 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root <本地 checkout> --object <完整 commit>`，可重复 `--evidence <VT相对路径[#owned运行]>`，多 BC 用 `--scope`；仅显式 `--output` 创建新本地报告 |
 | Task11 定向回归 | 当前仓库根 | 完整数量门禁 runner 的 `--pattern` 设为 `test_template_update.py`；真实三根、内容/Git 版本、逐目标登记/文件映射、CLI 0/1/2 与字节保护；最终仍执行保留＋新增全套 |
 | Task11 提案 | 当前仓库根或本次显式 cwd | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --base <旧根> --local <本地根> --candidate <候选根>`，或 `--registration <本地登记> --target <明确ID>`；[完整契约](../../docs/template-updates.md)；只读，不授权传播 |
+| Task15 定向回归 | 当前仓库根 | 数量门禁 runner 的 `--pattern` 为 `test_domain_source.py`；实际固定本地 Git/content、12 类输入、API/CLI 0/1/2、原生本地子模块与错误恢复，不 mock Git stdout；最终保留＋新增全套使用已配置的最低版解释器 |
+| Task15 来源预检/明确接入 | 当前仓库根或本次显式 cwd | `setup_domain_source.py --root <准确项目根> --config <既有BC配置> --source-id <明确ID>` 默认只读；新增来源须完整六字段。register 与 submodule 的准确参数/独立同意见[领域源说明](../domain-sources.md)，只操作获准自有本地夹具 |
 
 Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
@@ -144,7 +146,7 @@ Task6 的[真实文件/Git/CLI 用例](../../.github/utilities/tests/test_artifa
 | D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
 
 以上是任务 1 已完成的范围映射和原版边界记录，不是增强整体验收结论。Task 2
-的输入契约/parser、Task3–11 的有限本地交付与范围复核见下节；Task12–18 未实施，不能从本表推导整项增强完成。
+的输入契约/parser、Task3–11 的有限本地交付与范围复核见下节；Task15 本地实现待独立审阅，其余前置和收口任务仍未实施，不能从本表推导整项增强完成。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
@@ -385,7 +387,7 @@ class ImplementationReportTests(unittest.TestCase):
 
 - [x] 独立审阅核对全部 20 个 Markdown 变更及两项实际契约兼容风险，无 Critical/Important/Minor 发现。父会话独立 checker/trace CLI 保留 13 条合成记录及准确的 AC-02 未覆盖项，输入字节不变；这些是文档证据，不是人工 T17 或资格认证。
 
-**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10/11 的后续本地状态见下节；Task12–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
+**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10/11 的后续本地状态见下节；Task15 本地实现待独立审阅，Task12–14、16–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
 
 <a id="task10"></a>
 ### 任务 10：可选 Git hooks 与 CI
@@ -511,13 +513,26 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 **依赖：** 2、6；完成后解锁任务 12。**文件：** `setup_domain_source.py`、`test_domain_source.py`、`docs\domain-sources.md`、onboarding 与 BC 配置说明。
 
-- [ ] 用临时本地 Git 源和目标夹具覆盖未配置、正确固定 commit、缺版本、已有非空 `domain-model`、错层路径、无网络授权及只读目标。
-- [ ] 定义 `inspect_domain_source(root, source_config)` 返回 `ready | conflict | unavailable` 与精确路径/版本/拟变更，不写文件；测试现有 owner 字节在冲突后仍相同，缺 commit 不改用远端 HEAD。
-- [ ] 实现 Python 接入：默认单仓/local-source，显式用户选择 submodule 时才提出 native Git 操作；网络读取、文件/配置写入、index 更新和 commit 分开，不因执行脚本顺便提交。
-- [ ] 在授权的本地夹具验证干净接入、二次执行、冲突与恢复；不得运行原 PowerShell 安装器或改原参考仓。测试远端来源时另确认权限。
-- [ ] 将真实前置/返回/退出码写入开发说明，提交脚本与 tests。
+**状态：本地实现与自验证完成，待独立范围审阅。** 干净起点为
+`d38e7f6a71ef692c764d085df699a04c6844768b`；本轮仅实施 Task15，不关闭 Task12 或
+ENH-15 的后续真实环境关卡。完整入口见[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task15)。
 
-**退出：** ENH-15；保留可选领域来源功能，避免强制六仓部署和隐含副作用。
+- [x] 用项目 `.venv` 下自有 Git/content 夹具覆盖 SOURCE-01–12：缺字段、准确固定 commit/文件摘要、错层 root/path、非空 owner 目标、重复/冲突/别名、不可用/符号/非 commit 基线、readOnly、无网络授权、Unicode/junction 与漂移。
+- [x] `inspect_domain_source` 返回准确来源/位置/版本/所有权声明/目标/拟操作、0/1/2 与可重验 preflight；不写源、文件、objects、index、refs、config 或全局 cwd。网络输入在外部工具/凭据探测前拒绝，不回显原 URL。
+- [x] register 只编辑准确的既有 BC 来源列表，保留其他原始 bytes；同仓非空领域指南可登记引用。submodule 是独立可选 materialization，另需准确目标和 index 同意，不自动登记 BC、提交或推送；非空/部分目标不跳过成功。
+- [x] 实测本地原生 `clone --no-checkout`、原始 blob 写入和 index/gitlink；不用 checkout/filters/source hooks。支持一致 SHA1/SHA256，混用在写前拒绝。记录原生命令/退出码及完整/部分状态和手工恢复，不宽泛 rollback/清理。
+- [x] 从真实 RED 完成实现和自审反例；保留旧 schema/依赖和全部原测试，窄提取共用路径/Git 环境与 `source_baseline.py`，供 collector/接入共同使用。onboarding 只加导航，方法/prompt/模式仍为 9/22/3；真实前置/API/CLI/失败和恢复见分发指南，代码与 tests 随本次局部提交交付。
+
+**本地验证（2026-10-16）：** 新 44 方法先在 no-op 接口产生 64 个断言/子例失败，
+0 错误/跳过；随后 3.13.15 的 44 方法 GREEN 及自审边界聚焦结果分别留证，
+不拼成一次更大的运行。最终仅一份最低版 3.11.15 保留＋新增全套，实际发现/执行
+**579 方法**，0 失败/错误/跳过、退出 0，runner 1104.109 秒。原 524 个身份实际保留，
+新增 55；工具输入在运行期间未变。12 类独立本地 API/CLI/native receipt 及同仓登记
+另外保留源/目标/index/config/HEAD 的真实散列与 0/1/2，不计入该方法数量。
+
+**退出边界：** ENH-15 的本地实现待独立审阅；所有权/readOnly 不是 OS ACL。
+未做真实项目接入、网络、POSIX/平台、应用、原生客户端或人工验收，不复写旧结果，
+也不因本轮通过就关闭完整功能等价或发布。Task12 仍等待 15–18 的适用前置。
 
 ### 任务 16：文档/转录来源适配与候选评分
 
@@ -578,4 +593,4 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11 的有限本地交付及范围复核已完成，当前九方法、二十二 prompts、三模式。Tasks12–18 尚未实施；下一步依次推进 Task15–18 的适用本地工作，不跳过它们就直接关闭 Task12。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–11 的有限本地交付及范围复核已完成，Task15 本地实现/自验证完成但待独立范围审阅；当前九方法、二十二 prompts、三模式。Task12–14、16–18 尚未实施，本轮止于 Task15；不能跳过 15–18 前置直接关闭 Task12。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。

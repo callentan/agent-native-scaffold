@@ -1019,3 +1019,67 @@ Task11 的有限本地实现/审阅关卡关闭，没有遗留本任务发现。
 本地状态；远端 clone/push/PR、托管 workflow 和完整外部功能等价仍未执行或接受。
 下一步按[Task15](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15)实现可选来源接入，
 Task16–18 满足后才收口 Task12 候选；不因编号顺序跳过前置能力或授权关卡。
+
+<a id="task15"></a>
+## Task15：明确本地领域源接入（待独立审阅）
+
+### 会话、任务与 Git 状态
+
+| 字段 | 本次记录 |
+|---|---|
+| 日期与任务 | 2026-10-16；Task15 / ENH-15，仅本任务 |
+| 工具与方式 | 实施 Agent 自用、自审；既有 Python 3.13.15 / 3.11.15、原生 Git、Windows；无 subagent/reviewer |
+| 任务来源与范围 | [Task15 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15)、[ENH-15](../docs/design/ddd-functional-alignment.md#requirements)；完整 brief 与 12 类输入在获准本机会话产物 |
+| 分支与起点 | `callentan-repository-skeleton`；`d38e7f6a71ef692c764d085df699a04c6844768b`，已重查 worktree/暂存区干净 |
+| 本次对象与提交 | 上述起点加本轮 Task15 代码/文档；局部 coauthored 提交的准确 SHA 与提交后状态见实际 Git 和本机 `task15-report.md` |
+| 原有与本次范围 | 无原有未提交修改；本轮仅来源工具/tests/指南、窄共用 helper、直接导航和当前状态；既有 tests、schema、lock、hooks/workflows 与原验收结果未重写 |
+| 权限与停止边界 | 只在 `.venv` 自有夹具显式接入及同意 index；不运行原安装器、source hooks/filters，不请求网络、探测凭据、修改真实项目配置、推送或创建 PR |
+
+### 本次变化
+
+- 新增 [setup_domain_source.py](../.github/utilities/setup_domain_source.py)、
+  [真实本地用例](../.github/utilities/tests/test_domain_source.py)及
+  [分发使用说明](../docs/domain-sources.md)。inspect 始终只读；register 只维护准确既有
+  BC 来源列表，非空领域指南不被覆盖。可选本地子模块 materialization 与登记分开，
+  另需准确目标、所有权声明和独立 index 同意，不隐含 commit/push。
+- 将原固定 commit/领域 bytes 比较窄提取到
+  [source_baseline.py](../.github/utilities/source_baseline.py)，collector 共用；
+  原路径遍历与 Git 环境 helper 由 planner/checker/接入共用，没有第二份 YAML 或来源 parser。
+  BC v1 的 root/path/固定基线/readOnly 保留，配置表单只加导航注释。
+- 自审反例先 RED 再修正：显式 CLI 操作、非法 ID 类型、大小写 metadata 根、
+  原生完整 index 身份、Git 格式/Windows 长路径及准确部分状态记账。
+  原生本地 clone/objects/index 的真实失败被保留；不把冲突、缺项或跳过当成功。
+  onboarding 只增加现有指南链接，仍为九方法、二十二 prompts、三模式。
+
+### 实际结果入口与访问限制
+
+本机会话 `files\ddd-alignment-execution\task15-evidence\` 保留真实命令、cwd、解释器、
+原始输出及摘要，完整入口为同层 `task15-report.md`。它们仅在本机可访问，
+没有作为跨机器证据分发，也不是业务 VT/人工批准记录：
+
+- `red-03-behavior.*`：44 个新方法、64 个断言/子例失败，0 错误/跳过；较早缺模块和
+  scaffold 运行分别保留。`green-01-primary.*` 与 `green-02`–`green-07` 是不同对象/
+  选择器的 3.13 聚焦结果，不能合并为一次新全套。
+- `final-minimum-suite.*`：本轮唯一最终 3.11.15 保留＋新增全套实际发现/执行
+  **579 方法**，0 失败/错误/跳过、退出 0，runner 1104.109 秒；原 524 个身份保留、
+  新增 55。运行期间工具输入未变；原 524 的历史结果未改写为本轮结果。
+- `inventory-before-final.json` 和执行身份核对保留方法及原 tests 的起始 bytes；
+  Windows CRLF 工作文件与 Git LF blob 的初次证据脚本比较错误单列记录，未改产品或
+  测试来掩盖它。`receipts-01` 逐 SOURCE-01–12 保存真实 API/CLI 0/1/2、准确源/目标/
+  原生 metadata 和前后散列；`single-repository-receipt.json` 另验证同仓登记只改 BC 配置，
+  原领域指南和 Git metadata 不变。
+- 普通指南的本地链接/锚点、分发新导航、BC 表单数据和 9/22/3 库存分别核对；
+  原正式工件检查为 `empty`、checked 0，不写成业务通过。追加前旧日志前缀及原
+  verification/client/native/human 记录用原始工作字节摘要保护，旧基线/结果保留。
+
+### 缺口、影响与下一步
+
+Task15 **本地实现与自验证完成，待独立范围审阅**；本轮没有 reviewer 或批准结论。
+readOnly/所有权参数不提供 OS ACL，inspect 与写入检查也不是恶意并发文件系统的
+sandbox。非空/别名/不支持布局/共享 metadata/漂移停止；部分状态只供所有者逐路径
+核对后手工恢复，不自动清理、reset 或覆盖后续 owner 内容。
+
+真实项目接入、网络、POSIX、托管平台、应用、原生客户端、人工和发布均未运行；
+原 P3 与其他 ENH 的外部结果不升级。Task12–14、16–18 未实施，Task12 仍受 15–18
+前置约束。交付本次局部提交和完整本机报告后停止；后续先由协调者按实际基线安排
+Task15 独立审阅，不在本轮自动开展后续任务或外部操作。

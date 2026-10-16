@@ -67,6 +67,7 @@ parser 识别现有仓库模式：独占一行的 `<a id="..."></a>`（单/双�
 
 现有资料不搬移、不改号、不覆盖正文。只有 scope 已确认后才显式补充 frontmatter；parser 不批量转换旧文档或表单。没有 frontmatter 的普通资料仍可直接阅读，但显式交给此 parser 会得到 `MISSING_FRONTMATTER`，不会悄悄生成默认工件。
 
+<a id="bc-configuration"></a>
 ## 2. 可选 BC 配置
 
 [bc-config.schema.json](bc-config.schema.json) 是数据配置，不是 shell manifest。
@@ -79,6 +80,12 @@ parser 识别现有仓库模式：独占一行的 `<a id="..."></a>`（单/双�
 | `developmentRegistration` | 指向既有开发登记的仓库相对路径和必需锚点；不复制命令、凭据或环境变量 |
 
 `root` 保留显式源根：本地目录、已选 clone 根或 Git 仓库定位；`path` 单独保存其仓库内相对位置。`id` 是后续接入时稳定引用该源的短标识。schema 不连接 Git、不访问远端、不创建子模块，也不通过 `readOnly: false` 授予写入权限。实际路径、对象类型/可读性、来源 ID 冲突与登记是否匹配仍需后续来源接入检查。
+
+可用[本地领域源接入](../../docs/domain-sources.md)先只读核对这些原字段；不增加 schema
+或执行 manifest。既有来源的 register 只编辑明确的 BC 来源列表，不覆盖领域目录。
+可选 submodule 是另一项本地 materialization 操作，另需目标与 index 同意，完成后也不
+自动登记 BC。网络来源保持不可用/提案；准确 commit/原始文件摘要、根/路径分离和
+readOnly 语义与下方收集器相同，不从配置推导 clone、暂存、提交或写回权限。
 
 ```yaml
 schemaVersion: 1

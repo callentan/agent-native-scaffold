@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集和三方/明确多目标更新提案；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
+本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集、三方/明确多目标更新提案，以及明确本地来源预检/接入；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -325,6 +325,25 @@ CLI 默认 stdout，三根模式为 `--base <旧根> --local <本地根> --candi
 没有 `--apply`、clone/fetch、commit/push、PR、外部源写回或后台同步。
 所有者业务数据、原规则及主动删除保留；原始字节与来源漂移按完整契约核对。
 
+<a id="domain-sources"></a>
+## 可选本地领域源预检与明确接入
+
+`setup_domain_source.inspect_domain_source(root, source_config) -> dict` 默认只读，
+按原 BC 的六个来源字段核对真实 root/path/固定基线，返回 `ready / conflict / unavailable`
+与 0/1/2、准确路径/所有权声明/目标/拟操作。源、index、config、refs 和对象不写，
+不选择 HEAD 或远端 fallback。网络地址在调用 Git/凭据工具前拒绝，不回显原 URL。
+
+`apply_domain_source` 只有明确给出操作、既有配置、准确 preflight 和目标所有权声明才写；
+register 只追加 BC 的来源条目，不 materialize 或暂存。可选本地 submodule 不编辑
+BC 配置，必须另给准确 target 与独立 index 同意；原始 blob 写入绕过 checkout/filters/hooks，
+原生 metadata 和 gitlink 变更逐项披露，不含 commit/push。非空目标/别名/冲突/漂移不跳过成功。
+
+完整 API/CLI、可编辑配置布局、原生命令和保留部分状态的恢复边界见
+[领域源说明](../../docs/domain-sources.md)，字段仍归[原契约](../contracts/README.md#bc-configuration)。
+复用 `artifact_io.py` 的唯一安全 YAML/schema reader、`check_artifacts.py` 的路径/Git 边界，
+以及 `source_baseline.py` 的固定 commit/原始领域 bytes 比较；收集器共用后者，
+不维护第二份基线 parser 或来源模型。核心依赖不变，无额外安装。
+
 ## 使用范围
 
-下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型、实施摘要和更新提案各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
+下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`、`source_baseline.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型、实施摘要、更新提案和来源接入各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
