@@ -2,7 +2,7 @@
 
 **Task8 复核记录（2026-10-16）：** 原 T8-I1/I2/I3 和后续 T8-F1-N1 均已修正并完成限定复审，最新修正对象为 `9a3055a`。不同对象的 395 全套、153 个受影响方法与 94 个模型方法结果分别保留，入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task8-review)。
 
-**状态：执行中，任务 1–11 及 Task15 的有限本地实现与范围复核已完成，完整增强尚未交付。** 当前九方法、二十二 prompts、三模式。现有工具提供覆盖/影响候选、带可选来源清单的九视图、只读实施摘要、本地三方与明确 `.feature` 多目标提案，以及默认只读的可选本地领域源接入。Task12–14、16–18 未开始，下一步是 Task16 本地文档/转录来源与候选评分；Task12 仍等待全部前置。maintainer-only workflow 和远端 fan-out 未运行，真实资格、应用、平台和人工验收未据此通过。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
+**状态：执行中，任务 1–11 及 Task15 的有限本地实现与范围复核已完成，完整增强尚未交付。** 当前九方法、二十二 prompts、三模式。现有工具提供覆盖/影响候选、带可选来源清单的九视图、只读实施摘要、本地三方与明确 `.feature` 多目标提案，以及默认只读的可选本地领域源接入。Task16 的本地文本/JSONL 转录、有界 stdlib DOCX、透明评分和音频拒绝入口已实现、待独立复核；真实音频仍 not-run，ENH-16 未整体关闭。Task12–14、17–18 未开始；本轮停止，不解锁 Task12。maintainer-only workflow 和远端 fan-out 未运行，真实资格、应用、平台和人工验收未据此通过。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
 
 **Task15 fix1（2026-10-16）：** 初审四项经限定修正后，I1/I2/M1 已由独立复审确认处理；
 原 I3 的注释续行缺口随后进入 fix2。修正保护首次接入前已暂存的 metadata 删除、精确配置
@@ -145,7 +145,7 @@ views:
 
 增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。词汇对齐/发布接口、知识锤炼、ADR 来件、Intended Use 变更、只读 query、backlog/追溯和 SWAS/SEQ 各有明确输入/产出入口，按职责复用这九个方法，不为每个 prompt 新建角色或流程引擎。
 
-工具位于 `.github\utilities\`，默认做本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响、模型视图、实施摘要、本地 hook 接入、[只读更新提案](../template-updates.md)和[本地来源接入](../domain-sources.md)已完成本次范围复核。显式 apply 仅维护选定 BC 来源列表，或另经 index 同意创建准确本地子模块，不回写源或请求网络。Task16–18 工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)。Task10 的[私有 index 快照适配](../../.github/utilities/README.md#native-hooks)复用这些规则，没有把原工作树 API 改成暂存检查。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖；Task10 补齐实际核对的最低版本条件项，没有安装全局、媒体或云端包。
+工具位于 `.github\utilities\`，默认做本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响、模型视图、实施摘要、本地 hook 接入、[只读更新提案](../template-updates.md)和[本地来源接入](../domain-sources.md)已完成本次范围复核。显式 apply 仅维护选定 BC 来源列表，或另经 index 同意创建准确本地子模块，不回写源或请求网络。Task16 的[离线来源候选/评分](../source-extraction.md)已实现、待独立复核，没有实际音频适配器；Task17–18 工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)。Task10 的[私有 index 快照适配](../../.github/utilities/README.md#native-hooks)复用这些规则，没有把原工作树 API 改成暂存检查。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖；Task10 补齐实际核对的最低版本条件项，没有安装全局、媒体或云端包。
 
 校验、导出、报告收集、更新比较和 hook 处理的可重复逻辑统一写在 Python 中，本地与 CI 直接调用同一套脚本，不交付必需的 `.ps1` 包装层，也不要求额外的 PowerShell 7 运行时。使用 `pathlib.Path`、参数列表和显式 cwd；调用子进程使用 `shell=False`，失败保留实际输出与退出码。PowerShell 可以是用户当前的 Windows 终端，但不再承载另一套维护逻辑。
 
@@ -179,6 +179,9 @@ Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境�
 | `plan_template_update.plan_update(base, local, candidate)` | 返回 `UpdatePlan`，包含 `changes`、`conflicts`、`preserved`；三方目录不写入。修改与删除均只给提案，缺旧基线是错误 |
 | `setup_domain_source.inspect_domain_source(root, source_config)` | 按原 BC 来源字段核对准确本地根/相对路径/固定基线，返回 ready/conflict/unavailable、实际目标与拟操作；始终只读，无网络、fetch、hooks/filters 或 cwd 变更 |
 | `setup_domain_source.apply_domain_source(root, source_config, *, operation, config_path, expected, owned=False, target=None, index_consent=False)` | register 仅维护明确既有 BC 的来源列表；可选本地 submodule 另需准确 target 与独立 index 同意，不自动登记 BC；漂移/所有者冲突停止，部分状态保留手工恢复，不 commit/push |
+| `extract_source.extract_candidates(source, kind)` | 明确绝对本地文件，返回原始 bytes 身份/读取计数及候选列表；保留原行、turn/time 或有界 DOCX 段落/表格位置。未知/损坏/超限显式错误，不写正式事实 |
+| `score_candidates.score_candidates(items)` | 固定候选 list 的形状/摘录一致性检查及公开因素评分，深复制且保留重复/相反来源；不认证来源或作接受决定 |
+| `transcribe_audio.transcribe_audio(source, *, service=None, model=None, data_scope=None, operation=None, output=None, authorized=False)` | 当前为授权/缺项/适配器不可用拒绝；没有实际调用路径、环境密钥发现、数据发送或假 transcript，真实音频验收仍 not-run |
 
 `Artifact`、`Finding`、`CheckReport`、`UpdatePlan` 为窄用途 dataclass，定义在对应模块，不另建通用领域/执行框架。测试辅助函数只在工具 tests 内维护。
 

@@ -1200,3 +1200,78 @@ Git head/parent/coauthor、七路径范围和干净工作树/暂存区已核对�
 或业务/人工/发布验收。风险 include 配置从未传给 Git 或用于访问 UNC endpoint。
 下一步按[Task16](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16)继续本地文档/转录
 与候选评分；可选依赖、音频服务、真实数据发送及其余授权关卡仍保留。
+
+<a id="task16"></a>
+## Task16：本地来源候选与透明评分（实施、自审，待独立复核）
+
+### 会话、任务与 Git
+
+2026-10-16，依据用户恢复执行后的 Task16 明确 brief 与
+[原计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16)，仅实施 ENH-16
+的获准本地范围。原分支 `callentan-repository-skeleton`、现有隔离工作树，起点
+`6c0f8ec910ce1eeedfacbfcdd1fd756adc0a5478` 已核实 clean，无原有未提交内容。
+本段写入时仍为该 HEAD 加 Task16 未提交范围；最终提交身份回本机报告核对，
+不预填 commit 或独立复核已完成。
+
+### 本次变化
+
+新增 [extract_source](../.github/utilities/extract_source.py)、
+[score_candidates](../.github/utilities/score_candidates.py)、
+[transcribe_audio](../.github/utilities/transcribe_audio.py)、
+两个原生 tests、仅含说明的 media 清单与[来源契约](../docs/source-extraction.md)。
+既有逆向方法只加工具导航，相关 utilities/development/source 指引和计划/规格/路线图同步；
+没有新方法/模式/prompt、候选确认引擎、正式 kind/schema 或强制依赖。
+
+候选保留实际原始 bytes SHA256、片段、行/paragraph 或 supplied speaker/turn/time，
+及实际 DOCX document/table/cell 位置。DOCX 只用 stdlib 读取真实自有 OPC ZIP/XML；
+公开 part/总量/展开比/XML 深度/节点边界，不解包到磁盘或跟随 relationships。
+支持的普通段落/矩形表格子集以外明确拒绝，不把常见办公布局说成完整支持。
+透明 0–100 因素不是校准概率或接受阈值，相反/重复来源不被删除或决定优先级。
+
+### 实际结果入口与当前边界
+
+本机会话 `files\ddd-alignment-execution\task16-report.md` 与绝对获准的
+`task16-evidence\` 保留独立 RED/GREEN、准确 command/cwd、stdout/stderr、
+发现/执行/跳过与退出码及工具输入 SHA256。最终 focused 3.13.15 结果为
+48 个来源/音频拒绝方法和 19 个评分方法，均无失败/错误/跳过；
+这些局部结果不是整个增强或独立审阅通过。
+
+`format-invocations.json` 及自有格式原件/输出另保留四格式真实 CLI、
+DOCX 段落+表格位置和候选评分往返，source bytes 与精确文件集合不变。
+`syntax-and-frozen-code.json` 保存五个新 Python 文件的内存编译结果；
+`pre-handoff-ownership.json` 核实原 9/22/3 库存、旧 log bytes 及未改动的
+Task15 guard/setup、核心 lock、contracts 和保留测试。
+这些资料仅本机可访问，接手需取得本次实际报告；不形成下游运行前提。
+
+本段写入时，唯一一次最终 3.11.15 retained+new suite 正在运行，结果尚未断言；
+完成后另追加实际入口。不把当前 621 个保留 test sources 当成此前 621 全套 pass。
+旧 611 全套、97 个来源方法和 10 个 parent 方法继续保留各自基线/范围，
+本轮不重写旧 receipt 或把旧结果拼成新全量结果。
+
+### 缺口、影响与下一步
+
+音频 API/CLI 只核对授权/缺项/adapter 不可用的诚实拒绝，不读音频或密钥、不发现环境
+provider、不调用服务、不写 fake transcript。服务/模型/SDK/数据发送未选择或授权；
+实际转录及 EXTRACT-14 未来服务失败仍 `not-run`，不是 mock success。
+ENH-16 和 Task12 前置未整体关闭；DOCX 限定布局之外的格式扩展也没有验证通过。
+
+本轮只自审，未运行 reviewer/subagent、Agent 压力测试或人工/App 工作流；
+Task15 physical-comment/include guard 未修改。待最终本地证据与一个 scoped coauthored
+commit 后停止，交独立复核；不发起后续任务、安装、平台、push/PR 或发布操作。
+
+<a id="task16-local-verification"></a>
+### Task16 最终最低版本核对（追加）
+
+唯一一次最终 retained+new 运行已完成：现有 3.11.15 实际发现/运行/执行 **688**，
+其中 621 个保留来源方法＋67 个新方法，0 失败/错误/跳过，退出 0，
+**1,799.906 秒**，`inputs_unchanged=true`，没有 expected failure 或 unexpected success。
+原始计数、逐方法输出、准确 command/cwd/stdout/stderr/exit 和代码/contracts/lock
+输入身份在本机 `task16-evidence\final-minimum311.json` 及相邻
+`-invocation.json`、`-unittest.txt`，不是重标旧 611/97/10 记录或虚构旧 621 全套 pass。
+
+这是本次离线工具/拒绝合同的维护验证结果，不是音频服务、任意 DOCX 布局、App/人工、
+平台或业务验收。前三个工具、两个新测试的字节保持与 focused GREEN 相同；
+后续仅补本次文档/交接的实际结果，不重跑完整 baseline。最终 format/文档核对、
+输入/旧日志前缀保存和 scoped 本地 commit 身份回 `task16-report.md` 查看。
+本地范围已实施、待独立复核；ENH-16 真实音频/未来服务失败仍 not-run，
+没有推进 Task12、17、18 或整体功能等价结论。

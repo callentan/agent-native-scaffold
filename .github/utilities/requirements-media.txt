@@ -1,0 +1,4 @@
+# Optional media dependencies only. No package or version has been selected.
+# Local text/transcript and bounded DOCX ZIP/XML use the Python standard library.
+# Audio service/model/SDK, external parsers and data transfer need separate approval.
+# Do not install guessed providers, parser packages or floating versions here.

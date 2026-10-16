@@ -7,12 +7,12 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入和可选 hook/资料 CI 接入，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入、文档/转录候选评分和可选 hook/资料 CI 接入，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
 | 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；原六项版本保留，`referencing` 在 Python `<3.13` 所需的 `typing-extensions` 另按实际元数据/安装结果锁定，3.11 选七项、3.13 选原六项 |
-| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)；不包含音频、渲染、云端或业务应用 |
+| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)、[来源候选与评分](source-extraction.md)；音频仅拒绝入口，不包含实际服务、渲染、云端或业务应用 |
 | 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
 
 以下命令均以仓库根目录 `.` 为 cwd，Windows 使用 `.venv\Scripts\python.exe`；其他宿主应使用其实际项目解释器（例如 `.venv/bin/python`），不要照搬 Windows 路径。无需激活环境或修改全局 PATH。
@@ -43,6 +43,9 @@
 | 检查已登记的本地领域源 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\setup_domain_source.py --root . --config bc-config.yaml --source-id <明确ID>` | JSON stdout，默认只读；来源根/相对路径/固定基线来自原 BC 字段；0 ready、1 conflict、2 unavailable |
 | 明确登记一个本地领域源 | 按[准确来源参数](domain-sources.md#cli)先 inspect，再加 `--operation register --apply --owned-target --expect <本次preflight>` | 只维护指定既有 BC 的 domainSources，不复制领域文件、不暂存、不提交；没有项目配置就停止 |
 | 可选本地子模块 | 同一来源参数另选 `--operation submodule --target <准确相对目标>` 先 inspect；应用另加 `--apply --owned-target --index-consent --expect <本次preflight>` | [原生操作](domain-sources.md#submodule)会写 .gitmodules/local config/module metadata/index，独立于 BC 登记；仅明确本地源，无网络/commit/push |
+| 本地文档/转录候选 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\extract_source.py --root . --source "<明确本地源>" --kind <markdown/text/transcript/docx>` | JSON stdout；[精确格式与有界 DOCX](source-extraction.md#formats)，不是 formal artifact；可加 root 内不存在的 `.json` `--output`，不建父目录 |
+| 透明候选评分 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "<明确候选.json>"` | JSON stdout；可加新 `--output`；[公开因素与范围](source-extraction.md#scoring)，不决定接受或覆盖冲突 |
+| 音频不可用检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\transcribe_audio.py --source "<明确本地音频路径>"` | 当前退出 2：授权/缺项/适配器不可用；不读音频/环境密钥、不调用服务、不写 transcript；[后续独立关卡](source-extraction.md#audio) |
 
 这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)、[实施摘要](../.github/utilities/README.md#implementation-report)与[只读更新提案](template-updates.md)分别约束其结果；这些检查/派生/提案 API 不写文件。[来源接入](domain-sources.md)的独立 apply API 另受准确目标、preflight 与授权限制，不因 readOnly 或已有配置获得许可。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖、成功收集或干净提案都不等于业务通过或传播完成。尖括号参数由本次实际输入替换。
 

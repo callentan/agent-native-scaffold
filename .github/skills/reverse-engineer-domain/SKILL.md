@@ -49,7 +49,12 @@ description: Use when domain knowledge is implicit in existing documents, code, 
 
 结束时列实际读过的文件/片段及版本、候选范围、冲突、未读部分、需谁补什么和实际写入位置。按 [verify-change](../verify-change/SKILL.md#domain-review)核对本次候选的来源与影响，只有该有限提取有可回查证据时才报告完成；不是完整领域模型或业务验收完成。
 
-本方法是阅读与判断的文件方法，不提供音频/DOCX 解析 SDK、自动代码/schema 适配或外部记录连接器。遇到当前不能读取的格式，只记录限制并请求已授权可读片段，不安装依赖、联网转换或假称已经解析。
+本方法仍负责阅读与判断，不提供自动代码/schema 适配或外部记录连接器。
+已获本地源读取授权时，可选用[来源候选与透明评分](../../../docs/source-extraction.md)读取
+Markdown/plain text、明确 JSONL 转录和有界 stdlib DOCX；按该契约保留实际 bytes 身份、
+位置、重复/相反来源与 uncertainty。分数不是概率、确认或优先规则，候选仍按上文回源/澄清。
+音频入口目前只返回授权/缺项/适配器不可用错误，不代表已经转录。遇到不支持的布局/格式，
+保留明确限制并请求已授权可读片段，不安装依赖、联网转换或假称已经解析。
 
 ## 停止条件
 

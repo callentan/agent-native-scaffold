@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集、三方/明确多目标更新提案，以及明确本地来源预检/接入；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
+本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集、三方/明确多目标更新提案、明确本地来源预检/接入，以及本地文档/转录候选与透明评分；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -9,7 +9,21 @@
 - [requirements.txt](requirements.txt) 只列获准的 PyYAML 6.0.2、jsonschema 4.23.0。
 - [requirements.lock](requirements.lock) 保留 Python 3.13 环境实际解析的六项版本，另有 Python `<3.13` 所需、在 3.11 实际安装核对的 `typing-extensions==4.16.0` 条件项；3.11 选择七项，3.13 仍选择原六项。条件来自 `referencing` 的包元数据，不升级原 pins。pip 是环境安装工具，不是工具运行依赖；没有猜测 hashes。
 - 从仓库根执行 `python -m venv .venv` 后，用 `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` 恢复锁定环境，再运行 `.venv\Scripts\python.exe -m pip check`。
-- 不需要激活环境或全局 pip；没有媒体、DOCX/PDF、渲染、云端 SDK 或应用依赖。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
+- 不需要激活环境或全局 pip；没有媒体、DOCX/PDF 额外包、渲染、云端 SDK 或应用依赖。窄 DOCX 适配使用 stdlib ZIP/XML；[可选 media 清单](requirements-media.txt)没有选定包。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
+
+<a id="source-candidates"></a>
+## 本地来源候选与评分
+
+`extract_source.extract_candidates(source, kind)` 只读明确的绝对本地文件，返回实际
+字节身份/读取计数及 `candidates` 列表；支持 Markdown/plain text、严格 JSONL 转录与
+有界 stdlib DOCX。`score_candidates.score_candidates(items)` 保留重复/相反来源并返回
+公开 0–100 因素与理由，不是概率或接受阈值。类型、定位、输入限制、CLI 和错误的
+单一说明见[来源候选契约](../../docs/source-extraction.md)，不加入正式工件 schema。
+
+API/default CLI 无写入；显式输出只 exclusive create root 内的新 JSON，不建目录或
+覆盖声明输入。`transcribe_audio` 当前只有授权/缺项/不可用拒绝入口，不读音频或环境密钥、
+不安装 SDK 或调用服务。候选仍回[共享逆向方法](../skills/reverse-engineer-domain/SKILL.md)
+核对和澄清，不能由工具写成 confirmed 事实。
 
 <a id="native-hooks"></a>
 ## 可选原生 hook 与同源 CI
