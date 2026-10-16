@@ -1179,3 +1179,24 @@ collector/proposal、方法/prompt/模式与旧结果保持。
 没有 package/OS 设置/真实项目/网络、source hooks/filters、subagent/reviewer、
 Task16/后续、push/PR/发布动作。交付新局部 coauthored commit 与追加报告后停止；
 精确 SHA、提交后干净状态与证据入口见实际 Git 和本机总报告。
+
+<a id="task15-review"></a>
+## Task15 本地来源接入范围复核关闭
+
+2026-10-16，原 I1/I2/M1 已由独立 reviewer 确认为 ADDRESSED；父会话本轮直接核对
+`fcd25504053b32b698b74d2462a7349bf3c17d9b` 至
+`4f053d78c7eedd8bd3b490f61b81065414009b72` 的完整七文件局部 diff、
+物理注释/续行扫描和 10 个新控制，确认原 I3 已处理，未发现此修正引入的新问题。
+只改一处 scanner，不改变 guard 放置、setup/index/token、schema/lock 或原接口。
+
+本机会话 `files\ddd-alignment-execution\task15-fix1-review-result.md` 与
+`task15-fix2-review-result.md` 保留两轮处置。父会话在最新修正对象用现有 3.11.15
+执行新测试模块：发现/执行 10、0 失败/错误/跳过、退出 0，21.562 秒，输入未变；
+准确参数、cwd、原始输出和摘要在 `task15-fix2-parent311.json` 及其相邻文件。
+原 97 个来源方法、611 全套和此前父会话 32 项保留各自对象/范围，不合并成新总数。
+
+Git head/parent/coauthor、七路径范围和干净工作树/暂存区已核对。Task15 的有限本地
+实现/范围审阅关卡关闭，无遗留本任务发现；不是 OS 权限、网络/POSIX/平台、真实项目
+或业务/人工/发布验收。风险 include 配置从未传给 Git 或用于访问 UNC endpoint。
+下一步按[Task16](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16)继续本地文档/转录
+与候选评分；可选依赖、音频服务、真实数据发送及其余授权关卡仍保留。
