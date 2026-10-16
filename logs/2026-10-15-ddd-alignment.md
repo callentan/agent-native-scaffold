@@ -1144,3 +1144,38 @@ schema、lock、原 tests/helpers、9/22/3 方法/prompt/模式及旧外部/nati
 本轮只交付新的局部 coauthored commit 和追加报告后停止，不开始 Task16 或其他后续任务。
 Task12 仍受 15–18 前置与相应审阅/授权关卡约束。后续由协调者在实际提交基线上
 安排限定复审；网络、POSIX、平台、应用、客户端、人工和发布结果仍为 not-run。
+
+<a id="task15-fix2"></a>
+## Task15 fix2（2/5）：仅原 I3，待限定复审
+
+2026-10-16，完整读取 fix1 复审结论；I1/I2/M1 已为 ADDRESSED，没有新独立发现，
+本轮不重开它们。起点重查为干净 `fcd25504053b32b698b74d2462a7349bf3c17d9b`，
+原 worktree/分支不变。只修改 `_git_config_file` 的注释与 continuation 交互、新 fix2
+来源测试及最小指南/当前状态；setup/guard 位置、原 tests/helpers、schema/lock、
+collector/proposal、方法/prompt/模式与旧结果保持。
+
+问题是判断注释前全局删除反斜杠换行，把下行 include 拼进了物理注释。
+修正改为按物理 bytes 扫描，在注释外识别 LF/CRLF continuation；# / ; 注释在
+物理换行结束，实际 quoted literal/普通注释仍可用，模糊/不完整 CR 先 typed refusal。
+这不是通用 Git 配置解释器，也不是网络 endpoint 的实际复现。
+
+本机 `files\ddd-alignment-execution\task15-evidence\fix2\` 保存准确命令/cwd、
+输入/输出 hashes、原始结果与保护记录，总报告只在 `task15-report.md` 追加：
+
+- `red-01-comment-continuations.*`：10 方法、48 个失败子例，0 错误/跳过；两项
+  保留控制本已正确。覆盖 #/;、LF/CRLF、BOM、include/includeIf、inline/comment
+  backslash parity、真实 quoted continuation。风险 Git/UNC 在调用前由 tripwire 拦住，
+  没有实际执行带 include 的命令或访问 endpoint。
+- `green-01-comment-continuations.*`：3.13.15 新例 10/10，零失败/错误/跳过。
+  `affected-source-minimum.*` 按授权只运行 3.11.15 的 `test_domain_source*.py`：
+  **97 发现/执行，0 失败/错误/跳过，退出 0，runner 549.016 秒**；
+  87 个原来源身份与 10 个新身份逐一核对，受检 bytes 未变。
+- `scanner-receipts.json` 的 21 个安全本地声明/保留控制记录 typed outcome、
+  zero affected Git / zero UNC filesystem access、前后字节摘要。原 132 份证据、
+  parent 611/32 receipts、报告/日志前缀保护保留；没有重跑 611 全套或未变
+  schema/collector suite，也没有把旧成功改作本轮结果。
+
+本轮自审与局部验证完成，I3 待限定复审；I1/I2/M1 维持已确认处理。
+没有 package/OS 设置/真实项目/网络、source hooks/filters、subagent/reviewer、
+Task16/后续、push/PR/发布动作。交付新局部 coauthored commit 与追加报告后停止；
+精确 SHA、提交后干净状态与证据入口见实际 Git 和本机总报告。

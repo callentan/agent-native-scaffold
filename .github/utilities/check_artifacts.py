@@ -221,17 +221,25 @@ def _git_config_file(path: PathInput) -> None:
     raw = _git_metadata_bytes(path)
     if raw is None:
         return
-    logical = re.sub(rb"\\\r?\n", b"", raw.removeprefix(b"\xef\xbb\xbf"))
+    physical = raw.removeprefix(b"\xef\xbb\xbf")
     visible = bytearray()
-    quoted = comment = escaped = False
-    for character in logical:
-        if comment:
+    quoted = comment = escaped = continuation_cr = False
+    for character in physical:
+        if continuation_cr:
+            continuation_cr = False
+            if character != 10:
+                raise ArtifactInputError("GIT_CONFIG_UNSAFE", path, 1,
+                                         "Unsupported Git config continuation: expected LF after CR")
+        elif comment:
+            # A backslash inside a comment never consumes its physical newline.
             if character in (10, 13):
                 comment = False
                 visible.append(character)
         elif escaped:
             escaped = False
-            if not quoted:
+            if character == 13:
+                continuation_cr = True
+            elif character != 10 and not quoted:
                 visible.append(32)
         elif character == 92:
             escaped = True
@@ -242,6 +250,9 @@ def _git_config_file(path: PathInput) -> None:
             comment = True
         elif not quoted:
             visible.append(character)
+    if continuation_cr:
+        raise ArtifactInputError("GIT_CONFIG_UNSAFE", path, 1,
+                                 "Unsupported Git config continuation: incomplete CRLF")
     if re.search(rb"(?:^|[\r\n\]])[ \t\r\v\f]*\[[ \t\r\v\f]*(?:include|includeif)(?=[ \t\r\v\f.\]])",
                  visible, re.I):
         raise ArtifactInputError("GIT_CONFIG_INCLUDES_UNSUPPORTED", path, 1,

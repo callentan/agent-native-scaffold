@@ -2,13 +2,18 @@
 
 **Task8 复核记录（2026-10-16）：** 原 T8-I1/I2/I3 和后续 T8-F1-N1 均已修正并完成限定复审，最新修正对象为 `9a3055a`。不同对象的 395 全套、153 个受影响方法与 94 个模型方法结果分别保留，入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task8-review)。
 
-**状态：执行中，任务 1–11 的有限本地实现与范围复核已完成，Task15 第 1 轮限定修正待复审，完整增强尚未交付。** 当前九方法、二十二 prompts、三模式。现有工具提供覆盖/影响候选、带可选来源清单的九视图、只读实施摘要、本地三方与明确 `.feature` 多目标提案，以及默认只读的可选本地领域源接入。Task11 的路径/根身份/输出保护修正已完成限定复审；maintainer-only workflow 未运行，不证明远端 fan-out。Task12–14、16–18 未开始；Task15 的自验证不关闭其审阅或 Task12 候选关卡，仍须满足 15–18 的前置。真实资格、应用生成/运行、平台和人工验收未据此通过。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
+**状态：执行中，任务 1–11 的有限本地实现与范围复核已完成，Task15 仅剩 I3 的第 2 轮修正待限定复审，完整增强尚未交付。** 当前九方法、二十二 prompts、三模式。现有工具提供覆盖/影响候选、带可选来源清单的九视图、只读实施摘要、本地三方与明确 `.feature` 多目标提案，以及默认只读的可选本地领域源接入。Task11 的路径/根身份/输出保护修正已完成限定复审；maintainer-only workflow 未运行，不证明远端 fan-out。Task12–14、16–18 未开始；Task15 的自验证不关闭其审阅或 Task12 候选关卡，仍须满足 15–18 的前置。真实资格、应用生成/运行、平台和人工验收未据此通过。2026-10-14 用户确认功能等价、单仓和下游技术栈中立，不要求原格式直接兼容；2026-10-15 确认 Python 优先并要求先提交当前变更、再执行计划。完整六仓核对后，用户确认将新发现的现有功能完整纳入，音频/PDF/外部平台的依赖与执行另行授权。不自研 CLI 或执行器。
 
 **Task15 fix1（2026-10-16）：** 初审的 I1/I2/I3/M1 已作限定修正和自验证，
 尚待范围复审，不记独立关闭。修正保护首次接入前已暂存的 metadata 删除、精确配置
 取得/规划 bytes，以及 Git 命令前的本地 include/metadata 读取边界，并拒绝 checkout
 占用 `.gitmodules`。I3 只作安全拦截的本地边界检查，未实际访问 UNC/网络；
 原 579/55 记录保留，入口见[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task15-fix1)。
+
+**Task15 fix2：** 复审已确认 I1/I2/M1 为 ADDRESSED，仅原 I3 的注释/continuation 交互
+进入本轮。修正保留物理注释边界，安全 RED/GREEN 后只执行 3.11 受影响来源套件
+97 方法、0 跳过；未重跑 611 全套/schema/collector。I3 待限定复审，见
+[fix2 交接](../../logs/2026-10-15-ddd-alignment.md#task15-fix2)。
 
 **Task10 第 1 轮修正（2026-10-16）：** 原审阅提出的最低版本原生消息参数、所选 venv 回退和部分写入记账问题已作窄修正并经限定复审确认；另补实际发现的 `<3.13` 条件传递依赖，不升级原六项 pins。真实 Windows 3.11/3.13 结果与恢复边界见[修正交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)。旧实现结果保留原基线，不关闭 POSIX/托管 CI 或整个 ENH-10。
 
@@ -140,7 +145,7 @@ views:
 
 增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。词汇对齐/发布接口、知识锤炼、ADR 来件、Intended Use 变更、只读 query、backlog/追溯和 SWAS/SEQ 各有明确输入/产出入口，按职责复用这九个方法，不为每个 prompt 新建角色或流程引擎。
 
-工具位于 `.github\utilities\`，默认做本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响、模型视图、实施摘要、本地 hook 接入和[只读更新提案](../template-updates.md)已完成本次范围复核。[Task15 来源接入](../domain-sources.md)的第 1 轮限定修正待复审；显式 apply 仅维护选定 BC 来源列表，或另经 index 同意创建准确本地子模块，不回写源或请求网络。Task16–18 工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)。Task10 的[私有 index 快照适配](../../.github/utilities/README.md#native-hooks)复用这些规则，没有把原工作树 API 改成暂存检查。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖；Task10 补齐实际核对的最低版本条件项，没有安装全局、媒体或云端包。
+工具位于 `.github\utilities\`，默认做本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响、模型视图、实施摘要、本地 hook 接入和[只读更新提案](../template-updates.md)已完成本次范围复核。[Task15 来源接入](../domain-sources.md)仅剩 I3 fix2 待限定复审；显式 apply 仅维护选定 BC 来源列表，或另经 index 同意创建准确本地子模块，不回写源或请求网络。Task16–18 工具未实施。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)。Task10 的[私有 index 快照适配](../../.github/utilities/README.md#native-hooks)复用这些规则，没有把原工作树 API 改成暂存检查。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖；Task10 补齐实际核对的最低版本条件项，没有安装全局、媒体或云端包。
 
 校验、导出、报告收集、更新比较和 hook 处理的可重复逻辑统一写在 Python 中，本地与 CI 直接调用同一套脚本，不交付必需的 `.ps1` 包装层，也不要求额外的 PowerShell 7 运行时。使用 `pathlib.Path`、参数列表和显式 cwd；调用子进程使用 `shell=False`，失败保留实际输出与退出码。PowerShell 可以是用户当前的 Windows 终端，但不再承载另一套维护逻辑。
 

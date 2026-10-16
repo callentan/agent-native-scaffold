@@ -54,6 +54,9 @@ metadata 必须是可核实的本地普通文件/目录；不解析网络指针�
 本实现不支持 Git 配置 include，即使路径是本地或条件看似不会命中，也在运行受影响的
 Git 命令前返回 `GIT_CONFIG_INCLUDES_UNSUPPORTED`。检查只识别声明，不展开条件/路径，
 不调用 `git config` 去探测 include，不读取被包含文件，不修改或自动展开所有者配置。
+`#` / `;` 注释以物理换行结束，注释中的反斜杠不会把下一行 header 拼入注释。
+只在注释外识别 LF/CRLF continuation；不完整或不支持的 CR continuation 先返回
+`GIT_CONFIG_UNSAFE`。普通注释和实际 quoted literal 仍可读取，不因这项防护被一律拒绝。
 Gitfile/commondir 的网络指针、别名、非普通配置或不完整 metadata 返回
 `GIT_CONFIG_UNSAFE` / `BASE_UNAVAILABLE`，不通过 Git discovery 查找替代位置。
 原生本地 clone 前还会重查准确源仓；显式配置文件相对其命令 cwd 检查。
