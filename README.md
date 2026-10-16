@@ -17,7 +17,7 @@
 <a id="first-setup"></a>
 ## 首次设置
 
-人和 Agent 都使用 [project-onboarding](.github/skills/project-onboarding/SKILL.md)。新接入或更新模板时按该方法盘点现有内容、逐项合入差异，保留所有者内容与原规则位置；不要整仓覆盖。
+人和 Agent 接入项目使用 [project-onboarding](.github/skills/project-onboarding/SKILL.md)；比较旧/本地/新模板版本或明确 BC 的场景提案使用 [update-template](.github/skills/update-template/SKILL.md)。保留所有者内容与原规则位置，不整仓覆盖；提案不应用或授权传播。
 
 只填已确认信息，资料维护不要求技术栈。只有用户选定项目、技术栈与位置、授权创建且[开发输入](docs/development.md#creation-inputs)齐备，才进入编码路径。使用 Agent 时另读[通用入口](AGENTS.md)和[接入说明](docs/agent-support.md)；App 的有限入口观察与未验证项按客户端分别记录，不把模板存在当成全部入口已支持。
 
@@ -26,7 +26,7 @@
 
 明确本次目标、范围、依据和完成条件后，从下表选择方法并读取所链接的实际工件。小维护请求或现有 issue 可直接作任务依据，不必补齐 REQ/SR/US/ABB 链。
 
-方法正文只维护在下列八个 `SKILL.md` 中；现有指引与表单定义字段，正式工件保存事实和结果。需要提交审阅时可用 [PR 表单](.github/pull_request_template.md)，文件或角色都不代表批准，也不自动授权外部操作。
+方法正文只维护在下列九个 `SKILL.md` 中；现有指引与表单定义字段，正式工件保存事实和结果。需要提交审阅时可用 [PR 表单](.github/pull_request_template.md)，文件或角色都不代表批准，也不自动授权外部操作。
 
 <a id="resume"></a>
 ## 接手或继续
@@ -44,6 +44,7 @@
 | 细化行为、必要设计与验证计划 | [specify-feature](.github/skills/specify-feature/SKILL.md) | 实际领域/REQ 或维护请求；[SR 指引](software-requirements/README.md)、[架构指引](architecture/README.md)、[验证指引](verification/README.md) | [SR](_templates/items/software-requirement.md)、[业务场景](_templates/items/validation-scenario.md)、[VT](_templates/items/verification-test.md)及按需附加工件 | [软件要求](software-requirements/README.md)、[架构](architecture/README.md)、[验证计划与索引](verification/README.md) |
 | 维护既有代码或指定文档 | [implement-task](.github/skills/implement-task/SKILL.md) | 任务、验收、实际目录与授权；编码另需[开发输入](docs/development.md#creation-inputs) | 现有任务；按需 [US](_templates/items/user-story.md) | 指定文档或[项目实际位置](src/README.md)，不强改原生布局 |
 | 安全初始代码生成 | [generate-code](.github/skills/generate-code/SKILL.md) | 已确认任务/验收、用户选定项目/栈/路径、真实命令/cwd/报告与创建授权 | 现有开发登记；按需 [BC 配置](_templates/config/bc-config.yaml) | 仅获准且预检无冲突的目标；缺输入停止，不默认创建应用 |
+| 比较模板版本与明确多目标提案 | [update-template](.github/skills/update-template/SKILL.md) | 实际旧/本地/新根与版本、所有者变化；[工具契约](docs/template-updates.md) | 可选[路径/版本/文件登记](_templates/config/template-updates.yaml)，不含命令或授权 | stdout 或明确的新本地报告；保留冲突/不可用目标，不应用或回写来源 |
 | 核对覆盖与证据 | [verify-change](.github/skills/verify-change/SKILL.md) | 全部交付验收、旧新基线、真实记录；[验证指引](verification/README.md)、按需[治理字段](docs/governance.md) | [VT](_templates/items/verification-test.md)，按需[审阅记录](_templates/items/review-record.md)或[工具使用记录](_templates/items/tool-qualification.md) | [验证目录](verification/README.md)与实际报告入口；测试代码在项目原生位置 |
 | 交接或恢复任务 | [record-handoff](.github/skills/record-handoff/SKILL.md) | 任务、Git、变化、结果入口与缺口；[日志指引](logs/README.md)、按需[最小工具记录](docs/ai-tooling.md#minimal-record) | [开发日志](_templates/items/development-log.md) | [日志目录](logs/README.md)；结果与决定仍回原记录读取 |
 

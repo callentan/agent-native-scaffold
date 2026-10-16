@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–10 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现。Task8 复用现有 VT 运行；Task9 不声明真实资格；Task10 的原发现、条件 lock 与 Minor 报告边界均已处理。当前仍是八方法、二十一 prompts、三模式，不是最终规划的九方法。Task11–18 未开始，下一步按既有授权实现三方更新和多目标提案。没有在真实工作树安装 hooks，托管 CI/required checks 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–10 已完成各自的有限本地实现与范围复核，没有遗留的这些任务审阅发现。Task8 复用现有 VT 运行；Task9 不声明真实资格；Task10 的原发现、条件 lock 与 Minor 报告边界均已处理。Task11 的本地只读三方/多目标提案已实施，等待独立范围审阅；当前九方法、二十二 prompts、三模式。Task12–18 未执行，下一步仅为 Task11 审阅，不启动后续任务。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档和 Task10 本地接入已完成本次范围复核，结果见各自记录。Task11–18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档和 Task10 本地接入已完成本次范围复核，结果见各自记录。Task11 的有限本地提案等待独立审阅，Task12–18 未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -113,6 +113,8 @@
 | Task7 覆盖/影响与模型 | 当前仓库根 | 按[实际工具契约](../../.github/utilities/README.md#traceability)使用 `check_traceability.py --root <资料根> --delivery <完整 ID>`，或 `--base <完整 commit> --task <任务 key>`；模型用 `export_model.py --root <资料根> --scope <scope>`，仅显式 `--output` 写新文件，`--check` 重算不修复 |
 | Task8 定向回归 | 当前仓库根 | 完整 unittest discovery 命令的 `-p` 设为 `test_implementation_report.py`；bridge 与保留模型机制使用 `test_model_export.py`，最终仍执行完整 `test_*.py` |
 | Task8 收集实施报告 | 当前仓库根 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root <本地 checkout> --object <完整 commit>`，可重复 `--evidence <VT相对路径[#owned运行]>`，多 BC 用 `--scope`；仅显式 `--output` 创建新本地报告 |
+| Task11 定向回归 | 当前仓库根 | 完整数量门禁 runner 的 `--pattern` 设为 `test_template_update.py`；真实三根、内容/Git 版本、逐目标登记/文件映射、CLI 0/1/2 与字节保护；最终仍执行保留＋新增全套 |
+| Task11 提案 | 当前仓库根或本次显式 cwd | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --base <旧根> --local <本地根> --candidate <候选根>`，或 `--registration <本地登记> --target <明确ID>`；[完整契约](../../docs/template-updates.md)；只读，不授权传播 |
 
 Task 2 的维护者用例分为 [parser 行为](../../.github/utilities/tests/test_artifact_io.py)和[四类 schema 数据](../../.github/utilities/tests/test_contracts.py)；[helpers](../../.github/utilities/tests/helpers.py)只创建项目 `.venv` 下的临时文件和无远端 Git fixture。Windows 边界夹具用本地 junction 和字节锁，junction 创建失败报错而非静默 skip；非 Windows 权限若被宿主特权绕过会明确报告跳过。它们不是下游工具的运行依赖，测试代码也不等于执行证据。
 
@@ -142,7 +144,7 @@ Task6 的[真实文件/Git/CLI 用例](../../.github/utilities/tests/test_artifa
 | D11 | V-model 仍区分业务验收、软件验证、覆盖/影响和实际适用性，US 不是必经层 | Task 2 / ENH-02、Task 6 / ENH-07、Task 7 / ENH-08、Task 8 / ENH-12、Task 14 / ENH-14、Task 17 / ENH-17 承接新增契约、检查、桥接和导出引用；不把映射完整写成验证通过 |
 
 以上是任务 1 已完成的范围映射和原版边界记录，不是增强整体验收结论。Task 2
-的输入契约/parser、Task3–10 的有限本地交付与范围复核见下节；Task11–18 未实施，不能从本表推导整项增强完成。
+的输入契约/parser、Task3–10 的有限本地交付与范围复核见下节；Task11 本地提案等待独立审阅，Task12–18 未实施，不能从本表推导整项增强完成。
 
 **退出：** ENH-01；六仓树条目都有归属，现有能力没有“无任务/无判据”行。未经这一步，后面只能作设计讨论，不能声明全面对齐。
 
@@ -227,7 +229,7 @@ class ArtifactIOTests(unittest.TestCase):
 <a id="task5"></a>
 ### 任务 5：BC 派生、评审与安全代码生成
 
-**当前状态：本次范围复核完成。** 实现对象 `5d39f407630d557b8b0bd51fa12efdde0b5bfef8`，起点为 `d7693a8e481dd84effc155378ae16c255c04d9b7`；独立审阅无重大问题，十例独立修改后观察仅作显式文件使用。父会话在实现对象复跑 144 项、0 跳过。当前八方法、二十一 prompts、三模式。结果与限制见[制作日志 Task5](../../logs/2026-10-15-ddd-alignment.md#task5)及[复核追加](../../logs/2026-10-15-ddd-alignment.md#task5-review)。
+**当前状态：本次范围复核完成。** 实现对象 `5d39f407630d557b8b0bd51fa12efdde0b5bfef8`，起点为 `d7693a8e481dd84effc155378ae16c255c04d9b7`；独立审阅无重大问题，十例独立修改后观察仅作显式文件使用。父会话在实现对象复跑 144 项、0 跳过。该 Task5 对象当时为八方法、二十一 prompts、三模式，不是后续 Task11 的当前库存。结果与限制见[制作日志 Task5](../../logs/2026-10-15-ddd-alignment.md#task5)及[复核追加](../../logs/2026-10-15-ddd-alignment.md#task5-review)。
 
 **文件：** 五个既有 SR/US/ABB/ADR/VT 表单与四份指引；SEQ/SWAS/feature/BC-config；specify/implement/verify 与新 generate-code；六个薄 prompts、三份代码规则；planner/implementer 的薄路由、README/AGENTS/agent-support、本计划当前状态和追加日志，共 33 个文件。reviewer 通过原 verify 入口读取新增 BC 小节，不改角色或权限；原十五 prompts 无需再复制路由。
 
@@ -383,7 +385,7 @@ class ImplementationReportTests(unittest.TestCase):
 
 - [x] 独立审阅核对全部 20 个 Markdown 变更及两项实际契约兼容风险，无 Critical/Important/Minor 发现。父会话独立 checker/trace CLI 保留 13 条合成记录及准确的 AC-02 未覆盖项，输入字节不变；这些是文档证据，不是人工 T17 或资格认证。
 
-**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10 的后续本地状态见下节；Task11–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
+**退出判据及当前限制：** ENH-09 的本任务文档范围和独立审阅完成；内容声明不认证具名人员、资格或批准。Task10/11 的后续本地状态见下节；Task12–18、真实外部政策/风险决定、应用与平台操作均未执行，增强整体未完成。
 
 <a id="task10"></a>
 ### 任务 10：可选 Git hooks 与 CI
@@ -407,12 +409,13 @@ class ImplementationReportTests(unittest.TestCase):
 **当前退出状态：** Task10 本地实现/范围审阅关卡关闭，无遗留的本任务发现；[初次交接](../../logs/2026-10-15-ddd-alignment.md#task10)、[第 1 轮](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)、[第 2 轮](../../logs/2026-10-15-ddd-alignment.md#task10-fix2)和[复核](../../logs/2026-10-15-ddd-alignment.md#task10-review)各自保留基线。真实工作树/user/global 未安装或改配置，托管运行、POSIX 原生启动和服务端 required checks 仍为 not-run；不关闭整个 ENH-10 或 Task13。下一步仅为 Task11 的本地提案实现，不授权传播。
 
 <a id="task11"></a>
+<a id="task11"></a>
 ### 任务 11：三方更新与多目标传播
 
 **文件：** `plan_template_update.py`、`test_template_update.py`、update-template 方法/prompt、template-updates 说明、proposal workflow。
 
-- [ ] 固定三方夹具：本地未改、只改本地、只改候选、两边相同、两边不同、候选删除、本地业务文件、缺旧基线。
-- [ ] 先证明冲突和不写入：
+- [x] 固定真实三根及 UPDATE-01…16：含修改/删除双向冲突、本地主动删除、add/add、本地业务文件、精确版本、原始 bytes、越界/排除、读取失败与输出隔离。
+- [x] 先证明冲突和不写入；以下是计划中的最小判据，实际回归还核对来源版本和全部输入字节/文件集：
 
 ```python
 import tempfile
@@ -435,12 +438,22 @@ class TemplateUpdateTests(unittest.TestCase):
             self.assertEqual(b"owner rule\n", (local / "AGENTS.md").read_bytes())
 ```
 
-- [ ] 实现 `UpdatePlan` 的 `changes/conflicts/preserved`，标明来源版本、每条旧/本地/候选散列、拟修改/删除与理由；默认只返回/写提案，不覆盖业务文档、规则或源码。
-- [ ] 多目标登记必须列允许的 repo/版本/文件范围；proposal workflow 只为这些目标生成独立差异与冲突。源不可读、授权不足或某目标失败逐项报告，不能把少数成功汇总成全体传播完成。
-- [ ] 真正同步由原生 Git/平台在明确批准后执行；不自建调度器/同步服务，不自动更新领域 source 或自动合并。测试实际跨仓写入在任务 13 平台关卡后进行。
-- [ ] 重跑所有原目标散列、方法停止案例及差异输出，提交工具/方法/说明。
+- [x] 实现窄 `UpdatePlan` 的 `changes/conflicts/preserved/sources`，每项有实际三方路径、版本、原始散列/明确缺席和理由；默认/API 不写，显式新报告不占用源或历史。
+- [x] 窄可选登记与安全 YAML reader：来源场景→明确 BC/repo/context/本地根/版本→允许 `.feature` 映射→各自 no-change/proposed/conflict/unavailable。错误不变成功，缺目标/根/版本不猜测，未选/缺失目标根同样受输出保护。
+- [x] 新增计划中的第九方法、第二十二个薄 prompt、更新说明和 maintainer-only 手动 proposal workflow；同源 Python core，不分发为下游 runtime dependency。
+- [x] 记录真正同步的授权边界：没有 apply、clone/fetch、目标 commit/push/PR 或同步服务。实际跨仓/平台运行保留给任务 13；YAML/本地提案不是外部功能等价证据。
+- [x] 实际方法自用：正确既有方法基线保留，正例/冲突/缺基线取得 0/1/2，源未变；不是独立 Agent 压力实验、人工 T17 或原生客户端发现。
+- [x] 最终最低版保留＋新增全套、文档/核心 consumer 依赖与 append-only 保护核对：3.11.15 实际 506/506，0 失败/错误/跳过；3.13.15 另跑 61 新方法，均通过。范围内新 coauthored 提交的实际对象以本节所在提交和本机报告为准，不推送/PR。
+- [ ] 独立范围审阅；真实平台 fan-out/PR、POSIX 执行仍为 not-run，不在本任务执行。
 
-**退出：** ENH-11 的可重复更新提案；原 fan-out 的已观察功能若还存在未实现的自动化差异，矩阵保留该缺项，不能靠“有脚本”宣布等价。
+**当前本地状态（2026-10-16）：** 从干净 `2a8c9a95ad991167756ba7b02ec5727b3100ed2c` 起步，
+沿 TDD 聚焦迭代，自审复现选定文件 stat 后消失、来源/目标诊断混淆、输出保留位置解析
+失败与被拒绝 URI 原值回显，均先 RED 再窄修正。为不混用对象，尚未完成的第一份全套被中止，
+不计通过；最终完整 3.11.15 套件实际发现/执行 506、0 失败/错误/跳过，838.141 秒。
+原 445 个测试身份全部保留并实际执行，新增 61；没有冒充先前 445 全套已通过。
+最终全套、原始执行身份、字节保护与提交结果见[本次交接](../../logs/2026-10-15-ddd-alignment.md#task11)。
+ENH-11 的本地提案已实施，等待独立范围审阅；原远端 clone/push/PR 等差异仍保留，
+不能靠“有脚本”或本地测试宣布完整外部等价。
 
 ### 任务 12：增强候选、工具分发与原行为回归
 
@@ -551,4 +564,4 @@ class TemplateUpdateTests(unittest.TestCase):
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–10 的有限本地交付及范围复核已完成；当前八方法、二十一 prompts、三模式。Tasks11–18 尚未实施，下一步为三方更新与多目标提案。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–10 的有限本地交付及范围复核已完成；Task11 本地只读提案已实施、等待独立范围审阅，当前九方法、二十二 prompts、三模式。Tasks12–18 尚未实施，本轮提交后停止等待 Task11 审阅。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。

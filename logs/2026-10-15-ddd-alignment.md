@@ -818,3 +818,110 @@ stdout/stderr/退出与前后摘要。两个版本最终各发现/执行 **9 方
 真实项目安装、POSIX/Ubuntu 原生执行、服务端 required checks、应用和人工验收仍未执行。
 下一步按[Task11](../docs/plan/2026-10-14-ddd-functional-alignment.md#task11)实现本地三方更新
 及多目标提案，不因此授权 clone/fetch/远端写入/PR、自动合并或发布。
+
+<a id="task11"></a>
+## Task11：只读三方模板与明确 BC 场景提案
+
+2026-10-16，只实施已授权增强计划的 Task11，从干净
+`2a8c9a95ad991167756ba7b02ec5727b3100ed2c`、原
+`callentan-repository-skeleton` linked worktree 开始；不创建新 worktree、不访问主 checkout。
+开工时核对 135 个原 tracked 文件、暂存区/工作文件无改动，实际维护解释器仍为
+3.13.15，已有最低版本解释器为 3.11.15。本轮无安装、运行时或依赖变化。
+开工的 445 个测试身份只是 discovery 清单，不是先前通过的全套。
+
+### 实施范围与判断
+
+- [只读 core](../.github/utilities/plan_template_update.py)以窄 dataclass 比较真实
+  base/local/candidate 的原始 bytes；UPDATE-01…16 含双向修改/删除冲突、本地主动删除、
+  add/add、本地业务文件、精确内容/本地 Git 版本、别名/排除、读失败、漂移及输出保护。
+- [明确登记契约](../docs/template-updates.md#registration)与
+  [空白数据表单](../_templates/config/template-updates.yaml)只含来源、版本和允许文件：
+  场景→明确 BC/repo/context→本地映射→独立 no-change/proposed/conflict/unavailable。
+  复用安全 YAML reader 和受限 Git helper，不发明根/版本、复制 model 或整仓。
+  目标失败不抹去其他提案；未选/缺失的登记目标根仍受输出保护。
+- 新增第九个 [update-template 方法](../.github/skills/update-template/SKILL.md)、
+  第二十二个[薄 prompt](../.github/prompts/update-template.prompt.md)和维护者侧手动
+  `propose-template-updates.yml`；三个模式不变。原八方法保留，不增加角色流水线，
+  workflow 不成为下游 runtime dependency，YAML 只作本地读取/范围自审，未执行。
+- [工具说明](../.github/utilities/README.md#template-update)、开发登记、README/AGENTS、
+  接入导航、计划/规格/roadmap 与 FRAMEWORK-09 的本地差距同步；原生六方法/五 prompts
+  的历史观察不扩为九/二十二已获客户端验证，旧 38 文件也不是本轮 release allowlist。
+
+### TDD、自审与有限自用入口
+
+新增[回归测试](../.github/utilities/tests/test_template_update.py)从实际冲突 RED 开始，
+随后三方/读边界、版本/scope、批量登记各先失败再实现。自审另复现“选定文件 stat 后消失
+被当缺席”和“来源/目标诊断混淆”，分别修正；输出保留根解析失败也取得真实拒绝路径 RED，
+再窄映射为 input-error/2，不吞为成功。读取失败的 Windows 文件锁、目录 junction 与真实
+Git 对象/CLI 使用实际资源；目录枚举、受控变更和输出解析 I/O 注入另行标注，不冒充 OS ACL。
+
+仅本机可访问的证据在本会话 `files\ddd-alignment-execution\task11-evidence\`，
+完整报告入口为同级 `task11-report.md`（完成阶段写入）；不是分发内容或跨机器公开证据。
+`start.json` 保存原文件摘要/445 个身份；`red-01`、`green-02`、`red-03/green-04`、
+`red-05/green-06`、`red-07/check-08`、`red-09/green-10` 保存准确 runner argv/cwd、
+stdout/stderr、发现/执行/失败/错误/跳过和源读集。最近完整的 Task11 聚焦组为
+58 方法、0 失败/错误/跳过；新增的独立 consumer 与输出解析 guard 各另有 1 方法实跑，
+不能将这些选择器拼成一次新的全套结果。
+
+新方法按 writing-skills 做有界自用。`method-before-observation.md` 保留
+project-onboarding 的**正确**基线，不制造旧方法错误；positive/conflict/missing-base
+读取实际夹具后得到 0/1/2，全部源 bytes/文件集不变。只是同 Agent 显式读取/自用，
+不是 fresh-context 独立压力实验、人工 T17、native discovery 或权限试验。
+
+### 本阶段状态与剩余关卡
+
+主体本地实现完成；最终保留＋新增全套、文档/历史前缀核对及本地提交仍待本节追加实际结果。
+Task11 交付将等待独立范围审阅，不自行关闭此关卡。原远端 fan-out 的 clone/push/PR、
+托管/self-hosted workflow 运行、POSIX 原生、服务端门禁、真实安装、应用、人工及 Tasks12–18
+均未执行；本轮不启动 subagent/reviewer，不向目标仓库写入、提交或执行任何远程操作。
+
+### Task11 收尾诊断修正与证据对象
+
+收尾用自有假标记检查后发现，新工具经 helper 拒绝 URI/UNC 时会回显原值。
+没有使用真实凭据或访问网络。先取得实际 CLI 反例及四个失败子例，再只在新 planner 边界
+提前拒绝网络根、复用输出错误码但不输出原值；未修改旧 helpers 或其他任务。
+该新回归 RED→GREEN，所有者 bytes/文件集仍受保护。
+
+为避免混用源码对象，尚在运行的第一份最低版本完整尝试被明确中止，未生成完整 runner
+receipt/raw output，不能记通过或推算执行数量。`interrupted-13.json`、
+`red-17-uri-diagnostic-probe.json` 和 `green-20-uri-diagnostic-probe.json` 保留原因及
+真实拒绝输出；此前所有证据保留。修正后的最终最低版本全套另起独立前缀，不重复完整基线。
+
+同一最终 core 在主用 3.13.15 上以 `focus-19-primary313` 实际发现/执行
+**61 个新方法**，0 失败/错误/跳过、退出 0；runner 43.924 秒（unittest 42.532 秒）。
+`inventory-23-retained.json` 确认原 445 个身份全部保留、当前发现 506、增加 61；
+这仍只是 discovery/字节保护记录，不是最低版全套结果。原八方法、二十一 prompts、
+三个角色、五份 schema 与两份依赖清单共 39 个原文件的 bytes 均未变。
+
+最终方法/批量实用另留 `method-after-final21.json`、`manual-batch-final21-use.json` 和
+`manual-batch-final21-proposal.json`，保留最终 core 摘要、实际参数/cwd/输出/退出及源哈希。
+`static-22-corrected-core.json` 核对 14 份变化 Markdown/364 个本地链接、9/22/3 实数、
+旧日志 101,890-byte 前缀与历史原生观察原文；无新/旧链接发现。外链未访问，
+workflow 仅解析/自审并禁用 checkout clean，预备来源须在工具 checkout 之外。
+
+最低版环境没有 pip 模块，诊断 `pip check` 退出 1，不能写作通过；未为此重装。
+`environment-15.json` 保存主用 pip check/0、两个解释器实际包版本/导入成功和未安装事实。
+正式工件检查的 `formal-16-root.json` 为 empty/0、发现/执行正式对象均为 0，
+不能用它替代行为全套或普通文档检查。最终最低版完整结果仍以随后追加的实际 receipt 为准。
+
+### Task11 最终完整验证与交接状态
+
+最终 `final-18-retained-new.json/.txt` 已在未重装的 Python **3.11.15** 完整执行：
+实际发现/执行 **506 方法**，失败/错误/跳过均 **0**，退出 **0**；
+runner **838.141 秒**，原始 unittest **836.005 秒**。这是最终源码的一次完整保留＋新增运行，
+不是把先前选择器拼接成全套，也不是中止尝试的结果。
+
+`final-24-integrity.json` 独立核对原始输出中 506 个实际 `ok` 身份恰好等于原 445＋新 61，
+无缺失/额外身份；全部受检工具/测试/契约/依赖输入哈希保持不变，且与主用 3.13 的 61 项
+运行使用同一份输入。最终方法/批量证据的 core 摘要也与当前文件相同，原日志
+101,890-byte 前缀仍逐字节保留。上段 empty 工件检查的精确字段是
+`checked_count/attempted_count=0`，并非 unittest 的发现/执行计数。
+
+实现和范围内自审完成，Task11 状态为 **implemented，等待独立范围审阅**。
+只按本次授权准备一个新的本地 coauthored 提交；实际 commit/parent/trailer、18 个范围文件、
+提交后 Git 状态与完整原始结果入口回本机 `task11-report.md` 读取。日志不把自身所在提交号
+猜写为预先已发生的对象，不 amend、push、PR 或清理此 App 管理的 worktree。
+
+下一步仅为独立 Task11 审阅；接手者须重新核对提交、差异、最终 receipt 与可访问性。
+POSIX/托管/self-hosted 执行、服务端 required checks、真实安装、远端 fan-out/PR、
+应用/人工 T17/新原生发现及 Tasks12–18 保持各自 not-run/授权关卡，本轮提交后停止。

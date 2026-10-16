@@ -1,0 +1,63 @@
+name: Maintainer template proposals
+
+"on":
+  workflow_dispatch:
+    inputs:
+      registration:
+        description: Absolute local registration path on the trusted pre-provisioned runner
+        required: true
+        type: string
+      targets:
+        description: Explicit comma-separated registered target IDs (no spaces)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  propose:
+    # This is a maker-repository tool, not a downstream runtime workflow.
+    if: ${{ github.repository == 'callentan/agent-native-scaffold' }}
+    runs-on: [self-hosted, Linux, template-proposals]
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Prepare the isolated maintainer tool environment
+        run: |
+          python -m venv "$RUNNER_TEMP/proposal-tools-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          "$RUNNER_TEMP/proposal-tools-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/bin/python" -m pip install --requirement .github/utilities/requirements.lock
+          "$RUNNER_TEMP/proposal-tools-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/bin/python" -m pip check
+      - name: Produce local read-only proposals with real failure propagation
+        env:
+          REGISTRATION: ${{ inputs.registration }}
+          TARGET_IDS: ${{ inputs.targets }}
+        run: |
+          IFS=',' read -r -a selected <<< "$TARGET_IDS"
+          args=()
+          for target in "${selected[@]}"; do
+            args+=(--target "$target")
+          done
+          "$RUNNER_TEMP/proposal-tools-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/bin/python" -B -X utf8 .github/utilities/plan_template_update.py \
+            --registration "$REGISTRATION" "${args[@]}" \
+            --output "$RUNNER_TEMP/template-proposals-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+      - name: Retain the proposal, including conflicts or unavailable targets
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-proposals
+          path: ${{ runner.temp }}/template-proposals-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: warn

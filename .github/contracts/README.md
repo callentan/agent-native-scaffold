@@ -4,6 +4,8 @@
 
 原四份 schema 的 v1 语义保持不变；可选来源清单有独立的第五份 schema。均为 JSON Schema Draft 2020-12，必填 `schemaVersion: 1`，拒绝未知字段。`$ref` 仅使用文件内部的 JSON Pointer；`$schema` URI 是方言标识，不要求联网下载，也不依赖制作仓的测试或历史记录。
 
+可选的[模板更新登记](../../docs/template-updates.md#registration)另有窄路径/版本/文件契约与[空白数据表单](../../_templates/config/template-updates.yaml)，复用安全 YAML reader，不增加业务/结果 schema、命令 manifest 或授权字段。上述五份 schema 及其原 v1 语义不变。
+
 ## 共用表示
 
 | 表示 | 约定 |

@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型和只读实施报告收集；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
+本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集和三方/明确多目标更新提案；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -303,6 +303,28 @@ build_report(root, object_sha, evidence_files, *, scope=None) -> dict
 
 报告可重建但不是来源事务：读取期间发现同一路径字节变化会失败；不宣称防御所有并发恶意替换。报告写入中断可能留下不完整的新文件，下一次仍拒绝覆盖。领域源 `readOnly: false` 也不授权写入；不执行 hooks、filter、replace-ref、fetch 或配置中的任何命令。
 
+<a id="template-update"></a>
+## 只读模板与明确 BC 场景提案
+
+`plan_template_update.plan_update(base, local, candidate) -> UpdatePlan` 比较真实三根，
+返回 `changes/conflicts/preserved/sources`，不写源或输出。可用窄 `TreeSource(root, version, files)`
+给出确切本地 Git/content 身份及一致的文件 scope；缺旧基线、读取失败或版本错误直接失败。
+`plan_batch(registration, target_ids) -> BatchPlan` 仅为显式登记/选定的 BC 映射 `.feature`，
+保留来源场景、仓库/上下文/版本、允许文件及每个目标的独立结果，不传播 model 或整个仓库。
+
+[完整输入、摘要配方、16 类判定、登记、状态和输出契约](../../docs/template-updates.md)
+只在更新说明维护；[共享方法](../skills/update-template/SKILL.md)处理判断与停点。
+CLI 默认 stdout，三根模式为 `--base <旧根> --local <本地根> --candidate <候选根>`；
+批量模式为 `--registration <本地登记> --target <明确ID>`（每个目标重复）。
+`no-change/proposed` 退出 0，`conflict` 退出 1，任一 `unavailable` 或输入/输出错误退出 2。
+干净提案可以有增/改/删；不是应用成功。显式 `--output <新的 .json>` 必须在所有输入/
+登记位置之外，不建父目录、不覆盖历史，不能占用缺失或未选的目标根。
+
+输入解析/安全 YAML 和受限原始 Git helper 复用 `artifact_io.py`、`check_artifacts.py`；
+与它们及既有锁定依赖一起使用即可，不依赖维护者 tests、制作资料、workflow 或新依赖。
+没有 `--apply`、clone/fetch、commit/push、PR、外部源写回或后台同步。
+所有者业务数据、原规则及主动删除保留；原始字节与来源漂移按完整契约核对。
+
 ## 使用范围
 
-下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型和实施摘要各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
+下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型、实施摘要和更新提案各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
