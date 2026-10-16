@@ -20,6 +20,11 @@
 公开 0–100 因素与理由，不是概率或接受阈值。类型、定位、输入限制、CLI 和错误的
 单一说明见[来源候选契约](../../docs/source-extraction.md)，不加入正式工件 schema。
 
+完整规范化源单元和分类必须一致，不能通过子串丢弃限定语。Markdown 候选使用同一
+扫描器产生的行前注释 context；它不是 caller 的可见正文 override 或来源认证。
+envelope 另核对声明单元总数、格式专属坐标/顺序与空单元关系，全部有效才评分；
+裸 list 不臆造总数或丢重复来源。缺 grid 的 DOCX 表格按首行宽度保持矩形限制。
+
 API/default CLI 无写入；显式输出只 exclusive create root 内的新 JSON，不建目录或
 覆盖声明输入。`transcribe_audio` 当前只有授权/缺项/不可用拒绝入口，不读音频或环境密钥、
 不安装 SDK 或调用服务。候选仍回[共享逆向方法](../skills/reverse-engineer-domain/SKILL.md)
@@ -81,6 +86,10 @@ parse_artifacts(
 `source` 是去除 UTF-8 BOM 后的原文，`body` 从闭合 frontmatter 分隔行之后开始；两者保留原 LF/CRLF，不重排或写回文件。`body_start_line`、目标和验收位置用于后续检查定位；`relative_path` 使用解析后相对根的 `/` 路径。原始字节需要调用者另行读取，不能拿解码后的 `source` 替代原文件的字节摘要。
 
 `metadata_locations` 是 `(字段路径 tuple, SourceLocation)` 的 tuple，来自同一次 YAML 解析，例如 `("scope",)` 或 `("targets", 0, "target")`，不是第二套字段解析。共享 `iter_markdown_lines(body, start=1)` 保留行号，移除 HTML 注释，代码行返回 `None`；parser 与检查器共用它处理字面内容。`iter_markdown_fences(body, start=1)` 从**同一个**状态机返回真正闭合的 `MarkdownFence(start_line, end_line, info, body)`，注释或外层代码中的围栏示例不变成新代码块。owner 验收仍只由原 parser 的显式锚点与所属 ID 标题产生。
+
+来源候选可用 `iter_markdown_source_lines(body, start=1, *, initial_in_comment=False)` 取得
+`(line, visible_or_None, incoming_comment_bool)`；该 keyword-only 初始状态只供完整源单元
+重放，仍委托同一个状态机。原行/围栏接口和正式身份行为不变，不认证未提供的源前缀。
 
 ## 输入错误
 

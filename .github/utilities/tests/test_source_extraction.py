@@ -480,6 +480,32 @@ class DocxExtractionTests(SourceFixture):
             offset = data.find(b"PK\x01\x02", offset + 4)
         self.error(self.write(data, "directory-alias.docx"), "docx", "UNSAFE_DOCX")
 
+    def test_fix1_m1_actual_gridless_nonrectangular_table_is_refused_wholly(self):
+        for widths in ((1, 2), (2, 1)):
+            with self.subTest(widths=widths):
+                rows = []
+                for width in widths:
+                    rows.append("<w:tr>" + (
+                        "<w:tc><w:p><w:r><w:t>Rule: Keep all sources.</w:t></w:r></w:p></w:tc>" * width
+                    ) + "</w:tr>")
+                document = (f'<w:document xmlns:w="{W}"><w:body><w:tbl>'
+                            + "".join(rows) + "</w:tbl></w:body></w:document>")
+                path = self.document(document=document)
+                before = source_bytes(self.root)
+                self.error(path, "docx", "UNSUPPORTED_DOCX")
+                self.assertEqual(before, source_bytes(self.root))
+
+    def test_fix1_m1_actual_gridless_rectangular_rows_keep_original_coordinates(self):
+        cell = "<w:tc><w:p><w:r><w:t>Rule: Keep all sources.</w:t></w:r></w:p></w:tc>"
+        document = (f'<w:document xmlns:w="{W}"><w:body><w:tbl>'
+                    "<w:tr>" + cell * 2 + "</w:tr><w:tr>" + cell * 2 +
+                    "</w:tr></w:tbl></w:body></w:document>")
+        report = self.extract(self.document(document=document), "docx")
+        self.assertEqual((4, 4), (report["unit_count"], report["candidate_count"]))
+        self.assertEqual({"part": "word/document.xml", "block": 1, "paragraph": 4,
+                          "table": 1, "row": 2, "cell": 2, "cell_paragraph": 1},
+                         report["candidates"][3]["location"])
+
 
 class SourceCliTests(SourceFixture):
     def test_extract_15_default_stdout_is_read_only_with_actual_selected_root(self):

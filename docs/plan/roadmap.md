@@ -227,3 +227,9 @@ T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额
 2026-10-16 的 Task8 独立 review 提出三个 Important；[第 1 轮窄修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix1) 完成 RED/GREEN 和 395 方法全量验证后，限定复审关闭原三项并指出新兼容性问题。它不升级业务/审批或完整增强结论。
 
 新 T8-F1-N1 经[第 2 轮局部修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix2) 和[限定复审](../../logs/2026-10-15-ddd-alignment.md#task8-review)关闭；合法业务 tree 的导出/检查往返恢复，实际领域源保护保留。旧 395 全套和不同对象的局部结果各自保留，不改标为一次新运行。
+
+Task16 独立审阅在 `9942e70` 提出三个 Important 与一个 Minor；本轮
+[fix1](2026-10-14-ddd-functional-alignment.md#task16-fix1) 仅修正源单元限定语、
+共享 Markdown context、计数/位置关系和 gridless 表格宽度，待范围复审。
+旧 688 与本轮新的局部/最低版本结果分开保留；实际音频/ENH-16 未整体关闭，
+没有启动 Task12、17、18 或外部操作。

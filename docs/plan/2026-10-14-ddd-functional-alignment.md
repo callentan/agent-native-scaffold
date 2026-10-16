@@ -585,6 +585,22 @@ continuation 先 typed refusal。安全 RED 10 方法/48 子例失败后，3.13 
 退出 0、1,799.906 秒，测试输入未变；这不是此前存在 621 全套通过的说法。
 实际音频服务/模型/SDK/数据发送未选择或授权，ENH-16 及 Task12 前置不据此关闭。
 
+<a id="task16-fix1"></a>
+**fix1（1/5，待限定复审）：** 从 clean `9942e70a59577f3ead9049d006c2bd827a168101`
+开始，对 T16-I1/I2/I3/M1 先取得真实 RED。候选完整规范化单元与分类/全部标记必须一致，
+不允许 substring 丢限定语；Markdown 行前注释 context 与全文件提取共享同一个状态机。
+envelope 在评分前检查可知的单位/计数/原始行组/turn/DOCX 坐标关系，
+空单元和裸 list 的不完整读取范围不被当成错误总数。无 grid 表格以首行宽度保持矩形子集。
+新增 19 个回归方法，原 67 个 Task16 test 方法 AST 未改；3.13 focused 来源 50、
+评分 36 与保留 parser 78 各自通过。唯一最低版本 retained+new suite 的实际结果另在
+[fix1 交接](../../logs/2026-10-15-ddd-alignment.md#task16-fix1)追加，
+不重标原 688 或重跑一份 688 baseline。没有 schema/guard/lock/role/runner/依赖/
+音频服务改动，不推进其他任务；音频和 ENH-16 关卡保留。
+
+fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留＋19 新增），
+0 失败/错误/跳过，退出 0、1,799.438 秒，测试输入未变。旧 688/67 仍保留原基线；
+这里只完成本地修正与维护验证，四项 finding 仍待限定复审，不解锁后续或实际音频。
+
 ### 任务 17：关系图、SWAS/PDF 与演示导出
 
 **依赖：** 5、7、8；完成后解锁任务 12。**文件：** 三个 render Python 工具、rendering manifest、`test_rendering.py`、document-exports 说明及可选 workflow。

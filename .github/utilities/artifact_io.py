@@ -370,20 +370,23 @@ def _without_comments(line: str, in_comment: bool) -> tuple[str, bool]:
     return result, in_comment
 
 
-def _markdown_tokens(body: str, start: int) -> Iterator[tuple[int, str, str]]:
+def _markdown_context_tokens(
+    body: str, start: int, *, initial_in_comment: bool = False,
+) -> Iterator[tuple[int, str, str, bool]]:
     """One comment/fence state machine for prose and actual fenced-code readers."""
     fence: tuple[str, int] | None = None
-    in_comment = False
+    in_comment = initial_in_comment
     for number, raw in enumerate(body.splitlines(), start):
+        comment_before = in_comment
         if fence is not None:
             if re.fullmatch(r" {0,3}" + re.escape(fence[0]) + "{" + str(fence[1]) + r",}[ \t]*", raw):
                 fence = None
-                yield number, "fence-close", ""
+                yield number, "fence-close", "", comment_before
             else:
-                yield number, "fence-body", raw
+                yield number, "fence-body", raw, comment_before
             continue
         if not in_comment and (raw.startswith("    ") or raw.startswith("\t")):
-            yield number, "code", raw
+            yield number, "code", raw, comment_before
             continue
         # Strip only a candidate's prefix: comments may precede a fence, but
         # its raw info string is literal and still determines fence validity.
@@ -397,10 +400,24 @@ def _markdown_tokens(body: str, start: int) -> Iterator[tuple[int, str, str]]:
                 break
         if fence is not None:
             in_comment = False
-            yield number, "fence-open", opener[2].strip()
+            yield number, "fence-open", opener[2].strip(), comment_before
         else:
             line, in_comment = _without_comments(raw, in_comment)
-            yield number, "text", line
+            yield number, "text", line, comment_before
+
+
+def _markdown_tokens(body: str, start: int) -> Iterator[tuple[int, str, str]]:
+    for number, kind, text, _ in _markdown_context_tokens(body, start):
+        yield number, kind, text
+
+
+def iter_markdown_source_lines(
+    body: str, start: int = 1, *, initial_in_comment: bool = False,
+) -> Iterator[tuple[int, str | None, bool]]:
+    """The same scanner with incoming comment context for source-unit normalization."""
+    for number, kind, text, before in _markdown_context_tokens(
+            body, start, initial_in_comment=initial_in_comment):
+        yield number, text if kind == "text" else None, before
 
 
 def iter_markdown_lines(body: str, start: int = 1) -> Iterator[tuple[int, str | None]]:

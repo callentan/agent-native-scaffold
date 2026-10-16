@@ -42,12 +42,13 @@ API 不写文件或改变 cwd。
 | `candidate_id` | `candidate-0001` 起的本次局部序号；不同来源可重号，不能当成 REQ/RULE 或 canonical ID |
 | `kind` | `rule`、`capability`、`use-case`、`term` 或 `statement` 的候选类型 |
 | `nature` | `observed`：显式标签；`inferred`：未标注文字的词法分类；`uncertain`：提案/待定措辞。均不表示事实已确认 |
-| `text` | 所选来源单元的可见文字，去掉首尾空白，不补参与者、指标或结论 |
+| `text` | 所选来源单元的**完整**规范化文字，不能只选子串或丢限定语；具体规范化见下文 |
 | `fragment` | 原始行/转录 JSON 行或 DOCX 段落文字；不冒充缺失的原始访谈或 XML 行号 |
 | `source`、`location` | 同一实际字节身份及下述 1-based 格式坐标 |
 | `uncertainty` | 保留检测到的提案词及理由；直接表述没有这些词时为空，不代表与其他来源一致 |
 | `extraction_reason` | 显式标签或词法推断的分类依据 |
 | `clarification` | 请求实际所有者确认范围、核对相反来源；不制造具名批准人或决定编号 |
+| `markdown_context` | 新提取的 Markdown 候选附带 `{"in_comment": false}` 或 `true`，表示该原始行进入扫描器前是否已在 HTML 注释中；不是额外可见正文或认证结果。其他格式不允许此字段 |
 
 支持的显式标签为 `Rule:`、`Capability:`、`Use case:` / `Use-case:`、
 `Term:` 以及 `规则：`、`能力：`、`用例：`、`术语：`。英文大小写不敏感。
@@ -71,8 +72,37 @@ API 不写文件或改变 cwd。
 UTF-8 可有 BOM，支持 Unicode、空格路径与 CRLF。字节摘要保留 BOM/换行原貌；
 `fragment` 的文本行不含行终止符。文本 paragraph 是**过滤前**以空白行分隔的连续非空
 原始行组，所以 Markdown 标题、注释和围栏所在组仍计数，不伪装成渲染器语义段落。
-Markdown 的 `text` 可去掉内联 HTML 注释，`fragment` 仍保留原始行，评分使用同一行扫描器
-核对可见摘录。工具不是完整 Markdown renderer，不自动把表格、标题或 frontmatter 转成正式工件。
+Markdown 的 `text` 可去掉 HTML 注释，`fragment` 仍保留原始行，评分使用同一状态机和
+明确的行前注释 context 核对完整可见单元。工具不是完整 Markdown renderer，
+不自动把表格、标题或 frontmatter 转成正式工件。
+
+### 完整源单元规范化与 Markdown context
+
+- plain text、DOCX：仅对整个 `fragment` 做首尾 `strip()`；不截短、折叠内部空白、
+  改大小写、标点或删除限制性后缀。DOCX 的 paragraph 可含 tab/换行，仍是一个完整单元。
+- transcript：严格解析整个原始 JSON 行，取完整 `text.strip()`；同时核对 supplied
+  speaker/time，不取其中任意子串。
+- Markdown：同一共享扫描器读取整个原始行，沿注释/代码/围栏规则得到完整可见行，
+  排除标题、代码和空可见行后，仅做首尾 `strip()`。提取时保留全文件实际
+  `markdown_context.in_comment`，评分时以该声明状态进入**同一**扫描器，
+  不为独立 fragment 再写一套 Markdown parser，也不接受 caller 提供的 duplicated visible text。
+
+例如原始两行 `<!--` 与 `    --> Rule: Members <!--x--> must keep receipts.`，
+第二行保留原始 fragment、原始 line/group 和 `{"in_comment": true}`；
+完整 text 为 `Rule: Members  must keep receipts.`。不会因独立 fragment 的四空格
+误判为代码，也不能删除其可见的 Maybe 或限制性后缀来提高分数。
+
+`markdown_context` 只允许一个真正的 bool `in_comment`，不允许可见文字 override、
+未知 key 或 bool 的数字替身；行 1 不可能从前一行继承注释。兼容没有此字段的旧
+Markdown 候选时，声明的默认入口是非注释状态，不能猜测遗漏的上下文。
+该状态是有限的**来源上下文声明**，不是从原文件重新认证的事实。
+工具不打开原件、认证原 hash、说话者或未提供的前缀；它只证明所给 fragment/context/
+完整 text/分类内部一致。不能把这一限制宣传成真实性或批准保证。
+
+`kind`、`nature` 和全部 `uncertainty` 标记必须与完整规范化单元重新分类的结果一致，
+包括标记的次序与重复。不允许用截短 text、删掉 Maybe/should/待确认，或手工覆盖
+nature/标记来伪装另一个候选。所有者另作的业务判断仍回共享方法记录，不修改工具观察
+来代替澄清；原始片段与坐标不被规范化重写。
 
 ### 明确转录格式
 
@@ -101,6 +131,8 @@ Markdown 的 `text` 可去掉内联 HTML 注释，`fragment` 仍保留原始行�
 支持 transitional WordprocessingML 的 `document/body`、普通 `p/r/t`、
 run 中 `tab/br/cr`、末尾空 `sectPr`，以及矩形 `tbl/tr/tc` 表格。
 表格可有空 `tblPr`、简单 `tblGrid/gridCol` 和仅含 `tcW` 的 `tcPr`。
+有 grid 时以 grid 列数核对所有行；没有 grid 时以首行实际单元格数核对所有行，
+后续变宽或变窄均明确拒绝，不能当成矩形子集已支持。
 保留 run 连接顺序、XML 解码文字、tab 和换行，不补空格、页面或音频时间。
 `block` 是 body 中的位置；`paragraph` 按文档顺序计所有段落；
 `cell_paragraph` 是该格内的段落位置，其他坐标按文档/表格内顺序计数。
@@ -130,8 +162,8 @@ Strict OOXML、非 UTF-8 XML、合并/嵌套表格、样式属性、字段、超
 <a id="scoring"></a>
 ## 透明评分
 
-`score_candidates` 接受未评分候选的具体 list，先校验完整来源身份、位置、类型、
-字面/Markdown 可见摘录或解码 turn 与 nature/uncertainty 的一致性。
+`score_candidates` 接受未评分候选的具体 list，先校验整个输入的完整来源身份、位置、
+完整规范化单元与 kind/nature/uncertainty 的一致性，全部有效后才计算分数。
 无来源、非法枚举、负数、bool 冒充计数、非法 Unicode、缺位置或未知字段是错误，
 不会偷偷记 0。空来源可有 empty envelope，但不能提供非空候选。
 来源路径须是无 `.` / `..`、alternate stream 的绝对本地声明。
@@ -140,9 +172,34 @@ Strict OOXML、非 UTF-8 XML、合并/嵌套表格、样式属性、字段、超
 也不认证 source hash 或说话者；外部提供的 provenance 只作形状/一致性核对。
 跨源矛盾或重复没有自动加分，全部保留其出处。
 
+### 单元、计数与位置的一致性
+
+scoring CLI 读取 envelope 时，在产生任何 score 或创建输出前检查：
+
+| 格式或关系 | 可以从输入本身核对的约束 |
+|---|---|
+| 通用 envelope | `candidate_count` 等于 list 长度且不大于 `unit_count`；status/count/source 声明一致，计数是真正非负整数。候选位置不得超出对应的声明单元总数 |
+| text / Markdown | `line <= unit_count`，paragraph 是连续非空**原始**行组，故 `2 × paragraph - 1 <= line`。物理行数不大于给定 text bytes；不把 group 数当成行数 |
+| 完整 text envelope | source lines 唯一递增，第一非空 group 为 1；相邻 candidate 行同组，行号之间的空行 gap 恰使 group 增加 1 |
+| Markdown envelope | source lines 唯一递增，group 不倒退，跨 group 至少有相应空行分隔。标题/代码/注释可使候选跳过原始 groups，不强制第一可见 group 为 1 |
+| transcript envelope | line 唯一递增且有总数边界；turn 必须从 1 连续到 candidate_count，且 turn 不大于原 line。空行不产生 turn，timestamp 不按大小重排 |
+| DOCX envelope | `paragraph <= unit_count`，全局 paragraph 唯一递增、body block 不倒退；普通 block 只有一个 paragraph，table index 与已知 body blocks 相容 |
+| DOCX 相关坐标 | block 不大于全局 paragraph、table 不大于 block；row/cell/cell_paragraph 必须能容纳在已给的全局 paragraph 之前。已知矩形最小宽度、同格 local/global paragraph 偏移、可知的相邻 block 起点和末尾空单元格段落不能互相矛盾 |
+
+空行、空 DOCX paragraph/cell 都是真实单元，所以 `candidate_count` 可以小于
+`unit_count`，最后一个候选也不必占最后单元；不把 missing candidates 自动补出来。
+表格位置检查只使用已给坐标能确定的最小行宽/偏移，不声称知道未提供的全部空格或 OOXML。
+
+**裸 list API 没有 envelope 总数或完整读取声明。** 只核对单记录可知的关系
+（例如 group/line、turn/line、DOCX block/table/paragraph 的必需下限与首 block 约束），
+不臆造 unit_count，不将 partial/repeated/跨来源集合强制排序、去重或当成完整原文件。
+这不是重新打开来源核实位置；不可能从声明自行认证原始字节的真实性。
+任一不一致都让整个调用以既有 typed input error 失败，不返回已评分前缀，
+也不会由 CLI 写出部分“成功”报告。
+
 | factor | 分值与公开理由 |
 |---|---|
-| `evidence` | 30：非空摘录与所给 fragment 一致，身份语法完整；不是独立来源真实性证明 |
+| `evidence` | 30：完整规范化单元及分类与所给 fragment/context 一致；不是独立来源真实性证明 |
 | `locator` | 25：该格式必需的正整数坐标及提供的 speaker/time 完整 |
 | `completeness` | 显式类型标签 15，加 stripped text 至少 16 字符 10；不是业务语义完整性 |
 | `uncertainty` | observed 20、inferred 10、uncertain 0 |

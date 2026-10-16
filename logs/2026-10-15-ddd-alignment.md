@@ -1275,3 +1275,70 @@ commit 后停止，交独立复核；不发起后续任务、安装、平台、p
 输入/旧日志前缀保存和 scoped 本地 commit 身份回 `task16-report.md` 查看。
 本地范围已实施、待独立复核；ENH-16 真实音频/未来服务失败仍 not-run，
 没有推进 Task12、17、18 或整体功能等价结论。
+
+<a id="task16-fix1"></a>
+## Task16 fix1：三个 Important 与一个 Minor 的限定修正（待范围复审）
+
+### 会话、依据与起点
+
+依据 2026-10-16 23:46 用户 fix round 1/5 请求和本机完整
+`task16-review-findings.md`，处理 T16-I1/I2/I3/M1，不把静态审阅当成已经运行的 repro。
+原分支、既有工作树，起点 `9942e70a59577f3ead9049d006c2bd827a168101` 已核实 clean。
+本段写入时 HEAD 仍为起点加本轮未提交范围；实际最终 commit 回本机报告读取。
+
+### 变化与边界
+
+- 完整规范化源单元与 text/kind/nature/全部 uncertainty 必须一致，取消任意子串接受；
+  Maybe 与 restrictive suffix 不能被删掉后获得高分。
+- `artifact_io.py` 只窄暴露既有 Markdown 状态机的行前注释状态，原行/围栏接口保持。
+  extractor/scorer 用同一规范化逻辑与声明 context，支持跨行注释后缩进的正常候选，
+  不复制 parser，也不信任 caller 的 duplicated visible text。
+- 评分前先校验整个输入；envelope 单位总数、行组/turn、DOCX paragraph/body/table/cell
+  和可知空单元关系必须自洽。裸 list 不猜总数、读原件认证或丢重复/partial 来源。
+- DOCX 有 grid 按 grid，无 grid 按首行实际宽度检查全部 rows，不扩大 OOXML 子集。
+- 只改三个相关 Python 模块、两个原生测试及直接契约/状态/日志。
+  Source guard、schema、lock、角色/方法/prompt、runner、依赖和音频入口不改。
+
+### 真实结果入口与原证据
+
+本机会话 `files\ddd-alignment-execution\task16-report.md` 的 fix1 追加段，
+以及 `task16-evidence\fix1\` 保留准确 command/cwd/stdout/stderr、真实计数/退出码、
+源码/输入 SHA256 和独立预期。首次实际运行就是新的 failing regressions，
+source 50 方法的两个 M1 子例失败，scoring 34 方法的 32 个子例失败；0 errors/skips，
+当时生产代码仍与起点完全一致。后续 focused RED/GREEN 与补充 I2 约束各有新 receipt，
+没有覆盖失败记录或用新结果改标旧基线。
+
+当前 3.13 focused：来源 50、评分 36、保留 parser 78 方法各自通过，无失败/错误/跳过；
+原 67 个 Task16 test 方法 AST 全部未改，新增 19 个方法。
+`frozen-code-and-assertions.json` 保存五个 Python 文件的内存编译/冻结身份，
+并核对 47 条 guard/schema/lock/role/prompt/method/runner/audio 等受保护路径。
+唯一一次新的 3.11 retained+new suite 正在运行，本段不预填最终数量/结果。
+
+旧 Task16 688/67、Task15 611/97/10 等记录及适用对象继续保留；
+旧报告 24,282 bytes 和旧日志 135,973 bytes 的原始前缀已单列起始身份，
+旧证据不覆盖，待交付前再核对。原 688 不覆盖本次审阅 counterexamples，
+不能将其沿用为修正通过或独立审阅通过。
+
+### 限制、影响与下一步
+
+context、原始片段、hash 和说话者仍是给定来源声明；只证明内部一致性，不认证原件
+或未提供的前缀，不变成校准概率/业务决定。合法空行/空段落与 partial list 保留，
+DOCX 仍是明确子集。实际音频/服务失败仍 not-run，ENH-16 和后续前置未整体关闭。
+本轮仅自审，无 subagent/reviewer、网络、私有输入、provider/安装、App 或真实项目操作。
+待本地最终证据及一个新的 scoped coauthored commit 后停止，交原范围复审；
+不改写 review finding 的处置，不自动宣布四项已被独立关闭，不开始后续任务或 push/PR。
+
+<a id="task16-fix1-minimum"></a>
+### fix1 最终最低版本结果（追加）
+
+唯一一次新的 retained+new suite 已完成：现有 3.11.15，发现/运行/执行 **707**，
+即 688 个保留方法＋19 个新方法；0 失败/错误/跳过，退出 0，
+**1,799.438 秒**，`inputs_unchanged=true`，无 expected failure 或 unexpected success。
+原始入口为本机 `task16-evidence\fix1\final-minimum311.json` 及相邻
+`-invocation.json`、`-unittest.txt`，保留准确 command/cwd/stdout/stderr 和输入身份。
+没有单独重跑 688 baseline，也没有把旧 688 记录改标为本轮 707。
+
+完整契约/坐标修正的实际执行入口与自审范围在 fix1 报告；所有旧 assertion 保留。
+后续只完成文档/format 与保护核对、一个局部 coauthored commit 后停止。
+当前为本地修正待范围复审，不代表四项 finding 被独立关闭，更不关闭音频、ENH-16、
+平台/真实项目/业务验收或推进后续任务。

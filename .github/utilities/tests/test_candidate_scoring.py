@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 from artifact_io import ArtifactInputError
 from tests.helpers import WORKTREE, source_bytes, temporary_workspace
@@ -268,6 +269,330 @@ class CandidateScoringTests(unittest.TestCase):
                 self.assertEqual(2, result.returncode, result.stdout + result.stderr)
                 self.assertEqual("input-error", json.loads(result.stdout)["status"])
                 self.assertEqual("", result.stderr)
+
+
+    # T16-I1/I2/I3: real source units and intrinsic consistency, not origin authentication.
+    def extract(self, text, kind="text", name=None):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import W, docx_bytes
+        path = self.root / (name or {"text": "unit.txt", "markdown": "unit.md",
+                                    "transcript": "turns.txt", "docx": "unit.docx"}[kind])
+        if kind == "docx":
+            document = (f'<w:document xmlns:w="{W}"><w:body><w:p><w:r><w:t>'
+                        + text + '</w:t></w:r></w:p></w:body></w:document>')
+            raw = docx_bytes(document=document)
+        else:
+            raw = text.encode("utf-8")
+        path.write_bytes(raw)
+        return extract_candidates(path, kind)
+
+    def envelope_cli(self, report, code=None):
+        sequence = getattr(self, "_input_sequence", 0) + 1
+        self._input_sequence = sequence
+        source = self.root / f"envelope-{sequence}.json"
+        output = self.root / f"scored-{sequence}.json"
+        source.write_text(json.dumps(report, ensure_ascii=True), encoding="utf-8")
+        before = source_bytes(self.root)
+        result = self.cli("--input", source.name, "--output", output.name)
+        self.assertEqual(0 if code is None else 2, result.returncode,
+                         (result.stdout + result.stderr)[:400])
+        self.assertEqual("", result.stderr[:400])
+        payload = json.loads(result.stdout)
+        if code is None:
+            self.assertEqual(payload, json.loads(output.read_bytes()))
+            self.assertEqual(before, {k: v for k, v in source_bytes(self.root).items()
+                                      if k != output.name})
+        else:
+            self.assertEqual("input-error", payload["status"])
+            self.assertEqual(code, payload["error"]["code"])
+            self.assertNotIn("candidates", payload)
+            self.assertFalse(output.exists(), "An invalid whole input must not create scored output")
+            self.assertEqual(before, source_bytes(self.root))
+        return payload
+
+    def test_fix1_i1_omitted_proposal_and_restrictive_suffix_are_not_complete_units(self):
+        cases = (
+            ("Maybe Rule: Members must keep receipts.", "Rule: Members must keep receipts."),
+            ("Rule: Members must keep receipts only while active.",
+             "Rule: Members must keep receipts"),
+        )
+        for kind in ("text", "markdown", "docx"):
+            for fragment, shortened in cases:
+                with self.subTest(kind=kind, fragment=fragment):
+                    report = self.extract(fragment, kind)
+                    altered = copy.deepcopy(report["candidates"][0])
+                    altered.update(text=shortened, kind="rule", nature="observed", uncertainty=[])
+                    self.error([altered], "INVALID_CANDIDATE")
+
+    def test_fix1_i1_normalization_is_only_outer_whitespace_not_case_or_interior_edits(self):
+        report = self.extract(" \tRule: Members  must keep receipts. \t")
+        self.assertEqual(100, self.score(report["candidates"])[0]["score"]["value"])
+        for text in ("Rule: Members must keep receipts.", "Rule: members  must keep receipts.",
+                     "Rule: Members  must keep receipts"):
+            with self.subTest(text=text):
+                altered = copy.deepcopy(report["candidates"][0])
+                altered["text"] = text
+                self.error([altered], "INVALID_CANDIDATE")
+
+    def test_fix1_i1_full_normalized_classification_and_all_markers_must_agree(self):
+        item = self.extract("Rule: Maybe members should keep receipts.")["candidates"][0]
+        self.assertEqual(["proposal language: maybe", "proposal language: should"], item["uncertainty"])
+        for uncertainty in (["proposal language: maybe"], ["proposal language: should"],
+                            ["proposal language: should", "proposal language: maybe"]):
+            with self.subTest(uncertainty=uncertainty):
+                changed = copy.deepcopy(item)
+                changed["uncertainty"] = uncertainty
+                self.error([changed], "INVALID_CANDIDATE")
+        direct = self.extract("Rule: Members must keep receipts.")["candidates"][0]
+        direct.update(nature="uncertain", uncertainty=["caller-chosen override"])
+        self.error([direct], "INVALID_CANDIDATE")
+
+    def test_fix1_i3_actual_multiline_comment_roundtrip_keeps_fragment_context_and_location(self):
+        raw = "<!--\r\n    --> Rule: Members <!--x--> must keep receipts.\r\n"
+        report = self.extract(raw, "markdown")
+        self.assertEqual((2, 1), (report["unit_count"], report["candidate_count"]))
+        item = report["candidates"][0]
+        self.assertEqual("    --> Rule: Members <!--x--> must keep receipts.", item["fragment"])
+        self.assertEqual("Rule: Members  must keep receipts.", item["text"])
+        self.assertEqual({"line": 2, "paragraph": 1}, item["location"])
+        try:
+            scored = self.score(report["candidates"])
+        except ArtifactInputError as error:
+            self.fail(f"T16-I3 extractor rejected by its scorer: {error.code}")
+        self.assertEqual(100, scored[0]["score"]["value"])
+        self.assertEqual({"in_comment": True}, item.get("markdown_context"))
+        self.assertEqual(item, {k: v for k, v in scored[0].items() if k != "score"})
+        self.assertEqual(100, self.envelope_cli(report)["candidates"][0]["score"]["value"])
+
+    def test_fix1_i1_i3_comment_context_does_not_allow_dropping_visible_maybe(self):
+        report = self.extract("<!--\n    --> Maybe Rule: Members <!--x--> must keep receipts.", "markdown")
+        item = report["candidates"][0]
+        self.assertEqual("Maybe Rule: Members  must keep receipts.", item["text"])
+        self.assertEqual("uncertain", item["nature"])
+        try:
+            result = self.score([item])
+        except ArtifactInputError as error:
+            self.fail(f"Supported complete uncertain Markdown unit rejected: {error.code}")
+        self.assertEqual(65, result[0]["score"]["value"])
+        changed = copy.deepcopy(item)
+        changed.update(text="Rule: Members  must keep receipts.", nature="observed", uncertainty=[])
+        self.error([changed], "INVALID_CANDIDATE")
+
+    def test_fix1_i3_context_is_structural_not_a_duplicated_visible_text_override(self):
+        report = self.extract("Rule: Maybe members must keep receipts.", "markdown")
+        for context in ({"in_comment": 1}, {"in_comment": "yes"}, {},
+                        {"in_comment": False, "visible_text": "Rule: Members must keep receipts."}):
+            with self.subTest(context=context):
+                item = copy.deepcopy(report["candidates"][0])
+                item["markdown_context"] = context
+                self.error([item], "INVALID_CANDIDATE")
+        item = copy.deepcopy(report["candidates"][0])
+        item["markdown_context"] = {"in_comment": True}
+        self.error([item], "INVALID_CANDIDATE")
+
+    def test_fix1_i3_shared_scanner_keeps_inline_literals_and_fences_out_of_comment_state(self):
+        raw = ("```\n<!--\n```\n\nRule: Literal `<!--` must stay.\n\n"
+               "<!--\n    --> Rule: Members <!--x--> must keep receipts.\n"
+               "    Rule: indented code is not a candidate.\n")
+        report = self.extract(raw, "markdown")
+        self.assertEqual(["Rule: Literal `<!--` must stay.", "Rule: Members  must keep receipts."],
+                         [i["text"] for i in report["candidates"]])
+        try:
+            values = self.score(report["candidates"])
+        except ArtifactInputError as error:
+            self.fail(f"Shared Markdown context lost at score boundary: {error.code}")
+        self.assertEqual([100, 100], [i["score"]["value"] for i in values])
+        self.assertEqual([False, True], [i["markdown_context"]["in_comment"] for i in report["candidates"]])
+
+    def test_fix1_i2_zero_units_and_line_outside_envelope_fail_without_output(self):
+        original = self.extract("Rule: Members must keep receipts.\n")
+        no_units = copy.deepcopy(original)
+        no_units["unit_count"] = 0
+        outside = copy.deepcopy(original)
+        outside["candidates"][0]["location"]["line"] = 2
+        for report, code in ((no_units, "INVALID_CANDIDATE"), (outside, "INVALID_CANDIDATE_LOCATION")):
+            with self.subTest(code=code):
+                self.envelope_cli(report, code)
+
+    def test_fix1_i2_plain_groups_and_source_order_obey_complete_envelope_semantics(self):
+        original = self.extract("Rule: First statement must stay.\n\nRule: Second statement must stay.\n")
+        for mutation in ("same-group-across-blank-gap", "duplicate-line", "backwards"):
+            with self.subTest(mutation=mutation):
+                altered = copy.deepcopy(original)
+                if mutation == "same-group-across-blank-gap":
+                    altered["candidates"][1]["location"]["paragraph"] = 1
+                elif mutation == "duplicate-line":
+                    altered["candidates"][1]["location"] = {"line": 1, "paragraph": 1}
+                else:
+                    altered["candidates"].reverse()
+                self.envelope_cli(altered, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_markdown_sparse_groups_are_valid_but_impossible_groups_are_not(self):
+        report = self.extract("# Header\n\n<!-- omitted group -->\n\nRule: Keep all sources.\n\n"
+                              "# Another header\n\nCapability: Members can view receipts.\n", "markdown")
+        self.assertEqual([{"line": 5, "paragraph": 3}, {"line": 9, "paragraph": 5}],
+                         [i["location"] for i in report["candidates"]])
+        self.assertEqual([100, 100], [i["score"]["value"] for i in self.envelope_cli(report)["candidates"]])
+        impossible = copy.deepcopy(report)
+        impossible["candidates"][1]["location"]["paragraph"] = 2
+        self.envelope_cli(impossible, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_transcript_turns_are_sequential_not_inferred_from_timestamps(self):
+        raw = ('\n{"speaker":"A","timestamp":"00:00:02.000","text":"Rule: Keep all sources."}\n'
+               '\n{"speaker":"B","timestamp":"00:00:01.000","text":"Rule: Keep contrary sources."}\n')
+        report = self.extract(raw, "transcript")
+        self.assertEqual(4, report["unit_count"])
+        self.assertEqual([2, 4], [i["location"]["line"] for i in report["candidates"]])
+        self.assertEqual([1, 2], [i["location"]["turn"] for i in report["candidates"]])
+        self.envelope_cli(report)
+        for mutation in ("first-turn-not-one", "turn-outside-line", "line-outside-units"):
+            with self.subTest(mutation=mutation):
+                changed = copy.deepcopy(report)
+                if mutation == "first-turn-not-one":
+                    changed["candidates"][0]["location"]["turn"] = 2
+                elif mutation == "turn-outside-line":
+                    changed["candidates"][0]["location"]["turn"] = 3
+                else:
+                    changed["candidates"][1]["location"]["line"] = 5
+                self.envelope_cli(changed, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_docx_paragraph_bounds_and_related_coordinates_are_intrinsic(self):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import docx_bytes
+        path = self.root / "paragraph-table.docx"
+        path.write_bytes(docx_bytes())
+        original = extract_candidates(path, "docx")
+        self.assertEqual((4, 3), (original["unit_count"], original["candidate_count"]))
+        mutations = (("paragraph", 5), ("block", 99), ("table", 99),
+                     ("row", 99), ("cell", 99), ("cell_paragraph", 99))
+        for field, value in mutations:
+            with self.subTest(field=field):
+                altered = copy.deepcopy(original)
+                altered["candidates"][1]["location"][field] = value
+                self.envelope_cli(altered, "INVALID_CANDIDATE_LOCATION")
+        repeated = copy.deepcopy(original)
+        repeated["candidates"].append(copy.deepcopy(repeated["candidates"][1]))
+        repeated["candidate_count"] += 1
+        self.envelope_cli(repeated, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_list_checks_knowable_bounds_but_preserves_partial_and_repeat_origins(self):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import docx_bytes
+        bad_text = candidate(self.path, location={"line": 2, "paragraph": 2})
+        with self.subTest(kind="text"):
+            self.error([bad_text], "INVALID_CANDIDATE_LOCATION")
+        turn = self.extract('{"speaker":"A","timestamp":"00:00:01.000","text":"Rule: Keep all sources."}',
+                            "transcript")["candidates"][0]
+        turn["location"]["turn"] = 2
+        with self.subTest(kind="transcript"):
+            self.error([turn], "INVALID_CANDIDATE_LOCATION")
+        path = self.root / "partial.docx"
+        path.write_bytes(docx_bytes())
+        item = extract_candidates(path, "docx")["candidates"][1]
+        for field, value in (("block", 3), ("table", 3), ("row", 2),
+                             ("cell", 2), ("cell_paragraph", 2)):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(item)
+                changed["location"][field] = value
+                self.error([changed], "INVALID_CANDIDATE_LOCATION")
+        tool = self.tool()
+        with patch.object(Path, "open", side_effect=AssertionError("Do not reopen/authenticate origins")):
+            values = tool.score_candidates([item, copy.deepcopy(item), candidate(self.path)])
+        self.assertEqual(3, len(values))
+        self.assertEqual([100, 100, 100], [i["score"]["value"] for i in values])
+
+    def test_fix1_i2_docx_known_block_table_and_cell_offsets_must_not_contradict(self):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import W, docx_bytes
+        path = self.root / "known-blocks.docx"
+        path.write_bytes(docx_bytes())
+        changed = extract_candidates(path, "docx")
+        for item in changed["candidates"][1:]:
+            item["location"]["table"] = 2  # Block 1 is a known paragraph, not a hidden first table.
+        with self.subTest(contradiction="table-index-cannot-use-known-plain-block"):
+            self.envelope_cli(changed, "INVALID_CANDIDATE_LOCATION")
+        document = (f'<w:document xmlns:w="{W}"><w:body><w:tbl><w:tr><w:tc>'
+                    '<w:p><w:r><w:t>Rule: First statement must stay.</w:t></w:r></w:p><w:p/>'
+                    '<w:p><w:r><w:t>Rule: Second statement must stay.</w:t></w:r></w:p>'
+                    '</w:tc></w:tr></w:tbl></w:body></w:document>')
+        path.write_bytes(docx_bytes(document=document))
+        report = extract_candidates(path, "docx")
+        self.assertEqual([1, 3], [i["location"]["paragraph"] for i in report["candidates"]])
+        self.envelope_cli(report)
+        report["candidates"][1]["location"]["cell_paragraph"] = 2
+        with self.subTest(contradiction="same-cell-global-and-local-paragraph-offset"):
+            self.envelope_cli(report, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_docx_known_first_and_adjacent_block_anchors_cannot_hide_paragraphs(self):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import W, docx_bytes
+        first = self.extract("Rule: Keep all sources.", "docx")
+        first["candidates"][0]["location"]["paragraph"] = 2
+        with self.subTest(contradiction="first-plain-block"):
+            self.error(first["candidates"], "INVALID_CANDIDATE_LOCATION")
+        cell = "<w:tc><w:p><w:r><w:t>Rule: Keep all sources.</w:t></w:r></w:p></w:tc>"
+        document = (f'<w:document xmlns:w="{W}"><w:body><w:tbl><w:tr>'
+                    + cell + "</w:tr></w:tbl></w:body></w:document>")
+        path = self.root / "first-table.docx"
+        path.write_bytes(docx_bytes(document=document))
+        first_table = extract_candidates(path, "docx")
+        first_table["candidates"][0]["location"]["paragraph"] = 2
+        with self.subTest(contradiction="first-table-first-cell"):
+            self.error(first_table["candidates"], "INVALID_CANDIDATE_LOCATION")
+        path.write_bytes(docx_bytes())
+        adjacent = extract_candidates(path, "docx")
+        adjacent["unit_count"] += 1
+        for item in adjacent["candidates"][1:]:
+            item["location"]["paragraph"] += 1
+        with self.subTest(contradiction="no-hidden-paragraph-between-known-adjacent-blocks"):
+            self.envelope_cli(adjacent, "INVALID_CANDIDATE_LOCATION")
+        # No envelope/source is supplied for this list record. A preceding unknown
+        # table could account for the offset; do not invent a total or reopen it.
+        supplied = candidate(
+            self.root / "unprovided.docx",
+            source={"path": str(self.root / "unprovided.docx"), "kind": "docx",
+                    "baseline": "sha256:" + "3" * 64, "byte_count": 1000},
+            location={"part": "word/document.xml", "block": 2, "paragraph": 10},
+        )
+        self.assertEqual(100, self.score([supplied])[0]["score"]["value"])
+        empty = "<w:tc><w:p/></w:tc>"
+        document = (f'<w:document xmlns:w="{W}"><w:body><w:tbl><w:tr>'
+                    + empty + cell + "</w:tr><w:tr>" + cell + empty
+                    + "</w:tr></w:tbl></w:body></w:document>")
+        path.write_bytes(docx_bytes(document=document))
+        trailing = extract_candidates(path, "docx")
+        self.assertEqual((4, 2), (trailing["unit_count"], trailing["candidate_count"]))
+        self.assertEqual([2, 3], [i["location"]["paragraph"] for i in trailing["candidates"]])
+        self.envelope_cli(trailing)
+        trailing["unit_count"] = 3
+        with self.subTest(contradiction="known-width-implies-trailing-empty-cell-paragraph"):
+            self.envelope_cli(trailing, "INVALID_CANDIDATE_LOCATION")
+
+    def test_fix1_i2_empty_lines_and_docx_paragraph_gaps_are_not_candidate_count(self):
+        from extract_source import extract_candidates
+        from tests.test_source_extraction import W, docx_bytes
+        plain = self.extract("\n\nRule: Keep all sources.\n\n\n")
+        self.assertEqual((5, 1), (plain["unit_count"], plain["candidate_count"]))
+        self.assertEqual({"line": 3, "paragraph": 1}, plain["candidates"][0]["location"])
+        self.envelope_cli(plain)
+        document = (f'<w:document xmlns:w="{W}"><w:body><w:p/>'
+                    '<w:p><w:r><w:t>Rule: Keep all sources.</w:t></w:r></w:p><w:p/>'
+                    '<w:tbl><w:tr><w:tc><w:p/></w:tc><w:tc><w:p/>'
+                    '<w:p><w:r><w:t>Capability: Members can view receipts.</w:t></w:r></w:p></w:tc></w:tr>'
+                    '<w:tr><w:tc><w:p/></w:tc><w:tc><w:p><w:r><w:t>Rule: Keep contrary sources.</w:t>'
+                    '</w:r></w:p></w:tc></w:tr></w:tbl><w:p/></w:body></w:document>')
+        path = self.root / "empty-paragraphs.docx"
+        path.write_bytes(docx_bytes(document=document))
+        report = extract_candidates(path, "docx")
+        self.assertEqual((9, 3), (report["unit_count"], report["candidate_count"]))
+        self.assertEqual([2, 6, 8], [i["location"]["paragraph"] for i in report["candidates"]])
+        self.assertEqual([100, 100, 100],
+                         [i["score"]["value"] for i in self.envelope_cli(report)["candidates"]])
+
+    def test_fix1_i2_later_invalid_unit_rejects_whole_input_not_a_scored_prefix(self):
+        report = self.extract("Rule: First statement must stay.\nRule: Second statement must stay.\n")
+        report["candidates"][1]["location"]["line"] = 3
+        self.envelope_cli(report, "INVALID_CANDIDATE_LOCATION")
 
 
 if __name__ == "__main__":

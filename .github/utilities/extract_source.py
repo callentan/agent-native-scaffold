@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 import zlib
 
-from artifact_io import ArtifactInputError, PathInput, _resolve_file, iter_markdown_lines
+from artifact_io import ArtifactInputError, PathInput, _resolve_file, iter_markdown_source_lines
 from check_artifacts import _checked_location, _local_root, _output_path
 
 
@@ -151,7 +151,14 @@ def _classify(text: str) -> tuple[str, str, list[str], str]:
     return kind, nature, uncertainty, reason
 
 
-def _text_units(text: str, kind: str, path: Path) -> tuple[int, list[tuple[str, str, dict]]]:
+def _markdown_text(visible: str | None) -> str | None:
+    """Select a complete visible line, not an arbitrary excerpt within it."""
+    if visible is None or not visible.strip() or re.match(r" {0,3}#{1,6}(?:\s|$)", visible):
+        return None
+    return visible.strip()
+
+
+def _text_units(text: str, kind: str, path: Path) -> tuple[int, list[tuple[str, str, dict, dict | None]]]:
     lines = text.splitlines()
     if len(lines) > MAX_SOURCE_UNITS:
         raise ArtifactInputError("SOURCE_LIMIT_EXCEEDED", path, 1, "Text/transcript exceeds 10,000 physical lines")
@@ -166,9 +173,9 @@ def _text_units(text: str, kind: str, path: Path) -> tuple[int, list[tuple[str, 
             units.append((turn["text"].strip(), raw, {
                 "line": number, "turn": turn_number, "speaker": turn["speaker"],
                 "timestamp": turn["timestamp"],
-            }))
+            }, None))
     else:
-        visible = dict(iter_markdown_lines(text)) if kind == "markdown" else None
+        visible = {n: (line, before) for n, line, before in iter_markdown_source_lines(text)} if kind == "markdown" else None
         paragraph = 0
         in_paragraph = False
         for number, raw in enumerate(lines, 1):
@@ -178,12 +185,16 @@ def _text_units(text: str, kind: str, path: Path) -> tuple[int, list[tuple[str, 
             if not in_paragraph:
                 paragraph += 1
                 in_paragraph = True
-            content = visible.get(number) if visible is not None else raw
-            if content is None or not content.strip():
+            context = None
+            if visible is not None:
+                line, before = visible[number]
+                content = _markdown_text(line)
+                context = {"in_comment": before}
+            else:
+                content = raw.strip()
+            if not content:
                 continue
-            if kind == "markdown" and re.match(r" {0,3}#{1,6}(?:\s|$)", content):
-                continue
-            units.append((content.strip(), raw, {"line": number, "paragraph": paragraph}))
+            units.append((content, raw, {"line": number, "paragraph": paragraph}, context))
     return len(lines), units
 
 
@@ -355,7 +366,7 @@ def _paragraph(element: ET.Element, path: Path) -> str:
     return "".join(fragments)
 
 
-def _docx_units(raw: bytes, path: Path) -> tuple[int, list[tuple[str, str, dict]]]:
+def _docx_units(raw: bytes, path: Path) -> tuple[int, list[tuple[str, str, dict, dict | None]]]:
     document = _container(raw, path)
     _plain_container(document, path)
     if len(document) != 1 or document[0].tag != _W + "body":
@@ -372,7 +383,7 @@ def _docx_units(raw: bytes, path: Path) -> tuple[int, list[tuple[str, str, dict]
         if fragment.strip():
             units.append((fragment.strip(), fragment, {
                 "part": "word/document.xml", **location, "paragraph": paragraph,
-            }))
+            }, None))
 
     for block, element in enumerate(body, 1):
         if element.tag == _W + "p":
@@ -405,9 +416,10 @@ def _docx_units(raw: bytes, path: Path) -> tuple[int, list[tuple[str, str, dict]
                     _unsupported(path, "Only simple tables are supported")
             if not rows:
                 raise ArtifactInputError("INVALID_DOCX", path, 1, "A table must contain rows")
+            width = grid if grid is not None else len(rows[0])
             for row_number, row in enumerate(rows, 1):
                 _plain_container(row, path)
-                if not len(row) or grid is not None and len(row) != grid:
+                if not len(row) or len(row) != width:
                     _unsupported(path, "Nonrectangular or merged tables are unsupported")
                 for cell_number, cell in enumerate(row, 1):
                     if cell.tag != _W + "tc":
@@ -443,7 +455,7 @@ def extract_candidates(source: PathInput, kind: str) -> dict:
                 "byte_count": len(raw)}
     count, units = _docx_units(raw, path) if kind == "docx" else _text_units(_decode(raw, path), kind, path)
     candidates = []
-    for text, fragment, location in units:
+    for text, fragment, location, context in units:
         candidate_kind, nature, uncertainty, reason = _classify(text)
         candidates.append({
             "candidate_id": f"candidate-{len(candidates) + 1:04d}",
@@ -451,6 +463,8 @@ def extract_candidates(source: PathInput, kind: str) -> dict:
             "source": dict(identity), "location": location, "uncertainty": uncertainty,
             "extraction_reason": reason, "clarification": _CLARIFICATION,
         })
+        if context is not None:
+            candidates[-1]["markdown_context"] = context
     return {"status": "extracted" if candidates else "empty", "source": identity,
             "unit_count": count, "candidate_count": len(candidates), "candidates": candidates}
 
