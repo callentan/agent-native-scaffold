@@ -755,3 +755,44 @@ schema/kind、来源/报告所有权、原工具算法、workflows 或 Task1–9
 POSIX/WSL/container 安装、远端 CI、required checks、push、PR、发布或新 worker。
 原 428 与新 439/42 的对象/运行各自保留；本机通过不推出托管、身份认证、业务或
 增强整体通过。保持分支/worktree，提交后停止，下一步仅为本轮独立限定复审。
+
+<a id="task10-fix2"></a>
+## Task10 第 2 轮窄修正：Minor 报告导入边界
+
+2026-10-16，沿用户限定的 T10-F1-N1 继续。干净起点
+`edca016ca976642fb2bf93cef3f542018ba13e7a`，分支
+`callentan-repository-skeleton`，无原有 dirty/index 改动。
+本机 `task10-fix1-review-result.md` 已将原 I1/I2/M1 和条件 lock 判为 ADDRESSED，
+维持关闭；无新增 Important/Critical。本轮只有新增 Minor，不重开这些发现。
+
+原 `run_hook` 在 selected-prefix 不匹配时已拒绝并保持退出 2，但 `main --report`
+又为写报告导入 `check_artifacts` 及 YAML/jsonschema/referencing 链。实际 RED
+在 3.11.15/3.13.15 均复现：各 6 方法、8 条子测试断言失败、0 errors/skips。
+拒绝始终成立，原生 launcher 不请求报告；这不是成功 fallback 或原生提交漏洞。
+
+本轮生产改动仅为共享 main/报告衔接与初始启动校验布尔标记。启动拒绝时不导入
+validator、不检查或创建报告路径，stdout JSON 与恢复提示/退出 2 保留，并明确
+`report_output.written: false`、`reason: startup-refused`。有效环境仍用原共享
+exclusive/conflict 写入；有效环境下的源/基线输入错误仍可保存新报告，不复制写入引擎。
+
+6 个新回归覆盖两份入口、新/已有报告、显式子进程 import 观察与不带观察的真实 CLI，
+以及有效环境的创建/冲突和输入错误报告控制。import 观察只记录并委托真正导入，
+不 mock 运行时或 Git stdout，也不声称 native POSIX。源、消息、index/config/hooks
+和既有报告字节分别核对；测试没有创建新解释器或安装 hooks。
+
+新证据只在本机会话 `files\ddd-alignment-execution\task10-evidence\fix2\`：
+`baseline.json`、`red311-report-startup\`、`red313-report-startup\` 和
+`green311-report-selectors\`、`green313-report-selectors\` 保存完整参数/cwd/
+stdout/stderr/退出与前后摘要。两个版本最终各发现/执行 **9 方法**（6 新 + 3 保留），
+失败/错误/跳过均 0；3.11 为 63.000 秒，3.13 为 52.419 秒。这些是受影响选择器，
+不是重跑 439 全套，也不与旧 439/42 或复审记载的独立 112 项合成新总数。
+
+同一份本机 `task10-report.md` 追加 fix2 的最终提交、静态/保护检查和原始证据入口；
+原日志全部 97,086 字节前缀和此前报告/证据保留，不改写历史结果。仅有界自审后
+按授权作一个带指定 coauthor 的新本地提交，不 amend；对象与提交后状态回报告读取。
+本机证据不是公共或托管结果，原 I1/I2/M1/lock 已关闭与新 Minor 待复审分别记录。
+
+**第 2 轮修正已实现，等待 T10-F1-N1 限定复审；任务关卡未关闭。**
+不改 schema、lock、workflow、installer 或后续任务；不安装/更改真实 hook/config，
+不重做原生环境实验，不安装运行时/依赖，不启动子代理、reviewer、应用或 Task11，
+不执行远端 CI、push、PR 或发布。POSIX/托管平台未执行限制保持，提交后停止。

@@ -852,5 +852,125 @@ class IndexValidationTests(HookFixture):
         self.assertEqual(before, self.state())
 
 
+class StartupReportTests(HookFixture):
+    """T10-F1-N1 / ENH-10: startup refusal must not re-enter validators for output."""
+
+    def setUp(self):
+        super().setUp()
+        self.message = self.workspace / "提交 message.txt"
+        self.message_bytes = b"Controlled message\n\nReviewed-by: Fixture Reviewer\n"
+        self.message.write_bytes(self.message_bytes)
+
+    def report_call(self, hook, report, *, refused=False, observe=False, extra=()):
+        arguments = [hook, "--root", str(self.root), "--report", str(report), *extra]
+        if refused:
+            arguments += ["--selected-prefix", str(self.workspace / "not the selected venv")]
+        if hook == "commit-msg":
+            arguments.append(str(self.message))
+        if observe:
+            # Explicit child-process import observation, not a mocked runtime,
+            # mocked validator result, native commit, or POSIX execution.
+            script = textwrap.dedent("""\
+                import builtins, json, sys
+                sys.path.insert(0, sys.argv[1])
+                from hook_checks import main
+                observed = []
+                watched = {"artifact_io", "check_artifacts", "check_traceability",
+                           "yaml", "jsonschema", "referencing"}
+                original = builtins.__import__
+                def record(name, *args, **kwargs):
+                    if name.split(".", 1)[0] in watched:
+                        observed.append(name)
+                    return original(name, *args, **kwargs)
+                builtins.__import__ = record
+                try:
+                    code = main(sys.argv[2:])
+                finally:
+                    builtins.__import__ = original
+                print("VALIDATOR_IMPORTS=" + json.dumps(observed))
+                raise SystemExit(code)
+                """)
+            argv = [sys.executable, "-B", "-X", "utf8", "-c", script,
+                    str(self.root / ".github/utilities"), *arguments]
+        else:
+            argv = [sys.executable, "-B", "-X", "utf8",
+                    str(self.root / ".github/utilities/hook_checks.py"), *arguments]
+        result = self.call(argv)
+        lines = result.stdout.decode("utf-8").splitlines()
+        payload = json.loads(next(line for line in lines if line.startswith("{")))
+        imports = (json.loads(next(line.partition("=")[2] for line in lines
+                                   if line.startswith("VALIDATOR_IMPORTS="))) if observe else None)
+        return result, payload, imports
+
+    def refused_report(self, *, existing, observe):
+        for hook in ("pre-commit", "commit-msg"):
+            with self.subTest(hook=hook):
+                report = self.workspace / (hook + " refused report.json")
+                owner = b"existing owner report bytes\r\n"
+                if existing:
+                    report.write_bytes(owner)
+                before = self.state()
+                result, payload, imports = self.report_call(hook, report, refused=True, observe=observe)
+                self.assertEqual(2, result.returncode, self.receipts[-1])
+                self.assertIn("ENVIRONMENT_UNAVAILABLE", self.finding_codes(payload))
+                self.assertEqual({}, payload["snapshot"])
+                if observe:
+                    self.assertEqual([], imports, "Report handling imported validators after startup refusal")
+                self.assertFalse(payload["report_output"]["written"])
+                self.assertEqual("startup-refused", payload["report_output"].get("reason"))
+                self.assertEqual(str(report), payload["report_output"]["path"])
+                self.assertEqual({"ENVIRONMENT_UNAVAILABLE"}, self.finding_codes(payload))
+                self.assertIn("requirements.lock", payload["findings"][0]["message"])
+                if existing:
+                    self.assertEqual(owner, report.read_bytes())
+                else:
+                    self.assertFalse(report.exists())
+                self.assertEqual(self.message_bytes, self.message.read_bytes())
+                self.assertEqual(before, self.state())
+
+    def test_t10_f1_n1_import_boundary_new_report_does_not_import_validators(self):
+        self.refused_report(existing=False, observe=True)
+
+    def test_t10_f1_n1_import_boundary_existing_report_does_not_import_validators(self):
+        self.refused_report(existing=True, observe=True)
+
+    def test_t10_f1_n1_real_cli_refusal_does_not_create_requested_report(self):
+        self.refused_report(existing=False, observe=False)
+
+    def test_t10_f1_n1_real_cli_refusal_preserves_existing_report(self):
+        self.refused_report(existing=True, observe=False)
+
+    def test_t10_f1_n1_valid_runtime_reports_keep_exclusive_and_conflict_protections(self):
+        before = self.state()
+        for hook in ("pre-commit", "commit-msg"):
+            with self.subTest(hook=hook):
+                report = self.workspace / (hook + " valid report.json")
+                result, payload, _ = self.report_call(hook, report)
+                self.assertEqual(0, result.returncode, self.receipts[-1])
+                self.assertTrue(payload["report_output"]["written"])
+                raw = report.read_bytes()
+                self.assertEqual(payload, json.loads(raw))
+                result, payload, _ = self.report_call(hook, report)
+                self.assertEqual(2, result.returncode)
+                self.assertIn("REPORT_CONFLICT", self.finding_codes(payload))
+                self.assertFalse(payload["report_output"]["written"])
+                self.assertEqual(raw, report.read_bytes())
+        self.assertEqual(self.message_bytes, self.message.read_bytes())
+        self.assertEqual(before, self.state())
+
+    def test_t10_f1_n1_valid_runtime_input_error_still_supports_a_new_report(self):
+        before = self.state()
+        for hook in ("pre-commit", "commit-msg"):
+            with self.subTest(hook=hook):
+                report = self.workspace / (hook + " input error report.json")
+                result, payload, _ = self.report_call(hook, report, extra=("--base", "main"))
+                self.assertEqual(2, result.returncode)
+                self.assertIn("INVALID_BASE", self.finding_codes(payload))
+                self.assertTrue(payload["report_output"]["written"])
+                self.assertEqual(payload, json.loads(report.read_bytes()))
+        self.assertEqual(self.message_bytes, self.message.read_bytes())
+        self.assertEqual(before, self.state())
+
+
 if __name__ == "__main__":
     unittest.main()

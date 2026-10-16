@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–9 已完成各自的有限实现与范围复核，没有遗留的这些任务审阅发现。Task8 按用户单独选择复用现有 VT 运行；Task9 的文档审阅不声明真实批准或资格。当前仍是八方法、二十一 prompts、三模式，不是最终规划的九方法。Task10 原审阅提出的两项 Important 与 M1 已完成第 1 轮限定修正和实际 3.11/3.13 检查，等待限定复审；Task11–18 未开始。没有在真实工作树安装 hooks，托管 CI/required checks 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–9 已完成各自的有限实现与范围复核，没有遗留的这些任务审阅发现。Task8 按用户单独选择复用现有 VT 运行；Task9 的文档审阅不声明真实批准或资格。当前仍是八方法、二十一 prompts、三模式，不是最终规划的九方法。Task10 原 I1/I2/M1 与条件 lock 已由第 1 轮复审确认 ADDRESSED；现仅新增 Minor T10-F1-N1 的第 2 轮窄修正等待限定复审，Task11–18 未开始。没有在真实工作树安装 hooks，托管 CI/required checks 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要和 Task9 文档已完成本次范围复核，结果见各自记录。Task10 第 1 轮限定修正待复审；Task11–18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要和 Task9 文档已完成本次范围复核，结果见各自记录。Task10 现仅第 2 轮 Minor 窄修正待限定复审；Task11–18 未实施，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -388,7 +388,7 @@ class ImplementationReportTests(unittest.TestCase):
 <a id="task10"></a>
 ### 任务 10：可选 Git hooks 与 CI
 
-**状态：第 1 轮限定修正已实现，等待限定复审。** 原实现的独立审阅提出 T10-I1/I2 与 M1；本轮实际修正和自审不自行关闭这些发现或任务关卡。
+**状态：原 I1/I2/M1 与条件 lock 已复审 ADDRESSED；仅第 2 轮 Minor 窄修正待限定复审。** 新 T10-F1-N1 只涉及启动拒绝后的 `--report` 导入边界，原生 launcher 不请求报告、拒绝仍为 2；不将该 Minor 升级为成功回退或提交漏洞。
 
 **文件：** Python hook 入口、`install_hooks.py`、`test_hooks.py`、validate-artifacts/tooling-tests workflows、工具/CI 使用说明。
 
@@ -399,9 +399,10 @@ class ImplementationReportTests(unittest.TestCase):
 - [ ] **保留给 Task11/13，不在 Task10 实施：** 原 ADO fan-out 的实际对象是 `.feature`，不是整仓覆盖。提案登记仍须表达来源场景→明确 BC 目标→文件范围→各自结果；缺目标、无变化、冲突和失败不得混为成功。本轮没有新增传播 workflow。
 - [x] **初次实现的原结果：** CLI/原生夹具保留 0/1/2 与 Git 非零拒绝；该对象仅一次最终 retained+new 全套发现/执行 428、跳过 0、失败/错误 0（397 保留 + 31 新方法）。另行零/全跳过/fail/pass 和精确/非法 base 控制不混入这个数量；不能把这条旧结果称为本轮修正证明。
 - [x] **第 1 轮窄修正：** 共享 parser 兼容 3.11 的原生消息参数顺序；两份入口与 installer 共用启动检查，保留所选绝对路径/prefix，在工件/index 读取前拒绝 venv/config/依赖丢失或漂移。I/O 独占创建立即记账，短写及 write/flush/close 错误保留准确路径和手工恢复状态，不自动删除后续 owner 编辑。
-- [x] **本轮实际验证：** 复用旧 3.11 原生 RED 和既有隔离解释器，新增回归先 RED；更新 lock 只加入实际核对的 `<3.13` 条件项，3.11 离线恢复七项、3.13 dry-run 仍为原六项。一次最终最低版本全套发现/执行 439（原 428 个身份全部保留 + 11 新方法），0 失败/错误/跳过；3.13 只跑 42 项聚焦回归，不重复完整套件。计数控制、Windows loader 与完整解释器边界实验分别留证，见[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)。
+- [x] **第 1 轮实际验证：** 复用旧 3.11 原生 RED 和既有隔离解释器，新增回归先 RED；更新 lock 只加入实际核对的 `<3.13` 条件项，3.11 离线恢复七项、3.13 dry-run 仍为原六项。一次最终最低版本全套发现/执行 439（原 428 个身份全部保留 + 11 新方法），0 失败/错误/跳过；3.13 只跑 42 项聚焦回归，不重复完整套件。计数控制、Windows loader 与完整解释器边界实验分别留证，见[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)。
+- [x] **第 2 轮 Minor 修正：** 初始启动校验未通过时，main 明确不写所请求报告，保留原 stdout JSON/退出 2 和 `written: false` / `reason: startup-refused`，不再导入 validator 链。有效环境继续使用原共享 exclusive/conflict 写入保护，输入错误也仍可另存新报告。3.11/3.13 各执行 9 个受影响 hook/CLI 选择器（6 新 + 3 保留），均零失败/错误/跳过；原 439 全套和原生环境实验不重跑，见[第 2 轮交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix2)。
 
-**当前退出状态：** Task10 第 1 轮限定修正与自审完成，等待限定复审；[初次交接](../../logs/2026-10-15-ddd-alignment.md#task10)与[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)保留各自基线、原始证据和限制。真实工作树/user/global 未安装或改配置，托管运行、POSIX 原生启动和服务端 required checks 仍为 not-run；不关闭整个 ENH-10 或 Task13，不自动继续 Task11。
+**当前退出状态：** 原 I1/I2/M1/条件 lock 维持关闭，仅 T10-F1-N1 的第 2 轮窄修正待限定复审；[初次交接](../../logs/2026-10-15-ddd-alignment.md#task10)、[第 1 轮](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)与[当前交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix2)分别保留基线、证据和限制。真实工作树/user/global 未安装或改配置，托管运行、POSIX 原生启动和服务端 required checks 仍为 not-run；不关闭整个 ENH-10 或 Task13，不自动继续 Task11。
 
 ### 任务 11：三方更新与多目标传播
 

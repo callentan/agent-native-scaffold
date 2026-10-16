@@ -120,7 +120,12 @@ HEAD，不承诺推断 amend/rebase/merge 完成后的完整 parent 图；`base_
 `0 = clean/empty`、`1 = invalid`、`2 = input-error`。empty 与零 owner 不代表业务
 或应用验收通过；`checked_count/attempted_count` 是正式工件数，不是回归测试数。
 原生 Git 自身可能把 hook 的 1/2 均归为非零 commit 退出，hook JSON 中保留原 0/1/2。
-仅显式 `--report "<new.json>"` 创建新报告；父目录须存在，已有输出一律拒绝覆盖。
+初始环境校验通过（`startup_validated: true`）后，显式 `--report "<new.json>"`
+才调用共享报告写入；父目录须存在，已有输出一律拒绝覆盖。该标记只表示初始环境
+校验通过，不表示工件有效；正常环境下的工件/基线输入错误仍可保存到新报告。
+启动拒绝时保留 stdout JSON、恢复提示和退出 2，但明确返回
+`report_output.written: false`、`reason: startup-refused`；不为报告再导入 validators，
+也不检查、打开或创建所请求的报告路径。先恢复所选环境，再重新请求文件输出。
 
 ## commit-msg：仅启用后的受管路径格式政策
 

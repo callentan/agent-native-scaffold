@@ -390,13 +390,14 @@ def _tool_sources():
 
 def run_hook(hook, root, *, base=None, message=None, selected_python=None, selected_prefix=None):
     payload = {"hook": hook, "status": "clean", "exit_code": 0, "findings": [],
-               "checked_count": 0, "attempted_count": 0, "snapshot": {},
+               "checked_count": 0, "attempted_count": 0, "snapshot": {}, "startup_validated": False,
                "runtime": {"executable": str(Path(sys.executable).absolute()), "version": sys.version,
                            "prefix": sys.prefix}}
     try:
         # Refuse a lost/replaced selected venv before importing validators or
         # acquiring any source/index input, even if base packages are visible.
         _check_runtime(payload["runtime"], selected_python=selected_python, selected_prefix=selected_prefix)
+        payload["startup_validated"] = True
         runtime_identity = dict(payload["runtime"])
         import artifact_io
         import check_artifacts
@@ -466,7 +467,11 @@ def main(argv=None):
     args = parser.parse_intermixed_args(argv)
     payload = run_hook(args.hook, args.root, base=args.base, message=args.message,
                        selected_python=args.selected_python, selected_prefix=args.selected_prefix)
-    if args.report:
+    if args.report and not payload["startup_validated"]:
+        # A startup refusal must stay independent of validator imports, even
+        # when output was requested. Do not open or inspect the requested path.
+        payload["report_output"] = {"path": args.report, "written": False, "reason": "startup-refused"}
+    elif args.report:
         try:
             from check_artifacts import _write_report
             _write_report(payload, args.report, args.root)
