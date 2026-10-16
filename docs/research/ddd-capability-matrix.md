@@ -704,7 +704,7 @@ BC 的 prompts/templates gitlink 指向本轮已取回的两仓版本，可以�
 | 当前骨架差距 | Task11 已实现本地显式 `.feature` 逐 BC 三方提案；原远端 clone/push/PR 的 fan-out 与平台运行证据仍缺，不能用本地提案当完整替代已获接受。 |
 | 目标任务 / 增强验收 | 10、11、13 / ENH-01、ENH-06、ENH-10、ENH-11、ENH-12、ENH-13、ENH-14 |
 | 目标验收 | 获授权隔离 ADO fixture 可验证对象、复制清单、失败聚合和 PR；无授权只出逐目标提案。 |
-| 本地实现状态 | Task11 本地只读提案已实施、等待独立范围审阅；见[本次交接](../../logs/2026-10-15-ddd-alignment.md#task11)。维护者 workflow 未运行，外部传播仍为 not-run；ENH-11/Task14 的完整等价结论未关闭 |
+| 本地实现状态 | Task11 本地只读提案及本次范围复核完成，路径隔离修正已确认；见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task11-review)。维护者 workflow 未运行，外部传播仍为 not-run；ENH-11/Task14 的完整等价结论未关闭 |
 
 ### FRAMEWORK-10：管理摘要 PPT 生成
 
