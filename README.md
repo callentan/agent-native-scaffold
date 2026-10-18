@@ -19,7 +19,7 @@
 
 人和 Agent 接入项目使用 [project-onboarding](.github/skills/project-onboarding/SKILL.md)；比较旧/本地/新模板版本或明确 BC 的场景提案使用 [update-template](.github/skills/update-template/SKILL.md)。保留所有者内容与原规则位置，不整仓覆盖；提案不应用或授权传播。
 
-只填已确认信息，资料维护不要求技术栈。只有用户选定项目、技术栈与位置、授权创建且[开发输入](docs/development.md#creation-inputs)齐备，才进入编码路径。使用 Agent 时另读[通用入口](AGENTS.md)和[接入说明](docs/agent-support.md)；App 的有限入口观察与未验证项按客户端分别记录，不把模板存在当成全部入口已支持。
+只填已确认信息，资料维护不要求技术栈。只有用户选定项目、技术栈与位置、授权创建且[开发输入](docs/development.md#creation-inputs)齐备，才进入编码路径。使用 Agent 时另读[通用入口](AGENTS.md)和[分发范围](docs/distribution.md)；候选不包含历史客户端观察，文件存在不代表任何入口已实测。
 
 <a id="daily-work"></a>
 ## 日常工作
@@ -73,7 +73,7 @@
 
 需要独立用途或外部风险引用时，使用 [Intended Use](_templates/items/intended-use.md)与[风险控制](_templates/items/risk-control.md)表单，按[领域落点](domain-model/README.md#governance-forms)保存。四种治理/工具记录都可选；未知政策、来源或决定保留缺口，空白表单不建立 QMS、资格或批准。
 
-[Copilot 薄入口](docs/agent-support.md#entry-points)只链接上述方法；不自动发现时显式读取具体 `SKILL.md` 和适用规则。链接不是自动包含保证，可选 prompt files 也不是执行这些方法的前提。
+[Copilot 薄入口](.github/copilot-instructions.md)只链接上述方法；不自动发现时显式读取具体 `SKILL.md` 和适用规则。链接不是自动包含保证，可选 prompt files 也不是执行这些方法的前提。
 
 <a id="forms"></a>
 ## 填写约定

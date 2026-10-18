@@ -17,4 +17,4 @@
 - 模板版本或明确 BC 场景提案使用 [update-template](.github/skills/update-template/SKILL.md)，读取真实旧/本地/新来源及精确版本；缺旧基线、冲突或权限不明时停止受影响操作。提案不应用，也不授予任何跨仓 Git/平台权限。
 - 证据与影响按 [verify-change](.github/skills/verify-change/SKILL.md)处理；完成、暂停或接手按 [record-handoff](.github/skills/record-handoff/SKILL.md)处理。不补造结果，不复制权威记录或隐藏聊天依赖。
 
-原生入口与观察状态见[接入说明](docs/agent-support.md)。角色不是独立人工批准者，也不自动组织团队；Markdown 规则不替代真实权限、sandbox 或 CI，外部操作仍须相应授权。
+客户端原生发现与权限仍须分别实测；本地候选范围及未运行关卡见[分发说明](docs/distribution.md)。角色不是独立人工批准者，也不自动组织团队；Markdown 规则不替代真实权限、sandbox 或 CI，外部操作仍须相应授权。

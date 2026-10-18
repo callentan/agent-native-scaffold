@@ -97,7 +97,7 @@ domainSources:
     kind: local
     root: .
     path: domain-model
-    baseline: 81ffd45b3b9b7643d643a9162b533af92613c553
+    baseline: 0123456789abcdef0123456789abcdef01234567
     readOnly: true
 developmentRegistration: docs/development.md#project-registration
 ```
@@ -121,7 +121,7 @@ schemaVersion: 1
 scope: sample/CTX-001
 source:
   root: .
-  baseline: 81ffd45b3b9b7643d643a9162b533af92613c553
+  baseline: 0123456789abcdef0123456789abcdef01234567
 artifacts: []
 implementationReports: []
 views:
@@ -195,14 +195,14 @@ schemaVersion: 1
 scope: sample/CTX-001
 object:
   root: .
-  baseline: 81ffd45b3b9b7643d643a9162b533af92613c553
+  baseline: 0123456789abcdef0123456789abcdef01234567
 bcConfig:
   reference: bc-config.yaml
-  baseline: 81ffd45b3b9b7643d643a9162b533af92613c553
+  baseline: 0123456789abcdef0123456789abcdef01234567
 domainSources:
   - root: .
     path: domain-model
-    baseline: 81ffd45b3b9b7643d643a9162b533af92613c553
+    baseline: 0123456789abcdef0123456789abcdef01234567
 artifactRefs:
   - sample/CTX-001/SR-001#sr-001-ac-01
   - sample/CTX-001/VT-001#criterion-01

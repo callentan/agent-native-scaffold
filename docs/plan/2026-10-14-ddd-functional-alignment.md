@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核；Task18 fix2 也已完成限定复审，原四项 Important 均已处理、无新增问题。当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base 804、fix1 815、fix2 817 项结果各自保留；fix2 的错误恢复 identity 经复审确认，真实供应商/账单/用量仍未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` 参数移除 Minor 依指示 deferred（无仓内 caller，API 未发布），最终整体审阅再行 triage。Task12 本地实施依赖现已满足，尚未开始候选交付；Task13–14 也未执行，不能把本地渲染/账本当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核；Task18 fix2 也已完成限定复审，原四项 Important 均已处理、无新增问题。当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base 804、fix1 815、fix2 817 项结果各自保留；fix2 的错误恢复 identity 经复审确认，真实供应商/账单/用量仍未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` 参数移除 Minor 依指示 deferred（无仓内 caller，API 未发布），最终整体审阅再行 triage。Task12 的精确 manifest、maker-only copy/verify、候选隔离回归、一次最低版本 retained+new 全套与真实文件级回执均已完成；当前实现范围等待独立 scoped review。计数、命令、哈希和 `not-run` 证据见[制作侧验收记录](../../verification/ddd-alignment.md)与 Task12 session-local report。Task13–14 仍未执行，不能把本地渲染/账本/候选检查当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭；Task12 本地依赖现已齐备，下一步开始候选交付。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭。Task12 现在处于候选实现/局部回归完成、最终全套与独立范围复核待办状态；详细候选清单、缺口和后续结果分别回制作侧验收记录与交接，不表示发布或全仓 parity。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -472,15 +472,15 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 ### 任务 12：增强候选、工具分发与原行为回归
 
-**文件：** distribution 说明、blueprint、入口/PR 表单、`test_distribution.py`；结果在 `verification\ddd-alignment.md`。
+**文件：** `docs\distribution.md`、精确文件/所有者 `docs\distribution-manifest.json`、maker-only `.github\utilities\distribute_candidate.py`、实际测试布局 `.github\utilities\tests\test_distribution.py`，以及 `verification\ddd-alignment.md` 和直接关联导航/状态。manifest 是唯一文件清单；数量和逐文件散列只保存在实际回执/报告。
 
-- [ ] 冻结具体文件 allowlist：基础资料、增强表单/方法、可选工具/contracts/依赖及 validate-artifacts workflow 分别列明，不整目录复制 docs/logs。工具 tests、tooling-tests/传播 workflows、研究/计划、治理演练和内部 URL 不进入下游候选。
-- [ ] `test_distribution.py` 使用真实复制候选：Markdown、工具资源/schema 和分发 workflow 的文件依赖在候选内可读，尤其不指向被排除的 tools tests；不要求研究 repo 或个人 skills，`src` 仍只含 README，没有预填 SD/REQ/VT 或批准事实。
-- [ ] 基础阅读无工具依赖，启用工具时按本地 manifest 恢复并运行工具正反例。业务命令仍未配置，不能让 maintenance tools 替它们成功。
-- [ ] 重做原 T01、T05、T07–T16 的适用回归；原 T17 和未测原生路径的状态仍保留，不复制旧结果充数。
-- [ ] 整体运行工具测试和候选检查，保存对象/要求/工具版本、数量、原始结果与未执行项；提交文档及 tests，临时副本不提交。
+- [x] 依据实际交付文件冻结 exact file allowlist 及组件 owner；不递归复制 `docs/`、`logs/`、`.github/` 或 `.github/utilities/`。研究/计划、真实会话/客户端结果、maker tests/fixtures/count runner、maintainer workflow 与 Git history 明确排除。
+- [x] `test_distribution.py` 从真实文件复制生成 candidate，在副本内检查 Markdown 链接/锚点、Python imports、schema/resources 和 validation workflow closure；maker tests/copy helper 不进入候选，candidate 不从 maker path 补缺。
+- [x] 验证 basic docs 无 Python/import prerequisite；可选维护环境使用原有 lock。业务命令保持未配置，维护工具不代替应用测试。
+- [x] 重做适用的 T01/T05/T07–T16 本地文件/CLI路径；原 P3 的 client/human/发布结果不继承。T17/GUI/native client 与 hosted platform 继续保持未运行。
+- [x] 在已选最低 Python 3.11.15 上完成唯一一次 retained+new 全计数 suite；保留真实复制/验证回执、文件哈希、dirty scope、排除列表与原始输出。此 Task12 变更以单一 scoped 本地 commit 保存，不发布、不推送、不建 PR。
 
-**退出：** ENH-13；增强文件数量以新 allowlist 为准，不沿用“38 文件”描述或把临时检查器当分发功能。
+**当前退出状态：** Task12 本地实现与证据整理完成，等待独立限定复核；manifest 是唯一文件清单，候选/局部测试均不构成发布或整体 parity 结论。
 
 ### 任务 13：真实行为和客户端验收
 
@@ -653,4 +653,4 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 本地依赖已齐，下一步开始候选交付；Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 已交付精确文件级 candidate、独立候选回归、最低版本 retained+new 全套及原始复制/哈希回执；等待独立范围复核。Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
