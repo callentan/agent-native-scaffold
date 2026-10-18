@@ -615,7 +615,7 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 - [ ] PDF/PPTX 的实际 renderer/依赖/模板仍待单独选择和授权；当前没有安装/探测 renderer，`requirements-rendering.txt` 不声明未批准包。请求相应格式返回 `unavailable`/`not-run`，不创建假格式文件；实际引擎、签名/parser、非零页或 slide、源内容检查保持 open，不用浮动 latest 容器。所有文件写入须显式新目标且已有文件先冲突。
 - [ ] 在已授权 renderer 可用后，以实际 parser/签名、非零页或 slide 计数和源内容检查真实二进制，再做适用的人/App 检查；当前本地 HTML/SVG 的独立结构解析不替代这些关卡。导出成功也不等于 SWAS 已批准。
 
-**当前状态：本地 JSON/SVG/HTML 实现及 Python 3.11.15 全量工具回归已完成，待独立范围审阅。** 最终套件发现/执行 784 项，0 跳过、失败、错误，退出 0；原始结果和初次瞬时 cleanup 错误的边界见 Task17 交接报告。PDF/PPTX 实际格式、对应人/App 检查和整体 ENH-17 均未关闭；所有适用格式均有真实结果前，不能以本地文本/图输出解锁 Task12 或宣称 full parity。
+**当前状态：Task17 fix1 已修正结构化来源 fragment 与九视图证据的精确绑定，并将不可 JSON 序列化的 YAML-native 标量转为 typed input error；JSON/SVG/HTML 实现和 Python 3.11.15 全量工具回归完成，待独立范围审阅。** 最终套件发现/执行 787 项，0 跳过、失败、错误，退出 0；RED/GREEN 和原始结果见 Task17 交接报告。PDF/PPTX 实际格式、对应人/App 检查和整体 ENH-17 均未关闭；所有适用格式均有真实结果前，不能以本地文本/图输出解锁 Task12 或宣称 full parity。
 
 ### 任务 18：最小交互/用量账本
 

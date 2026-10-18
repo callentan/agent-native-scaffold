@@ -170,10 +170,13 @@ def _source_sections(context, pointer):
         return sections
     if path.suffix.lower() not in (".yaml", ".yml", ".json"):
         raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, "Select a formal Markdown artifact or verified view source")
-    verified = {entry["reference"].split("#", 1)[0]
+    verified = {(entry["reference"], entry["baseline"])
                 for view in context["model"]["views"].values() for entry in view["evidenceRefs"]}
-    if relative not in verified:
-        raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, "Structured content must already be a verified nine-view source")
+    if (pointer["reference"], pointer["baseline"]) not in verified:
+        raise ArtifactInputError(
+            "INVALID_OPTIONAL_SOURCE", path, 1,
+            "The exact structured source fragment and baseline must be selected by the verified nine-view model",
+        )
     data = reader.document(path, raw)
     if "object" in data and "entries" in data:
         # Use the existing reconstruction adapter, not schema-valid result claims.
@@ -188,7 +191,16 @@ def _source_sections(context, pointer):
             names = [name for name in names if name == fragment]
         if not names:
             raise ArtifactInputError("INVALID_OPTIONAL_SOURCE", path, 1, "No selected, supported source-owned summary field")
-        selected = [(name, json.dumps(data[name], ensure_ascii=False, sort_keys=True, indent=2).splitlines()) for name in names]
+        selected = []
+        for name in names:
+            try:
+                lines = json.dumps(data[name], ensure_ascii=False, sort_keys=True, indent=2).splitlines()
+            except (TypeError, ValueError) as error:
+                raise ArtifactInputError(
+                    "INVALID_OPTIONAL_SOURCE", path, 1,
+                    f"Selected structured view {name!r} contains YAML-native values unsupported by the JSON projection ({type(error).__name__})",
+                ) from error
+            selected.append((name, lines))
     return [{
         "key": name, "title": name, "line": 1, "lines": lines,
         "source_id": "file:" + relative, "source_title": relative,

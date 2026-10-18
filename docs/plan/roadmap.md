@@ -220,7 +220,7 @@ T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额
 
 用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
 
-源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15 及 Task16 离线范围的有限本地实现与复核均已完成，无遗留的这些任务审阅发现，但不代表真实资格或批准。当前九方法、二十二 prompts、三模式。Task16 的本地文本/JSONL、有界 stdlib DOCX、透明评分与音频拒绝入口已完成限定复审；真实音频仍 not-run，ENH-16 未关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/有限 SEQ 与参数化演示已通过 3.11.15 全量工具回归（784 项执行，0 跳过/失败/错误），实现仍等待独立范围审阅；PDF/PPTX 与真实二进制格式检查未选 renderer/未授权，ENH-17 和 full parity 仍 open。Task12–14、18 未完成；Task12 不因本地导出实现而解锁。不初始化应用、安装到真实项目、更改远端门禁或执行外部 fan-out。原 P3 入口/人工观察不升级。
+源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15 及 Task16 离线范围的有限本地实现与复核均已完成，无遗留的这些任务审阅发现，但不代表真实资格或批准。当前九方法、二十二 prompts、三模式。Task16 的本地文本/JSONL、有界 stdlib DOCX、透明评分与音频拒绝入口已完成限定复审；真实音频仍 not-run，ENH-16 未关闭。Task17 fix1 精确核对结构化 source reference/baseline 与九视图证据，并将不可 JSON 序列化的 YAML-native 值转为 typed input error；本地 JSON/SVG/HTML 实现已通过 3.11.15 全量工具回归（787 项执行，0 跳过/失败/错误），仍等待独立范围审阅。PDF/PPTX 与真实二进制格式检查未选 renderer/未授权，ENH-17 和 full parity 仍 open。Task12–14、18 未完成；Task12 不因本地导出实现而解锁。不初始化应用、安装到真实项目、更改远端门禁或执行外部 fan-out。原 P3 入口/人工观察不升级。
 
 目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7/8 的审阅修正已关闭；报告和模型仍只引用原始来源。Task9 演练不补未知风险或决定、不改写 VT。Task10 的原生启动、环境和报告边界结果分别保留，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留，历史记录不改写。
 

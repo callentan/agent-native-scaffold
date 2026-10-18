@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import date
 from html.parser import HTMLParser
 import importlib
 import importlib.util
@@ -911,14 +912,124 @@ class RenderingTests(unittest.TestCase):
             "entries": [{"reqId": SCOPE + "/REQ-001#req-001-ac-01",
                          "srIds": [SCOPE + "/SR-001#sr-001-ac-01"],
                          "notes": "Owner has not selected runtime infrastructure"}],
-        }}, allow_unicode=True), encoding="utf-8")
+        }, "tree": {"unselected": "UNSELECTED-UTILITY-TREE"}}, allow_unicode=True), encoding="utf-8")
         self.manifest({"requirements": [{"path": "supplied-summary.yaml", "baseline": baseline(source)}]})
+        evidence = export_view(self.root, SCOPE)["views"]["requirements"]["evidenceRefs"]
+        self.assertIn({"reference": "supplied-summary.yaml#srSummary", "baseline": baseline(source)}, evidence)
+        self.assertNotIn({"reference": "supplied-summary.yaml#tree", "baseline": baseline(source)}, evidence)
+        self.assertNotIn({"reference": "supplied-summary.yaml", "baseline": baseline(source)}, evidence)
         inputs = {"root": self.root, "scope": SCOPE, "sources": [self.pointer(source, "#srSummary")]}
         result = self.render("render_presentation", inputs)
         document = Document(result["content"])
         self.assertIn("self-owned-candidate-7", "".join(document.text))
         self.assertIn("Owner has not selected runtime infrastructure", "".join(document.text))
+        self.assertNotIn("UNSELECTED-UTILITY-TREE", "".join(document.text))
         self.assertEqual(["srSummary"], [a["data-section"] for _, a in document.tags if "data-section" in a])
+
+    def test_structured_fragment_must_match_exact_model_evidence(self):
+        self.graph()
+        source = self.root / "selected-summary.yaml"
+        source.write_text(yaml.safe_dump({
+            "srSummary": {"srVersion": "selected-v1", "entries": []},
+            "tree": {"unselected": "must not be disclosed"},
+        }, allow_unicode=True), encoding="utf-8")
+        fixed = baseline(source)
+        self.manifest({"requirements": [{"path": source.name, "baseline": fixed}]})
+        for fragment in ("#tree", ""):
+            with self.subTest(fragment=fragment or "<none>"):
+                pointer = self.pointer(source, fragment)
+                inputs = {"root": self.root, "scope": SCOPE, "sources": [pointer]}
+                self.assert_error(
+                    "INVALID_OPTIONAL_SOURCE",
+                    lambda inputs=inputs: self.render("render_architecture", inputs),
+                )
+                output = (self.workspace / ("unselected-tree" if fragment else "whole-file")).with_suffix(".html")
+                result = self.cli(
+                    "render_architecture", "--format", "html", "--source", pointer["reference"],
+                    "--baseline", pointer["baseline"], "--output", str(output),
+                )
+                self.assertEqual(2, result.returncode)
+                diagnostic = json.loads(result.stdout)
+                self.assertEqual("INVALID_OPTIONAL_SOURCE", diagnostic["findings"][0]["code"])
+                self.assertFalse(output.exists())
+
+    def test_verified_utility_tree_renders_json_compatible_values(self):
+        self.graph()
+        qas = self.artifact(
+            "QAS-001", "quality-attribute-scenario",
+            '# QAS-001 Source-owned quality\n<a id="scenario"></a>\n## Candidate scenario\n',
+            upstream=[SCOPE + "/REQ-001"],
+        )
+        self.artifact(
+            "TS-001", "validation-scenario",
+            '# TS-001 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
+            targets=[{"target": SCOPE + "/QAS-001#scenario", "criterionAnchor": "criterion"}],
+        )
+        source = self.root / "quality-tree.yaml"
+        source.write_text(yaml.safe_dump({
+            "tree": {"Candidate grouping": ["owned string", 2, True]},
+        }, allow_unicode=True), encoding="utf-8")
+        self.manifest({"quality": [
+            {"path": qas.relative_to(self.root).as_posix(), "baseline": baseline(qas)},
+            {"path": "TS-001.md", "baseline": baseline(self.root / "TS-001.md")},
+            {"path": source.name, "baseline": baseline(source)},
+        ]})
+        model_evidence = export_view(self.root, SCOPE)["views"]["quality"]["evidenceRefs"]
+        self.assertIn({"reference": source.name + "#tree", "baseline": baseline(source)}, model_evidence)
+        result = self.render("render_architecture", {
+            "root": self.root, "scope": SCOPE, "sources": [self.pointer(source, "#tree")],
+        })
+        document = Document(result["content"])
+        self.assertEqual(["tree"], [attrs["data-section"] for _, attrs in document.tags
+                                    if "data-section" in attrs])
+        self.assertIn("Candidate grouping", "".join(document.text))
+        self.assertIn("owned string", "".join(document.text))
+        self.assertIn("true", "".join(document.text))
+        self.assertIn("2", "".join(document.text))
+
+    def test_yaml_native_date_and_binary_values_are_typed_input_errors(self):
+        self.graph()
+        qas = self.artifact(
+            "QAS-001", "quality-attribute-scenario",
+            '# QAS-001 Source-owned quality\n<a id="scenario"></a>\n## Candidate scenario\n',
+            upstream=[SCOPE + "/REQ-001"],
+        )
+        ts = self.artifact(
+            "TS-001", "validation-scenario",
+            '# TS-001 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
+            targets=[{"target": SCOPE + "/QAS-001#scenario", "criterionAnchor": "criterion"}],
+        )
+        quality_sources = [
+            {"path": qas.relative_to(self.root).as_posix(), "baseline": baseline(qas)},
+            {"path": ts.relative_to(self.root).as_posix(), "baseline": baseline(ts)},
+        ]
+        for name, value in (("date-tree", date(2026, 10, 18)), ("binary-tree", b"\x00\xfffixture")):
+            with self.subTest(name=name):
+                source = self.root / (name + ".yaml")
+                source.write_text(yaml.safe_dump({
+                    "tree": {"nested": {"unsupported scalar": value}},
+                }, allow_unicode=True), encoding="utf-8")
+                fixed = baseline(source)
+                self.manifest({"quality": [*quality_sources, {"path": source.name, "baseline": fixed}]})
+                pointer = self.pointer(source, "#tree")
+                inputs = {"root": self.root, "scope": SCOPE, "sources": [pointer]}
+                try:
+                    self.render("render_architecture", inputs)
+                except ArtifactInputError as error:
+                    self.assertEqual("INVALID_OPTIONAL_SOURCE", error.code)
+                except (TypeError, ValueError) as error:
+                    self.fail(f"YAML-native scalar escaped as raw {type(error).__name__}: {error}")
+                else:
+                    self.fail("Unsupported YAML-native value rendered without an explicit conversion contract")
+                output = self.workspace / (name + ".html")
+                result = self.cli(
+                    "render_architecture", "--format", "html", "--source", pointer["reference"],
+                    "--baseline", pointer["baseline"], "--output", str(output),
+                )
+                self.assertEqual(2, result.returncode)
+                diagnostic = json.loads(result.stdout)
+                self.assertEqual("INVALID_OPTIONAL_SOURCE", diagnostic["findings"][0]["code"])
+                self.assertFalse(output.exists())
 
     def test_report_source_uses_real_reconstruction_not_execution_status_copy(self):
         from collect_implementation_report import build_report

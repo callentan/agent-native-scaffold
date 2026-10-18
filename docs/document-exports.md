@@ -31,8 +31,12 @@ baseline 也可为可读的完整本地 Git commit/blob。未知字段、重复�
 
 架构/演示 sources 的 Markdown 必须是库存中的真实正式工件；保留 source ID、
 路径、原始 baseline、行号和实际章节。JSON/YAML 必须是九视图已经核对的来源，
+输入的 `(reference, baseline)` 必须与当前九视图 `evidenceRefs` 中的一项完全一致；
+同一文件的其他 fragment 或整文件引用不能借已选 fragment 取得授权。
 不把任意 mapping 当 SWAS。实施报告只沿既有 report adapter 核对并保留导航，
 不将其执行/适用性条目重新解释为本次结果。引用不授予执行或写回权限。
+结构化投影仅序列化 JSON 可表示的值；`date`、YAML `!!binary` 等原生值不会隐式
+字符串化，返回 `INVALID_OPTIONAL_SOURCE`，并保留明确的来源错误。
 
 返回普通 dict，固定具有：
 
