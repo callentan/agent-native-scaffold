@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base commit `be2872d` 的 804 项套件和 fix1 的 815 项套件均保留为历史基线；fix2/round2 已在 native create 后、`open_osfhandle`/首个 `os.fstat` 失败路径缓存并传递输出 identity。fix2 Task18 targeted 30/30 通过，最终 fix2 retained+new Python 3.11.15 套件 817/817、0 跳过/失败/错误，`inputs_unchanged=true`。修正待提交和独立限定复审，不关闭真实供应商/账单集成、实际用量、工具资格或 ENH-18/full parity。Task12 仍待 Task18 独立复审及候选交付，尚未解锁。Task13–14 也未执行，不能把本地渲染当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核；Task18 fix2 也已完成限定复审，原四项 Important 均已处理、无新增问题。当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base 804、fix1 815、fix2 817 项结果各自保留；fix2 的错误恢复 identity 经复审确认，真实供应商/账单/用量仍未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` 参数移除 Minor 依指示 deferred（无仓内 caller，API 未发布），最终整体审阅再行 triage。Task12 本地实施依赖现已满足，尚未开始候选交付；Task13–14 也未执行，不能把本地渲染/账本当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分及 Task17 本地导出均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 已完成本地实现/验证但等待独立审阅，真实供应商/账单与用量未接入；Task12 仍待 Task18 审阅及候选交付，Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭；Task12 本地依赖现已齐备，下一步开始候选交付。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -628,7 +628,7 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 - [x] 写前/写后核对源字节与文件身份；摘要输出锁住 Windows 父目录句柄链，以相对 pinned directory handle 的 `NtCreateFile` exclusive/no-reparse 方式创建后复查父目录、源基线和输出 identity。native create 成功即先缓存 file identity；`open_osfhandle`、首个 `os.fstat` 或后续 I/O 失败会返回 recovery identity，不自动截断、删除锁或静默重建；无法安全绑定则 fail closed。
 - [x] Task18 base commit `be2872d` 的历史最低版本套件为 804/804，fix1 为 815/815；fix2 Task18 targeted 为 30/30，最终 retained+new Python 3.11.15 最低版本套件为 817/817 执行、0 跳过/失败/错误、退出 0，`inputs_unchanged=true`。RED/GREEN、原生 create failure 和恢复测试入口见 [Task18 fix2 交接](../../logs/2026-10-19-task18-resume.md#fix2) 及本机 session artifact。
 
-**当前状态：fix1/round1 的三个 Important 与 fix2/round2 新 Important 均已作窄修正；fix2 Task18 targeted 30/30 与 retained+new Python 3.11 套件 817/817 通过，等待独立限定复审。** 旧 804/815 项结果及所有 fix1/fix2 RED/GREEN 收据分别保留，不互相覆盖。Minor `summarize_usage(lock_timeout=...)` 移除建议经本地调用搜索确认无 in-repo caller；按用户指示作为新 API minor deferred，不做无关改动。Task12 未解锁；ENH-18 及全仓 parity 仍 open；没有实际 provider/billing、真实用量或资格结论。可重复记账不扩大到会话监控、自动预算控制或工作流运行状态库。
+**当前状态：fix1/round1 的三个 Important、fix2/round2 新 Important 均经限定复审确认已处理，且 fix2 未引入新的可操作发现。** Task18 targeted 30/30、retained+new Python 3.11 套件 817/817 通过。旧 804/815 项结果及所有 fix1/fix2 RED/GREEN 收据分别保留，不互相覆盖；两测试中间收据 `green-create-failure-report-02.json` 退出码为 1、raw output 有 `KeyError`，不作为成功证据，最终依据为 30/30 与 817/817。Minor `summarize_usage(lock_timeout=...)` 移除建议经本地调用搜索确认无 in-repo caller；按用户指示作为新 API minor deferred，不做无关改动。Task12 本地依赖已齐，下一步开始候选交付；ENH-18 及全仓 parity 仍 open；没有实际 provider/billing、真实用量或资格结论。可重复记账不扩大到会话监控、自动预算控制或工作流运行状态库。
 
 ## 5. 规格覆盖自检
 
@@ -653,4 +653,4 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 本地实现与 fix2 回归已完成，当前等待独立限定审阅；真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open。Task12 仍待 Task18 独立审阅和候选交付；Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 本地依赖已齐，下一步开始候选交付；Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
