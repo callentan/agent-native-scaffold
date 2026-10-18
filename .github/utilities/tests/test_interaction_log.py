@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import base64
+from contextlib import redirect_stderr
 import ctypes
 import hashlib
 import importlib
@@ -476,7 +477,7 @@ class InteractionLogTests(unittest.TestCase):
 
         self.addCleanup(restore_paths)
 
-        def attack_at_exclusive_create(parent_binding, file_name):
+        def attack_at_exclusive_create(parent_binding, file_name, *, on_created=None):
             if file_name == output.name and state["move_succeeded"] is None:
                 ctypes.set_last_error(0)
                 moved_ok = bool(move_file(str(output_parent), str(moved), 0))
@@ -485,7 +486,8 @@ class InteractionLogTests(unittest.TestCase):
                 if moved_ok:
                     self.create_junction_at_absent_path(output_parent, outside)
                     state["junction_created"] = True
-            return original_create(parent_binding, file_name)
+            return original_create(
+                parent_binding, file_name, on_created=on_created)
 
         failure = None
         with patch.object(ledger, "_create_exclusive_output",
@@ -926,6 +928,82 @@ class InteractionLogTests(unittest.TestCase):
                          "--output", str(output), "--attest-local-storage")
         self.assertEqual(2, retry.returncode)
         self.assertEqual(partial, output.read_bytes())
+
+    def test_FIX2_01_open_osfhandle_failure_reports_native_output_identity(self):
+        output = self.root / "native-created-before-wrap.json"
+        source_before = self.log.read_bytes()
+        summary_module = self.module("summarize_usage")
+        ledger = self.module("log_interaction")
+        calls = 0
+        stderr = io.StringIO()
+
+        def fail_after_native_create(native_handle, flags):
+            nonlocal calls
+            calls += 1
+            self.assertTrue(output.is_file(),
+                            "NtCreateFile must already have created the real output")
+            raise OSError("controlled open_osfhandle failure after native create")
+
+        with patch.object(ledger.msvcrt, "open_osfhandle",
+                          side_effect=fail_after_native_create), redirect_stderr(stderr):
+            exit_code = summary_module.main([
+                "--log", str(self.log),
+                "--output", str(output),
+                "--attest-local-storage",
+            ])
+
+        payload = json.loads(stderr.getvalue())
+        self.assertEqual(2, exit_code)
+        self.assertEqual(1, calls)
+        self.assertEqual("SUMMARY_OUTPUT_RECOVERY_REQUIRED", payload["code"])
+        self.assertTrue(payload["recovery_required"])
+        self.assertEqual(0, payload["recovery"]["observed_bytes"])
+        self.assertEqual(
+            output.stat().st_ino,
+            payload["recovery"]["output_identity"]["file_id"],
+        )
+        self.assertEqual(b"", output.read_bytes())
+        self.assertEqual(source_before, self.log.read_bytes())
+
+    def test_FIX2_02_first_output_fstat_failure_uses_cached_native_identity(self):
+        output = self.root / "fstat-failure-after-wrap.json"
+        source_before = self.log.read_bytes()
+        summary_module = self.module("summarize_usage")
+        ledger = self.module("log_interaction")
+        original_wrap = ledger.msvcrt.open_osfhandle
+        original_fstat = os.fstat
+        output_descriptor = None
+        fstat_failed = False
+
+        def wrap_and_capture_native_output(native_handle, flags):
+            nonlocal output_descriptor
+            output_descriptor = original_wrap(native_handle, flags)
+            return output_descriptor
+
+        def fail_first_output_fstat(descriptor):
+            nonlocal fstat_failed
+            if output_descriptor is not None and descriptor == output_descriptor and not fstat_failed:
+                fstat_failed = True
+                raise OSError("controlled first output fstat failure")
+            return original_fstat(descriptor)
+
+        with patch.object(ledger.msvcrt, "open_osfhandle",
+                          side_effect=wrap_and_capture_native_output), patch.object(
+                              summary_module.os, "fstat", side_effect=fail_first_output_fstat):
+            with self.assertRaises(summary_module.LedgerError) as caught:
+                summary_module.write_summary(
+                    self.log, output, attest_local_storage=True)
+
+        self.assertTrue(fstat_failed)
+        self.assertEqual("SUMMARY_OUTPUT_RECOVERY_REQUIRED", caught.exception.code)
+        self.assertTrue(caught.exception.recovery_required)
+        self.assertEqual(0, caught.exception.recovery["observed_bytes"])
+        self.assertEqual(
+            output.stat().st_ino,
+            caught.exception.recovery["output_identity"]["file_id"],
+        )
+        self.assertEqual(b"", output.read_bytes())
+        self.assertEqual(source_before, self.log.read_bytes())
 
     def test_LEDGER_12_blank_template_is_never_treated_as_a_live_ledger(self):
         template = WORKTREE / "_templates" / "reports" / "ai-interaction-log.csv"

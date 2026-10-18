@@ -113,6 +113,13 @@ def write_summary(
     output = ledger._validate_new_output(output_path, source=source, suffix=".json")
     created_identity = None
     output_bytes = 0
+    expected_output_bytes = 0
+
+    def remember_native_output(identity: dict, size: int) -> None:
+        nonlocal created_identity, output_bytes
+        created_identity = identity
+        output_bytes = size
+
     try:
         with ledger._pinned_directory_chain(output.parent) as parent_binding:
             # The validated directory chain remains open without FILE_SHARE_DELETE
@@ -124,6 +131,7 @@ def write_summary(
                 result = _summary(source, raw, records)
                 content = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
                 encoded = content.encode("utf-8")
+                expected_output_bytes = len(encoded)
 
                 confirm_raw, _ = ledger._read_validated(source)
                 if confirm_raw != raw:
@@ -132,7 +140,11 @@ def write_summary(
                         "ledger changed after summary calculation and before output creation",
                     )
                 parent_binding.verify()
-                descriptor = ledger._create_exclusive_output(parent_binding, output.name)
+                descriptor = ledger._create_exclusive_output(
+                    parent_binding,
+                    output.name,
+                    on_created=remember_native_output,
+                )
 
                 written_total = 0
                 try:
@@ -142,7 +154,6 @@ def write_summary(
                             "SUMMARY_WRITE_ERROR",
                             "summary output is not a regular file",
                         )
-                    created_identity = details
                     output_bytes = details.st_size
                     identity = ledger._path_identity(details)
                     path_details = ledger._assert_single_regular_file(
@@ -174,7 +185,8 @@ def write_summary(
                             output, code="UNSAFE_PATH")
                         if (observed != encoded
                                 or ledger._path_identity(details) != identity
-                                or ledger._path_identity(path_details) != identity):
+                                or ledger._path_identity(path_details) != identity
+                                or details.st_ino != created_identity["file_id"]):
                             raise ledger.LedgerError(
                                 "SUMMARY_OUTPUT_CHANGED",
                                 "new summary output changed; preserve it and inspect before retrying",
@@ -183,7 +195,7 @@ def write_summary(
                                 recovery={
                                     "expected_bytes": len(encoded),
                                     "observed_bytes": len(observed),
-                                    "output_identity": _output_identity(details),
+                                    "output_identity": created_identity,
                                 },
                             )
                         parent_binding.verify()
@@ -198,7 +210,7 @@ def write_summary(
                                     "expected_source_sha256": result["source_sha256"],
                                     "observed_source_sha256": hashlib.sha256(final_raw).hexdigest(),
                                     "observed_output_bytes": len(observed),
-                                    "output_identity": _output_identity(details),
+                                    "output_identity": created_identity,
                                 },
                             )
                     except OSError as exc:
@@ -210,8 +222,6 @@ def write_summary(
                         except OSError:
                             observed_size = written_total
                             output_bytes = written_total
-                        details = os.fstat(descriptor)
-                        created_identity = details
                         raise ledger.LedgerError(
                             "SUMMARY_OUTPUT_RECOVERY_REQUIRED",
                             "summary output I/O failed; preserve the new file and inspect it before retrying",
@@ -220,26 +230,48 @@ def write_summary(
                             recovery={
                                 "expected_bytes": len(encoded),
                                 "observed_bytes": observed_size,
-                                "output_identity": _output_identity(details),
+                                "output_identity": created_identity,
                             },
                         ) from exc
                 finally:
                     os.close(descriptor)
                 return result
     except ledger.LedgerError as exc:
-        if created_identity is not None and not exc.recovery_required:
+        if created_identity is not None:
+            code = ("SUMMARY_OUTPUT_RECOVERY_REQUIRED"
+                    if exc.code in ("LOCAL_IO_ERROR", "OUTPUT_CREATE_ERROR")
+                    else exc.code)
+            recovery = {
+                **exc.recovery,
+                "observed_output_bytes": output_bytes,
+                "observed_bytes": output_bytes,
+                "output_identity": created_identity,
+            }
+            if code != exc.code:
+                recovery["cause_code"] = exc.code
             raise ledger.LedgerError(
-                exc.code,
-                str(exc),
-                exit_code=exc.exit_code,
+                code,
+                ("summary output exists after a post-create failure: " + str(exc)
+                 if code == "SUMMARY_OUTPUT_RECOVERY_REQUIRED" else str(exc)),
+                exit_code=2,
                 recovery_required=True,
-                recovery={
-                    **exc.recovery,
-                    "observed_output_bytes": output_bytes,
-                    "output_identity": _output_identity(created_identity),
-                },
+                recovery=recovery,
             ) from exc
         raise
+    except OSError as exc:
+        if created_identity is None:
+            raise ledger._error("LOCAL_IO_ERROR", "summary output failed before file creation") from exc
+        raise ledger.LedgerError(
+            "SUMMARY_OUTPUT_RECOVERY_REQUIRED",
+            "summary output exists after an OS handle failure; preserve it and inspect it before retrying",
+            exit_code=2,
+            recovery_required=True,
+            recovery={
+                "expected_bytes": expected_output_bytes,
+                "observed_bytes": output_bytes,
+                "output_identity": created_identity,
+            },
+        ) from exc
 
 
 def _output_identity(details: os.stat_result) -> dict:

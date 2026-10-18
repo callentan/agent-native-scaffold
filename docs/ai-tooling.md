@@ -46,7 +46,7 @@
 
 追加前会验证固定表头、版本和全部现存行；坏 CSV、重复已有 ID、冲突 ID、无效时间/用量均明确拒绝，绝不重建、截断或跳过历史。相同 ID 与完全相同的值是无改动重放。所有写操作（追加及显式摘要文件）都须由调用者显式传 `attest_local_storage=True` 或 CLI `--attest-local-storage`；缺省会以 `WRITE_ATTESTATION_REQUIRED` 拒绝且不创建锁/输出。该值只是调用者对所选路径为单机本地、非网络/非云同步存储的声明，不认证调用者身份、OS 实际盘型或存储供应商，也不构成耐久保证；不要为 OneDrive 等同步位置作此声明。程序仍会检测并拒绝 UNC/非固定盘、重解析点和硬链接，但不探测环境/注册表/供应商来猜测同步状态。
 
-默认无输出摘要只读取账本，不取锁、不创建 `.lock` 或其他文件。它比较两次精确字节读取与文件身份/大小/时间属性；观察到源变化返回 typed `OWNER_BYTES_CHANGED`，稳定但格式损坏的源返回 CSV 输入错误，不把半行当完整统计。显式 `--output` 是写操作：要求上述 caller attestation；使用既有源锁稳定账本字节，并在输出父目录上固定 Windows 本地目录句柄链，随后用相对该目录句柄的 `NtCreateFile` exclusive `FILE_CREATE` 和 no-reparse 语义创建文件，写后重查目录和源基线。句柄绑定不可用时对该输出 fail closed。部分写入/创建后的基线漂移会返回 recovery 信息，其中包含本进程新文件的 handle/file identity；不会自动删除、回滚或宽泛清理。
+默认无输出摘要只读取账本，不取锁、不创建 `.lock` 或其他文件。它比较两次精确字节读取与文件身份/大小/时间属性；观察到源变化返回 typed `OWNER_BYTES_CHANGED`，稳定但格式损坏的源返回 CSV 输入错误，不把半行当完整统计。显式 `--output` 是写操作：要求上述 caller attestation；使用既有源锁稳定账本字节，并在输出父目录上固定 Windows 本地目录句柄链，随后用相对该目录句柄的 `NtCreateFile` exclusive `FILE_CREATE` 和 no-reparse 语义创建文件，写后重查目录和源基线。native handle 的 volume/file identity 在 CRT descriptor wrapping 与首个 `fstat` 之前缓存；句柄绑定不可用时对该输出 fail closed。部分写入/创建后的基线漂移会返回 recovery 信息，其中包含本进程新文件的 handle/file identity；不会自动删除、回滚或宽泛清理。
 
 写路径继续只支持 Windows 固定本地盘上的普通、非链接、非硬链接文件；不支持网络/UNC、可移动盘、重解析点、未知盘语义或跨主机同步。OneDrive 等同步目录即使位于本地固定盘也没有跨主机协调保证，且调用者不应对其作 local-storage attestation。追加使用相邻空 `.lock` 文件和 Windows 原生 `msvcrt` 字节范围排他锁；锁侧车保留，不自动删除。未遵循锁的外部编辑仍可能发生，写前/写后字节核对发现漂移时明确报错。
 

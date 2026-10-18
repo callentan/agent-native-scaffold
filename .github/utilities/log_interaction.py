@@ -109,6 +109,10 @@ class _WindowsIoStatusBlock(ctypes.Structure):
         ("information", ctypes.c_size_t),
     ]
 
+
+class _WindowsFileInternalInformation(ctypes.Structure):
+    _fields_ = [("index_number", ctypes.c_int64)]
+
 @dataclass(frozen=True)
 class InteractionRecord:
     """A narrow record of caller-supplied facts; no field asserts qualification."""
@@ -321,10 +325,9 @@ def _path_identity(details: os.stat_result) -> tuple[int, int, int, int]:
     )
 
 
-def _directory_handle_information(handle: int) -> tuple[tuple[int, int], int]:
+def _windows_file_information(handle: int) -> _WindowsFileInformation:
     if os.name != "nt":
-        raise _error("OUTPUT_PARENT_BINDING_UNAVAILABLE",
-                     "native Windows directory-handle binding is unavailable")
+        raise _error("UNSUPPORTED_STORAGE", "native Windows file handles are unavailable")
     try:
         kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
         get_information = kernel32.GetFileInformationByHandle
@@ -333,17 +336,18 @@ def _directory_handle_information(handle: int) -> tuple[tuple[int, int], int]:
             ctypes.POINTER(_WindowsFileInformation),
         ]
         get_information.restype = ctypes.c_int
-        close_handle = kernel32.CloseHandle
-        close_handle.argtypes = [ctypes.c_void_p]
-        close_handle.restype = ctypes.c_int
         details = _WindowsFileInformation()
         if not get_information(ctypes.c_void_p(handle), ctypes.byref(details)):
             raise OSError(ctypes.get_last_error(), "GetFileInformationByHandle failed")
-        file_id = (details.file_index_high << 32) | details.file_index_low
-        return (details.volume_serial, file_id), details.attributes
+        return details
     except (AttributeError, OSError) as exc:
-        raise _error("OUTPUT_PARENT_BINDING_UNAVAILABLE",
-                     "cannot verify native output-directory handle identity") from exc
+        raise _error("LOCAL_IO_ERROR", "cannot read native file-handle identity") from exc
+
+
+def _directory_handle_information(handle: int) -> tuple[tuple[int, int], int]:
+    details = _windows_file_information(handle)
+    file_id = (details.file_index_high << 32) | details.file_index_low
+    return (details.volume_serial, file_id), details.attributes
 
 
 def _close_directory_handle(handle: int) -> None:
@@ -438,6 +442,8 @@ class _PinnedDirectoryChain:
 def _create_exclusive_output(
     parent: _PinnedDirectoryChain,
     file_name: str,
+    *,
+    on_created=None,
 ) -> int:
     """Create relative to the pinned directory handle; never re-resolve a parent path."""
     if os.name != "nt" or msvcrt is None:
@@ -513,16 +519,112 @@ def _create_exclusive_output(
         )
     if not file_handle.value:
         raise _error("OUTPUT_CREATE_ERROR", "native output creation returned no file handle")
+
+    native_handle = int(file_handle.value)
     try:
-        return msvcrt.open_osfhandle(
-            int(file_handle.value),
-            os.O_RDWR | getattr(os, "O_BINARY", 0),
-        )
+        details = _windows_file_information(native_handle)
+        file_id = (details.file_index_high << 32) | details.file_index_low
+        native_identity = {
+            "device": int(details.volume_serial),
+            "file_id": int(file_id),
+            "link_count": int(details.link_count),
+        }
+        observed_bytes = (details.file_size_high << 32) | details.file_size_low
+        if (details.attributes & _FILE_ATTRIBUTE_REPARSE_POINT
+                or details.attributes & _FILE_ATTRIBUTE_DIRECTORY
+                or details.link_count != 1):
+            raise ledger_error_for_created_output(
+                "native output is not a new ordinary single-link file",
+                native_identity,
+                observed_bytes,
+            )
+    except LedgerError as exc:
+        if exc.recovery_required:
+            try:
+                ntdll.NtClose.argtypes = [ctypes.c_void_p]
+                ntdll.NtClose.restype = ctypes.c_long
+                ntdll.NtClose(file_handle)
+            finally:
+                raise
+        # FileInformationByHandle is the primary query. Fall back to the
+        # native file index so a wrapper failure still has stable identity.
+        try:
+            internal = _WindowsFileInternalInformation()
+            io_status = _WindowsIoStatusBlock()
+            query_information = ntdll.NtQueryInformationFile
+            query_information.argtypes = [
+                ctypes.c_void_p,
+                ctypes.POINTER(_WindowsIoStatusBlock),
+                ctypes.c_void_p,
+                ctypes.c_uint32,
+                ctypes.c_int,
+            ]
+            query_information.restype = ctypes.c_long
+            status = query_information(
+                file_handle,
+                ctypes.byref(io_status),
+                ctypes.byref(internal),
+                ctypes.sizeof(internal),
+                6,  # FileInternalInformation
+            )
+            if status < 0:
+                raise OSError(status, "NtQueryInformationFile(FileInternalInformation) failed")
+            file_id = int(internal.index_number) & 0xFFFFFFFFFFFFFFFF
+            native_identity = {
+                "device": int(parent.identities[-1][0]),
+                "file_id": file_id,
+                "link_count": 1,
+            }
+            observed_bytes = 0
+        except (AttributeError, OSError) as query_error:
+            try:
+                ntdll.NtClose.argtypes = [ctypes.c_void_p]
+                ntdll.NtClose.restype = ctypes.c_long
+                ntdll.NtClose(file_handle)
+            finally:
+                raise ledger_error_for_created_output(
+                    "native file creation succeeded but its stable identity query failed",
+                    {
+                        "device": int(parent.identities[-1][0]),
+                        "parent_file_id": int(parent.identities[-1][1]),
+                        "file_name": file_name,
+                        "identity_status": "unavailable",
+                    },
+                    0,
+                ) from query_error
+
+    if on_created is not None:
+        on_created(native_identity, observed_bytes)
+    try:
+        descriptor = msvcrt.open_osfhandle(native_handle, os.O_RDWR | getattr(os, "O_BINARY", 0))
     except OSError as exc:
         ntdll.NtClose.argtypes = [ctypes.c_void_p]
         ntdll.NtClose.restype = ctypes.c_long
         ntdll.NtClose(file_handle)
-        raise _error("OUTPUT_CREATE_ERROR", "cannot wrap the new native output handle") from exc
+        raise ledger_error_for_created_output(
+            "native output exists but its CRT descriptor could not be opened",
+            native_identity,
+            observed_bytes,
+        ) from exc
+    return descriptor
+
+
+def ledger_error_for_created_output(
+    message: str,
+    identity: dict,
+    observed_bytes: int,
+) -> LedgerError:
+    return LedgerError(
+        "SUMMARY_OUTPUT_RECOVERY_REQUIRED",
+        message,
+        exit_code=2,
+        recovery_required=True,
+        recovery={
+            "expected_bytes": 0,
+            "observed_bytes": observed_bytes,
+            "output_identity": identity,
+        },
+    )
 
 
 @contextmanager

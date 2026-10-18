@@ -244,3 +244,7 @@ Task17 本地格式与 fix1 已完成限定复审，原两项发现均已处理�
 2026-10-19 fix1 最终 Python 3.11.15 minimum retained+new 回归 815/815、0 跳过/失败/错误，退出 0；`inputs_unchanged=true`。实现待本地 coauthor commit 和独立 scoped re-review；Task12 未解锁，真实 provider/billing/usage 及 overall parity 仍 open。
 
 2026-10-19 Task18 fix1 最终最低版本保留+新增 Python 3.11.15 回归为 815/815 执行、0 跳过/失败/错误，退出 0，输入未变；全部 Task18 定向为 28/28。修正目前本地提交待执行、随后等待独立 scoped re-review；不解锁 Task12。fix1 原始 RED/GREEN 及最终收据见本机 Task18 fix1 报告/evidence；该结果不表示 provider/billing/真实 usage 或 overall parity 已验证。
+
+2026-10-19 Task18 fix2/round2 处理新 Important：native `FILE_CREATE` 后先从原生 file handle 缓存稳定 identity，再包装 CRT descriptor/执行首个 `fstat`；所有创建后的失败都保留并报告 recovery identity，不删除输出。两个 injected post-create failure tests 已通过，Task18 targeted 30/30；fix2 的 retained+new Python 3.11 full suite 待最后一次运行。reviewer 的 Minor（移除 `summarize_usage(lock_timeout=...)` kwarg）根据本地 `rg` 未发现调用者，按用户指示记为 deferred，不扩大 fix2。Task12 仍等待 scoped re-review/候选。
+
+2026-10-19 Task18 fix2 最终最低版本 retained+new Python 3.11.15 回归为 817/817 执行、0 跳过/失败/错误，退出 0，`inputs_unchanged=true`；Task18 targeted 30/30。新 API 的 Minor 参数建议保持 deferred；修正待本地提交与 independent scoped re-review，Task12 未解锁。

@@ -28,7 +28,7 @@ Windows 用例与读写边界：
 
 - 所有写路径都要求 caller attestation：API 的 `attest_local_storage=True` 或 CLI `--attest-local-storage`。缺省以 `WRITE_ATTESTATION_REQUIRED` 拒绝，且不创建锁/输出。它是用户对选定目录为单机本地、非网络/非云同步位置的声明，不是 OS/供应商验证或持久性保证；不探测环境/注册表/供应商。网络/UNC、可移动盘、非固定/未知盘、reparse 点和硬链接仍由存储检查拒绝。
 - 追加用固定相邻空 `.lock` 文件的 `msvcrt` 一字节排他范围锁串行化本机工具进程；锁侧车保留，不自动删除。默认无输出摘要不取锁、不创建文件；它比较两次原始 CSV bytes 与文件 identity/大小/时间属性，源在读取期变化则 typed 拒绝，损坏/半行也不作统计。
-- 显式 `write_summary`/CLI `--output` 要求 attestation，使用源锁与 Windows 目录句柄链；不允许删除共享的目录句柄绑定，按 pinned parent handle 进行 `NtCreateFile` exclusive `FILE_CREATE`/no-reparse 创建，并在写后复查父目录与源 bytes。无法绑定就 fail closed。创建后出错的恢复标记包含本进程输出 identity；不自动删除或重建。
+- 显式 `write_summary`/CLI `--output` 要求 attestation，使用源锁与 Windows 目录句柄链；不允许删除共享的目录句柄绑定，按 pinned parent handle 进行 `NtCreateFile` exclusive `FILE_CREATE`/no-reparse 创建，并在写后复查父目录与源 bytes。native file handle 创建后、CRT descriptor wrapping/首个 `fstat` 之前先缓存 volume/file identity；无法绑定就 fail closed。任一创建后错误的恢复标记包含本进程输出 identity；不自动删除或重建。
 - OneDrive 同步目录即使映射在固定盘也没有跨主机协调保证，调用者不应为它作 attestation。CSV 是数据交换，不是 spreadsheet-safe 格式；引用/单元格内容不执行。
 
 CLI 示例（尖括号用本次提供的值替换；路径必须绝对且引号内可含空格）：
