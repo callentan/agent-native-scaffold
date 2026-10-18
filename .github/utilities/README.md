@@ -14,7 +14,7 @@
 <a id="interaction-ledger"></a>
 ## 显式交互账本与用量摘要
 
-`log_interaction.py` 的 `append_record(log_path, InteractionRecord)` 只接受调用者明确提供的值；`summarize_usage.py` 的 `summarize_usage(log_path)` 返回源 SHA-256、记录/未知计数和确定顺序的已知用量分组。两者不读取完整 prompt/chat、环境、个人 `models.json`、凭据、账单、应用输出或供应商服务，也不执行任何字段文本。没有用量时值、单位、货币全部留空；未知不是零。摘要只把完全相同的工具、版本、单位和币种放在一起作精确十进制求和，不估价、不生成成本或节省结论。
+`log_interaction.py` 的 `append_record(log_path, InteractionRecord, *, attest_local_storage=True)` 只接受调用者明确提供的值；`summarize_usage.py` 的 `summarize_usage(log_path)` 返回源 SHA-256、记录/未知计数和确定顺序的已知用量分组。显式摘要输出使用 `write_summary(log_path, output_path, *, attest_local_storage=True)`。两者不读取完整 prompt/chat、环境、个人 `models.json`、凭据、账单、应用输出或供应商服务，也不执行任何字段文本。没有用量时值、单位、货币全部留空；未知不是零。摘要只把完全相同的工具、版本、单位和币种放在一起作精确十进制求和，不估价、不生成成本或节省结论。
 
 CSV v1 的固定列为：
 
@@ -24,18 +24,19 @@ schema_version,record_id,recorded_at,tool_name,tool_version,task_ref,object_ref,
 
 字段含义、最小数据边界与限制见[AI 工具说明](../../docs/ai-tooling.md#interaction-ledger)。[`_templates/reports/ai-interaction-log.csv`](../../_templates/reports/ai-interaction-log.csv) 是空白可复制表头，不是活动账本；先在已有本地目录中自行复制为新 `.csv`，不得直接把模板当账本写入。API/CLI 要求显式绝对路径、已存在普通文件及既有 v1 表头，不创建父目录、不修复坏记录。每行必须有 `YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)` 时区时间；时间与用量原文字面值保留，值仅接受有限非负普通十进制，不接受指数记法。摘要最多 512 字符；调用者不得放入完整交互/敏感数据。
 
-Windows 用例与写入边界：
+Windows 用例与读写边界：
 
-- 追加以固定相邻 `.lock` 空文件的 `msvcrt` 一字节排他范围锁协调本机工具进程；摘要也持有锁以读取稳定快照。锁侧车在使用后保留，不自动删除过期或损坏文件。仅支持 Windows 固定本地盘普通文件；网络/UNC、可移动盘、symlink/junction/其他重解析点、硬链接、未知文件系统及跨主机同步均不支持。OneDrive 同步目录不获得跨主机锁或耐久承诺。
-- 写入期间对账本原始字节/文件身份作比较。并发锁用户被串行化；不遵循锁的编辑仅能被尽力发现。失败不会静默修复、截断或删除部分输出，`recovery_required` 错误需人工保留并检查原文件后再决定下一步。
-- 摘要默认只输出 JSON 到 stdout，不改账本 CSV（但会建立或读取锁侧车）。显式 `--output` 只能独占创建父目录已存在的新 `.json` 文件。CSV 是数据交换，不是 spreadsheet-safe 格式；引用/单元格内容不执行。
+- 所有写路径都要求 caller attestation：API 的 `attest_local_storage=True` 或 CLI `--attest-local-storage`。缺省以 `WRITE_ATTESTATION_REQUIRED` 拒绝，且不创建锁/输出。它是用户对选定目录为单机本地、非网络/非云同步位置的声明，不是 OS/供应商验证或持久性保证；不探测环境/注册表/供应商。网络/UNC、可移动盘、非固定/未知盘、reparse 点和硬链接仍由存储检查拒绝。
+- 追加用固定相邻空 `.lock` 文件的 `msvcrt` 一字节排他范围锁串行化本机工具进程；锁侧车保留，不自动删除。默认无输出摘要不取锁、不创建文件；它比较两次原始 CSV bytes 与文件 identity/大小/时间属性，源在读取期变化则 typed 拒绝，损坏/半行也不作统计。
+- 显式 `write_summary`/CLI `--output` 要求 attestation，使用源锁与 Windows 目录句柄链；不允许删除共享的目录句柄绑定，按 pinned parent handle 进行 `NtCreateFile` exclusive `FILE_CREATE`/no-reparse 创建，并在写后复查父目录与源 bytes。无法绑定就 fail closed。创建后出错的恢复标记包含本进程输出 identity；不自动删除或重建。
+- OneDrive 同步目录即使映射在固定盘也没有跨主机协调保证，调用者不应为它作 attestation。CSV 是数据交换，不是 spreadsheet-safe 格式；引用/单元格内容不执行。
 
 CLI 示例（尖括号用本次提供的值替换；路径必须绝对且引号内可含空格）：
 
 ```text
-.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<absolute-local-ledger.csv>" --record-id "<id>" --time "2026-10-18T12:34:56Z" --tool "<caller-supplied-name>" --tool-version "<caller-supplied-version>" --task-ref "<task-reference>" --object-ref "<object-reference>" --object-baseline "<object-baseline>" --summary "<brief factual summary>" [--decision-ref "<pointer>"] [--usage-value "<decimal>" --usage-unit "<unit>" [--usage-currency "<currency>"]] [--evidence-ref "<pointer>"]
+.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<absolute-local-ledger.csv>" --record-id "<id>" --time "2026-10-18T12:34:56Z" --tool "<caller-supplied-name>" --tool-version "<caller-supplied-version>" --task-ref "<task-reference>" --object-ref "<object-reference>" --object-baseline "<object-baseline>" --summary "<brief factual summary>" --attest-local-storage [--decision-ref "<pointer>"] [--usage-value "<decimal>" --usage-unit "<unit>" [--usage-currency "<currency>"]] [--evidence-ref "<pointer>"]
 .venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<absolute-local-ledger.csv>"
-.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<absolute-local-ledger.csv>" --output "<absolute-new-summary.json>"
+.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<absolute-local-ledger.csv>" --output "<absolute-new-summary.json>" --attest-local-storage
 ```
 
 CLI exit 0 表示追加/相同重放/摘要请求完成；exit 1 表示记录输入或记录 ID 冲突；exit 2 表示路径、日志、锁、输出或恢复错误。默认摘要不输出源路径，仅用哈希引用源字节。工具只说明本地可重复行为，不能验证真实工具、服务商、账单、人工决定或资格。

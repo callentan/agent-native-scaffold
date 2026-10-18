@@ -55,7 +55,59 @@ _MAX_TEXT_LENGTH = 2048
 _FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 _DRIVE_FIXED = 3
 _LOCK_CONTENTION_ERRNOS = {errno.EACCES, errno.EDEADLK, errno.EAGAIN}
+_FILE_READ_ATTRIBUTES = 0x0080
+_FILE_TRAVERSE = 0x0020
+_FILE_SHARE_READ = 0x00000001
+_FILE_SHARE_WRITE = 0x00000002
+_OPEN_EXISTING = 3
+_FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000
+_FILE_FLAG_BACKUP_SEMANTICS = 0x02000000
+_FILE_ATTRIBUTE_DIRECTORY = 0x0010
 
+
+class _WindowsFileTime(ctypes.Structure):
+    _fields_ = [("low", ctypes.c_uint32), ("high", ctypes.c_uint32)]
+
+
+class _WindowsFileInformation(ctypes.Structure):
+    _fields_ = [
+        ("attributes", ctypes.c_uint32),
+        ("creation_time", _WindowsFileTime),
+        ("last_access_time", _WindowsFileTime),
+        ("last_write_time", _WindowsFileTime),
+        ("volume_serial", ctypes.c_uint32),
+        ("file_size_high", ctypes.c_uint32),
+        ("file_size_low", ctypes.c_uint32),
+        ("link_count", ctypes.c_uint32),
+        ("file_index_high", ctypes.c_uint32),
+        ("file_index_low", ctypes.c_uint32),
+    ]
+
+
+class _WindowsUnicodeString(ctypes.Structure):
+    _fields_ = [
+        ("length", ctypes.c_uint16),
+        ("maximum_length", ctypes.c_uint16),
+        ("buffer", ctypes.c_void_p),
+    ]
+
+
+class _WindowsObjectAttributes(ctypes.Structure):
+    _fields_ = [
+        ("length", ctypes.c_uint32),
+        ("root_directory", ctypes.c_void_p),
+        ("object_name", ctypes.POINTER(_WindowsUnicodeString)),
+        ("attributes", ctypes.c_uint32),
+        ("security_descriptor", ctypes.c_void_p),
+        ("security_quality_of_service", ctypes.c_void_p),
+    ]
+
+
+class _WindowsIoStatusBlock(ctypes.Structure):
+    _fields_ = [
+        ("status", ctypes.c_void_p),
+        ("information", ctypes.c_size_t),
+    ]
 
 @dataclass(frozen=True)
 class InteractionRecord:
@@ -105,6 +157,14 @@ class LedgerError(Exception):
 
 def _error(code: str, message: str, *, exit_code: int = 2) -> LedgerError:
     return LedgerError(code, message, exit_code=exit_code)
+
+
+def _require_write_attestation(attest_local_storage: bool) -> None:
+    if attest_local_storage is not True:
+        raise _error(
+            "WRITE_ATTESTATION_REQUIRED",
+            "caller must explicitly attest this write target is single-host local and not network/cloud-sync storage",
+        )
 
 
 def _text(name: str, value: object, *, limit: int = _MAX_TEXT_LENGTH) -> str:
@@ -259,6 +319,245 @@ def _path_identity(details: os.stat_result) -> tuple[int, int, int, int]:
         stat.S_IFMT(details.st_mode),
         details.st_nlink,
     )
+
+
+def _directory_handle_information(handle: int) -> tuple[tuple[int, int], int]:
+    if os.name != "nt":
+        raise _error("OUTPUT_PARENT_BINDING_UNAVAILABLE",
+                     "native Windows directory-handle binding is unavailable")
+    try:
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        get_information = kernel32.GetFileInformationByHandle
+        get_information.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(_WindowsFileInformation),
+        ]
+        get_information.restype = ctypes.c_int
+        close_handle = kernel32.CloseHandle
+        close_handle.argtypes = [ctypes.c_void_p]
+        close_handle.restype = ctypes.c_int
+        details = _WindowsFileInformation()
+        if not get_information(ctypes.c_void_p(handle), ctypes.byref(details)):
+            raise OSError(ctypes.get_last_error(), "GetFileInformationByHandle failed")
+        file_id = (details.file_index_high << 32) | details.file_index_low
+        return (details.volume_serial, file_id), details.attributes
+    except (AttributeError, OSError) as exc:
+        raise _error("OUTPUT_PARENT_BINDING_UNAVAILABLE",
+                     "cannot verify native output-directory handle identity") from exc
+
+
+def _close_directory_handle(handle: int) -> None:
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    close_handle = kernel32.CloseHandle
+    close_handle.argtypes = [ctypes.c_void_p]
+    close_handle.restype = ctypes.c_int
+    if not close_handle(ctypes.c_void_p(handle)):
+        raise _error("OUTPUT_PARENT_BINDING_RELEASE_FAILED",
+                     "cannot release a native output-directory handle")
+
+
+def _open_pinned_directory_handle(path: Path) -> tuple[int, tuple[int, int]]:
+    if os.name != "nt":
+        raise _error(
+            "OUTPUT_PARENT_BINDING_UNAVAILABLE",
+            "summary output requires native Windows directory-handle binding",
+        )
+    try:
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        create_file = kernel32.CreateFileW
+        create_file.argtypes = [
+            ctypes.c_wchar_p,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.c_void_p,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.c_void_p,
+        ]
+        create_file.restype = ctypes.c_void_p
+        handle = create_file(
+            str(path),
+            _FILE_READ_ATTRIBUTES | _FILE_TRAVERSE,
+            _FILE_SHARE_READ | _FILE_SHARE_WRITE,  # deliberately omit FILE_SHARE_DELETE
+            None,
+            _OPEN_EXISTING,
+            _FILE_FLAG_BACKUP_SEMANTICS | _FILE_FLAG_OPEN_REPARSE_POINT,
+            None,
+        )
+    except (AttributeError, OSError) as exc:
+        raise _error(
+            "OUTPUT_PARENT_BINDING_UNAVAILABLE",
+            "cannot open the output directory without allowing rename/reparse replacement",
+        ) from exc
+    invalid_handle = ctypes.c_void_p(-1).value
+    if handle is None or handle == invalid_handle:
+        raise _error(
+            "OUTPUT_PARENT_BINDING_UNAVAILABLE",
+            "cannot pin the explicit output directory against replacement",
+        )
+    value = int(handle)
+    try:
+        identity, attributes = _directory_handle_information(value)
+        if attributes & _FILE_ATTRIBUTE_REPARSE_POINT:
+            raise _error("UNSAFE_PATH", "output parent is a reparse point")
+        if not attributes & _FILE_ATTRIBUTE_DIRECTORY:
+            raise _error("UNSAFE_PATH", "output parent is not an ordinary directory")
+        return value, identity
+    except BaseException:
+        _close_directory_handle(value)
+        raise
+
+
+@dataclass
+class _PinnedDirectoryChain:
+    paths: tuple[Path, ...]
+    handles: tuple[int, ...]
+    identities: tuple[tuple[int, int], ...]
+
+    def verify(self) -> None:
+        for path, handle, expected in zip(self.paths, self.handles, self.identities):
+            identity, attributes = _directory_handle_information(handle)
+            if (identity != expected
+                    or attributes & _FILE_ATTRIBUTE_REPARSE_POINT
+                    or not attributes & _FILE_ATTRIBUTE_DIRECTORY):
+                raise _error(
+                    "OUTPUT_PARENT_CHANGED",
+                    "a pinned output-directory handle changed identity or type",
+                )
+            probe, probe_identity = _open_pinned_directory_handle(path)
+            try:
+                if probe_identity != expected:
+                    raise _error(
+                        "OUTPUT_PARENT_CHANGED",
+                        "explicit output path no longer resolves to the pinned directory",
+                    )
+            finally:
+                _close_directory_handle(probe)
+
+
+def _create_exclusive_output(
+    parent: _PinnedDirectoryChain,
+    file_name: str,
+) -> int:
+    """Create relative to the pinned directory handle; never re-resolve a parent path."""
+    if os.name != "nt" or msvcrt is None:
+        raise _error(
+            "OUTPUT_PARENT_BINDING_UNAVAILABLE",
+            "handle-relative exclusive output creation is unsupported on this host",
+        )
+    if (not file_name or file_name in (".", "..")
+            or Path(file_name).name != file_name
+            or "/" in file_name or "\\" in file_name):
+        raise _error("INVALID_OUTPUT_PATH", "summary output must be one file name")
+
+    filename_buffer = ctypes.create_unicode_buffer(file_name)
+    filename_bytes = len(file_name.encode("utf-16-le"))
+    unicode_name = _WindowsUnicodeString(
+        filename_bytes,
+        filename_bytes + ctypes.sizeof(ctypes.c_wchar),
+        ctypes.cast(filename_buffer, ctypes.c_void_p),
+    )
+    attributes = _WindowsObjectAttributes(
+        ctypes.sizeof(_WindowsObjectAttributes),
+        ctypes.c_void_p(parent.handles[-1]),
+        ctypes.pointer(unicode_name),
+        0x0040 | 0x1000,  # OBJ_CASE_INSENSITIVE | OBJ_DONT_REPARSE
+        None,
+        None,
+    )
+    io_status = _WindowsIoStatusBlock()
+    file_handle = ctypes.c_void_p()
+    try:
+        ntdll = ctypes.WinDLL("ntdll", use_last_error=True)
+        create_file = ntdll.NtCreateFile
+        create_file.argtypes = [
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.c_uint32,
+            ctypes.POINTER(_WindowsObjectAttributes),
+            ctypes.POINTER(_WindowsIoStatusBlock),
+            ctypes.c_void_p,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.c_void_p,
+            ctypes.c_uint32,
+        ]
+        create_file.restype = ctypes.c_long
+        status = create_file(
+            ctypes.byref(file_handle),
+            0x0012019F,  # FILE_GENERIC_READ | FILE_GENERIC_WRITE
+            ctypes.byref(attributes),
+            ctypes.byref(io_status),
+            None,
+            0x0080,  # FILE_ATTRIBUTE_NORMAL
+            _FILE_SHARE_READ | _FILE_SHARE_WRITE,
+            2,  # FILE_CREATE: fail if the selected directory already has the name
+            0x00000040 | 0x00000020,  # FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+            None,
+            0,
+        )
+    except (AttributeError, OSError) as exc:
+        raise _error(
+            "OUTPUT_PARENT_BINDING_UNAVAILABLE",
+            "native handle-relative summary creation is unavailable",
+        ) from exc
+
+    unsigned_status = int(status) & 0xFFFFFFFF
+    if status < 0:
+        if unsigned_status == 0xC0000035:  # STATUS_OBJECT_NAME_COLLISION
+            raise _error("OUTPUT_EXISTS", "summary output must be a new, absent file")
+        raise _error(
+            "OUTPUT_CREATE_ERROR",
+            f"native handle-relative summary creation failed with NTSTATUS 0x{unsigned_status:08X}",
+        )
+    if not file_handle.value:
+        raise _error("OUTPUT_CREATE_ERROR", "native output creation returned no file handle")
+    try:
+        return msvcrt.open_osfhandle(
+            int(file_handle.value),
+            os.O_RDWR | getattr(os, "O_BINARY", 0),
+        )
+    except OSError as exc:
+        ntdll.NtClose.argtypes = [ctypes.c_void_p]
+        ntdll.NtClose.restype = ctypes.c_long
+        ntdll.NtClose(file_handle)
+        raise _error("OUTPUT_CREATE_ERROR", "cannot wrap the new native output handle") from exc
+
+
+@contextmanager
+def _pinned_directory_chain(path: str | os.PathLike[str]) -> Iterator[_PinnedDirectoryChain]:
+    directory = Path(path)
+    if not directory.is_absolute():
+        raise _error("EXPLICIT_ABSOLUTE_PATH_REQUIRED",
+                     "summary output parent must be explicitly absolute")
+    _require_local_drive(directory)
+    if not directory.is_dir():
+        raise _error("LOCAL_PATH_MISSING", "summary output parent must already exist")
+    _assert_no_reparse_components(directory)
+    resolved = directory.resolve(strict=True)
+    if _normalized_path(resolved) != _normalized_path(directory):
+        raise _error("UNSAFE_PATH", "resolved output parent differs from the explicit path")
+
+    paths = [Path(directory.anchor)]
+    current = Path(directory.anchor)
+    for part in directory.parts[1:]:
+        current = current / part
+        paths.append(current)
+
+    handles: list[int] = []
+    identities: list[tuple[int, int]] = []
+    try:
+        for component in paths:
+            handle, identity = _open_pinned_directory_handle(component)
+            handles.append(handle)
+            identities.append(identity)
+        binding = _PinnedDirectoryChain(tuple(paths), tuple(handles), tuple(identities))
+        binding.verify()
+        yield binding
+    finally:
+        for handle in reversed(handles):
+            _close_directory_handle(handle)
 
 
 def _assert_single_regular_file(path: Path, *, code: str) -> os.stat_result:
@@ -613,26 +912,45 @@ def _append_bytes(path: Path, original: bytes, suffix: bytes, identity: tuple[in
         os.close(descriptor)
 
 
-def _read_validated(path: Path, *, lock_timeout: float = 10.0) -> tuple[bytes, list[InteractionRecord]]:
-    with _file_lock(path, timeout=lock_timeout):
-        current = _validate_existing_log(path)
-        identity_before = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
-        raw = _read_log_bytes(current)
-        identity_after = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
-        raw_after = _read_log_bytes(current)
-        identity_final = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
-        if identity_after != identity_before or identity_final != identity_before or raw_after != raw:
-            raise _error("OWNER_BYTES_CHANGED", "ledger bytes changed while the read snapshot was formed")
-        return raw, _parse_log(raw)
+def _snapshot_version(path: Path) -> tuple:
+    details = _assert_single_regular_file(path, code="UNSAFE_PATH")
+    resolved = path.resolve(strict=True)
+    if _normalized_path(resolved) != _normalized_path(path):
+        raise _error("UNSAFE_PATH", "resolved ledger path differs from the explicit path")
+    return (
+        _path_identity(details),
+        details.st_size,
+        getattr(details, "st_mtime_ns", int(details.st_mtime * 1_000_000_000)),
+        getattr(details, "st_ctime_ns", int(details.st_ctime * 1_000_000_000)),
+    )
+
+
+def _read_validated(path: Path) -> tuple[bytes, list[InteractionRecord]]:
+    """Read a stable source snapshot without creating a lock or other sidecar."""
+    current = _validate_existing_log(path)
+    before = _snapshot_version(current)
+    first = _read_log_bytes(current)
+    middle = _snapshot_version(current)
+    second = _read_log_bytes(current)
+    after = _snapshot_version(current)
+    if (before != middle or middle != after or first != second
+            or len(second) != after[1]):
+        raise _error(
+            "OWNER_BYTES_CHANGED",
+            "ledger bytes or file identity changed while the read snapshot was formed",
+        )
+    return second, _parse_log(second)
 
 
 def append_record(
     log_path: str | os.PathLike[str],
     record: InteractionRecord,
     *,
+    attest_local_storage: bool = False,
     lock_timeout: float = 10.0,
 ) -> AppendResult:
     """Append one exact record, or return a no-change result for an identical replay."""
+    _require_write_attestation(attest_local_storage)
     path = _validate_existing_log(log_path)
     supplied = _validated_record(record)
     with _file_lock(path, timeout=lock_timeout):
@@ -698,6 +1016,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--usage-unit")
     parser.add_argument("--usage-currency")
     parser.add_argument("--evidence-ref")
+    parser.add_argument(
+        "--attest-local-storage",
+        action="store_true",
+        help="caller assertion that the selected ledger is single-host local and not network/cloud-sync storage",
+    )
     parser.add_argument("--lock-timeout", type=float, default=10.0)
     args = parser.parse_args(argv)
 
@@ -717,7 +1040,12 @@ def main(argv: list[str] | None = None) -> int:
         evidence_ref=args.evidence_ref,
     )
     try:
-        result = append_record(args.log, record, lock_timeout=args.lock_timeout)
+        result = append_record(
+            args.log,
+            record,
+            attest_local_storage=args.attest_local_storage,
+            lock_timeout=args.lock_timeout,
+        )
     except LedgerError as exc:
         _emit_error(exc)
         return exc.exit_code

@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 的显式本地 CSV 账本/摘要、空白表单和说明已实现；17 个新测试及最终 Python 3.11.15 保留+新增套件 804/804 执行、0 跳过/失败/错误、退出 0，当前等待独立限定审阅。此本地结果不关闭真实供应商/账单集成、实际用量、工具资格或 ENH-18/full parity。Task12 仍待 Task18 独立审阅及候选交付，尚未解锁。Task13–14 也未执行，不能把本地渲染当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base commit `be2872d` 的 17 项新测试/804 项全套结果保留为历史基线；fix1/round1 已针对三个 Important 更新，Task18 targeted 28/28 与 fix1 最低版本 retained+new Python 3.11.15 套件 815/815 均通过，0 跳过/失败/错误。fix1 当前等待独立限定复审；不关闭真实供应商/账单集成、实际用量、工具资格或 ENH-18/full parity。Task12 仍待 Task18 独立复审及候选交付，尚未解锁。Task13–14 也未执行，不能把本地渲染当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -623,12 +623,12 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 **依赖：** 2、9；Task18 本地实现是 Task12 的前置之一，但仍须独立限定审阅及候选交付后才可能继续 Task12。**文件：** `.github/utilities/log_interaction.py`、`summarize_usage.py`、`tests/test_interaction_log.py`、CSV 空白表单、utilities/development/README 导航和 ai-tooling 说明。
 
 - [x] 固定 v1 CSV 字段：记录 ID、带时区时间、工具/版本、任务/对象引用与基线、最多 512 字符的操作摘要、决定/证据引用及可选用量值/单位/货币；无用量保持未知，不推算账单。
-- [x] 以 12 个预期案例编写 17 项真实文件/API/CLI 测试：追加/CSV 引号、精确时间和十进制、重放/冲突、缺项/未知、坏历史、确定摘要、Windows 多进程锁、owner-byte-change、输出冲突和本地 junction 路径保护。
-- [x] 实现显式路径与参数输入的 Python 追加和只读摘要；无环境/会话/账单读取，无 provider 价目查询；汇总按工具/版本/单位/币种隔离，不把未知变零或宣称节省。
-- [x] 写前/写后核对源字节与文件身份；追加和摘要输出的部分写入均返回恢复标志并保留字节，不自动截断、删除锁或静默重建。
-- [x] 本地提交代码、tests 与字段/导航说明；最终 retained+new Python 3.11.15 套件发现并执行 804 项，0 跳过/失败/错误，退出 0。实际账单、供应商/平台和真实用量仍保持未验证。
+- [x] 以 12 个预期案例编写真实文件/API/CLI 测试；Task18 base 有 17 项，fix1 增加 11 项，覆盖无锁只读快照、并发/部分源变化、写路径 caller attestation、输出父目录 junction race 与源/输出 identity 恢复；当前模块 28/28。
+- [x] 实现显式路径与参数输入的 Python 追加和只读摘要；默认摘要不创建锁或其他文件；所有写路径需显式 `attest_local_storage`/`--attest-local-storage`。Attestation 只是调用者声明，不认证 OS/供应商，也不探测同步服务。无环境/会话/账单读取，无 provider 价目查询；汇总按工具/版本/单位/币种隔离，不把未知变零或宣称节省。
+- [x] 写前/写后核对源字节与文件身份；摘要输出锁住 Windows 父目录句柄链，以相对 pinned directory handle 的 `NtCreateFile` exclusive/no-reparse 方式创建后复查父目录、源基线和输出 identity。追加/摘要输出部分写入均返回恢复标志，不自动截断、删除锁或静默重建；无法安全绑定则 fail closed。
+- [x] Task18 base commit `be2872d` 的历史最低版本套件为 804/804；fix1 的新 retained+new Python 3.11.15 套件为 815/815 执行、0 跳过/失败/错误、退出 0，`inputs_unchanged=true`。当前 RED/GREEN、并发 race、恢复测试和报告入口见 [Task18 fix1 交接](../../logs/2026-10-19-task18-resume.md#fix1) 及本机 session artifact。
 
-**当前状态：本地实现与测试完成，等待独立限定审阅；Task12 未解锁。** 17 项新测试与全量运行入口及限制见 [Task18 交接](../../logs/2026-10-19-task18-resume.md) 和本机 session artifact `task18-report.md`。ENH-18 及全仓 parity 仍 open；没有实际 provider/billing、真实用量或资格结论。可重复记账不扩大到会话监控、自动预算控制或工作流运行状态库。
+**当前状态：fix1/round1 三个 Important 已按最小边界修正；fix1 targeted 28/28 与最终 retained+new Python 3.11 套件 815/815 通过，等待独立限定复审。** 旧 804 项 base 结果及所有 fix1 RED/GREEN 收据分别保留，不互相覆盖。Task12 未解锁；ENH-18 及全仓 parity 仍 open；没有实际 provider/billing、真实用量或资格结论。可重复记账不扩大到会话监控、自动预算控制或工作流运行状态库。
 
 ## 5. 规格覆盖自检
 

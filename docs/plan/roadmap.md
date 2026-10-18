@@ -238,3 +238,9 @@ Task17 本地格式与 fix1 已完成限定复审，原两项发现均已处理�
 不以音频拒绝合同冒充真实服务结果、不以本地格式关闭 ENH-17/full parity 或越过 Task18/候选交付而解锁 Task12。
 
 2026-10-19 Task18 已实现显式本地 CSV 交互账本与分组用量摘要，新增 17 项测试和最终 Python 3.11.15 保留+新增回归 804/804 执行、0 跳过/失败/错误。当前仅本地范围实现，等待独立限定审阅；没有读取真实用户会话、账单、供应商价格或生产数据。Windows 固定本地盘 byte-range lock 的实际单机多进程行为有测试；网络/跨主机/同步目录耐久性不在支持声明内。Task12 仍需 Task18 审阅与候选交付，ENH-18 真实 provider/billing 与 overall parity 保持 open；入口见[Task18 交接](../../logs/2026-10-19-task18-resume.md)。
+
+2026-10-19 Task18 fix1/round1 依审阅的三个 Important 更新：无输出摘要现在是无 sidecar 文件副作用的稳定两次字节/身份快照；追加和新摘要输出均须 caller 显式 `--attest-local-storage`/`attest_local_storage=True`；摘要输出按 pinned Windows directory handle 进行 `NtCreateFile` relative exclusive create，写后复查父目录、源和新文件 identity。新增 11 项回归，Task18 定向套件 28/28、0 跳过/失败/错误；fix1 的最终 retained+new Python 3.11 套件仍待执行，之后再提交并等待 scoped re-review。Attestation 是调用者声明而不是存储供应商/OS 证明；真实用量/费用与 Task12、ENH-18/parity 仍 open。
+
+2026-10-19 fix1 最终 Python 3.11.15 minimum retained+new 回归 815/815、0 跳过/失败/错误，退出 0；`inputs_unchanged=true`。实现待本地 coauthor commit 和独立 scoped re-review；Task12 未解锁，真实 provider/billing/usage 及 overall parity 仍 open。
+
+2026-10-19 Task18 fix1 最终最低版本保留+新增 Python 3.11.15 回归为 815/815 执行、0 跳过/失败/错误，退出 0，输入未变；全部 Task18 定向为 28/28。修正目前本地提交待执行、随后等待独立 scoped re-review；不解锁 Task12。fix1 原始 RED/GREEN 及最终收据见本机 Task18 fix1 报告/evidence；该结果不表示 provider/billing/真实 usage 或 overall parity 已验证。
