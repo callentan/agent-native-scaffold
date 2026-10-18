@@ -69,7 +69,7 @@
 
 附加工件只按需使用：[US 表单](_templates/items/user-story.md)落在[交付目录](user-stories/README.md)；[ABB](_templates/items/architecture-building-block.md)与 [ADR](_templates/items/architecture-decision.md)依[架构指引](architecture/README.md)落在 `architecture\` 或首份决策创建时的 `architecture\decisions\`。它们不是强制链路。
 
-需要时再采用 [SEQ](_templates/items/sequence-diagram.md)、[SWAS](_templates/items/architecture-specification.md)和 [Gherkin companion](_templates/items/verification-test.feature)。图和场景文本不是运行证据，SWAS 不提供 PDF/演示 renderer；[BC 数据配置](architecture/README.md#bc-configuration)只登记实际身份/来源与开发入口，不是应用或执行 manifest。
+需要时再采用 [SEQ](_templates/items/sequence-diagram.md)、[SWAS](_templates/items/architecture-specification.md)和 [Gherkin companion](_templates/items/verification-test.feature)。图和场景文本不是运行证据；可选的[本地文档导出](docs/document-exports.md)从明确来源生成 JSON/SVG/HTML 关系图和 HTML/SVG 架构/参数化演示，PDF/PPTX 仍无获准 renderer、保持不可用关卡。[BC 数据配置](architecture/README.md#bc-configuration)只登记实际身份/来源与开发入口，不是应用或执行 manifest。
 
 需要独立用途或外部风险引用时，使用 [Intended Use](_templates/items/intended-use.md)与[风险控制](_templates/items/risk-control.md)表单，按[领域落点](domain-model/README.md#governance-forms)保存。四种治理/工具记录都可选；未知政策、来源或决定保留缺口，空白表单不建立 QMS、资格或批准。
 

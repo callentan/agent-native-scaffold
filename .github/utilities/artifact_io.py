@@ -447,6 +447,33 @@ def iter_markdown_fences(body: str, start: int = 1) -> Iterator[MarkdownFence]:
             opening = None
 
 
+def section_fences(artifact: Artifact, anchor: str) -> tuple[MarkdownFence, ...]:
+    """Closed fences in one explicit source section, never siblings or literals.
+
+    Like the prose section reader, the next explicit anchor or a same/higher
+    heading terminates ownership. The shared scanner alone owns code/comments.
+    This is a projection of an already parsed Artifact, not a file reader.
+    """
+    location = next((entry.location.line for entry in artifact.anchors if entry.name == anchor), None)
+    if location is None:
+        return ()
+    end = min((entry.location.line for entry in artifact.anchors if entry.location.line > location),
+              default=artifact.body_start_line + len(artifact.body.splitlines()))
+    level = None
+    for number, line in iter_markdown_lines(artifact.body, artifact.body_start_line):
+        if number <= location or line is None:
+            continue
+        heading = re.fullmatch(r" {0,3}(#{1,6})(?:[ \t]+(.*)|$)", line)
+        if heading:
+            if level is not None and len(heading[1]) <= level:
+                end = min(end, number)
+                break
+            if level is None:
+                level = len(heading[1])
+    return tuple(block for block in iter_markdown_fences(artifact.body, artifact.body_start_line)
+                 if location < block.start_line <= block.end_line < end)
+
+
 def _body_entries(
     body: str, path: Path, start: int, artifact_id: str, owner: str,
 ) -> tuple[tuple[Anchor, ...], tuple[Acceptance, ...]]:

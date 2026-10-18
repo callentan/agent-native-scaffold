@@ -1,6 +1,6 @@
 # 本地维护工具
 
-本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集、三方/明确多目标更新提案、明确本地来源预检/接入，以及本地文档/转录候选与透明评分；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
+本目录提供解析、正式工件检查、覆盖/影响候选、确定性引用模型、只读实施报告收集、三方/明确多目标更新提案、明确本地来源预检/接入、本地文档/转录候选与透明评分，以及有来源的本地关系图/架构/演示导出；可选 hook 适配与安装入口见下节。它们不是应用、统一 CLI 框架、通用执行器或全局库。schema 字段和完整示例只在[契约说明](../contracts/README.md)维护；这些机械工具不证明业务执行或批准。
 
 ## 工具环境
 
@@ -9,7 +9,29 @@
 - [requirements.txt](requirements.txt) 只列获准的 PyYAML 6.0.2、jsonschema 4.23.0。
 - [requirements.lock](requirements.lock) 保留 Python 3.13 环境实际解析的六项版本，另有 Python `<3.13` 所需、在 3.11 实际安装核对的 `typing-extensions==4.16.0` 条件项；3.11 选择七项，3.13 仍选择原六项。条件来自 `referencing` 的包元数据，不升级原 pins。pip 是环境安装工具，不是工具运行依赖；没有猜测 hashes。
 - 从仓库根执行 `python -m venv .venv` 后，用 `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` 恢复锁定环境，再运行 `.venv\Scripts\python.exe -m pip check`。
-- 不需要激活环境或全局 pip；没有媒体、DOCX/PDF 额外包、渲染、云端 SDK 或应用依赖。窄 DOCX 适配使用 stdlib ZIP/XML；[可选 media 清单](requirements-media.txt)没有选定包。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
+- 不需要激活环境或全局 pip；没有媒体、DOCX/PDF 额外包、二进制格式 renderer、云端 SDK 或应用依赖。窄 DOCX 适配使用 stdlib ZIP/XML；[可选 media 清单](requirements-media.txt)没有选定包。本地 JSON/SVG/HTML 使用 stdlib，[rendering 清单](requirements-rendering.txt)不选择 PDF/PPTX 引擎。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
+
+<a id="document-exports"></a>
+## 有来源的关系图、架构与演示
+
+`render_traceability(view)` 读取明确 root/scope，生成实际依赖方向、完整 owner/
+anchor、孤立节点、环和来源缺口的 JSON/SVG/HTML。`render_architecture(inputs, format)`
+和必需的 `render_presentation(inputs, format)` 读取显式 source 指针及固定基线，
+输出源章节驱动的 HTML/SVG；SEQ 的有限子集实际绘制参与者、消息与分支，
+不把复制代码称为可视化，也不从箭头推断 transport。
+
+[唯一输入/返回/有限语法/CLI/错误与写入契约](../../docs/document-exports.md)
+说明具体字段。它们复用真实库存、九视图、`check_model`、来源与报告 adapter，
+不接收任意 schema-valid model 当事实。空 trace 无 demo；缺源保留九视图 gaps；
+漂移、错误源或 unsupported SEQ 有明确诊断。parser 的 `section_fences(artifact,
+anchor)` 只投影已解析 Artifact 的所属闭合围栏，与 model 共用原注释/literal 状态机，
+不新增文件 parser 或授权边界。
+
+API/default CLI 不写入。只有显式新输出才 exclusive create，父目录必须存在，
+源/历史/已声明缺失位置及其祖先/子路径、case/alias 冲突均拒绝。无 CDN、远程字体、
+脚本、来源命令或自动下载。PDF/PPTX 只有 unavailable/not-run 拒绝合同，
+不是该格式成功；实际引擎、依赖、签名/parser、非零页/slide、源内容和人/App
+关卡仍需独立授权及执行。本地导出不是 SWAS 批准或完整等价验收。
 
 <a id="source-candidates"></a>
 ## 本地来源候选与评分
@@ -380,4 +402,4 @@ BC token 只标识实际用于解析/规划的原始配置 bytes，inspect 内�
 
 ## 使用范围
 
-下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`、`source_baseline.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。正式工件检查、覆盖、影响候选、模型、实施摘要、更新提案和来源接入各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。
+下游使用只依赖本目录已提供的模块（含共用 `vt_records.py`、`source_baseline.py`）、同级依赖清单与相邻 contracts；不要求下载制作规格、执行日志或维护者回归测试。本地架构/演示工具也复用 `render_traceability.py` 的窄输出与安全编码 helper；完整使用说明是[导出契约](../../docs/document-exports.md)。正式工件检查、覆盖、影响候选、模型、实施摘要、更新提案、来源接入与文档导出各有上述边界，不互相替代；普通 guide 的全部链接和语义仍需审阅。所有工具都不运行 `.feature`、应用或业务 VT，也不认证批准人。

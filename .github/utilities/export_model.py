@@ -14,7 +14,7 @@ import yaml
 
 from artifact_io import (
     Artifact, ArtifactInputError, PathInput, _artifact_validator, _resolve_file,
-    _schema_validator, iter_markdown_fences, iter_markdown_lines, load_yaml_mapping,
+    _schema_validator, iter_markdown_lines, load_yaml_mapping, section_fences,
 )
 from check_artifacts import (
     CheckReport, Finding, Inventory, _anchors, _baseline, _decode, _domain_location, _error, _exclusion,
@@ -495,25 +495,7 @@ def _tree_source(reader: _Sources, path: Path, baseline: str, data: dict) -> dic
 
 def _section_has_content(source: Artifact, anchor: str) -> bool:
     if source.kind == "sequence-diagram" and anchor == "diagram":
-        location = next((a.location.line for a in source.anchors if a.name == anchor), None)
-        if location is None:
-            return False
-        end = min((a.location.line for a in source.anchors if a.location.line > location),
-                  default=source.body_start_line + len(source.body.splitlines()))
-        level = None
-        for number, line in iter_markdown_lines(source.body, source.body_start_line):
-            if number <= location or line is None:
-                continue
-            heading = _HEADING.fullmatch(line)
-            if heading:
-                if level is not None and len(heading[1]) <= level:
-                    end = min(end, number)
-                    break
-                if level is None:
-                    level = len(heading[1])
-        for block in iter_markdown_fences(source.body, source.body_start_line):
-            if not (location < block.start_line <= block.end_line < end):
-                continue
+        for block in section_fences(source, anchor):
             if not block.info.split() or block.info.split()[0] != "mermaid":
                 continue
             lines = [line.strip() for line in block.body.splitlines()
