@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15 及 Task16 离线范围已完成各自的有限本地实现与复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已在恢复执行中完成并等待独立范围审阅；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task12–14、18 未执行；Task12 不因此解锁。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核，没有遗留的这些任务审阅发现；当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 未执行；Task12 仍待 Task18 与候选交付。Task13–14 也未执行，不能把本地渲染当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入及 Task16 离线来源候选/评分已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 当前仅完成本地格式实现并等待范围审阅，PDF/PPTX 与完整 ENH-17 未关闭；Task12–14、18 未实施，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分及 Task17 本地导出均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 未实施，Task12 仍待 Task18 与候选交付，Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -615,7 +615,7 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 - [ ] PDF/PPTX 的实际 renderer/依赖/模板仍待单独选择和授权；当前没有安装/探测 renderer，`requirements-rendering.txt` 不声明未批准包。请求相应格式返回 `unavailable`/`not-run`，不创建假格式文件；实际引擎、签名/parser、非零页或 slide、源内容检查保持 open，不用浮动 latest 容器。所有文件写入须显式新目标且已有文件先冲突。
 - [ ] 在已授权 renderer 可用后，以实际 parser/签名、非零页或 slide 计数和源内容检查真实二进制，再做适用的人/App 检查；当前本地 HTML/SVG 的独立结构解析不替代这些关卡。导出成功也不等于 SWAS 已批准。
 
-**当前状态：Task17 fix1 已修正结构化来源 fragment 与九视图证据的精确绑定，并将不可 JSON 序列化的 YAML-native 标量转为 typed input error；JSON/SVG/HTML 实现和 Python 3.11.15 全量工具回归完成，待独立范围审阅。** 最终套件发现/执行 787 项，0 跳过、失败、错误，退出 0；RED/GREEN 和原始结果见 Task17 交接报告。PDF/PPTX 实际格式、对应人/App 检查和整体 ENH-17 均未关闭；所有适用格式均有真实结果前，不能以本地文本/图输出解锁 Task12 或宣称 full parity。
+**当前状态：Task17 fix1 已修正结构化来源 fragment 与九视图证据的精确绑定，并将不可 JSON 序列化的 YAML-native 标量转为 typed input error；原两项发现均经限定复审确认处理，无新发现。** JSON/SVG/HTML 实现和 Python 3.11.15 全量工具回归完成；最终套件发现/执行 787 项，0 跳过、失败、错误，退出 0；RED/GREEN 和审阅入口见 Task17 交接报告及[本次复审记录](../../logs/2026-10-18-task17-resume.md#task17-fix1-review)。PDF/PPTX 实际格式、对应人/App 检查和整体 ENH-17 均未关闭；所有适用格式均有真实结果前，不能以本地文本/图输出宣称 full parity。Task12 仍需 Task18 与候选交付。
 
 ### 任务 18：最小交互/用量账本
 
@@ -652,4 +652,4 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11、Task15 及 Task16 离线范围的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 本地实现等待独立范围审阅，PDF/PPTX 与 ENH-17/full parity 保持 open；Task12–14、18 尚未实施，Task12 不因本地 renderer 交付而解锁。原 P3 与来源盘点结论保留其基线；音频/PDF/平台/应用与人工的实际执行保持各自关卡，不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 未实施，Task12 仍待账本与候选交付；Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
