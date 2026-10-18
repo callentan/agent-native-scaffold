@@ -1,0 +1,735 @@
+"""Append explicit, caller-supplied interaction facts to a local CSV ledger."""
+
+from __future__ import annotations
+
+import argparse
+from contextlib import contextmanager
+import csv
+import ctypes
+from dataclasses import dataclass
+from datetime import datetime
+import decimal
+import errno
+import hashlib
+import io
+import json
+import math
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+import time
+from typing import Iterator
+
+try:
+    import msvcrt
+except ImportError:  # The public API returns an explicit unsupported-storage error.
+    msvcrt = None
+
+
+SCHEMA_VERSION = "1"
+CSV_HEADER = (
+    "schema_version",
+    "record_id",
+    "recorded_at",
+    "tool_name",
+    "tool_version",
+    "task_ref",
+    "object_ref",
+    "object_baseline",
+    "operation_summary",
+    "decision_ref",
+    "usage_value",
+    "usage_unit",
+    "usage_currency",
+    "evidence_ref",
+)
+_TIMESTAMP = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+)
+_DECIMAL = re.compile(r"^\d+(?:\.\d+)?$")
+_MAX_VALUE_LENGTH = 128
+_MAX_SUMMARY_LENGTH = 512
+_MAX_TEXT_LENGTH = 2048
+_FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+_DRIVE_FIXED = 3
+_LOCK_CONTENTION_ERRNOS = {errno.EACCES, errno.EDEADLK, errno.EAGAIN}
+
+
+@dataclass(frozen=True)
+class InteractionRecord:
+    """A narrow record of caller-supplied facts; no field asserts qualification."""
+
+    record_id: str
+    recorded_at: str
+    tool_name: str
+    tool_version: str
+    task_ref: str
+    object_ref: str
+    object_baseline: str
+    operation_summary: str
+    decision_ref: str | None = None
+    usage_value: str | None = None
+    usage_unit: str | None = None
+    usage_currency: str | None = None
+    evidence_ref: str | None = None
+
+
+@dataclass(frozen=True)
+class AppendResult:
+    status: str
+    record_id: str
+    record_count: int
+    source_sha256: str
+
+
+class LedgerError(Exception):
+    """A stable, bounded error suitable for a CLI result without row contents."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        exit_code: int = 2,
+        recovery_required: bool = False,
+        recovery: dict | None = None,
+    ):
+        super().__init__(message)
+        self.code = code
+        self.exit_code = exit_code
+        self.recovery_required = recovery_required
+        self.recovery = recovery or {}
+
+
+def _error(code: str, message: str, *, exit_code: int = 2) -> LedgerError:
+    return LedgerError(code, message, exit_code=exit_code)
+
+
+def _text(name: str, value: object, *, limit: int = _MAX_TEXT_LENGTH) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise _error("INVALID_RECORD", f"{name} must be a non-empty string", exit_code=1)
+    if len(value) > limit or "\x00" in value:
+        raise _error("INVALID_RECORD", f"{name} exceeds its supported text boundary", exit_code=1)
+    return value
+
+
+def _optional_text(name: str, value: object, *, limit: int = _MAX_TEXT_LENGTH) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise _error("INVALID_RECORD", f"{name} must be text or unknown", exit_code=1)
+    if "\x00" in value or len(value) > limit:
+        raise _error("INVALID_RECORD", f"{name} exceeds its supported text boundary", exit_code=1)
+    return value if value.strip() else None
+
+
+def _validated_record(record: InteractionRecord) -> InteractionRecord:
+    if not isinstance(record, InteractionRecord):
+        raise _error("INVALID_RECORD", "record must be an InteractionRecord", exit_code=1)
+
+    record_id = _text("record_id", record.record_id, limit=128)
+    if record_id != record_id.strip():
+        raise _error("INVALID_RECORD", "record_id cannot have boundary whitespace", exit_code=1)
+
+    recorded_at = _text("recorded_at", record.recorded_at, limit=128)
+    if not _TIMESTAMP.fullmatch(recorded_at):
+        raise _error(
+            "INVALID_TIMESTAMP",
+            "recorded_at must be a timezone-aware ISO 8601 timestamp",
+            exit_code=1,
+        )
+    parsed_time = recorded_at[:-1] + "+00:00" if recorded_at.endswith("Z") else recorded_at
+    try:
+        parsed = datetime.fromisoformat(parsed_time)
+    except ValueError as exc:
+        raise _error("INVALID_TIMESTAMP", "recorded_at is not a valid calendar time", exit_code=1) from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise _error(
+            "INVALID_TIMESTAMP",
+            "recorded_at must include an explicit UTC offset",
+            exit_code=1,
+        )
+
+    tool_name = _text("tool_name", record.tool_name)
+    tool_version = _text("tool_version", record.tool_version)
+    task_ref = _text("task_ref", record.task_ref)
+    object_ref = _text("object_ref", record.object_ref)
+    object_baseline = _text("object_baseline", record.object_baseline)
+    operation_summary = _text(
+        "operation_summary", record.operation_summary, limit=_MAX_SUMMARY_LENGTH
+    )
+    decision_ref = _optional_text("decision_ref", record.decision_ref)
+    evidence_ref = _optional_text("evidence_ref", record.evidence_ref)
+
+    usage_value = record.usage_value
+    usage_unit = _optional_text("usage_unit", record.usage_unit, limit=128)
+    usage_currency = _optional_text("usage_currency", record.usage_currency, limit=32)
+    if usage_value is None:
+        if usage_unit is not None or usage_currency is not None:
+            raise _error(
+                "INVALID_USAGE",
+                "usage value, unit, and currency must be supplied together or left unknown",
+                exit_code=1,
+            )
+    else:
+        if (not isinstance(usage_value, str) or len(usage_value) > _MAX_VALUE_LENGTH
+                or not _DECIMAL.fullmatch(usage_value)):
+            raise _error(
+                "INVALID_USAGE",
+                "usage_value must be a finite, non-negative decimal without exponent notation",
+                exit_code=1,
+            )
+        try:
+            parsed_value = decimal.Decimal(usage_value)
+        except decimal.InvalidOperation as exc:
+            raise _error("INVALID_USAGE", "usage_value is not a decimal", exit_code=1) from exc
+        if not parsed_value.is_finite() or parsed_value < 0:
+            raise _error("INVALID_USAGE", "usage_value must be finite and non-negative", exit_code=1)
+        if usage_unit is None:
+            raise _error("INVALID_USAGE", "known usage requires a non-empty usage_unit", exit_code=1)
+
+    return InteractionRecord(
+        record_id=record_id,
+        recorded_at=recorded_at,
+        tool_name=tool_name,
+        tool_version=tool_version,
+        task_ref=task_ref,
+        object_ref=object_ref,
+        object_baseline=object_baseline,
+        operation_summary=operation_summary,
+        decision_ref=decision_ref,
+        usage_value=usage_value,
+        usage_unit=usage_unit,
+        usage_currency=usage_currency,
+        evidence_ref=evidence_ref,
+    )
+
+
+def _normalized_path(path: Path) -> str:
+    return os.path.normcase(os.path.normpath(str(path)))
+
+
+def _is_reparse_point(details: os.stat_result) -> bool:
+    return bool(getattr(details, "st_file_attributes", 0) & _FILE_ATTRIBUTE_REPARSE_POINT)
+
+
+def _require_local_drive(path: Path) -> None:
+    if os.name != "nt" or not path.drive or path.drive.startswith("\\\\"):
+        raise _error(
+            "UNSUPPORTED_STORAGE",
+            "only an absolute path on a Windows fixed local drive is supported",
+        )
+    try:
+        get_drive_type = ctypes.WinDLL("kernel32", use_last_error=True).GetDriveTypeW
+        get_drive_type.argtypes = [ctypes.c_wchar_p]
+        get_drive_type.restype = ctypes.c_uint
+        drive_type = get_drive_type(path.anchor)
+    except (AttributeError, OSError) as exc:
+        raise _error("UNSUPPORTED_STORAGE", "cannot determine local drive semantics") from exc
+    if drive_type != _DRIVE_FIXED:
+        raise _error(
+            "UNSUPPORTED_STORAGE",
+            "network, removable, and unknown drive semantics are unsupported",
+        )
+
+
+def _assert_no_reparse_components(path: Path, *, allow_missing_leaf: bool = False) -> None:
+    current = Path(path.anchor)
+    parts = path.parts[1:]
+    for index, part in enumerate(parts):
+        current = current / part
+        try:
+            details = current.lstat()
+        except FileNotFoundError:
+            if allow_missing_leaf and index == len(parts) - 1:
+                return
+            raise _error("LOCAL_PATH_MISSING", "a required local path component is missing")
+        except OSError as exc:
+            raise _error("LOCAL_IO_ERROR", "cannot inspect a local path component") from exc
+        if _is_reparse_point(details):
+            raise _error("UNSAFE_PATH", "reparse-point and symbolic-link paths are unsupported")
+
+
+def _path_identity(details: os.stat_result) -> tuple[int, int, int, int]:
+    return (
+        details.st_dev,
+        details.st_ino,
+        stat.S_IFMT(details.st_mode),
+        details.st_nlink,
+    )
+
+
+def _assert_single_regular_file(path: Path, *, code: str) -> os.stat_result:
+    try:
+        details = path.lstat()
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "cannot inspect the requested local file") from exc
+    if _is_reparse_point(details) or not stat.S_ISREG(details.st_mode):
+        raise _error(code, "the requested path must be a regular, non-reparse file")
+    if details.st_nlink != 1:
+        raise _error(code, "hard-linked files are unsupported to protect other owner paths")
+    return details
+
+
+def _template_path() -> Path:
+    return Path(__file__).resolve().parents[2] / "_templates" / "reports" / "ai-interaction-log.csv"
+
+
+def _is_template(path: Path) -> bool:
+    return _normalized_path(path) == _normalized_path(_template_path())
+
+
+def _validate_existing_log(value: str | os.PathLike[str]) -> Path:
+    path = Path(value)
+    if not path.is_absolute():
+        raise _error("EXPLICIT_ABSOLUTE_PATH_REQUIRED", "log path must be explicitly absolute")
+    _require_local_drive(path)
+    try:
+        if not path.parent.is_dir():
+            raise _error("LOCAL_PATH_MISSING", "log parent must already exist")
+        _assert_no_reparse_components(path)
+        details = _assert_single_regular_file(path, code="UNSAFE_PATH")
+        resolved = path.resolve(strict=True)
+        if _normalized_path(resolved) != _normalized_path(path):
+            raise _error("UNSAFE_PATH", "resolved log path differs from the explicit path")
+    except LedgerError:
+        raise
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "cannot inspect the explicit log path") from exc
+    if _is_template(path):
+        raise _error(
+            "TEMPLATE_NOT_LEDGER",
+            "copy the blank reusable template to a new explicit local ledger path",
+        )
+    return path
+
+
+def _validate_new_output(
+    value: str | os.PathLike[str],
+    *,
+    source: Path,
+    suffix: str,
+) -> Path:
+    path = Path(value)
+    if not path.is_absolute():
+        raise _error("EXPLICIT_ABSOLUTE_PATH_REQUIRED", "output path must be explicitly absolute")
+    _require_local_drive(path)
+    if path.suffix.lower() != suffix:
+        raise _error("INVALID_OUTPUT_PATH", f"output must use the {suffix} suffix")
+    if _normalized_path(path) == _normalized_path(source):
+        raise _error("OUTPUT_IS_SOURCE", "summary output cannot be the source ledger")
+    try:
+        if not path.parent.is_dir():
+            raise _error("LOCAL_PATH_MISSING", "output parent must already exist")
+        _assert_no_reparse_components(path.parent)
+        if path.exists() or path.is_symlink():
+            raise _error("OUTPUT_EXISTS", "summary output must be a new, absent file")
+        resolved_parent = path.parent.resolve(strict=True)
+        if _normalized_path(resolved_parent) != _normalized_path(path.parent):
+            raise _error("UNSAFE_PATH", "resolved output parent differs from the explicit path")
+    except LedgerError:
+        raise
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "cannot inspect the explicit output path") from exc
+    if _is_template(path):
+        raise _error("UNSAFE_PATH", "the reusable CSV template is not a summary output")
+    return path
+
+
+def _lock_path(path: Path) -> Path:
+    return path.with_name(path.name + ".lock")
+
+
+def _open_lock_file(path: Path):
+    lock_path = _lock_path(path)
+    _assert_no_reparse_components(lock_path.parent)
+    flags = os.O_RDWR | getattr(os, "O_BINARY", 0)
+    try:
+        try:
+            descriptor = os.open(
+                lock_path,
+                flags | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+        except FileExistsError:
+            _assert_no_reparse_components(lock_path)
+            descriptor = os.open(lock_path, flags)
+        details = os.fstat(descriptor)
+        _assert_no_reparse_components(lock_path)
+        path_details = _assert_single_regular_file(lock_path, code="INVALID_LOCK_FILE")
+        if (not stat.S_ISREG(details.st_mode) or details.st_size != 0
+                or details.st_nlink != 1
+                or _path_identity(details) != _path_identity(path_details)):
+            raise _error(
+                "INVALID_LOCK_FILE",
+                "the persistent lock file must be an empty, singly linked regular file",
+            )
+        return lock_path, descriptor, _path_identity(details)
+    except LedgerError:
+        if "descriptor" in locals():
+            os.close(descriptor)
+        raise
+    except OSError as exc:
+        if "descriptor" in locals():
+            os.close(descriptor)
+        raise _error("LOCK_FILE_ERROR", "cannot open the persistent sibling lock file") from exc
+
+
+@contextmanager
+def _file_lock(
+    log_path: str | os.PathLike[str],
+    *,
+    timeout: float = 10.0,
+) -> Iterator[None]:
+    """Use a persistent Windows byte-range lock; never delete or recycle it."""
+    path = _validate_existing_log(log_path)
+    if (not isinstance(timeout, (int, float)) or not math.isfinite(timeout)
+            or timeout < 0):
+        raise _error("INVALID_LOCK_TIMEOUT", "lock timeout must be a non-negative number")
+    if msvcrt is None:
+        raise _error(
+            "UNSUPPORTED_STORAGE",
+            "this host has no supported Windows native byte-range lock primitive",
+        )
+    lock_path, descriptor, identity = _open_lock_file(path)
+    stream = os.fdopen(descriptor, "r+b", buffering=0)
+    locked = False
+    deadline = time.monotonic() + float(timeout)
+    try:
+        while True:
+            stream.seek(0)
+            try:
+                msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+                locked = True
+                break
+            except OSError as exc:
+                if exc.errno not in _LOCK_CONTENTION_ERRNOS:
+                    raise _error("LOCK_UNAVAILABLE", "native local byte-range locking failed") from exc
+                if time.monotonic() >= deadline:
+                    raise _error("LOCK_TIMEOUT", "timed out waiting for another local writer")
+                time.sleep(min(0.05, max(0.0, deadline - time.monotonic())))
+
+        current = _assert_single_regular_file(lock_path, code="INVALID_LOCK_FILE")
+        handle_details = os.fstat(stream.fileno())
+        if (handle_details.st_size != 0
+                or _path_identity(handle_details) != identity
+                or _path_identity(current) != identity):
+            raise _error("LOCK_OWNER_BYTES_CHANGED", "persistent lock-file identity or bytes changed")
+        yield
+        current = _assert_single_regular_file(lock_path, code="INVALID_LOCK_FILE")
+        handle_details = os.fstat(stream.fileno())
+        if (handle_details.st_size != 0
+                or _path_identity(handle_details) != identity
+                or _path_identity(current) != identity):
+            raise _error("LOCK_OWNER_BYTES_CHANGED", "persistent lock-file identity or bytes changed")
+    except LedgerError:
+        raise
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "local file locking or I/O failed") from exc
+    finally:
+        if locked:
+            try:
+                stream.seek(0)
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+            except OSError as exc:
+                stream.close()
+                raise _error("LOCK_RELEASE_FAILED", "native byte-range lock release failed") from exc
+        stream.close()
+
+
+def _read_log_bytes(path: Path) -> bytes:
+    with path.open("rb") as source:
+        return source.read()
+
+
+def _parse_record(row: list[str], line_number: int) -> InteractionRecord:
+    if len(row) != len(CSV_HEADER):
+        raise _error(
+            "INVALID_LOG_ROW",
+            f"existing CSV row at line {line_number} has an unexpected field count",
+        )
+    if row[0] != SCHEMA_VERSION:
+        raise _error(
+            "INCOMPATIBLE_LOG_VERSION",
+            f"existing CSV row at line {line_number} uses an unsupported schema version",
+        )
+    try:
+        return _validated_record(
+            InteractionRecord(
+                record_id=row[1],
+                recorded_at=row[2],
+                tool_name=row[3],
+                tool_version=row[4],
+                task_ref=row[5],
+                object_ref=row[6],
+                object_baseline=row[7],
+                operation_summary=row[8],
+                decision_ref=row[9] or None,
+                usage_value=row[10] or None,
+                usage_unit=row[11] or None,
+                usage_currency=row[12] or None,
+                evidence_ref=row[13] or None,
+            )
+        )
+    except LedgerError as exc:
+        raise _error(
+            "INVALID_LOG_ROW",
+            f"existing CSV row at line {line_number} violates the v1 record contract",
+        ) from exc
+
+
+def _parse_log(raw: bytes) -> list[InteractionRecord]:
+    try:
+        text = raw.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise _error("INVALID_LOG", "existing CSV is not valid UTF-8") from exc
+    try:
+        reader = csv.reader(io.StringIO(text, newline=""), strict=True)
+        header = next(reader, None)
+        if header != list(CSV_HEADER):
+            raise _error(
+                "INCOMPATIBLE_LOG_HEADER",
+                "existing CSV header does not exactly match schema version 1",
+            )
+        records: list[InteractionRecord] = []
+        seen: set[str] = set()
+        for row in reader:
+            line_number = reader.line_num
+            if not row:
+                raise _error("INVALID_LOG", f"existing CSV contains a blank row at line {line_number}")
+            record = _parse_record(row, line_number)
+            if record.record_id in seen:
+                raise _error("DUPLICATE_LOG_ID", "existing CSV contains a duplicate record ID")
+            seen.add(record.record_id)
+            records.append(record)
+    except csv.Error as exc:
+        raise _error("INVALID_LOG", "existing CSV quoting or row syntax is malformed") from exc
+    return records
+
+
+def _csv_row_bytes(record: InteractionRecord) -> bytes:
+    row = (
+        SCHEMA_VERSION,
+        record.record_id,
+        record.recorded_at,
+        record.tool_name,
+        record.tool_version,
+        record.task_ref,
+        record.object_ref,
+        record.object_baseline,
+        record.operation_summary,
+        record.decision_ref or "",
+        record.usage_value or "",
+        record.usage_unit or "",
+        record.usage_currency or "",
+        record.evidence_ref or "",
+    )
+    output = io.StringIO(newline="")
+    csv.writer(output, lineterminator="\r\n", quoting=csv.QUOTE_MINIMAL).writerow(row)
+    return output.getvalue().encode("utf-8")
+
+
+def _read_descriptor(descriptor: int) -> bytes:
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    chunks: list[bytes] = []
+    while True:
+        part = os.read(descriptor, 65536)
+        if not part:
+            return b"".join(chunks)
+        chunks.append(part)
+
+
+def _append_bytes(path: Path, original: bytes, suffix: bytes, identity: tuple[int, int, int, int]) -> None:
+    current_identity = _path_identity(_assert_single_regular_file(path, code="UNSAFE_PATH"))
+    if current_identity != identity or _read_log_bytes(path) != original:
+        raise _error(
+            "OWNER_BYTES_CHANGED",
+            "ledger bytes or file identity changed after the validated snapshot; no append was attempted",
+        )
+
+    flags = os.O_RDWR | os.O_APPEND | getattr(os, "O_BINARY", 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "cannot open the validated ledger for append") from exc
+    bytes_written = 0
+    try:
+        details = os.fstat(descriptor)
+        if _path_identity(details) != identity:
+            raise _error("OWNER_BYTES_CHANGED", "ledger file identity changed before append")
+        if _read_descriptor(descriptor) != original:
+            raise _error(
+                "OWNER_BYTES_CHANGED",
+                "ledger owner bytes changed before append; no bytes were written",
+            )
+        try:
+            while bytes_written < len(suffix):
+                written = os.write(descriptor, suffix[bytes_written:])
+                if written <= 0:
+                    raise OSError("zero-byte append")
+                bytes_written += written
+            os.fsync(descriptor)
+        except OSError as exc:
+            observed = _read_descriptor(descriptor)
+            partial = max(0, len(observed) - len(original))
+            raise LedgerError(
+                "APPEND_IO_RECOVERY_REQUIRED",
+                "append I/O failed; preserve the ledger and inspect its final CSV row before retrying",
+                exit_code=2,
+                recovery_required=partial > 0,
+                recovery={
+                    "original_bytes": len(original),
+                    "observed_bytes": len(observed),
+                    "observed_delta_bytes": partial,
+                    "expected_append_bytes": len(suffix),
+                },
+            ) from exc
+
+        observed = _read_descriptor(descriptor)
+        details = os.fstat(descriptor)
+        path_details = _assert_single_regular_file(path, code="UNSAFE_PATH")
+        if (_path_identity(details) != identity
+                or _path_identity(path_details) != identity
+                or observed != original + suffix):
+            raise LedgerError(
+                "OWNER_BYTES_CHANGED",
+                "ledger changed during append; preserve all bytes and inspect before retrying",
+                exit_code=2,
+                recovery_required=True,
+                recovery={
+                    "original_bytes": len(original),
+                    "observed_bytes": len(observed),
+                    "observed_delta_bytes": max(0, len(observed) - len(original)),
+                    "expected_append_bytes": len(suffix),
+                },
+            )
+    except LedgerError:
+        raise
+    except OSError as exc:
+        raise _error("LOCAL_IO_ERROR", "ledger append failed before completion") from exc
+    finally:
+        os.close(descriptor)
+
+
+def _read_validated(path: Path, *, lock_timeout: float = 10.0) -> tuple[bytes, list[InteractionRecord]]:
+    with _file_lock(path, timeout=lock_timeout):
+        current = _validate_existing_log(path)
+        identity_before = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
+        raw = _read_log_bytes(current)
+        identity_after = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
+        raw_after = _read_log_bytes(current)
+        identity_final = _path_identity(_assert_single_regular_file(current, code="UNSAFE_PATH"))
+        if identity_after != identity_before or identity_final != identity_before or raw_after != raw:
+            raise _error("OWNER_BYTES_CHANGED", "ledger bytes changed while the read snapshot was formed")
+        return raw, _parse_log(raw)
+
+
+def append_record(
+    log_path: str | os.PathLike[str],
+    record: InteractionRecord,
+    *,
+    lock_timeout: float = 10.0,
+) -> AppendResult:
+    """Append one exact record, or return a no-change result for an identical replay."""
+    path = _validate_existing_log(log_path)
+    supplied = _validated_record(record)
+    with _file_lock(path, timeout=lock_timeout):
+        path = _validate_existing_log(path)
+        details = _assert_single_regular_file(path, code="UNSAFE_PATH")
+        identity = _path_identity(details)
+        original = _read_log_bytes(path)
+        if _path_identity(_assert_single_regular_file(path, code="UNSAFE_PATH")) != identity:
+            raise _error("OWNER_BYTES_CHANGED", "ledger file identity changed while it was read")
+        records = _parse_log(original)
+        for existing in records:
+            if existing.record_id == supplied.record_id:
+                if existing == supplied:
+                    return AppendResult(
+                        "duplicate",
+                        supplied.record_id,
+                        len(records),
+                        hashlib.sha256(original).hexdigest(),
+                    )
+                raise _error(
+                    "RECORD_ID_CONFLICT",
+                    "record ID already exists with different caller-supplied values",
+                    exit_code=1,
+                )
+
+        row = _csv_row_bytes(supplied)
+        separator = b"" if original.endswith((b"\n", b"\r")) else b"\r\n"
+        suffix = separator + row
+        _append_bytes(path, original, suffix, identity)
+        return AppendResult(
+            "appended",
+            supplied.record_id,
+            len(records) + 1,
+            hashlib.sha256(original + suffix).hexdigest(),
+        )
+
+
+def _emit_error(error: LedgerError) -> None:
+    payload = {
+        "status": "error",
+        "code": error.code,
+        "message": str(error),
+        "recovery_required": error.recovery_required,
+    }
+    if error.recovery:
+        payload["recovery"] = error.recovery
+    print(json.dumps(payload, ensure_ascii=False, sort_keys=True), file=sys.stderr)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--log", required=True, help="existing absolute local CSV ledger path")
+    parser.add_argument("--record-id", required=True)
+    parser.add_argument("--time", dest="recorded_at", required=True)
+    parser.add_argument("--tool", dest="tool_name", required=True)
+    parser.add_argument("--tool-version", required=True)
+    parser.add_argument("--task-ref", required=True)
+    parser.add_argument("--object-ref", required=True)
+    parser.add_argument("--object-baseline", required=True)
+    parser.add_argument("--summary", dest="operation_summary", required=True)
+    parser.add_argument("--decision-ref")
+    parser.add_argument("--usage-value")
+    parser.add_argument("--usage-unit")
+    parser.add_argument("--usage-currency")
+    parser.add_argument("--evidence-ref")
+    parser.add_argument("--lock-timeout", type=float, default=10.0)
+    args = parser.parse_args(argv)
+
+    record = InteractionRecord(
+        record_id=args.record_id,
+        recorded_at=args.recorded_at,
+        tool_name=args.tool_name,
+        tool_version=args.tool_version,
+        task_ref=args.task_ref,
+        object_ref=args.object_ref,
+        object_baseline=args.object_baseline,
+        operation_summary=args.operation_summary,
+        decision_ref=args.decision_ref,
+        usage_value=args.usage_value,
+        usage_unit=args.usage_unit,
+        usage_currency=args.usage_currency,
+        evidence_ref=args.evidence_ref,
+    )
+    try:
+        result = append_record(args.log, record, lock_timeout=args.lock_timeout)
+    except LedgerError as exc:
+        _emit_error(exc)
+        return exc.exit_code
+    payload = {
+        "status": result.status,
+        "record_id": result.record_id,
+        "record_count": result.record_count,
+        "source_sha256": result.source_sha256,
+    }
+    print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

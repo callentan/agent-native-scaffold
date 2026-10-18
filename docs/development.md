@@ -7,12 +7,12 @@
 
 | 项目信息 | 当前值 |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入、文档/转录候选评分、本地关系图/架构/演示导出和可选 hook/资料 CI 接入，不是业务应用 |
+| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入、文档/转录候选评分、本地关系图/架构/演示导出、显式交互/用量账本和可选 hook/资料 CI 接入，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
 | 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
 | 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
 | 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；原六项版本保留，`referencing` 在 Python `<3.13` 所需的 `typing-extensions` 另按实际元数据/安装结果锁定，3.11 选七项、3.13 选原六项 |
-| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)、[来源候选与评分](source-extraction.md)、[本地文档导出](document-exports.md)；音频/PDF/PPTX 仅拒绝入口，不包含实际服务、二进制 renderer、云端或业务应用 |
+| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)、[来源候选与评分](source-extraction.md)、[本地文档导出](document-exports.md)、[最小交互账本](ai-tooling.md#interaction-ledger)；账本不连接供应商/账单服务，不包含实际应用 |
 | 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
 
 以下命令均以仓库根目录 `.` 为 cwd，Windows 使用 `.venv\Scripts\python.exe`；其他宿主应使用其实际项目解释器（例如 `.venv/bin/python`），不要照搬 Windows 路径。无需激活环境或修改全局 PATH。
@@ -46,6 +46,9 @@
 | 本地文档/转录候选 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\extract_source.py --root . --source "<明确本地源>" --kind <markdown/text/transcript/docx>` | JSON stdout；[精确格式与有界 DOCX](source-extraction.md#formats)，不是 formal artifact；可加 root 内不存在的 `.json` `--output`，不建父目录 |
 | 透明候选评分 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "<明确候选.json>"` | JSON stdout；可加新 `--output`；[公开因素与范围](source-extraction.md#scoring)，不决定接受或覆盖冲突 |
 | 音频不可用检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\transcribe_audio.py --source "<明确本地音频路径>"` | 当前退出 2：授权/缺项/适配器不可用；不读音频/环境密钥、不调用服务、不写 transcript；[后续独立关卡](source-extraction.md#audio) |
+| 追加明确提供的交互记录 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<绝对本地 CSV>" --record-id "<id>" --time "<含时区 ISO 8601>" --tool "<名称>" --tool-version "<版本>" --task-ref "<任务引用>" --object-ref "<对象引用>" --object-baseline "<对象基线>" --summary "<简短事实摘要>"` | 参数及可选决定/证据/用量字段见[账本契约](../.github/utilities/README.md#interaction-ledger)；只追加既有日志，缺用量为空；Windows 固定本地盘，`0` 成功/重放、`1` 输入/ID 冲突、`2` 路径/锁/恢复错误 |
+| 读取用量摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<绝对本地 CSV>"` | JSON stdout；不改 CSV；单位/币种/工具/版本分组，总和仅来自显式值；可能创建持久 `.lock` 侧车，不估计价格 |
+| 明确创建新摘要文件 | 同一摘要命令增加 `--output "<绝对的新 .json>"` | 父目录须已存在，独占创建，不覆盖源/历史/模板/现存输出；部分失败保留并报告 recovery state |
 | 本地关系图 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_traceability.py --root . --scope <实际 project/context> --format <json/svg/html>` | 默认实际文本 stdout；源与持久 model 漂移须核对，无数据明确 empty、不造 demo |
 | 本地架构/SEQ 文档 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 每个 source 有对应 baseline；实际源章节/九视图和有限 SEQ 图，不补部署、风险或批准 |
 | 本地参数化演示 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 选中源章节驱动 slides，不是固定 deck；HTML/SVG 不冒充 PDF/PPTX |

@@ -236,3 +236,5 @@ Task16 独立审阅在 `9942e70` 提出三个 Important 与一个 Minor；本轮
 入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task16-review)。
 Task17 本地格式与 fix1 已完成限定复审，原两项发现均已处理、无新发现；见[复审记录](../../logs/2026-10-18-task17-resume.md#task17-fix1-review)。PDF/PPTX 仍为 `unavailable` / `not-run`。
 不以音频拒绝合同冒充真实服务结果、不以本地格式关闭 ENH-17/full parity 或越过 Task18/候选交付而解锁 Task12。
+
+2026-10-19 Task18 已实现显式本地 CSV 交互账本与分组用量摘要，新增 17 项测试和最终 Python 3.11.15 保留+新增回归 804/804 执行、0 跳过/失败/错误。当前仅本地范围实现，等待独立限定审阅；没有读取真实用户会话、账单、供应商价格或生产数据。Windows 固定本地盘 byte-range lock 的实际单机多进程行为有测试；网络/跨主机/同步目录耐久性不在支持声明内。Task12 仍需 Task18 审阅与候选交付，ENH-18 真实 provider/billing 与 overall parity 保持 open；入口见[Task18 交接](../../logs/2026-10-19-task18-resume.md)。

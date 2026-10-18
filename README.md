@@ -65,7 +65,7 @@
 | 必要架构与验证计划 | [design-architecture](.github/skills/specify-feature/SKILL.md#design-architecture) / [plan-verification](.github/skills/specify-feature/SKILL.md#plan-verification)：各自必要输入齐备后独立规划，不强制 US |
 | 时序与架构规格 | [sequence-diagram](.github/skills/specify-feature/SKILL.md#sequence-diagram) / [build-architecture-spec](.github/skills/specify-feature/SKILL.md#build-architecture-spec)：实际参与者、契约、来源视图与基线；缺项保留 |
 | BC 派生与生成边界审阅 | [bc-review](.github/skills/verify-change/SKILL.md#bc-review)：实际工件、代码范围/冲突与逐项证据；默认只读 |
-| 可选人工审阅、waiver 与工具用途核对 | [domain-review](.github/skills/verify-change/SKILL.md#domain-review)及[交接](.github/skills/record-handoff/SKILL.md)：字段与落点见[治理](docs/governance.md#records)/[工具说明](docs/ai-tooling.md)，不新增审批或执行流程 |
+| 可选人工审阅、waiver 与工具用途核对 | [domain-review](.github/skills/verify-change/SKILL.md#domain-review)及[交接](.github/skills/record-handoff/SKILL.md)：字段与落点见[治理](docs/governance.md#records)/[工具说明](docs/ai-tooling.md)，按需使用[最小交互账本](docs/ai-tooling.md#interaction-ledger)，不新增审批或执行流程 |
 
 附加工件只按需使用：[US 表单](_templates/items/user-story.md)落在[交付目录](user-stories/README.md)；[ABB](_templates/items/architecture-building-block.md)与 [ADR](_templates/items/architecture-decision.md)依[架构指引](architecture/README.md)落在 `architecture\` 或首份决策创建时的 `architecture\decisions\`。它们不是强制链路。
 
