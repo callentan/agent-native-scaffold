@@ -77,3 +77,15 @@
 本地 ready 判断仅表示：依据唯一 manifest 可复制的脚手架候选已有新鲜复制、逐字节校验和分发回归。它不是发布/推送授权，不证明 hosted CI、真实客户端/人工、业务应用接入、live Flagsmith，亦不关闭音频、PDF/PPTX、provider/billing/usage 或六仓 full parity。当前分支 `callentan-repository-skeleton`、HEAD `ee463901725ade1d0cab05261b8c875189fd229e`；本轮文档/manifest 修改未提交，`poc/flagsmith` 是未跟踪本地练习副本。
 
 后续只读检查发现原始 Flagsmith 来源仓库的工作树出现更多 owner 修改；本会话未读取、复制或改动这些新增内容。隔离副本仍绑定原先固定提交 `beade3c39c3bbb63f14e9c9072e797e24fafc163`，而且已经从模板 manifest 排除，因此不影响本次脚手架候选。
+
+## P1/P2 落地与独立 POC 副本（2026-10-19 16:42 后）
+
+用户要求先按模板蓝图完成 P1/P2，再提供独立干净副本供 POC 使用。以当前[仓库蓝图](../docs/design/repository-blueprint.md)所列的 38 个历史首版路径做核对：主脚手架中 38/38 均已存在；当前可交付内容以增强后的唯一 [`distribution-manifest.json`](../docs/distribution-manifest.json) 为准，共 132 个文件，而不是另造 38 文件模式。manifest 排除 `poc/`，所以 Flagsmith 演练不会被混入脚手架。
+
+最终独立副本放在用户提供的 POC 根目录中，与 `flagsmith/` 同级为 `agent-native-scaffold/`；两者不合并，也不位于脚手架工作树。它是 manifest 的 clean snapshot，不含 `.git`、虚拟环境、POC app、依赖树或本地密钥/配置。旧 P1/P2 的 `docs/agent-support.md` 因含真实历史客户端观察而仍按 manifest 明确排除；README/AGENTS 保留通用活动入口。故**主工作树 38/38 蓝图路径齐备**；portable enhanced copy 遵循 manifest 的隐私边界，不能称为“历史 38 路径逐一原样复制”。
+
+首次在工作树内运行 copier `--target` 时返回 `SOURCE_SCOPE_CHANGED`，未产生成功 copy receipt。核对 copier 实现后，根因为目标目录位于源 Git 工作树的 `poc/` 排除区：创建目标改变了 copier 在写入前后核对的 Git dirty/inventory scope；临时 helper 也位于该源树内。失败流程留下的 132 文件副本后来通过只读 `--verify`，但嵌套的 `_templates` 使主工作树正式工件检查器把这些空白表单误识为正式工件，结果变为 `invalid`。因此用 copier 在工作树外的授权 POC 根目录创建最终 sibling copy，并删除仅由本会话创建的工作树内重复副本；Flagsmith POC 副本和源码仓库均未删除或修改。最终主工作树的正式工件检查恢复为 `empty`。
+
+最终 copy receipt 与 verify receipt 均在本会话 session-local `files/`：来源 HEAD `8406fad1e40555b5a5351801343251e7d1ef5e32`；copy 为 132 文件、261 exclusions、0 findings，exit 0，SHA-256 `3265FD9AF4FA187A864FE0E73B5A0C6618323A406CB61AD2AA5DA8EAA7A796E9`；copy 后 verify 为 132 文件、129 exclusions、0 findings，exit 0，SHA-256 `AF0FC71100F421695EC4BCBC480E1559F9AA082EFE2AAEFC7842C7FA5F26260B`。前一份工作树内重复副本的 `poc-scaffold-final-verification.json` 是中间结果，已由外部 sibling 的最终 verify receipt supersede。当前本地 `check_artifacts.py --root <maker root>` 为 `empty`，checked 0、findings 0。`test_distribution.py` 为 40/40、0 跳过/失败/错误，`inputs_unchanged=true`；receipt `poc-copy-final-distribution-tests.json` 的 SHA-256 `057E45CB836BEC9EF6BDB8B3491BB1E6948F36806304F8FBF467DA98323372C0`。这些 session-local 报告不是跨机器证据。
+
+最终副本位于用户提供 POC 根目录的 sibling `agent-native-scaffold/`，与 `flagsmith/` 分开；未初始化 Git、未纳入脚手架工作树，也未改变 Flagsmith 来源 repo 当前的未提交 Docker Compose 工作。它是可供本地 POC 采用的干净模板快照，不是自动应用到 Flagsmith repo 的合并。若将副本移到其他位置、初始化 Git、把模板合入 Flagsmith，或交付给其他维护者，须按新目标路径与基线重新核验；本地 receipt 不构成发布授权。

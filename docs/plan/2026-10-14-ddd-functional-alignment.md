@@ -18,6 +18,8 @@
 
 **本地 candidate readiness（2026-10-19）：** 按当前 manifest 新鲜复制的 132 文件候选绑定来源 HEAD `ee463901725ade1d0cab05261b8c875189fd229e` 与 dirty scope；独立 verify 为 132/132、0 findings，聚焦 `test_distribution.py` 为 40/40，0 skipped/failure/error。临时本地 `poc/` 已由 manifest 明确排除；完整 receipt/raw output 在 [Task13/ready-scope 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)所指的 session-local artifacts。该证据只支持可复制候选 readiness，不是发布或 full parity。
 
+**P1/P2 与 POC 副本（2026-10-19）：** 蓝图中的 38 个历史 P1/P2 路径在主脚手架均存在；独立 POC 副本放在用户提供 POC 根目录下，与 Flagsmith repo 同级的 `agent-native-scaffold/`，按当前 132 文件 enhanced manifest 制作。该副本故意不含含历史客户端观察的 `docs/agent-support.md`，也不含 `.git`、环境、应用 POC、依赖或密钥。外部副本 `--verify` 为 132 文件、0 findings；主工作树内测试副本已清理，以免其表单污染根级正式工件扫描。详细路径、首次 copy refusal 原因和限制见 [Task13 handoff](../../logs/2026-10-19-task13-flagsmith-poc.md)。此本地快照不授权发布或完整 parity。
+
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
 **同日执行期补充：** 完整读取后确认存在原计划未承接的持续能力，用户选择完整纳入。原任务 3/4/5/8/9/10/11 扩展实际工件与活动，新增任务 15–18 承接可选领域源接入、来源适配、图/文档导出和交互账本；这些任务按依赖在 12–14 收口前完成，编号不表示可跳过依赖。
