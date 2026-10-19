@@ -57,9 +57,10 @@ BC 的 prompts/templates gitlink 指向本轮已取回的两仓版本，可以�
 | [ddd-subdomain-templates](https://dev.azure.com/shcgravity/Center/_git/ddd-subdomain-templates?version=GC59f98e352a150f99290a3855092298dbe11e0615) | `59f98e352a150f99290a3855092298dbe11e0615` | 65 / 47 |
 | [ddd-subdomain](https://dev.azure.com/shcgravity/Center/_git/ddd-subdomain?version=GCe115ad4d03ac53359c608ce7d32262a508561496) | `e115ad4d03ac53359c608ce7d32262a508561496` | 106 / 85 |
 
+<a id="current-source-capabilities"></a>
 ## 6. 当前来源能力与目标任务
 
-任务号对应增强计划；新增 15–18 为本轮核实遗漏后补入。本节的目标均未实施，不把 source 的 current 当作我们的完成状态。
+任务号对应增强计划；新增 15–18 为本轮核实遗漏后补入。下表保留 2026-10-15 固定来源盘点及实施前的差距/验收基线；后续本地实现和限定复核不改写 source 的原始事实，也不自动满足每行的完整等价验收。Task1–12、15–18 的限定本地状态见[增强计划](../plan/2026-10-14-ddd-functional-alignment.md)及其逐项证据；Task13 的真实应用、人工、客户端和平台关卡仍 `blocked/not-run`，Task14 的逐行实现位置/基线/结果复核及责任人接受的差异决定尚未完成。因此，本矩阵不能据已完成的本地任务宣称六仓功能已全量对齐。
 
 ### BC-01：BC 身份与领域输入挂载
 

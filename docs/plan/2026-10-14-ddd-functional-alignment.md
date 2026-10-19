@@ -486,6 +486,7 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 **当前退出状态：** Task12 local candidate 实现、provenance 与独立 fix-wave 限定复核均已完成；manifest 是唯一文件清单。132 文件候选有效是本地 file-level 结果，不代表发布、business/software VT 或整体 parity 结论。Task13 需要另行提供实际应用及人/App/client/platform 输入/授权，当前为 blocked/not-run；Task14 保持未执行。
 
+<a id="task13"></a>
 ### 任务 13：真实行为和客户端验收
 
 **当前状态：blocked/not-run。** 尚无用户选定的真实应用/项目、技术栈与版本、路径、命令/cwd、报告位置及允许修改范围；实际参与者、App/client/platform 环境与对应授权也未提供。此门槛不由本地候选或维护工具结果代替。
@@ -502,7 +503,10 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 **退出：** ENH-05/10/11/14 的实际行为证据。任何授权/环境缺失只阻塞对应验收；不阻塞已经可做的文档与工具任务，也不降低最终对齐标准。
 
+<a id="task14"></a>
 ### 任务 14：矩阵收口、版本与交接
+
+**当前状态：partial / blocked。** 本地计划、规格和路线图已记录 Task12 的候选范围复核结果，能力矩阵也已明确其固定来源/实施前基线与当前未关闭的关卡；但本任务要求的逐行回源、实现位置/基线/结果对照，以及每个保留差异的责任人决定尚未完成。Task13 所需真实应用/参与者/客户端/平台输入缺失，不能据此宣称完整等价或发布就绪。
 
 **文件：** 能力矩阵、enhancement 验收、roadmap、blueprint、distribution 与一份制作 handoff。
 
