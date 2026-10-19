@@ -14,9 +14,10 @@ plan_batch(registration, target_ids) -> BatchPlan
 ```
 
 `base/local/candidate` 各为显式本地目录路径，或一个不可变 `TreeSource`。
-三个根必须存在、可枚举、互不包含且没有目录别名；文件必须是可读普通文件。
-拒绝 URL/UNC、歧义 drive-relative、文件系统根、symlink/junction/reparse point，
-不跟随链接到根外，也不把缺根/读失败解释为空树。根外的其他本地源只通过显式根选择。
+三个根必须存在、可枚举且互不包含；文件必须是可读普通文件。
+拒绝 URL/UNC、歧义 drive-relative 和文件系统根；根路径按宿主正常方式解析，经过
+symlink/junction 的祖先（如 macOS `/tmp`）与其实际位置等价。根**之内**的链接仍不跟随，
+不把缺根/读失败解释为空树。根外的其他本地源只通过显式根选择。
 
 `files=None` 比较三个根各自的完整合资格文件集；三方路径并集参与判定，包含本地专有文件。
 `files` 若提供，须在三个输入中都是**同一组**非空 tuple，路径按 `/` 相对各自根，
@@ -28,10 +29,9 @@ plan_batch(registration, target_ids) -> BatchPlan
 `settings/owner.md` 所在目录判成“本地缺席、候选可新增”。显式映射也先核对实际目录项名称，
 再判断缺席；不裁剪或隐藏本地所有者文件来消除碰撞。
 
-根、登记文件与输出路径的原始 traversal 在 canonicalize 前逐前缀核对。
-经过 symlink/junction/reparse point 后再用 `..` 抵消、或经不存在/非目录前缀再返回的声明，
-都不会被 `abspath` 替换成另一棵可读树。正常的显式 `../sibling` 仍可用；
-不能验证的缺失前缀/父遍历不用于推导成功来源或输出保留位置。
+根、登记文件与输出路径先按字面归一 `..`，再解析链接，因此 `link/../sibling` 在
+Windows、Linux、macOS 上都指向同一个 `sibling`。正常的显式 `../sibling` 可用；
+不存在的根仍是输入错误，不用于推导成功来源。
 
 排除仅按**本次根之下**的目录/文件段：`.git`、`.venv`、`venv`、`node_modules`、
 `__pycache__`、`.pytest_cache`、`.mypy_cache`、`.tox`、`.nox` 为 `TOOL_DATA`；
@@ -61,8 +61,8 @@ SHA256，并加 `sha256:`。`records` 按 path 排序，每项为
 
 Git 读取复用已有受限本地 helper：参数列表、显式 cwd、`shell=False`，不运行 hooks、
 filter/textconv、replace refs、来源命令、lazy fetch 或继承的 Git 配置覆盖。
-精确对象/普通 blob 不可读就失败。读取后重新核对字节、文件/目录集及登记文件；
-变化为 `INPUT_CHANGED`。这不是文件系统事务或 OS sandbox，不能防御所有并发恶意替换。
+精确对象/普通 blob 不可读就失败。每个输入只读一次；这不是文件系统事务或 OS sandbox，
+运行期间不要修改输入树。
 
 ### 窄输出记录
 
@@ -178,17 +178,16 @@ cwd 为调用者本次明确的目录；脚本从完整仓库或自包含候选�
 
 默认 stdout JSON，不写源或输出。显式 `--output <新的本地 .json>` 使用 exclusive create，
 不建父目录、不覆盖已有文件/目录/历史，也不能放入任何三根输入或登记的来源/目标根，
-包括缓存、缺失或**未被本次选中**的目标根。输出不能穿越目录别名；登记位置不能安全解析
-时仅保留 stdout 结果，拒绝写出。保护同时覆盖相等、根下方以及会成为该根**文件祖先**
+包括缓存、缺失或**未被本次选中**的目标根。输出与保留位置都在解析后比较（大小写不敏感）；
+登记位置不能解析时仅保留 stdout 结果，拒绝写出。保护同时覆盖相等、根下方以及会成为该根**文件祖先**
 的位置，例如未选目标为 `proposal.json/checkout` 时，不能创建 `proposal.json` 文件阻断它。
-缺失尾部可以保留为声明位置，但不会抹去前面的链接、缺失目录或不明 traversal。
 拒绝输出时独立目标的提案/不可用结果仍在 stdout，退出非零；完整逐目标报告即使含
 unavailable 也可显式保存到确切的安全新位置且仍退出 2；
 整个输入不可解析则不创建报告。写入中断可能留下不完整的**新**文件，不删除/替换 owner 内容。
 报告输出的相对路径相对调用 cwd，不相对某个隐含项目根。
 
 主要错误：`INVALID_ROOT/UNSAFE_ROOT/OVERLAPPING_ROOTS`、`UNSAFE_PATH/INVALID_SCOPE/
-PATH_TYPE_CONFLICT/PATH_COLLISION`、`FILE_READ_ERROR/DIRECTORY_READ_ERROR/INPUT_CHANGED`、
+PATH_TYPE_CONFLICT/PATH_COLLISION`、`FILE_READ_ERROR/DIRECTORY_READ_ERROR`、
 `INVALID_BASE/BASE_UNAVAILABLE/BASE_MISMATCH`、`REGISTRATION_UNAVAILABLE/INVALID_REGISTRATION/
 INVALID_TARGET_REGISTRATION/INVALID_TARGETS/UNKNOWN_TARGET/TARGET_FILE_NOT_ALLOWED/
 SOURCE_FILE_MISSING`，以及 `REPORT_CONFLICT/REPORT_WRITE_ERROR`。
@@ -199,9 +198,10 @@ SOURCE_FILE_MISSING`，以及 `REPORT_CONFLICT/REPORT_WRITE_ERROR`。
 
 制作仓的 `propose-template-updates.yml` **仅供维护者**手动生成提案，不分发为业务项目运行依赖。
 它使用同一 Python core、只读 contents 权限、明确所选 targets；只 checkout 制作工具自己的
-事件 commit，禁用 checkout 的 clean，不 clone/fetch 目标。可信自托管 Linux runner 须在
+事件 commit，禁用 checkout 的 clean，不 clone/fetch 目标。可信自托管 runner（不限定 OS）须在
 工具 checkout 之外预先准备实际本地登记及三方树，不把工作输入放进将被 checkout 的工具路径；
 登记逐个给出确切版本；没有 token、秘密或联网补源的成功 fallback。
+运行步骤使用 Python、标准库 venv 返回的实际解释器和显式临时输出，不写死 shell 或环境布局。
 该文件保留工具环境准备及 artifact 保存，但不存在目标分支、PR 或自动应用步骤。
 
 YAML 文件存在/本地可解析，不表示托管执行、自托管权限或服务端 required checks 已验证。

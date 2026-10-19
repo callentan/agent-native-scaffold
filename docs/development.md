@@ -9,13 +9,17 @@
 |---|---|
 | 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入、文档/转录候选评分、本地关系图/架构/演示导出、显式交互/用量账本和可选 hook/资料 CI 接入，不是业务应用 |
 | 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
-| 技术栈 | Python 3.11+、PyYAML 6.0.2、jsonschema 4.23.0 |
-| 环境 | 仓库自己的 `.venv\`；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
+| 技术栈 | Python 3.11+；锁定并测试 PyYAML 6.0.2、jsonschema 4.23.0，运行时只要求两者可导入 |
+| 环境 | 调用者选定的 Python 环境（venv、conda 或系统解释器均可），`.venv` 仅为示例名称；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
 | 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；原六项版本保留，`referencing` 在 Python `<3.13` 所需的 `typing-extensions` 另按实际元数据/安装结果锁定，3.11 选七项、3.13 选原六项 |
 | 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)、[来源候选与评分](source-extraction.md)、[本地文档导出](document-exports.md)、[最小交互账本](ai-tooling.md#interaction-ledger)；账本不连接供应商/账单服务，不包含实际应用 |
 | 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
 
-以下命令均以仓库根目录 `.` 为 cwd，Windows 使用 `.venv\Scripts\python.exe`；其他宿主应使用其实际项目解释器（例如 `.venv/bin/python`），不要照搬 Windows 路径。无需激活环境或修改全局 PATH。
+脚本面向 Windows、Linux、macOS；平台差异只留在必要的锁和 Git hook 启动适配中。检查服务 DDD 工件结构、引用、验收覆盖和派生结果，不进行固定盘判断、原生目录句柄审计或恶意并发路径替换隔离。输入/输出由参数指定，资源按项目相对位置读取；临时快照和测试夹具由 `tempfile` 分配，不在解释器安装目录写入。
+
+Git 子进程保留宿主安装 Git 所需的 `GIT_EXEC_PATH`，与系统 PATH 一样由运行环境提供；仍清除继承的仓库、index 和对象位置覆盖。不能为隔离仓库上下文而丢弃 Git 自身的 helper 位置，也不写死 Git 安装目录。
+
+以下命令均以仓库根目录 `.` 为 cwd，Windows 示例使用 `.venv\Scripts\python.exe`；其他宿主或环境位置应替换为实际项目解释器（例如 `.venv/bin/python`），不要照搬示例布局。无需激活环境或修改全局 PATH；脚本不要求环境名称为 `.venv`。
 
 | 操作 | 真实命令 | 原始输出位置与限制 |
 |---|---|---|
@@ -47,8 +51,8 @@
 | 透明候选评分 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "<明确候选.json>"` | JSON stdout；可加新 `--output`；[公开因素与范围](source-extraction.md#scoring)，不决定接受或覆盖冲突 |
 | 音频不可用检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\transcribe_audio.py --source "<明确本地音频路径>"` | 当前退出 2：授权/缺项/适配器不可用；不读音频/环境密钥、不调用服务、不写 transcript；[后续独立关卡](source-extraction.md#audio) |
 | 追加明确提供的交互记录 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<绝对本地 CSV>" --record-id "<id>" --time "<含时区 ISO 8601>" --tool "<名称>" --tool-version "<版本>" --task-ref "<任务引用>" --object-ref "<对象引用>" --object-baseline "<对象基线>" --summary "<简短事实摘要>" --attest-local-storage` | 参数及可选决定/证据/用量字段见[账本契约](../.github/utilities/README.md#interaction-ledger)；只追加既有日志，缺用量为空；必须由调用者确认非网络/非同步本地路径，0 成功/重放、1 输入/ID 冲突、2 路径/attestation/锁/恢复错误 |
-| 读取用量摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<绝对本地 CSV>"` | JSON stdout；API/CLI 默认真正只读，无 lock sidecar/其他文件；两次 bytes 与身份快照发现并发改变则拒绝；单位/币种/工具/版本隔离 |
-| 明确创建新摘要文件 | 同一摘要命令增加 `--output "<绝对的新 .json>" --attest-local-storage` | 父目录须已存在；调用者确认非同步本地路径后独占创建。绑定 Windows 父目录句柄链并相对句柄创建，再复查父目录与源；不能安全绑定时拒绝。部分失败保留并报告输出 file identity/recovery state |
+| 读取用量摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<绝对本地 CSV>"` | JSON stdout；API/CLI 默认真正只读，只读取一次，无 lock sidecar/其他文件；单位/币种/工具/版本隔离 |
+| 明确创建新摘要文件 | 同一摘要命令增加 `--output "<绝对的新 .json>" --attest-local-storage` | 父目录须已存在；调用者确认非同步本地路径后使用标准库独占创建，不覆盖已有文件；部分失败保留并报告恢复状态，不要求 Windows 目录句柄 |
 | 本地关系图 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_traceability.py --root . --scope <实际 project/context> --format <json/svg/html>` | 默认实际文本 stdout；源与持久 model 漂移须核对，无数据明确 empty、不造 demo |
 | 本地架构/SEQ 文档 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 每个 source 有对应 baseline；实际源章节/九视图和有限 SEQ 图，不补部署、风险或批准 |
 | 本地参数化演示 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 选中源章节驱动 slides，不是固定 deck；HTML/SVG 不冒充 PDF/PPTX |
@@ -56,10 +60,10 @@
 
 这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)、[实施摘要](../.github/utilities/README.md#implementation-report)与[只读更新提案](template-updates.md)分别约束其结果；这些检查/派生/提案 API 不写文件。[来源接入](domain-sources.md)的独立 apply API 另受准确目标、preflight 与授权限制，不因 readOnly 或已有配置获得许可。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖、成功收集或干净提案都不等于业务通过或传播完成。尖括号参数由本次实际输入替换。
 
-来源接入的配置 token 绑定实际读取/解析的 bytes，inspect 过程中变化也停止；
+来源接入的 preflight token 绑定实际读取/解析的 bytes，apply 时与 `--expect` 不同就停止；
 新子模块的 index 同意不能撤销 owner 已暂存的 `.gitmodules` 删除。
-[Git 配置读取边界](domain-sources.md#git-config-boundary)在受影响命令前拒绝本地 include/
-includeIf、网络 metadata 指针和别名，不去包含位置探测或自动改配置。网络/真实项目
+[Git 调用环境](domain-sources.md#git-config-boundary)清除继承的仓库覆盖并以所选根为
+discovery 上限，不借用祖先仓库；仓库自身配置按 Git 原生规则生效。网络/真实项目
 接入仍需独立授权，不由资料可读或本地夹具结果授予。
 
 本地导出复用上述主库存、来源选择、原始基线和 report/model 核对，
@@ -71,13 +75,22 @@ PDF/PPTX 的实际引擎、安装、签名/parser、非零页/slide 与源内容
 可选安装、恢复和原生运行边界见[hooks 说明](../.github/hooks/README.md)。
 Windows 薄 launcher 使用 Git 自带 `sh`，只启动准确项目解释器；不要求 PowerShell 7。
 installer 不覆盖 owner hook、不改 `core.hooksPath`，也拒绝默默影响 sibling worktrees。
-每次 hook 启动在读取工件/index 前重验选定 venv、配置和固定依赖；环境丢失时
-明确拒绝，不仅记录 prefix，也不回退全局。安装 I/O 失败保留完整/部分创建的
+每次 hook 启动在读取工件/index 前只确认 Python 3.11+ 且 PyYAML、jsonschema 可导入；
+venv、conda 或系统解释器均可，不要求固定版本或 `pyvenv.cfg`。不满足时明确拒绝，
+不回退到其他解释器。安装 I/O 失败保留完整/部分创建的
 逐路径恢复状态，不自动删除后续 owner 内容；恢复须按 hooks 说明核对所有权。
 下游资料 workflow 只调用分发模块；制作仓回归 workflow/计数 runner 不分发。
 复制 YAML 不建立 required checks；托管运行与服务端配置须另有授权及实际证据。
 模板提案 workflow 也只在制作仓维护者侧手动使用，要求可信 runner 上预先存在的准确本地输入；
 它不是下游运行依赖，不包含目标 checkout/写分支/PR，也未因本地实现而成为已执行的平台能力。
+
+制作仓回归使用当前解释器执行：
+
+```text
+<project-python> -B -X utf8 .github/utilities/tests/run_tooling_tests.py --start-directory .github/utilities/tests --top-level-directory .github/utilities --report <新报告.json> --raw-output <新原始输出.txt>
+```
+
+报告父目录须已存在；输出由本次调用指定，不写固定机器目录。`tooling-tests.yml` 在 Windows、Ubuntu、macOS 分别发现并运行测试，保留各平台独立产物；包括所有 CLI 从非仓库 cwd 启动、空格/中文路径和无固定夹具目录的回归。三份 workflow 的运行步骤使用 Python 和 venv 返回的实际解释器，不写死 `bin/python` 或 `Scripts/python.exe`。模板提案仍需预配置的 `self-hosted, template-proposals` runner，但不限定 Linux 标签。矩阵配置不等于各平台已经运行成功，实际结果回到本次报告或 Actions。
 
 <a id="creation-inputs"></a>
 ## 何时可以创建项目

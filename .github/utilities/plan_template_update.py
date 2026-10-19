@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, dataclass, replace
-import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
 
-from artifact_io import ArtifactInputError, PathInput, load_yaml_mapping
-from check_artifacts import Exclusion, _checked_location, _commit_tree, _git, _local_root, _output_path, _TOOL_DIRS
+from artifact_io import _sha, ArtifactInputError, PathInput, load_yaml_mapping
+from check_artifacts import Exclusion, _checked_location, _commit_tree, _git, _local_root, _output_path, _TOOL_DIRS, _write_new
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,15 +122,10 @@ class _Snapshot:
     directories: tuple[str, ...]
 
 
-def _sha(raw: bytes) -> str:
-    return "sha256:" + hashlib.sha256(raw).hexdigest()
-
-
 def _root(value: PathInput) -> Path:
-    checked = _checked_location(value)
-    actual = _local_root(checked)
-    if actual != checked or actual.parent == actual:
-        raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Root aliases and filesystem roots are not update inputs")
+    actual = _local_root(_checked_location(value))
+    if actual.parent == actual:
+        raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Filesystem roots are not update inputs")
     return actual
 
 
@@ -309,21 +303,6 @@ def _nonoverlapping(roots: tuple[Path, ...]) -> None:
                 raise ArtifactInputError("OVERLAPPING_ROOTS", "roots", 1, "Select distinct, non-overlapping source trees")
 
 
-def _stable(snapshots: tuple[_Snapshot, ...]) -> None:
-    for before in snapshots:
-        try:
-            root = _root(before.root)
-            after = _snapshot(root, before.identity.role, before.identity.selection)
-        except ArtifactInputError as error:
-            raise ArtifactInputError("INPUT_CHANGED", before.identity.role, 1,
-                                     "Input became unavailable or unsafe during planning") from error
-        if (before.raw != after.raw or before.directories != after.directories
-                or before.identity.snapshot != after.identity.snapshot
-                or before.identity.excluded != after.identity.excluded):
-            raise ArtifactInputError("INPUT_CHANGED", before.identity.role, 1,
-                                     "Input bytes or file/directory set changed during planning")
-
-
 def _compare(snapshots: tuple[_Snapshot, ...],
              mappings: tuple[FileMapping, ...] | None = None) -> UpdatePlan:
     trees = [dict(snapshot.raw) for snapshot in snapshots]
@@ -405,7 +384,6 @@ def plan_update(base: PathInput | TreeSource, local: PathInput | TreeSource,
                       for root, role, selection, source in
                       zip(roots, ("base", "local", "candidate"), selections, sources))
     result = _compare(snapshots)
-    _stable(snapshots)
     return result
 
 
@@ -594,7 +572,7 @@ def _batch(registration: PathInput, target_ids) -> tuple[BatchPlan, tuple[Path, 
             raise ArtifactInputError("SOURCE_FILE_MISSING", "source.files", 1, "Registered scenario is absent from both source versions")
     except ArtifactInputError as error:
         source_error = error
-    results, accepted = [], {}
+    results = []
     for name in selected:
         target = targets.get(name)
         repository = target.get("repository") if target and _pair(target.get("repository")) else None
@@ -615,31 +593,10 @@ def _batch(registration: PathInput, target_ids) -> tuple[BatchPlan, tuple[Path, 
             snapshots = (source_snapshots[0], local, source_snapshots[1])
             _nonoverlapping(tuple(snapshot.root for snapshot in snapshots))
             plan = _compare(snapshots, mappings)
-            accepted[name] = local
             results.append(TargetProposal(name, repository, scope, plan.status, mappings, plan, ()))
         except ArtifactInputError as error:
             results.append(TargetProposal(name, repository, scope, "unavailable", mappings, None,
                                           (_problem(error, origin),)))
-    if source_error is None:
-        try:
-            _stable(source_snapshots)
-        except ArtifactInputError as error:
-            results = [replace(result, status="unavailable", plan=None,
-                               findings=(*result.findings, _problem(error, f"source/{error.path}")))
-                       for result in results]
-        else:
-            for index, result in enumerate(results):
-                if result.id in accepted:
-                    try:
-                        _stable((accepted[result.id],))
-                    except ArtifactInputError as error:
-                        results[index] = replace(result, status="unavailable", plan=None,
-                                                 findings=(_problem(error, f"targets/{result.id}/local"),))
-    try:
-        if _registration_bytes(path) != raw:
-            raise ArtifactInputError("INPUT_CHANGED", path.name, 1, "Registration changed during planning")
-    except ArtifactInputError as error:
-        raise ArtifactInputError("INPUT_CHANGED", path.name, 1, "Registration changed or became unreadable during planning") from error
     result = BatchPlan(source["repository"], path.name, _sha(raw), tuple(results))
     return result, tuple(roots), reservation_complete
 
@@ -650,43 +607,13 @@ def plan_batch(registration: PathInput, target_ids) -> BatchPlan:
 
 
 def _proposal_path(value: str, roots: tuple[PathInput, ...]) -> Path:
-    try:
-        lexical = _checked_location(value, missing_ok=True)
-    except ArtifactInputError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
-                                 "Cannot verify the declared output traversal") from error
-    try:
-        output = _output_path(str(lexical), str(Path.cwd()), (".json",))
-    except ArtifactInputError as error:
-        # A rejected URI may carry caller-supplied userinfo. Reuse the helper's
-        # code, not its raw value/OS diagnostic, in this proposal's public output.
-        raise ArtifactInputError(error.code, "output", error.line,
-                                 "Output requires a new, unambiguous local JSON file") from error
-    if lexical != output or output.parent.resolve() != output.parent:
-        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Output cannot traverse a directory alias")
-    for value in roots:
-        # Reserve the entire declaration, including missing paths and caches.
-        try:
-            root = _checked_location(value, missing_ok=True)
-        except (OSError, ValueError, RuntimeError) as error:
-            raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
-                                     "Cannot safely reserve every declared source location") from error
-        if output.is_relative_to(root) or root.is_relative_to(output):
-            raise ArtifactInputError("REPORT_CONFLICT", "output", 1,
-                                     "Output cannot occupy a source location or block it as a file ancestor")
-    return output
+    # Reserve each whole declaration, including missing paths and caches.
+    return _output_path(value, Path.cwd(), (".json",), protected=roots)
 
 
 def _write_proposal(payload: dict, output: Path) -> None:
     payload["report_output"] = {"path": str(output), "written": True}
-    try:
-        with output.open("x", encoding="utf-8", newline="\n") as destination:
-            destination.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
-    except FileExistsError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Output already exists") from error
-    except OSError as error:
-        raise ArtifactInputError("REPORT_WRITE_ERROR", "output", 1,
-                                 "Cannot create the new report; a partial new file may remain") from error
+    _write_new(output, json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
 
 
 def main(argv=None) -> int:

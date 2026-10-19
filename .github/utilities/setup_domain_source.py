@@ -7,7 +7,6 @@ Submodule materialization is a separate, explicitly index-consented operation.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -18,9 +17,9 @@ import tempfile
 
 import yaml
 
-from artifact_io import ArtifactInputError, _resolve_file, load_yaml_mapping
+from artifact_io import _sha, ArtifactInputError, _resolve_file, load_yaml_mapping
 from check_artifacts import (
-    _anchors, _checked_location, _decode, _domain_location, _git, _git_config_file, _git_config_guard, _git_environment,
+    _anchors, _checked_location, _decode, _domain_location, _git, _git_environment,
     _local_root, _TOOL_DIRS,
 )
 from source_baseline import Commit, domain_files, relative_path, validate_mapping
@@ -33,10 +32,6 @@ _CONFLICTS = {
     "SOURCE_OUTPUT_OVERLAP", "TARGET_CONFLICT", "SUBMODULE_CONFLICT", "INDEX_CONFLICT",
     "INPUT_CHANGED", "SHARED_METADATA",
 }
-
-
-def _sha(raw):
-    return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
 def _network(value):
@@ -118,10 +113,7 @@ def _read_file(path, *, optional=False):
 
 
 def _file_identity(path, *, acquired=_UNACQUIRED):
-    current = _read_file(path, optional=True)
-    if acquired is not _UNACQUIRED and current != acquired:
-        _fail("INPUT_CHANGED", path, "The bytes acquired for this plan changed during inspection")
-    raw = current if acquired is _UNACQUIRED else acquired
+    raw = _read_file(path, optional=True) if acquired is _UNACQUIRED else acquired
     return {"path": str(path), "sha256": None if raw is None else _sha(raw),
             "mode": None if raw is None else stat.S_IMODE(path.stat().st_mode)}
 
@@ -208,13 +200,9 @@ def _overlap(left, right):
 
 
 def _native(root, *args, payload=None, input=None, allowed=(0,), local_clone=False):
-    _git_config_guard(root)
     if local_clone:
         if not args or args[0] != "clone" or "--" not in args or len(args[args.index("--") + 1:]) != 2:
             _fail("INVALID_OPERATION", root, "Local clone requires one exact source and target")
-        _git_config_guard(Path(args[args.index("--") + 1]))
-    if args and args[0] == "config" and "--file" in args:
-        _git_config_file(Path(root) / args[args.index("--file") + 1])
     command = [
         "git", "--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false",
         "-c", "core.hooksPath=" + os.devnull, "-c", "core.autocrlf=false",
@@ -226,7 +214,7 @@ def _native(root, *args, payload=None, input=None, allowed=(0,), local_clone=Fal
         command += ["-c", "core.longpaths=true"]  # Scoped Git-for-Windows support, not owner config.
     command += list(args)
     try:
-        run = subprocess.run(command, cwd=root, env=_git_environment(), input=input,
+        run = subprocess.run(command, cwd=root, env=_git_environment(root), input=input,
                              shell=False, capture_output=True, timeout=60)
     except (OSError, subprocess.TimeoutExpired) as error:
         _fail("NATIVE_GIT_ERROR", root, "The explicit local native Git operation could not complete")
@@ -404,7 +392,6 @@ def _submodule(root, source_root, source, context, result):
         f'[submodule "{source["id"]}"]\n\turl = {_quote(source_url)}\n\tactive = true\n')
     # hash-object without -w only computes the raw identity; inspect creates no object.
     blob = _native(root, "hash-object", "--stdin", input=context["new_modules"]).decode("ascii").strip()
-    context["modules_blob"] = blob
     context["object_path"] = _checked_location(directory / "objects" / blob[:2] / blob[2:], missing_ok=True)
     result["actions"] = [
         {"operation": "clone-local-no-checkout", "path": str(target), "module_metadata": str(modules),
@@ -436,8 +423,6 @@ def _prepare(root, source_config, operation, config_path, target, result):
     source_root = _local_root(source_root)
     config, raw_config, data, locations, registration = _config(actual, config_path)
     result["config"] = {"path": str(config), "sha256": _sha(raw_config), "state": "new"}
-    _git_config_guard(actual, required=False)
-    _git_config_guard(source_root, required=False)
     existing = [entry for entry in data["domainSources"] if entry["id"] == source["id"]]
     wanted = dict(source, root=target) if operation == "submodule" and target is not None else source
     if existing:
@@ -532,10 +517,8 @@ def _record(changes, path, before=None, *, directory=False, prior_state=None):
     changes.append(item)
 
 
-def _atomic_write(path, raw, before, changes, *, guard=None):
-    """Stage exclusively; replace only the exact owner bytes, never truncate them."""
-    if _read_file(path, optional=True) != before:
-        _fail("INPUT_CHANGED", path, "Owner bytes changed before the exact file operation")
+def _atomic_write(path, raw, before, changes):
+    """Stage a new temporary file, then replace the owner file in one step; never truncate it."""
     mode = 0o644 if before is None else stat.S_IMODE(path.stat().st_mode)
     descriptor, name = tempfile.mkstemp(prefix="." + path.name + ".domain-source-", suffix=".tmp", dir=path.parent)
     staged = Path(name)
@@ -543,13 +526,7 @@ def _atomic_write(path, raw, before, changes, *, guard=None):
     with os.fdopen(descriptor, "wb") as stream:
         if stream.write(raw) != len(raw):
             raise OSError("Short write preparing the explicit config operation")
-        stream.flush()
-        os.fsync(stream.fileno())
     staged.chmod(mode)
-    if guard:
-        guard()
-    if _read_file(path, optional=True) != before:
-        _fail("INPUT_CHANGED", path, "Owner bytes changed before replacement; staged file retained")
     _record(changes, path, before)
     os.replace(staged, path)
 
@@ -609,22 +586,12 @@ def _materialize(context, result, changes):
         path.chmod(0o755 if mode == "100755" else 0o644)
         index.extend(f"{mode} {blob}\t{name}\0".encode("utf-8"))
     _native(target, "update-index", "-z", "--index-info", input=bytes(index), payload=result)
-    # Recheck original source/config/index/refs before intended superproject edits.
-    if (_repo(root) != context["project_repo"] or _repo(context["source_root"]) != context["source_repo"]
-            or _read_file(context["config"]) != context["raw_config"]):
-        _fail("INPUT_CHANGED", root, "Preflight source or owner metadata changed after local clone")
-    domain_files(context["source_root"], source["path"], source["baseline"], lambda p, r: _read_file(p))
     _atomic_write(context["gitmodules"], context["new_modules"], context["raw_modules"], changes)
     _atomic_write(context["local_config"], context["new_local"], context["raw_local"], changes)
     _record(changes, context["object_path"].parent, directory=True)
     _record(changes, context["object_path"])
     blob = _native(root, "hash-object", "-w", "--stdin", input=context["new_modules"], payload=result).decode("ascii").strip()
-    if blob != context["modules_blob"]:
-        _fail("INPUT_CHANGED", context["gitmodules"], "The intended metadata object identity changed")
     main_index = Path(context["project_repo"]["git_dir"]) / "index"
-    old_identity = next(item for item in context["project_repo"]["files"] if item["path"] == str(main_index))
-    if _file_identity(main_index) != old_identity:
-        _fail("INPUT_CHANGED", main_index, "Owner index changed before the explicitly consented update")
     _record(changes, main_index, _read_file(main_index, optional=True))
     _record(changes, main_index.with_name("index.lock"))
     update = f"100644 {blob}\t.gitmodules\0" + f"160000 {source['baseline']}\t{context['target_value']}\0"
@@ -653,11 +620,7 @@ def apply_domain_source(root, source_config, *, operation, config_path, expected
         if result["outcome"] == "no-change":
             return result
         if operation == "register":
-            def guard():
-                check = inspect_domain_source(root, source_config, config_path=config_path)
-                if check["status"] != "ready" or check["preflight"] != expected:
-                    _fail("INPUT_CHANGED", context["root"], "Inputs changed before the selected config replacement")
-            _atomic_write(context["config"], context["new_config"], context["raw_config"], changes, guard=guard)
+            _atomic_write(context["config"], context["new_config"], context["raw_config"], changes)
             result["outcome"] = "registered"
         else:
             _materialize(context, result, changes)

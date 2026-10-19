@@ -15,7 +15,7 @@ import zipfile
 import zlib
 
 from artifact_io import ArtifactInputError, PathInput, _resolve_file, iter_markdown_source_lines
-from check_artifacts import _checked_location, _local_root, _output_path
+from check_artifacts import _checked_location, _local_root, _output_path, _write_new
 
 
 SOURCE_KINDS = {"markdown": (".md",), "text": (".txt",), "transcript": (".txt",),
@@ -470,34 +470,10 @@ def extract_candidates(source: PathInput, kind: str) -> dict:
 
 
 def _write_output(payload, output: str, root: PathInput, protected=()) -> None:
-    """Reuse existing new-output contracts, additionally confining to --root."""
+    """Shared new-output rule, additionally confined to --root and away from its inputs."""
     actual_root = _local_root(_checked_location(root))
-    if not _valid_text(output) or any(ord(c) < 32 for c in output):
-        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Expected a valid new local JSON path")
-    requested = Path(output)
-    if ":" in requested.as_posix()[len(requested.anchor):]:
-        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Alternate streams/device paths are not new output files")
-    if not requested.is_absolute():
-        requested = actual_root / requested
-    if not Path(os.path.abspath(requested)).is_relative_to(actual_root):
-        raise ArtifactInputError("OUTSIDE_ROOT", output, 1, "Output must be within the explicitly selected --root")
-    # Check raw traversal before _output_path canonicalizes it.
-    try:
-        _checked_location(requested, missing_ok=True)
-    except ArtifactInputError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", output, 1, "Unsafe output traversal") from error
-    path = _output_path(output, str(actual_root), (".json",))
-    if not path.is_relative_to(actual_root):
-        raise ArtifactInputError("OUTSIDE_ROOT", output, 1, "Output resolves outside --root")
-    if path in {Path(p) for p in protected}:
-        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output is a declared source/input")
-    try:
-        with path.open("x", encoding="utf-8", newline="\n") as destination:
-            destination.write(json.dumps(payload, ensure_ascii=False, allow_nan=False, indent=2) + "\n")
-    except FileExistsError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output already exists") from error
-    except OSError as error:
-        raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, "Cannot create output; no parent directory is created") from error
+    path = _output_path(output, actual_root, (".json",), within=actual_root, protected=protected)
+    _write_new(path, json.dumps(payload, ensure_ascii=False, allow_nan=False, indent=2) + "\n")
 
 
 def _print_error(error: ArtifactInputError) -> int:

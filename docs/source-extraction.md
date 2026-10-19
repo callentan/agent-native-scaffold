@@ -20,8 +20,8 @@ score_candidates(items: list[dict]) -> list[dict]
 ```
 
 `source` 必须是明确的绝对本地普通文件路径。拒绝 URL、UNC、歧义的 drive-relative
-路径、alternate stream 和链接/reparse 遍历；不是 OS sandbox，也不保证抵御其他进程的
-恶意并发替换。来源身份是**本次实际读取的字节**，不是推断的 Git commit 或正式工件身份。
+路径和 alternate stream；路径按宿主正常方式解析链接（如 macOS `/tmp`），不是 OS sandbox，
+也不保证抵御其他进程的恶意并发替换。来源身份是**本次实际读取的字节**，不是推断的 Git commit 或正式工件身份。
 API 不写文件或改变 cwd。
 
 提取返回一个 envelope，其中 `candidates` 是候选列表；保留 envelope 是为了让空输入也有
@@ -225,7 +225,7 @@ API 只读；CLI 默认只输出 UTF-8 JSON。`--root` 必填，约束 CLI 输�
 
 scoring CLI 可读完整提取 envelope（保留 source 和读取计数），或明确合并的候选 JSON list
 （保留各自来源）；不会自动搜索或合并来源。JSON 同样拒绝重复 key/非有限数。
-保存须显式指定不存在的 `.json`，父目录已存在、位于 root 内且不经别名，
+保存须显式指定不存在的 `.json`，父目录已存在且解析后位于 root 内，
 不占用声明来源或输入；exclusive create，无覆盖、无 mkdir、无自动修复。
 拒绝已有文件/源/目录、越界、stream 路径及缺父目录。I/O 部分失败不保证回滚；
 保留明确错误和可能的本次部分输出，不能据此覆盖 owner 内容重试。

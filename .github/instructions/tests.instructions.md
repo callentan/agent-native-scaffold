@@ -11,4 +11,5 @@ applyTo: "**/test/**,**/tests/**,**/Tests/**,**/*.test.*,**/*.spec.*,**/*_test.*
 - 命令、工具、环境与 cwd 以[真实开发登记](../../docs/development.md#project-registration)及实际项目为准，不假设 runner，不编造构建/测试命令。
 - 只记录实际执行与逐项证据；零发现、全跳过或退出零不能单独证明验收通过。缺对象/环境则写 `not-run` 和原因，文档检查不代替业务或软件运行。
 - 维护工具的回归保持实际文件、本地 Git 对象与当前解释器的 subprocess 正反例，参数列表、显式 cwd、`shell=False`；不 mock Git stdout，不从待测实现计算期望身份、数量或状态。只在无法安全制造 OS 失败时注入明确的 I/O 边界，并区分实测与注入结果。
+- 夹具使用标准临时目录，不要求 checkout 下的固定 `.venv` 或解释器安装目录可写；按宿主解析临时目录的规范路径。通用脚本行为须在 Windows、Linux、macOS 的 CI 中执行；只对确实平台专属的适配细节区分用例，不用整类跳过隐藏功能缺失。CLI 应能从其他 cwd 启动，覆盖空格、中文路径与非默认环境位置。
 - [正式工件检查](../utilities/README.md#artifact-checker)的 `checked_count/attempted_count` 不是测试发现/执行/跳过数。回归记录须另列 runner 数量并拒绝零发现、全跳过的“成功”；检查前后比较输入原始字节，报告输出单列。制作仓测试不随下游候选分发，也不成为下游检查器的运行前提。

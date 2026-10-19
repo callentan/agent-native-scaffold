@@ -34,8 +34,10 @@ VIEW_NAMES = (
 
 
 def temporary_workspace() -> tempfile.TemporaryDirectory:
-    """Keep test writes inside this checkout's ignored, authorized tool environment."""
-    return tempfile.TemporaryDirectory(prefix="task2-fixture-", dir=WORKTREE / ".venv")
+    """Use the host's temporary directory, independent of the checkout and venv."""
+    temporary = tempfile.TemporaryDirectory(prefix="ddd-fixture-")
+    temporary.name = str(Path(temporary.name).resolve())
+    return temporary
 
 
 def metadata(**changes: object) -> dict:
@@ -172,13 +174,12 @@ def source_bytes(root: Path) -> dict[str, bytes]:
 
 def git(root: Path, *arguments: str) -> str:
     # No inherited repository/index, global hooks, signing or network operations.
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
-    env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    from check_artifacts import _git_environment
     result = subprocess.run(
         ["git", "--no-pager", "-c", "core.autocrlf=false",
          "-c", "commit.gpgSign=false", "-c", "user.name=Local fixture",
          "-c", "user.email=fixture@example.invalid", *arguments],
-        cwd=root, env=env, shell=False, capture_output=True, text=True, encoding="utf-8",
+        cwd=root, env=_git_environment(), shell=False, capture_output=True, text=True, encoding="utf-8",
     )
     if result.returncode:
         raise AssertionError(

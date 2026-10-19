@@ -17,8 +17,8 @@ from typing import Literal
 from urllib.parse import unquote, urlsplit
 
 from artifact_io import (
-    Artifact, ArtifactInputError, PathInput, SourceLocation, _ANCHOR, _INLINE_CODE, _resolve_file,
-    _resolve_root, iter_markdown_lines, parse_artifact,
+    Artifact, ArtifactInputError, PathInput, SourceLocation, _ANCHOR, _INLINE_CODE, _parse_artifact_bytes,
+    _resolve_file, _resolve_root, iter_markdown_lines,
 )
 
 
@@ -146,7 +146,11 @@ def _local_root(root: PathInput) -> Path:
 
 
 def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
-    """Verify raw traversal before canonicalization, including canceled prefixes."""
+    """Resolve one explicit local path with the host's normal link semantics.
+
+    Ancestor aliases such as macOS /tmp or Windows junctions are ordinary paths.
+    Callers that need containment compare the resolved result with their root.
+    """
     if not isinstance(value, (str, os.PathLike)) or isinstance(value, bytes):
         raise ArtifactInputError("INVALID_ROOT", "root", 1, "An explicit local directory is required")
     try:
@@ -157,154 +161,16 @@ def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
         if not os.fspath(value).strip() or requested.anchor and not requested.is_absolute():
             raise ArtifactInputError("INVALID_ROOT", "root", 1, "An unambiguous local directory is required")
         requested = requested if requested.is_absolute() else Path.cwd() / requested
-        current = Path(requested.anchor)
-        parts = requested.parts[1:]
-        for index, part in enumerate(parts):
-            if part == "..":
-                current = current.parent
-                continue
-            current = current / part
-            try:
-                info = current.lstat()
-            except FileNotFoundError as error:
-                if not missing_ok:
-                    raise ArtifactInputError("INVALID_ROOT", "root", 1,
-                                             "A declared traversal prefix does not exist") from error
-                remaining = parts[index + 1:]
-                if ".." in remaining:
-                    raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
-                                             "Cannot verify parent traversal through a missing prefix") from error
-                current = current.joinpath(*remaining)
-                break
-            if (stat.S_ISLNK(info.st_mode)
-                    or getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
-                raise ArtifactInputError("UNSAFE_ROOT", "root", 1,
-                                         "Declared traversal cannot pass through a link/reparse point")
-            if index < len(parts) - 1 and not stat.S_ISDIR(info.st_mode):
-                raise ArtifactInputError("INVALID_ROOT", "root", 1,
-                                         "A declared traversal prefix is not a directory")
-        actual = current.resolve(strict=not missing_ok)
-        if actual != current:
-            raise ArtifactInputError("UNSAFE_ROOT", "root", 1, "Declared traversal resolves through an alias")
-        return actual
+        try:
+            # Lexical ".." first gives the same answer on Windows and POSIX hosts.
+            return Path(os.path.normpath(requested)).resolve(strict=not missing_ok)
+        except FileNotFoundError as error:
+            raise ArtifactInputError("INVALID_ROOT", "root", 1,
+                                     "A declared local path does not exist") from error
     except (OSError, ValueError, RuntimeError) as error:
         if isinstance(error, ArtifactInputError):
             raise
         raise ArtifactInputError("INVALID_ROOT", "root", 1, "Cannot resolve the explicit local directory") from error
-
-
-def _git_metadata_bytes(path: PathInput) -> bytes | None:
-    """Read only a regular, explicitly local metadata file; never follow a pointer."""
-    value = os.fspath(path)
-    if _network_path(value) or "://" in value:
-        raise ArtifactInputError("GIT_CONFIG_UNSAFE", "Git metadata", 1, "Network metadata locations are unsupported")
-    actual = Path(path)
-    try:
-        actual = _checked_location(actual, missing_ok=True)
-        if not actual.exists():
-            return None
-        if not stat.S_ISREG(actual.stat().st_mode):
-            raise ValueError("Metadata must be a regular file")
-        return actual.read_bytes()
-    except (OSError, ValueError, RuntimeError) as error:
-        raise ArtifactInputError("GIT_CONFIG_UNSAFE", actual, 1,
-                                 "Git metadata must be a readable local regular file without aliases") from error
-
-
-def _git_config_file(path: PathInput) -> None:
-    """Refuse include declarations without asking Git to parse/follow them.
-
-    This is only an exposure guard, not a Git-config interpreter. Remove quoted
-    strings/comments and escaped characters before recognizing section headers;
-    includeIf conditions and include paths themselves are never evaluated.
-    """
-    raw = _git_metadata_bytes(path)
-    if raw is None:
-        return
-    physical = raw.removeprefix(b"\xef\xbb\xbf")
-    visible = bytearray()
-    quoted = comment = escaped = continuation_cr = False
-    for character in physical:
-        if continuation_cr:
-            continuation_cr = False
-            if character != 10:
-                raise ArtifactInputError("GIT_CONFIG_UNSAFE", path, 1,
-                                         "Unsupported Git config continuation: expected LF after CR")
-        elif comment:
-            # A backslash inside a comment never consumes its physical newline.
-            if character in (10, 13):
-                comment = False
-                visible.append(character)
-        elif escaped:
-            escaped = False
-            if character == 13:
-                continuation_cr = True
-            elif character != 10 and not quoted:
-                visible.append(32)
-        elif character == 92:
-            escaped = True
-        elif character == 34:
-            quoted = not quoted
-            visible.append(32)
-        elif not quoted and character in (35, 59):
-            comment = True
-        elif not quoted:
-            visible.append(character)
-    if continuation_cr:
-        raise ArtifactInputError("GIT_CONFIG_UNSAFE", path, 1,
-                                 "Unsupported Git config continuation: incomplete CRLF")
-    if re.search(rb"(?:^|[\r\n\]])[ \t\r\v\f]*\[[ \t\r\v\f]*(?:include|includeif)(?=[ \t\r\v\f.\]])",
-                 visible, re.I):
-        raise ArtifactInputError("GIT_CONFIG_INCLUDES_UNSUPPORTED", path, 1,
-                                 "Repository-local include/includeIf configuration is unsupported for bounded local Git")
-
-
-def _git_config_guard(root: PathInput, *, required: bool = True) -> None:
-    """Check local Gitfile/common/worktree configuration BEFORE a Git invocation."""
-    actual = _local_root(_checked_location(root))
-    marker = actual / ".git"
-    try:
-        marker = _checked_location(marker, missing_ok=True)
-        if not marker.exists():
-            if required:
-                raise ArtifactInputError("BASE_UNAVAILABLE", actual, 1, "The explicit checkout metadata is absent")
-            return  # No Git discovery/ancestor borrowing for a plain local source.
-
-        def pointer(raw: bytes, parent: Path, context: Path, *, prefix: str = "") -> Path:
-            text = raw.decode("utf-8").strip()
-            if prefix:
-                if not text.startswith(prefix):
-                    raise ValueError("Unsupported Gitfile")
-                text = text[len(prefix):]
-            text = text.strip()
-            if (not text or _network_path(text) or "://" in text or re.search(r"[\x00-\x1f]", text)
-                    or re.match(r"^[A-Za-z][A-Za-z0-9+.-]+:", text)):
-                raise ValueError("Unsupported metadata pointer")
-            # The pointer was rejected as text before any resolve/stat/open of it.
-            return _checked_location(parent / text)
-
-        if marker.is_dir():
-            directory = marker
-        else:
-            directory = pointer(_git_metadata_bytes(marker) or b"", marker.parent, marker, prefix="gitdir: ")
-        common_data = _git_metadata_bytes(directory / "commondir")
-        common = directory if common_data is None else pointer(common_data, directory, directory / "commondir")
-        head = (_git_metadata_bytes(directory / "HEAD") or b"").strip()
-        if not ((head.startswith(b"ref:") and head[4:].strip().startswith(b"refs/"))
-                or re.fullmatch(rb"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", head)):
-            raise ArtifactInputError("BASE_UNAVAILABLE", marker, 1,
-                                     "Incomplete explicit checkout metadata cannot use ancestor Git discovery")
-        for name in ("objects", "refs"):
-            if not _checked_location(common / name).is_dir():
-                raise ValueError("Git storage metadata is not a regular local directory")
-        _git_config_file(common / "config")
-        _git_config_file(directory / "config.worktree")
-    except (OSError, ValueError, RuntimeError) as error:
-        if isinstance(error, ArtifactInputError) and error.code in (
-                "BASE_UNAVAILABLE", "GIT_CONFIG_INCLUDES_UNSUPPORTED", "GIT_CONFIG_UNSAFE"):
-            raise
-        raise ArtifactInputError("GIT_CONFIG_UNSAFE", marker, 1,
-                                 "Gitfile/common/worktree metadata must be regular, local and safely readable") from error
 
 
 def _domain_location(root: Path, source_root: str, relative: str) -> tuple[Path, Path]:
@@ -435,14 +301,16 @@ def _walk(root: Path, excluded: list[Exclusion], errors: list[Finding]) -> list[
 
 def _read(path: Path, root: Path, raw_files: dict[Path, bytes],
           records: dict[Path, InputFile], role: Literal["formal", "guide", "reference"]) -> bytes:
+    """Read each input once per check; later uses share the same bytes."""
     actual = _resolve_file(path, root)
-    try:
-        raw = actual.read_bytes()
-    except OSError as error:
-        raise ArtifactInputError("FILE_READ_ERROR", actual, 1, str(error)) from error
-    if actual in raw_files and raw_files[actual] != raw:
-        raise ArtifactInputError("INPUT_CHANGED", actual, 1, "Input changed during this check; rerun on stable files")
-    raw_files[actual] = raw
+    if actual in raw_files:
+        raw = raw_files[actual]
+    else:
+        try:
+            raw = actual.read_bytes()
+        except OSError as error:
+            raise ArtifactInputError("FILE_READ_ERROR", actual, 1, str(error)) from error
+        raw_files[actual] = raw
     if actual not in records:
         records[actual] = InputFile(
             actual.relative_to(root).as_posix(), hashlib.sha256(raw).hexdigest(), len(raw), role,
@@ -460,22 +328,35 @@ def _decode(raw: bytes, path: Path) -> str:
         raise ArtifactInputError("INVALID_ENCODING", path, line, str(error)) from error
 
 
-def _git_environment() -> dict[str, str]:
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
-    env.update(
-        GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0",
-        GIT_OPTIONAL_LOCKS="0", GIT_NO_REPLACE_OBJECTS="1", GIT_NO_LAZY_FETCH="1",
-    )
+def _git_environment(root: PathInput | None = None, *, keep_config: bool = False,
+                     overrides: dict[str, str] | None = None) -> dict[str, str]:
+    """The one clean Git context shared by every tool.
+
+    Inherited repository/index/object overrides are dropped; Git's own install
+    location (GIT_EXEC_PATH) is kept. ``keep_config`` preserves a caller-selected
+    config file, otherwise global/system config is ignored. A root also stops
+    discovery from borrowing an ancestor repository.
+    """
+    keep = {"GIT_EXEC_PATH"}
+    if keep_config:
+        keep |= {"GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_NOSYSTEM"}
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_") or key in keep}
+    if not keep_config:
+        env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    env.update(GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0", GIT_NO_REPLACE_OBJECTS="1",
+               GIT_NO_LAZY_FETCH="1")
+    if root is not None:
+        env["GIT_CEILING_DIRECTORIES"] = str(Path(root).resolve().parent)
+    env.update(overrides or {})
     return env
 
 
 def _git(root: Path, *arguments: str) -> bytes:
-    _git_config_guard(root)
     try:
         result = subprocess.run(
             ["git", "--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false",
              "-c", "protocol.allow=never", *arguments],
-            cwd=root, env=_git_environment(), shell=False, capture_output=True, timeout=60,
+            cwd=root, env=_git_environment(root), shell=False, capture_output=True, timeout=60,
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise ArtifactInputError("BASE_UNAVAILABLE", root, 1, str(error)) from error
@@ -780,10 +661,8 @@ def read_inventory(root: PathInput, base_sha: str | None = None, *,
             if not formal:
                 excluded.append(Exclusion(relative, "LIGHTWEIGHT_GUIDE"))
                 continue
-            artifact = parse_artifact(path, actual_root)
+            artifact = _parse_artifact_bytes(raw, path, actual_root)
             _read(path, actual_root, raw_files, records, "formal")
-            if artifact.source != source:
-                raise ArtifactInputError("INPUT_CHANGED", path, 1, "Parser read a different snapshot")
             artifacts[path] = artifact
             records[path] = replace(records[path], owner=artifact.key)
             if artifact.key in owners:
@@ -822,42 +701,74 @@ def run_check(root: PathInput, base_sha: str | None = None) -> CheckReport:
     return read_inventory(root, base_sha).report
 
 
-def _report_path(value: str, root: str) -> Path:
-    return _output_path(value, root, (".json",))
+def _overlaps(left: Path, right: Path) -> bool:
+    # Case-folded so case-insensitive Windows/macOS volumes cannot hide an overlap.
+    left_parts = tuple(part.casefold() for part in left.parts)
+    right_parts = tuple(part.casefold() for part in right.parts)
+    shorter = min(len(left_parts), len(right_parts))
+    return left_parts[:shorter] == right_parts[:shorter]
 
 
-def _output_path(value: str, root: str, suffixes: tuple[str, ...]) -> Path:
+def _output_path(value: str, base: PathInput, suffixes: tuple[str, ...], *,
+                 within: PathInput | None = None, protected=()) -> Path:
+    """The single new-output rule for every tool: explicit, local, new, outside its sources.
+
+    Relative values are taken from ``base``. Paths follow the host's normal link
+    resolution. The parent must already exist; no directory is created and no
+    existing file, link or directory is replaced.
+    """
+    if (not isinstance(value, str) or not value.strip() or any(ord(c) < 32 for c in value)
+            or _network_path(value) or "://" in value):
+        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "An explicit new local output path is required")
+    requested = Path(value)
+    if requested.anchor and not requested.is_absolute():
+        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "An unambiguous explicit output path is required")
+    # A colon names a Windows alternate data stream of another file; refuse it on every host.
+    if ":" in requested.as_posix()[len(requested.anchor):]:
+        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Output file names cannot contain ':'")
+    if not requested.is_absolute():
+        requested = Path(base) / requested
+    requested = Path(os.path.normpath(requested))
+    if requested.suffix.lower() not in suffixes:
+        raise ArtifactInputError("REPORT_CONFLICT", requested, 1,
+                                 f"An explicit new file with suffix {suffixes} is required")
     try:
-        if _network_path(value) or "://" in value:
-            raise ArtifactInputError("REPORT_CONFLICT", value, 1, "The report destination must be local")
-        path = Path(value)
-        if not value.strip() or path.anchor and not path.is_absolute():
-            raise ArtifactInputError("REPORT_CONFLICT", value, 1, "An unambiguous explicit report path is required")
-        if not path.is_absolute():
-            path = _local_root(root) / path
-        if path.exists() or path.is_symlink():
-            raise ArtifactInputError("REPORT_CONFLICT", path, 1, "A report may not replace any existing file or directory")
-        path = path.resolve()
-        if path.suffix.lower() not in suffixes:
-            raise ArtifactInputError("REPORT_CONFLICT", path, 1, f"An explicit new file with suffix {suffixes} is required")
-        return path
-    except (OSError, ValueError, RuntimeError) as error:
-        if isinstance(error, ArtifactInputError):
-            raise
-        raise ArtifactInputError("REPORT_WRITE_ERROR", value, 1, str(error)) from error
+        path = requested.parent.resolve() / requested.name
+        reserved = [Path(item).resolve() for item in protected]
+        root = Path(within).resolve() if within is not None else None
+    except (OSError, RuntimeError) as error:
+        raise ArtifactInputError("REPORT_CONFLICT", requested, 1,
+                                 "Cannot resolve the output or a declared source location") from error
+    if any(part.casefold() == ".git" for part in path.parts):
+        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Git metadata is never an output destination")
+    if root is not None and not path.is_relative_to(root):
+        raise ArtifactInputError("OUTSIDE_ROOT", path, 1, "Output must be within the explicitly selected root")
+    if any(_overlaps(path, item) for item in reserved):
+        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output overlaps a read or declared source location")
+    if not path.parent.is_dir():
+        raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, "The output parent directory must already exist")
+    if os.path.lexists(path):
+        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output already exists; nothing is replaced")
+    return path
+
+
+def _write_new(path: Path, content: str) -> None:
+    """Exclusively create one text output; a failed write may leave the new partial file."""
+    try:
+        with path.open("x", encoding="utf-8", newline="\n") as destination:
+            destination.write(content)
+    except FileExistsError as error:
+        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output already exists; it was not replaced") from error
+    except OSError as error:
+        raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1,
+                                 "Cannot create the new output; a partial new file may remain") from error
 
 
 def _write_report(payload: dict, value: str, root: str) -> None:
     """Shared protected JSON output only; no CLI dispatch or source execution."""
-    output = _report_path(value, root)
+    output = _output_path(value, _local_root(root), (".json",))
     payload["report_output"] = {"path": str(output), "written": True}
-    try:
-        with output.open("x", encoding="utf-8", newline="\n") as destination:
-            destination.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
-    except FileExistsError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", output, 1, str(error)) from error
-    except OSError as error:
-        raise ArtifactInputError("REPORT_WRITE_ERROR", output, 1, str(error)) from error
+    _write_new(output, json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
 
 
 def main() -> int:

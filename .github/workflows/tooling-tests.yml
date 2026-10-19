@@ -10,10 +10,14 @@ permissions:
 
 jobs:
   tooling:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: bash
+        shell: python
         working-directory: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
@@ -28,25 +32,35 @@ jobs:
           python-version: "3.11"
       - name: Restore the maintainer tool environment
         run: |
-          python -m venv .venv
-          .venv/bin/python -m pip install --requirement .github/utilities/requirements.lock
-          .venv/bin/python -m pip check
+          import os, pathlib, subprocess, venv
+          environment = pathlib.Path(os.environ["RUNNER_TEMP"]) / "ddd-tools"
+          builder = venv.EnvBuilder(with_pip=True)
+          builder.create(environment)
+          python = builder.ensure_directories(environment).env_exec_cmd
+          subprocess.run([python, "-m", "pip", "install", "--requirement", ".github/utilities/requirements.lock"], check=True)
+          subprocess.run([python, "-m", "pip", "check"], check=True)
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as output:
+              output.write(f"DDD_PYTHON={python}\n")
       - name: Run the retained suite with the real discovery gate
         env:
           VALIDATION_BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          args=()
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            args+=(--base "$VALIDATION_BASE")
-          fi
-          .venv/bin/python -B -X utf8 .github/utilities/tests/run_tooling_tests.py \
-            --start-directory .github/utilities/tests --top-level-directory .github/utilities \
-            --report "$RUNNER_TEMP/tooling-tests.json" --raw-output "$RUNNER_TEMP/tooling-tests.txt" "${args[@]}"
+          import os, pathlib, subprocess, sys
+          temporary = pathlib.Path(os.environ["RUNNER_TEMP"])
+          args = [os.environ["DDD_PYTHON"], "-B", "-X", "utf8",
+                  ".github/utilities/tests/run_tooling_tests.py",
+                  "--start-directory", ".github/utilities/tests",
+                  "--top-level-directory", ".github/utilities",
+                  "--report", str(temporary / "tooling-tests.json"),
+                  "--raw-output", str(temporary / "tooling-tests.txt")]
+          if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
+              args += ["--base", os.environ["VALIDATION_BASE"]]
+          sys.exit(subprocess.run(args).returncode)
       - name: Retain counts and raw unittest output
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: maintainer-tooling-tests
+          name: maintainer-tooling-tests-${{ matrix.os }}
           path: |
             ${{ runner.temp }}/tooling-tests.json
             ${{ runner.temp }}/tooling-tests.txt

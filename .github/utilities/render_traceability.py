@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 
 from artifact_io import ArtifactInputError, iter_markdown_lines, load_yaml_mapping
 from check_artifacts import (
-    _checked_location, _decode, _HEADING, _local_root, _output_path, read_inventory,
+    _decode, _HEADING, _local_root, _output_path, _write_new, read_inventory,
 )
 from export_model import _derive, _model_path, _SCOPE, _Sources, check_model
 
@@ -121,22 +121,7 @@ def _load(inputs, *, trace: bool = False) -> dict:
             "source": source, "sources": sources, "extra_raw": extra_raw, "empty": empty}
 
 
-def _recheck(context) -> None:
-    reader = context["reader"]
-    for path in tuple(reader.raw):
-        if path.is_relative_to(reader.root):
-            reader.read(path.relative_to(reader.root).as_posix())
-    for path, before in context["extra_raw"].items():
-        try:
-            after = path.read_bytes()
-        except OSError as error:
-            raise ArtifactInputError("FILE_READ_ERROR", path, 1, str(error)) from error
-        if after != before:
-            raise ArtifactInputError("INPUT_CHANGED", path, 1, "Persisted input changed during rendering")
-
-
 def _result(context, format, content, *, status="rendered", counts=None, gaps=(), gates=()) -> dict:
-    _recheck(context)
     return {
         "status": status, "format": format, "media_type": _MIME.get(format), "content": content,
         "counts": {**dict.fromkeys(("nodes", "edges", "sections", "diagrams", "messages", "slides"), 0),
@@ -360,47 +345,20 @@ def render_traceability(view) -> dict:
                    counts={"nodes": len(data["nodes"]), "edges": len(data["edges"])}, gaps=data["gaps"])
 
 
-def _overlap(left, right):
-    # Conservative portable alias comparison; Windows aliases are case-insensitive.
-    left = tuple(part.casefold() for part in left.parts)
-    right = tuple(part.casefold() for part in right.parts)
-    return left[:len(right)] == right or right[:len(left)] == left
-
-
 def write_export(result, value: str, inputs) -> Path:
-    """Explicit CLI write boundary; revalidate source identity and all reservations."""
+    """Explicit CLI write boundary; reserve every read or declared source location."""
     context = _load(inputs, trace="sources" not in inputs)
     reader = context["reader"]
     for pointer in context["sources"]:
         reader.evidence(dict(pointer))
-    if result["source"] != context["source"]:
-        raise ArtifactInputError("INPUT_CHANGED", context["root"], 1, "Rendered source identity no longer matches")
     if result["status"] in ("unavailable", "unsupported") or result["content"] is None:
         raise ArtifactInputError("UNSUPPORTED_FORMAT", "output", 1, "Unavailable or unsupported output cannot be written")
     format = _format(result["format"], ("json", "svg", "html"))
-    requested = Path(value)
-    if not requested.is_absolute():
-        requested = context["root"] / requested
-    try:
-        _checked_location(requested, missing_ok=True)
-    except ArtifactInputError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", value, 1, "Output traversal cannot use aliases or unverified prefixes") from error
-    path = _output_path(value, str(context["root"]), ("." + format,))
-    if any(part.casefold() == ".git" for part in path.parts):
-        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Git metadata/history is never an export destination")
+    if reader.reservation_errors:
+        raise ArtifactInputError("REPORT_CONFLICT", "output", 1, "Malformed declared source locations prevent safe output isolation")
     protected = set(reader.raw) | reader.reserved_paths | reader.reserved_directories | set(context["extra_raw"])
-    if reader.reservation_errors or any(_overlap(path, item) for item in protected):
-        raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output overlaps a read, declared, missing or aliased source location")
-    if not path.parent.is_dir():
-        raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, "The explicit output parent must already exist")
-    _recheck(context)
-    try:
-        with path.open("x", encoding="utf-8", newline="\n") as output:
-            output.write(result["content"])
-    except FileExistsError as error:
-        raise ArtifactInputError("REPORT_CONFLICT", path, 1, str(error)) from error
-    except OSError as error:
-        raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, str(error)) from error
+    path = _output_path(value, context["root"], ("." + format,), protected=protected)
+    _write_new(path, result["content"])
     return path
 
 

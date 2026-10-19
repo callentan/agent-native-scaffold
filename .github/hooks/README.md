@@ -6,14 +6,13 @@
 
 ## 运行依赖与分发
 
-需要 Git、已选定的 Python 3.11+ **项目 venv** 及
-[锁定依赖](../utilities/requirements.lock)。解释器使用完整绝对路径；不会从 PATH
-寻找另一个 Python，也不安装包。命令与环境见[开发登记](../../docs/development.md#maintenance-tools)。
-安装提案和两份 hook 的启动共用同一 Python 环境检查：最低版本、所选绝对解释器、
-实际 venv/prefix、可读的本地 `pyvenv.cfg`，以及固定直接依赖的版本和可导入性。
-launcher 保留所选路径/prefix；配置丢失、运行到 base 环境或依赖漂移均在读取
-index/工件前拒绝并给出恢复 venv/lock 的提示，不因 base 中恰有包而继续。
-报告保留选定与实际环境和配置摘要，检查结束前再次核对环境输入；这不是 OS sandbox。
+需要 Git、Python 3.11+（venv、conda 或系统解释器均可）以及可导入的 PyYAML 与
+jsonschema；[锁定依赖](../utilities/requirements.lock)是已测试版本，不是运行时强制版本。
+解释器使用完整绝对路径；不会从 PATH 寻找另一个 Python，也不安装包。命令与环境见
+[开发登记](../../docs/development.md#maintenance-tools)。安装提案和两份 hook 的启动共用同一
+检查：最低 Python 版本和两项依赖可导入。不满足时在读取 index/工件前退出 2 并提示按
+lock 恢复依赖。launcher 传入的选定路径/prefix 与实际解释器、依赖版本只记入报告，
+不作为拒绝理由；这不是 OS sandbox。
 
 两份入口只调用 `hook_checks.py`。该窄用途适配器获取 index 并复用
 `artifact_io.py`、`check_artifacts.py`、`check_traceability.py` 和
@@ -25,8 +24,8 @@ Git for Windows 的实际启动试验发现：绝对 Python shebang 没有选到
 加引号的 shebang 也未成功。因此该宿主使用 **Git 自带的 `sh`**，只做解释器存在性
 检查与带引号的 `exec`；验证逻辑仍全在 Python。无需 PowerShell 7。POSIX 上可表示的
 解释器路径使用直接 Python shebang，启动时仍传入 `-B -X utf8`；含空白或过长路径
-使用同样的最薄 `sh` 适配。当前本地原生证据来自 Windows；POSIX 和托管环境不因有
-代码或 YAML 就算已实测。
+使用同样的最薄 `sh` 适配。Windows、Linux、macOS 共用相同的 Python 检查逻辑；
+具体宿主的运行证据仍须回到对应报告，不因有代码或 YAML 就算已实测。
 
 ## 先查看，再明确安装
 
@@ -47,8 +46,8 @@ Git for Windows 的实际启动试验发现：绝对 Python shebang 没有选到
 - 默认 hooks 属于 common Git metadata。linked worktree 或存在多个 worktrees 时，
   提案说明共享范围并拒绝安装/恢复；本工具没有隐式切换 `extensions.worktreeConfig`
   或影响 sibling 的模式。需要共享接入时由所有者另行设计和授权，不以本命令解阻。
-- 工具/入口缺失或为跳转路径、解释器缺失、不是所选 venv、版本/依赖不符合登记时
-  明确退出 2，不安装剩余部分。安装期间的部分写入与恢复边界见下节，不自动删除
+- 工具/入口缺失、解释器缺失、Python 低于 3.11 或依赖无法导入时明确退出 2，
+  不安装剩余部分。安装期间的部分写入与恢复边界见下节，不自动删除
   已创建文件，也不把失败当作完整安装。
 - Git 入口引用本项目的工具源码，不复制并冻结另一套实现。后续更新源码会改变 hook
   行为，必须重新检查版本与适用性；本地可编辑工具不是对恶意修改的安全边界。
@@ -93,7 +92,8 @@ hook/receipt。后续所有者编辑、mode 改变、缺收据、链接或配置
    不使有效 index 失效。暂存删除和重命名后的完整文件集合参与检查。
 2. 使用原始 `cat-file` blob，在私有临时目录构造普通文件快照；Git `mktree` 只向
    同一临时空间写树对象。原 index、源文件、config 与源对象库不写入。
-   项目 venv 下的临时内容随本次检查回收，不是可持久执行工程。
+   临时位置由宿主标准临时目录分配，随本次检查回收，不要求项目 venv 可写，
+   也不是可持久执行工程。
 3. 保存原路径、mode、blob ID、原始 SHA256/大小、index 文件与 manifest 摘要、
    精确 index tree、当前 HEAD 和比较 base/tree。`changes` 用
    added/modified/deleted 表示，rename 是旧路径删除加新路径添加，不猜相似度。
@@ -110,7 +110,7 @@ hook/receipt。后续所有者编辑、mode 改变、缺收据、链接或配置
 main/master 或空比较。未给 base 时记录 hook 调用时的当前 HEAD；仅在确认为尚无
 分支 ref 的 unborn 状态才使用无历史比较。`snapshot.parent/head` 是这个比较用的
 HEAD，不承诺推断 amend/rebase/merge 完成后的完整 parent 图；`base_origin`
-明确记录来源。检查结束前复核 index/HEAD，变化时报错。
+明确记录来源。index 与 HEAD 只在检查开始时读取一次。
 
 报告保留共享检查器的 owner、行、target、实际计数和字节基线，临时文件诊断映射回
 原 checkout 路径。`runtime` 另记实际解释器、依赖版本和运行中的工具源码/schema
@@ -162,7 +162,9 @@ PR checkout 精确 head，比较参数取精确 PR base SHA；缺失/非法 base
 分发。它们运行真实 unittest discovery，保留发现、运行、执行、跳过、失败和错误；
 零发现、全跳过或非空套件失败都使 job 失败。它们不是资料检查器的依赖。
 
-两份 YAML 声明 Ubuntu 24.04、Python 3.11、项目 venv 和 lock；无应用、写权限、
-secret、`pull_request_target`、required-check 配置或传播任务。本地 YAML 解析和
-Git 测试不是托管 CI 通过；实际 hosted run、POSIX 原生启动和服务端必需检查仍需
-单独授权与原始平台结果。不要在授权前因本文示例启动远端流程。
+资料 workflow 使用 Ubuntu 24.04；制作仓回归使用 Windows、Ubuntu、macOS 矩阵，
+各自保留报告。运行步骤均为 Python，使用 venv 返回的实际解释器而非写死平台路径；
+最低版本为 Python 3.11，恢复同一 lock。无应用、写权限、secret、
+`pull_request_target`、required-check 配置或传播任务。本地 YAML 解析和 Git 测试
+不是托管 CI 通过；实际 hosted run 和服务端必需检查仍需原始平台结果。
+不要在授权前因本文示例启动远端流程。

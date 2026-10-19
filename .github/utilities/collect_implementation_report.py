@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 from collections.abc import Iterable, Mapping
 from datetime import date
-import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -14,12 +13,12 @@ import re
 import yaml
 
 from artifact_io import (
-    Artifact, ArtifactInputError, PathInput, _parse_artifact_bytes, _resolve_file,
+    _sha, Artifact, ArtifactInputError, PathInput, _parse_artifact_bytes, _resolve_file,
     load_yaml_mapping,
 )
 from check_artifacts import (
     _anchors, _decode, _document_findings, _domain_location, _exclusion, _fixed_file,
-    _formal, _git, _INLINE_LINK, _local_root, _network_path, _output_path, _read,
+    _formal, _INLINE_LINK, _local_root, _network_path, _output_path, _read, _write_new,
 )
 from check_traceability import _criterion, _layer, _meaningful, _OWNER_LAYERS, _table_values, section_lines
 from vt_records import owned_runs, plan_bytes, result_rows
@@ -34,10 +33,6 @@ _MARKER = re.compile(r"^\s*(?:#|//) (implements|verifies): (" + _KEY
                      + r"#[A-Za-z][A-Za-z0-9._:-]*) (symbol|testId)=([A-Za-z_][A-Za-z0-9_]*)\s*$")
 _MARKER_START = re.compile(r"^\s*(?:#|//) (?:implements|verifies):")
 _DATE = r"([0-9]{4}-[0-9]{2}-[0-9]{2}); recorder=([^;]+)"
-
-
-def _sha(raw: bytes) -> str:
-    return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
 def _field(source: Artifact, anchor: str, label: str) -> str:
@@ -455,7 +450,7 @@ class _Collection:
         return report
 
     def output_path(self, value: str) -> Path:
-        path = _output_path(value, str(self.root), (".json", ".yaml", ".yml"))
+        path = _output_path(value, self.root, (".json", ".yaml", ".yml"))
         # Reuse Task7's declaration-before-dereference protection. Current source
         # reservations affect ONLY a requested write, never the tested object.
         from check_artifacts import read_inventory
@@ -534,13 +529,7 @@ def main() -> int:
             path = collection.output_path(arguments.output)
             content = (json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2)
                        if path.suffix.lower() == ".json" else yaml.safe_dump(report, allow_unicode=True, sort_keys=True).rstrip())
-            try:
-                with path.open("x", encoding="utf-8", newline="\n") as output:
-                    output.write(content + "\n")
-            except FileExistsError as error:
-                raise ArtifactInputError("REPORT_CONFLICT", path, 1, str(error)) from error
-            except OSError as error:
-                raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, str(error)) from error
+            _write_new(path, content + "\n")
         print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
         return 1 if any(entry["execution"]["status"] == "fail" for entry in report["entries"]) else 0
     except ArtifactInputError as error:

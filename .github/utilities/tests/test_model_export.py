@@ -756,25 +756,6 @@ class ModelBoundaryTests(ModelFixture):
         self.assertNotEqual(original["source"]["baseline"], current["source"]["baseline"])
         self.assertEqual("unverified", current["views"]["quality"]["state"])
 
-    def test_shared_yaml_changed_between_reads_is_input_error_not_a_mixed_snapshot(self):
-        sources, _, _ = self.summary_sources()
-        shared = write_yaml(self.root / "sources/shared.yaml",
-                            dict(sources["sequences"], **sources["governance"]))
-        self.manifest(dict(self.select("sequences", shared), **self.select("governance", shared)))
-        read, count = Path.read_bytes, 0
-        def change_after_first_read(path):
-            nonlocal count
-            raw = read(path)
-            if path == shared:
-                count += 1
-                if count == 1:
-                    shared.write_bytes(raw + b"# local fixture changed during the read\n")
-            return raw
-        with patch.object(Path, "read_bytes", change_after_first_read):
-            with self.assertRaises(ArtifactInputError) as caught:
-                self.export()
-        self.assertEqual("INPUT_CHANGED", caught.exception.code)
-
     def test_nonlocal_selection_rejected_before_read_and_does_not_expand_environment(self):
         for path in ("https://example.invalid/source.yaml", "../outside.yaml", r"\\server\share\file",
                      ".git/config", ".venv/source.yaml"):
@@ -914,7 +895,7 @@ class ModelBoundaryTests(ModelFixture):
                 self.assertIn(field, " ".join(result["gaps"]))
 
 
-class Fix1QualityTests(ModelFixture):
+class QualityViewTests(ModelFixture):
     """T7-I1: direct quality needs both original QAS and utility-tree sources."""
 
     def quality_sources(self, *, tree=True, measure=True):
@@ -1001,7 +982,7 @@ class Fix1QualityTests(ModelFixture):
                 self.assertEqual(expected, self.export()["views"]["quality"]["state"])
 
 
-class Fix1OutputTests(ModelFixture):
+class ModelOutputTests(ModelFixture):
     """T7-I2: reservation is based on declarations, not successful dereferences."""
 
     def test_fix1_i2_missing_utility_reference_cannot_be_output(self):
@@ -1074,7 +1055,7 @@ class Fix1OutputTests(ModelFixture):
         self.assertEqual(before, source_bytes(self.root))
 
 
-class Fix1DiagramTests(ModelFixture):
+class DiagramViewTests(ModelFixture):
     """T7-I3: only a real, owned Mermaid fence can establish diagram content."""
 
     BLOCK = "```mermaid\nsequenceDiagram\n  Member->>Clerk: Known request\n```\n"
@@ -1121,7 +1102,7 @@ class Fix1DiagramTests(ModelFixture):
         self.assertEqual("available", self.export()["views"]["sequences"]["state"])
 
 
-class Fix1RunTests(ModelFixture):
+class VerificationRunTests(ModelFixture):
     """T7-I4: source-owned child run records use the actual VT form's tables."""
 
     def run_block(self, number=1, *, result="pass", counts=True, date=True, object_baseline=None):
@@ -1227,12 +1208,12 @@ class Fix1RunTests(ModelFixture):
                             for gap in view["gaps"]))
 
 
-class Fix2RunOwnershipTests(ModelFixture):
+class RunOwnershipTests(ModelFixture):
     """F1-N1: an anchor belongs to its actual heading, not the preceding interval."""
 
     # Reuse the exact positive run fixture without rerunning its class by inheritance.
-    run_block = Fix1RunTests.run_block
-    verification_source = Fix1RunTests.verification_source
+    run_block = VerificationRunTests.run_block
+    verification_source = VerificationRunTests.verification_source
 
     def owned(self, path):
         before = source_bytes(self.root)
@@ -1477,7 +1458,7 @@ class Task8BridgeTests(ModelFixture):
                         output.unlink()  # Test-owned cleanup after reproducing a bad write.
 
 
-class Task8Fix1DomainReservationTests(ModelFixture):
+class DomainReservationTests(ModelFixture):
     """T8-I1: optional read gaps never grant writes to declared source locations."""
 
     def domain_report(self):
@@ -1585,10 +1566,10 @@ class Task8Fix1DomainReservationTests(ModelFixture):
         self.refused_output_preserves_sources(self.root / "unrelated-output.yaml")
 
 
-class Task8Fix2TreeTests(ModelFixture):
+class ImplementationTreeTests(ModelFixture):
     """T8-F1-N1: business tree keys are not baseline-free domain declarations."""
 
-    quality_sources = Fix1QualityTests.quality_sources
+    quality_sources = QualityViewTests.quality_sources
 
     def assert_tree_round_trip(self, data, output):
         _, tree, selected = self.quality_sources()

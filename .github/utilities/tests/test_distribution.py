@@ -10,10 +10,8 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
-import stat
 import sys
 import tempfile
-import threading
 import unittest
 from urllib.parse import unquote, urlsplit
 from contextlib import redirect_stdout
@@ -173,14 +171,12 @@ def _local_markdown_links(root: Path):
 
 class DistributionTests(unittest.TestCase):
     def setUp(self):
-        fixture_root = WORKTREE / ".venv" / "task12-fixtures"
-        fixture_root.mkdir(parents=True, exist_ok=True)
-        temporary = tempfile.TemporaryDirectory(prefix="run-", dir=fixture_root)
+        temporary = tempfile.TemporaryDirectory(prefix="ddd-distribution-")
         self.addCleanup(temporary.cleanup)
-        self.workspace = Path(temporary.name)
+        self.workspace = Path(temporary.name).resolve()
         report_temporary = tempfile.TemporaryDirectory(prefix="task12-reports-")
         self.addCleanup(report_temporary.cleanup)
-        self.report_workspace = Path(report_temporary.name)
+        self.report_workspace = Path(report_temporary.name).resolve()
 
     def manifest(self):
         self.assertTrue(MANIFEST.is_file(), "DIST-01 requires the exact delivered-file manifest")
@@ -262,86 +258,21 @@ class DistributionTests(unittest.TestCase):
             exit_code = candidate_copier.main(arguments)
         return exit_code, json.loads(output.getvalue())
 
-    def make_directory_reparse(self, link: Path, target: Path):
-        if os.name != "nt":
-            os.symlink(target, link, target_is_directory=True)
-            return
-        powershell = Path(os.environ["SystemRoot"]) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
-        quote = lambda value: "'" + str(value).replace("'", "''") + "'"
-        script = (
-            f"New-Item -ItemType Junction -Path {quote(link)} -Target {quote(target)} | Out-Null; "
-            f"if ((Get-Item -LiteralPath {quote(link)} -Force).Target -ne {quote(target)}) {{ exit 3 }}"
-        )
-        run = subprocess.run(
-            [str(powershell), "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script],
+    def fixture_cli(self, source: Path, target: Path | str, *arguments: str, verify=False):
+        return subprocess.run(
+            [sys.executable, "-B", "-X", "utf8", str(COPY_TOOL),
+             "--root", str(source), "--verify" if verify else "--target", str(target),
+             "--allow-output-root", str(self.workspace),
+             "--allow-output-root", str(self.report_workspace), *map(str, arguments)],
             cwd=self.workspace, shell=False, capture_output=True, text=True,
-            encoding="utf-8", timeout=15,
+            encoding="utf-8", timeout=120,
         )
-        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
 
-    def swap_directory_for_reparse(self, directory: Path, moved: Path, target: Path,
-                                    checked: threading.Event, release: threading.Event,
-                                    errors: list[BaseException]):
-        if not checked.wait(timeout=15):
-            errors.append(TimeoutError("filesystem boundary was not reached"))
-            release.set()
-            return
+    def make_symlink(self, link: Path, target: Path):
         try:
-            os.replace(directory, moved)
-            self.make_directory_reparse(directory, target)
-        except BaseException as error:
-            errors.append(error)
-        finally:
-            release.set()
-
-    def remove_reparse_and_restore(self, link: Path, moved: Path):
-        try:
-            info = os.lstat(link)
-        except FileNotFoundError:
-            info = None
-        if info is not None:
-            attributes = getattr(info, "st_file_attributes", 0)
-            if stat.S_ISLNK(info.st_mode) or attributes & 0x400:
-                if stat.S_ISDIR(info.st_mode) or attributes & 0x10:
-                    os.rmdir(link)
-                else:
-                    link.unlink()
-        if moved.exists() and not os.path.lexists(link):
-            os.replace(moved, link)
-
-    def run_race_copy(self, source: Path, target: Path, gate_path: Path,
-                      outside: Path, moved: Path, checked_path: Path):
-        checked = threading.Event()
-        release = threading.Event()
-        errors: list[BaseException] = []
-        actor = threading.Thread(
-            target=self.swap_directory_for_reparse,
-            args=(gate_path, moved, outside, checked, release, errors),
-            daemon=True,
-        )
-        original = candidate_copier._assert_no_reparse_components
-
-        def gate(path, *args, **kwargs):
-            result = original(path, *args, **kwargs)
-            if Path(path) == checked_path:
-                checked.set()
-                if not release.wait(timeout=15):
-                    raise TimeoutError("copy boundary race did not complete")
-            return result
-
-        actor.start()
-        try:
-            with patch.object(candidate_copier, "_assert_no_reparse_components", gate):
-                exit_code, result = self.run_copier_main([
-                    "--root", str(source), "--target", str(target),
-                    "--allow-output-root", str(self.workspace),
-                ])
-        finally:
-            release.set()
-            actor.join(timeout=15)
-            self.remove_reparse_and_restore(gate_path, moved)
-        self.assertFalse(actor.is_alive(), "source race worker did not terminate")
-        return exit_code, result, errors
+            link.symlink_to(target, target_is_directory=target.is_dir())
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"Host cannot create this link fixture: {error}")
 
     def test_fix1_dist_02_verify_report_inside_candidate_is_refused_without_tree_change(self):
         candidate, _ = self.copied_candidate("verify-report-overlap", target_root=self.report_workspace)
@@ -397,13 +328,16 @@ class DistributionTests(unittest.TestCase):
         self.assertFalse(target.exists())
         self.assertEqual(before, source_bytes(source))
 
-    def test_fix1_dist_06_source_hardlink_is_refused_before_candidate_creation(self):
+    def test_dist_06_source_hardlink_is_copied_as_independent_bytes(self):
         source = self.seed_copy_fixture()
         marker = self.workspace / "synthetic-outside-marker.bin"
         marker.write_bytes(b"synthetic marker; not private data")
         source_file = source / "assets" / "payload.txt"
         source_file.unlink()
-        os.link(marker, source_file)
+        try:
+            os.link(marker, source_file)
+        except OSError as error:
+            self.skipTest(f"Host cannot create this hardlink fixture: {error}")
         marker_before = marker.read_bytes()
         target = self.workspace / "hardlinked-source-candidate"
         run = subprocess.run(
@@ -413,12 +347,15 @@ class DistributionTests(unittest.TestCase):
             cwd=WORKTREE, shell=False, capture_output=True, text=True, encoding="utf-8",
         )
         result = json.loads(run.stdout)
-        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
-        self.assertIn("HARDLINK_REFUSED", {item["code"] for item in result["findings"]})
-        self.assertFalse(target.exists())
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("copied", result["status"])
+        copied = target / "assets/payload.txt"
+        self.assertEqual(marker_before, copied.read_bytes())
+        copied.write_bytes(b"candidate-only modification")
         self.assertEqual(marker_before, marker.read_bytes())
+        self.assertEqual(marker_before, source_file.read_bytes())
 
-    def test_fix1_dist_19_candidate_hardlink_is_refused_without_reading_external_marker(self):
+    def test_dist_19_candidate_hardlink_is_verified_by_bytes_without_modifying_marker(self):
         source = self.seed_copy_fixture()
         candidate = self.workspace / "hardlinked-candidate"
         report = self.report_workspace / "hardlinked-verification.json"
@@ -432,7 +369,10 @@ class DistributionTests(unittest.TestCase):
         marker_before = marker.read_bytes()
         candidate_file = candidate / "assets" / "payload.txt"
         candidate_file.unlink()
-        os.link(marker, candidate_file)
+        try:
+            os.link(marker, candidate_file)
+        except OSError as error:
+            self.skipTest(f"Host cannot create this hardlink fixture: {error}")
 
         verified, result = self.run_copier_main([
             "--root", str(source), "--verify", str(candidate),
@@ -441,100 +381,49 @@ class DistributionTests(unittest.TestCase):
         ])
         self.assertEqual(1, verified, result)
         self.assertEqual("invalid", result["status"])
-        self.assertIn("HARDLINK_REFUSED", {item["code"] for item in result["findings"]})
+        self.assertIn("HASH_MISMATCH", {item["code"] for item in result["findings"]})
         self.assertEqual(marker_before, marker.read_bytes())
         self.assertNotIn(marker_before.decode("ascii"), report.read_text(encoding="utf-8"))
         verification = json.loads(report.read_text(encoding="utf-8"))
         payload_row = next(item for item in verification["files"] if item["path"] == "assets/payload.txt")
-        self.assertIsNone(payload_row["candidate_sha256"])
-        self.assertEqual(1, verification["verified_count"])
+        self.assertEqual(sha256(marker_before), payload_row["candidate_sha256"])
+        self.assertEqual(2, verification["verified_count"])
 
-    def test_fix1_dist_06_source_reparse_race_is_rejected_before_external_bytes_are_copied(self):
-        source = self.seed_copy_fixture("source-race", b"approved synthetic source")
+    def test_dist_06_source_directory_link_is_refused_before_candidate_creation(self):
+        source = self.seed_copy_fixture("source-link", b"approved synthetic source")
         outside = self.workspace / "outside-source"
         outside.mkdir()
         outside_payload = outside / "payload.txt"
         outside_payload.write_bytes(b"SYNTHETIC-OUTSIDE-MARKER")
-        target = self.workspace / "source-race-candidate"
-        exit_code, result, errors = self.run_race_copy(
-            source, target, source / "assets", outside, source / "assets-moved",
-            source / "assets" / "payload.txt",
-        )
-        self.assertEqual([], errors, repr(errors))
-        self.assertNotEqual(0, exit_code, result)
+        (source / "assets/payload.txt").unlink()
+        (source / "assets").rmdir()
+        self.make_symlink(source / "assets", outside)
+        target = self.workspace / "source-link-candidate"
+        run = self.fixture_cli(source, target)
+        result = json.loads(run.stdout)
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
         self.assertEqual(b"SYNTHETIC-OUTSIDE-MARKER", outside_payload.read_bytes())
-        copied_bytes = b"".join(
-            path.read_bytes() for path in target.rglob("*") if path.is_file()
-        ) if target.exists() else b""
-        self.assertNotIn(b"SYNTHETIC-OUTSIDE-MARKER", copied_bytes)
         self.assertIn("UNSAFE_PATH", {item["code"] for item in result["findings"]})
         self.assertFalse(target.exists(), "source must be validated before candidate creation")
 
-    def test_fix1_dist_19_destination_reparse_race_never_creates_output_outside_allowed_root(self):
-        source = self.seed_copy_fixture("destination-race", b"SYNTHETIC-CANDIDATE-PAYLOAD")
-        outside = self.workspace / "outside-destination"
-        outside.mkdir()
-        sentinel = outside / "sentinel.txt"
-        sentinel.write_bytes(b"synthetic sentinel remains unchanged")
-        target = self.workspace / "destination-race-candidate"
-        exit_code, result, errors = self.run_race_copy(
-            source, target, target / "assets", outside, target / "assets-moved",
-            target / "assets",
-        )
-        self.assertEqual([], errors, repr(errors))
-        self.assertNotEqual(0, exit_code, result)
-        self.assertIn("UNSAFE_PATH", {item["code"] for item in result["findings"]})
-        self.assertFalse((outside / "payload.txt").exists())
-        self.assertEqual(b"synthetic sentinel remains unchanged", sentinel.read_bytes())
-
-    def test_fix1_dist_19_candidate_verify_reparse_race_never_reads_outside_marker(self):
-        source = self.seed_copy_fixture("verify-race-source", b"approved synthetic source")
-        candidate = self.workspace / "verify-reparse-race-candidate"
-        copied, receipt = self.run_copier_main([
-            "--root", str(source), "--target", str(candidate),
-            "--allow-output-root", str(self.workspace),
-        ])
-        self.assertEqual(0, copied, receipt)
+    def test_dist_19_candidate_directory_link_is_reported_without_reading_marker(self):
+        source = self.seed_copy_fixture("verify-link-source", b"approved synthetic source")
+        candidate = self.workspace / "verify-link-candidate"
+        copied = self.fixture_cli(source, candidate)
+        self.assertEqual(0, copied.returncode, copied.stdout + copied.stderr)
         assets = candidate / "assets"
         outside = self.workspace / "outside-verification"
         outside.mkdir()
         outside_payload = outside / "payload.txt"
         outside_payload.write_bytes(b"SYNTHETIC-OUTSIDE-MARKER")
         outside_before = outside_payload.read_bytes()
-        moved = candidate / "assets-moved"
-        report = self.report_workspace / "verify-reparse-race.json"
-        checked = threading.Event()
-        release = threading.Event()
-        errors: list[BaseException] = []
-        original = candidate_copier._walk_candidate
-
-        def gate(root):
-            result = original(root)
-            checked.set()
-            if not release.wait(timeout=15):
-                raise TimeoutError("candidate verification race did not complete")
-            return result
-
-        actor = threading.Thread(
-            target=self.swap_directory_for_reparse,
-            args=(assets, moved, outside, checked, release, errors),
-            daemon=True,
-        )
-        actor.start()
-        try:
-            with patch.object(candidate_copier, "_walk_candidate", gate):
-                exit_code, result = self.run_copier_main([
-                    "--root", str(source), "--verify", str(candidate),
-                    "--allow-output-root", str(self.workspace),
-                    "--allow-output-root", str(self.report_workspace), "--report", str(report),
-                ])
-        finally:
-            release.set()
-            actor.join(timeout=15)
-            self.remove_reparse_and_restore(assets, moved)
-        self.assertFalse(actor.is_alive(), "candidate verification race worker did not terminate")
-        self.assertEqual([], errors, repr(errors))
-        self.assertNotEqual(0, exit_code, result)
+        (assets / "payload.txt").unlink()
+        assets.rmdir()
+        self.make_symlink(assets, outside)
+        report = self.report_workspace / "verify-link.json"
+        run = self.fixture_cli(source, candidate, "--report", str(report), verify=True)
+        result = json.loads(run.stdout)
+        self.assertEqual(1, run.returncode, run.stdout + run.stderr)
         self.assertEqual(outside_before, outside_payload.read_bytes())
         self.assertNotIn("SYNTHETIC-OUTSIDE-MARKER", report.read_text(encoding="utf-8"))
         record = json.loads(report.read_text(encoding="utf-8"))
@@ -543,6 +432,225 @@ class DistributionTests(unittest.TestCase):
         self.assertIsNone(payload_row["candidate_sha256"])
         self.assertEqual(1, record["verified_count"])
         self.assertIn("UNSAFE_ENTRY", {item["code"] for item in result["findings"]})
+
+    def test_dist_01_unlisted_source_files_are_recorded_but_not_copied_or_executed(self):
+        source = self.seed_copy_fixture("unlisted-source", b"\x00\xffraw\r\nbytes\n")
+        sentinel = self.workspace / "must-not-be-created"
+        owner_script = source / "owner-script.py"
+        owner_script.write_text(
+            f"from pathlib import Path\nPath({str(sentinel)!r}).write_text('executed')\n",
+            encoding="utf-8",
+        )
+        before = source_bytes(source)
+        expected_commit = git(source, "rev-parse", "HEAD")
+        target = self.workspace / "allowlist-only"
+        run = self.fixture_cli(source, target)
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        receipt = json.loads(run.stdout)
+        self.assertEqual(2, receipt["copied_count"])
+        self.assertEqual(
+            {"assets/payload.txt", "docs/distribution-manifest.json"},
+            {path.relative_to(target).as_posix() for path in target.rglob("*") if path.is_file()},
+        )
+        self.assertEqual(b"\x00\xffraw\r\nbytes\n", (target / "assets/payload.txt").read_bytes())
+        self.assertIn({"path": "owner-script.py", "reason": "NOT_ALLOWLISTED"}, receipt["excluded_files"])
+        self.assertEqual(expected_commit, receipt["provenance"]["source_commit"])
+        self.assertIn({"status": "??", "path": "owner-script.py"}, receipt["provenance"]["dirty_scope"])
+        self.assertEqual(before, source_bytes(source))
+        self.assertFalse(sentinel.exists())
+
+    def test_dist_01_invalid_manifest_paths_fail_before_output_creation(self):
+        for index, relative in enumerate((
+            "../outside.txt", "/outside.txt", "assets/*.txt", "assets\\payload.txt",
+            "assets//payload.txt", "assets/./payload.txt", "C:/payload.txt", "assets/\x00.txt",
+        )):
+            with self.subTest(relative=relative):
+                source = self.seed_copy_fixture(f"invalid-path-{index}")
+                path = source / "docs/distribution-manifest.json"
+                manifest = json.loads(path.read_text(encoding="utf-8"))
+                manifest["files"][0]["path"] = relative
+                path.write_text(json.dumps(manifest), encoding="utf-8")
+                before = source_bytes(source)
+                target = self.workspace / f"invalid-output-{index}"
+                run = self.fixture_cli(source, target)
+                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                self.assertEqual("INVALID_MANIFEST_PATH", json.loads(run.stdout)["findings"][0]["code"])
+                self.assertFalse(target.exists())
+                self.assertEqual(before, source_bytes(source))
+
+    def test_dist_01_manifest_duplicate_missing_self_and_parent_collision_are_errors(self):
+        cases = (
+            ("duplicate", [{"path": "ASSETS/PAYLOAD.txt", "component": "fixture"}],
+             False, "DUPLICATE_MANIFEST_PATH"),
+            ("parent", [{"path": "assets", "component": "fixture"}],
+             False, "MANIFEST_PATH_COLLISION"),
+            ("self", [], True, "MANIFEST_NOT_SELF_DESCRIBING"),
+        )
+        for name, additional, remove_self, code in cases:
+            with self.subTest(name=name):
+                source = self.seed_copy_fixture(f"manifest-{name}")
+                path = source / "docs/distribution-manifest.json"
+                manifest = json.loads(path.read_text(encoding="utf-8"))
+                if remove_self:
+                    manifest["files"] = manifest["files"][:1]
+                manifest["files"].extend(additional)
+                path.write_text(json.dumps(manifest), encoding="utf-8")
+                target = self.workspace / f"manifest-{name}-output"
+                run = self.fixture_cli(source, target)
+                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                self.assertEqual(code, json.loads(run.stdout)["findings"][0]["code"])
+                self.assertFalse(target.exists())
+
+    def test_dist_06_missing_or_nonfile_source_is_an_explicit_error(self):
+        for as_directory in (False, True):
+            with self.subTest(as_directory=as_directory):
+                source = self.seed_copy_fixture(f"missing-source-{as_directory}")
+                payload = source / "assets/payload.txt"
+                payload.unlink()
+                if as_directory:
+                    payload.mkdir()
+                target = self.workspace / f"missing-candidate-{as_directory}"
+                run = self.fixture_cli(source, target)
+                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                self.assertEqual(
+                    "SOURCE_NOT_REGULAR" if as_directory else "SOURCE_FILE_MISSING",
+                    json.loads(run.stdout)["findings"][0]["code"],
+                )
+                self.assertFalse(target.exists())
+
+    def test_dist_02_existing_empty_target_also_conflicts(self):
+        source = self.seed_copy_fixture()
+        target = self.workspace / "empty-owner-directory"
+        target.mkdir()
+        run = self.fixture_cli(source, target)
+        self.assertEqual(1, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("TARGET_CONFLICT", json.loads(run.stdout)["findings"][0]["code"])
+        self.assertEqual([], list(target.iterdir()))
+
+    def test_dist_02_existing_report_is_never_overwritten(self):
+        source = self.seed_copy_fixture()
+        target = self.workspace / "report-conflict-candidate"
+        report = self.report_workspace / "owner.json"
+        report.write_bytes(b"owner bytes; not JSON")
+        run = self.fixture_cli(source, target, "--report", str(report))
+        self.assertEqual(1, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("OUTPUT_CONFLICT", json.loads(run.stdout)["findings"][0]["code"])
+        self.assertEqual(b"owner bytes; not JSON", report.read_bytes())
+        self.assertFalse(target.exists())
+
+    def test_dist_02_source_and_candidate_must_not_overlap_even_in_venv(self):
+        source = self.seed_copy_fixture()
+        fixture_root = source / ".venv"
+        fixture_root.mkdir()
+        before = source_bytes(source)
+        target = fixture_root / "candidate"
+        run = self.fixture_cli(source, target)
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("SOURCE_TREE_OUTPUT_REFUSED", json.loads(run.stdout)["findings"][0]["code"])
+        self.assertFalse(target.exists())
+        run = self.fixture_cli(
+            source, self.workspace, "--allow-output-root", str(self.workspace.parent), verify=True,
+        )
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("SOURCE_TREE_OUTPUT_REFUSED", json.loads(run.stdout)["findings"][0]["code"])
+        self.assertEqual(before, source_bytes(source))
+
+    def test_dist_02_outputs_outside_explicit_roots_are_refused(self):
+        source = self.seed_copy_fixture()
+        with tempfile.TemporaryDirectory(prefix="ddd-unapproved-") as temporary:
+            outside = Path(temporary).resolve()
+            target = outside / "candidate"
+            run = self.fixture_cli(source, target)
+            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+            self.assertEqual("OUTPUT_OUTSIDE_ALLOWED_ROOT", json.loads(run.stdout)["findings"][0]["code"])
+            self.assertFalse(target.exists())
+            target = self.workspace / "outside-report-candidate"
+            report = outside / "receipt.json"
+            run = self.fixture_cli(source, target, "--report", str(report))
+            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+            self.assertEqual("OUTPUT_OUTSIDE_ALLOWED_ROOT", json.loads(run.stdout)["findings"][0]["code"])
+            self.assertFalse(report.exists())
+            self.assertFalse(target.exists())
+
+    def test_dist_02_explicit_output_root_is_required(self):
+        source = self.seed_copy_fixture()
+        target = self.workspace / "implicit-root-candidate"
+        run = subprocess.run(
+            [sys.executable, "-B", "-X", "utf8", str(COPY_TOOL),
+             "--root", str(source), "--target", str(target)],
+            cwd=self.workspace, shell=False, capture_output=True, text=True, encoding="utf-8",
+        )
+        self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+        self.assertEqual("OUTPUT_ROOT_REQUIRED", json.loads(run.stdout)["findings"][0]["code"])
+        self.assertFalse(target.exists())
+
+    def test_dist_02_relative_network_and_traversing_targets_are_refused(self):
+        source = self.seed_copy_fixture()
+        for value in ("", "relative-candidate", "https://invalid.example/candidate",
+                      "//server/share/candidate", str(self.workspace / "absent" / ".." / "candidate")):
+            with self.subTest(target=value):
+                run = self.fixture_cli(source, value)
+                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
+                self.assertIn(json.loads(run.stdout)["findings"][0]["code"],
+                              {"ABSOLUTE_PATH_REQUIRED", "LOCAL_PATH_REQUIRED", "UNSAFE_PATH"})
+        self.assertFalse((self.workspace / "candidate").exists())
+
+    def test_dist_02_standard_temporary_paths_accept_system_ancestor_aliases(self):
+        source = self.seed_copy_fixture()
+        with tempfile.TemporaryDirectory(prefix="ddd-system-temp-") as temporary:
+            # On macOS this deliberately passes /var/... without resolving it first.
+            target = Path(temporary) / "candidate"
+            run = self.fixture_cli(source, target, "--allow-output-root", temporary)
+            self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+            verified = self.fixture_cli(
+                source, target, "--allow-output-root", temporary, verify=True,
+            )
+            self.assertEqual(0, verified.returncode, verified.stdout + verified.stderr)
+            self.assertEqual("valid", json.loads(verified.stdout)["status"])
+
+    def test_dist_02_injected_copy_io_error_retains_partial_output_and_owner_content(self):
+        source = self.seed_copy_fixture(payload=b"copied before injected failure")
+        before = source_bytes(source)
+        target = self.workspace / "partial-candidate"
+        report = self.report_workspace / "not-issued.json"
+        owner = target / "owner.txt"
+        original = Path.open
+
+        def fail_manifest_write(path, mode="r", *args, **kwargs):
+            if path == target / "docs/distribution-manifest.json" and mode == "xb":
+                owner.write_bytes(b"owner bytes added before I/O failure")
+                raise PermissionError("injected file-create failure, not a real host permission test")
+            return original(path, mode, *args, **kwargs)
+
+        with patch.object(Path, "open", fail_manifest_write):
+            exit_code, result = self.run_copier_main([
+                "--root", str(source), "--target", str(target),
+                "--allow-output-root", str(self.workspace),
+                "--allow-output-root", str(self.report_workspace), "--report", str(report),
+            ])
+        self.assertEqual(2, exit_code, result)
+        self.assertEqual("COPY_IO_ERROR", result["findings"][0]["code"])
+        self.assertEqual(b"copied before injected failure", (target / "assets/payload.txt").read_bytes())
+        self.assertEqual(b"owner bytes added before I/O failure", owner.read_bytes())
+        self.assertFalse(report.exists())
+        self.assertEqual(before, source_bytes(source))
+
+    def test_dist_19_extra_candidate_file_and_empty_directory_are_not_silently_accepted(self):
+        source = self.seed_copy_fixture()
+        candidate = self.workspace / "extra-content-candidate"
+        run = self.fixture_cli(source, candidate)
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        marker = candidate / "owner.txt"
+        marker.write_bytes(b"must not be deleted")
+        (candidate / "owner-empty").mkdir()
+        before = source_bytes(candidate)
+        verified = self.fixture_cli(source, candidate, verify=True)
+        self.assertEqual(1, verified.returncode, verified.stdout + verified.stderr)
+        findings = {(item["code"], item["path"]) for item in json.loads(verified.stdout)["findings"]}
+        self.assertIn(("EXTRA_FILE", "owner.txt"), findings)
+        self.assertIn(("EXTRA_DIRECTORY", "owner-empty"), findings)
+        self.assertEqual(before, source_bytes(candidate))
+        self.assertTrue((candidate / "owner-empty").is_dir())
 
     def add_swas(self, root: Path) -> Path:
         body = (
@@ -634,7 +742,7 @@ class DistributionTests(unittest.TestCase):
         )
         self.assertIsInstance(receipt["provenance"]["dirty_scope"], list)
         self.assertTrue(receipt["allowed_output_roots"])
-        self.assertTrue(any(value.startswith(".venv/task12-fixtures") for value in receipt["allowed_output_roots"]))
+        self.assertTrue(all(value.startswith("external:") for value in receipt["allowed_output_roots"]))
         self.assertNotIn(".git", {path.split("/")[0] for path in actual})
         excluded = {item["path"]: item["reason"] for item in receipt["excluded_files"]}
         for path in (
@@ -1337,7 +1445,7 @@ class DistributionTests(unittest.TestCase):
     def test_fix2_dist_20_verification_receipt_preserves_commit_and_dirty_scope(self):
         expected_commit = git(WORKTREE, "rev-parse", "HEAD")
         git_environment = {key: value for key, value in os.environ.items()
-                           if not key.startswith("GIT_")}
+                           if not key.startswith("GIT_") or key == "GIT_EXEC_PATH"}
         git_environment.update({
             "GIT_CONFIG_GLOBAL": os.devnull,
             "GIT_CONFIG_NOSYSTEM": "1",

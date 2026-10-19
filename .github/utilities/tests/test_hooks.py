@@ -33,14 +33,15 @@ def sha(raw):
 
 class HookFixture(unittest.TestCase):
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory(prefix="task10-hooks-", dir=WORKTREE / ".venv")
+        temporary = tempfile.TemporaryDirectory(prefix="task10-hooks-")
         self.addCleanup(temporary.cleanup)
-        self.workspace = Path(temporary.name)
+        self.workspace = Path(temporary.name).resolve()
         self.root = self.workspace / "项目 with spaces"
         self.root.mkdir()
         self.receipts = []
         self.addCleanup(self.save_receipts)
-        self.env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        self.env = {k: v for k, v in os.environ.items()
+                    if not k.startswith("GIT_") or k == "GIT_EXEC_PATH"}
         self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
                         GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0",
                         PYTHONDONTWRITEBYTECODE="1")
@@ -89,7 +90,7 @@ class HookFixture(unittest.TestCase):
         self.assertEqual(0, result.returncode, self.receipts[-1])
         return result.stdout.decode("utf-8")
 
-    def installer(self, *args, hooks=("pre-commit", "commit-msg"), python=None, restore=False):
+    def installer(self, *args, hooks=("pre-commit", "commit-msg"), python=None, restore=False, env=None):
         script = self.root / ".github/utilities/install_hooks.py"
         self.assertTrue(script.is_file(), "Task10 optional installer is not implemented")
         arguments = [sys.executable, "-B", "-X", "utf8", str(script),
@@ -100,7 +101,7 @@ class HookFixture(unittest.TestCase):
             arguments += ["--restore"]
         else:
             arguments += ["--python", str(python or sys.executable)]
-        return self.call([*arguments, *args])
+        return self.call([*arguments, *args], env=env)
 
     def install(self, **kwargs):
         result = self.installer("--apply", **kwargs)
@@ -154,30 +155,21 @@ class HookFixture(unittest.TestCase):
     def finding_codes(self, payload):
         return {finding["code"] for finding in payload["findings"]}
 
-    def private_runtime(self, *, full_interpreter=False):
-        """Only fixture-local binaries/config/.pth; never install a package."""
+    def private_runtime(self, *, dependencies=True):
+        """Only fixture-local venv/.pth files; never install a package."""
         environment = self.root / ".venv"
         venv.EnvBuilder(with_pip=False).create(environment)
         python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         site = environment / ("Lib/site-packages" if os.name == "nt"
                               else f"lib/python{sys.version_info.major}.{sys.version_info.minor}/site-packages")
         import yaml
-        dependencies = Path(yaml.__file__).parent.parent
-        (site / "maintenance.pth").write_text(str(dependencies) + "\n", encoding="utf-8")
-        copied = []
-        if full_interpreter and os.name == "nt":
-            # Real full binaries, not the stock Windows redirector and not a
-            # mocked prefix. This fixture needs explicit HOME/PATH below.
-            base = Path(sys._base_executable).parent
-            for name in ("python.exe", f"python{sys.version_info.major}{sys.version_info.minor}.dll",
-                         "python3.dll"):
-                source, target = base / name, python.parent / name
-                shutil.copyfile(source, target)
-                copied.append({"source": str(source), "destination": str(target),
-                               "sha256": sha(target.read_bytes())})
+        shared = Path(yaml.__file__).parent.parent
+        if dependencies:
+            (site / "maintenance.pth").write_text(str(shared) + "\n", encoding="utf-8")
         self.receipts.append({"observation": "private_runtime", "selected": str(python),
-                              "copied_real_binaries": copied, "global_installs": False})
-        return environment, python, site, dependencies
+                              "dependencies_path": str(shared) if dependencies else None,
+                              "global_installs": False})
+        return environment, python, site, shared
 
 
 class InstallerTests(HookFixture):
@@ -401,98 +393,49 @@ class NativeHookTests(HookFixture):
         self.assertFalse(reports[1]["policy"]["required"])
         self.assertEqual(str(Path(sys.executable).absolute()), reports[1]["runtime"]["executable"])
 
-    def configuration_loss(self, *, full_interpreter):
-        environment, python, _, dependencies = self.private_runtime(full_interpreter=full_interpreter)
-        self.install(hooks=("pre-commit",), python=python)
-        native_env = dict(self.env, PYTHONPATH=str(dependencies),
-                          TEMP=str(self.workspace), TMP=str(self.workspace))
-        if full_interpreter and os.name == "nt":
-            native_env["PYTHONHOME"] = sys.base_prefix
-        self.receipts.append({
-            "observation": "configuration_loss_boundary",
-            "variant": "full-interpreter" if full_interpreter else "standard-loader",
-            "host": os.name, "POSIX_executed_on_Windows": False,
-            "environment": {key: native_env.get(key) for key in ("PYTHONHOME", "PYTHONPATH", "TEMP", "TMP")},
-        })
-        path = self.stage_artifact()
-        accepted = self.native_commit(env=native_env)
-        self.assertEqual(0, accepted.returncode, self.receipts[-1])
-        self.assertEqual(str(environment), self.native_reports(accepted)[0]["runtime"]["prefix"])
-        cfg = environment / "pyvenv.cfg"
-        cfg_hash, exe_hash = sha(cfg.read_bytes()), sha(python.read_bytes())
-        cfg.rename(environment / "pyvenv.cfg.saved")
-        control = self.call([
-            str(python), "-B", "-X", "utf8", "-c",
-            "import sys,json; print(json.dumps({'prefix':sys.prefix,'base_prefix':sys.base_prefix,"
-            "'executable':sys.executable}))",
-        ], env=native_env)
-        if full_interpreter or os.name != "nt":
-            self.assertEqual(0, control.returncode, self.receipts[-1])
-            facts = json.loads(control.stdout)
-            self.assertEqual(facts["base_prefix"], facts["prefix"])
-            self.assertEqual(str(python), facts["executable"])
-        else:
-            # This control already passed before the fix. The stock Windows
-            # loader, not hook_checks, refuses before Python can report JSON.
-            self.assertNotEqual(0, control.returncode)
-            self.assertIn(b"pyvenv.cfg", control.stderr)
-        path.write_bytes(path.read_bytes() + b"\nConfiguration-loss controlled change.\n")
-        self.git("add", "--", str(path))
-        before = self.state()
-        refused = self.native_commit(env=native_env)
-        self.assertNotEqual(0, refused.returncode, self.receipts[-1])
-        reports = self.native_reports(refused)
-        if full_interpreter or os.name != "nt":
-            self.assertEqual(1, len(reports))
-            self.assertEqual(2, reports[0]["exit_code"])
-            self.assertIn("ENVIRONMENT_UNAVAILABLE", self.finding_codes(reports[0]))
-            self.assertEqual({}, reports[0]["snapshot"])
-            self.assertNotIn("checks", reports[0])
-            self.assertIn("pyvenv.cfg", reports[0]["findings"][0]["message"])
-            self.assertIn("requirements.lock", reports[0]["findings"][0]["message"])
-        else:
-            self.assertEqual([], reports)
-            self.assertIn(b"pyvenv.cfg", refused.stderr)
-        after = self.state()
-        for key in ("head", "entries", "files", "config_sha256", "hooks"):
-            self.assertEqual(before[key], after[key], key)
-        self.assertFalse(cfg.exists())
-        self.assertEqual(cfg_hash, sha((environment / "pyvenv.cfg.saved").read_bytes()))
-        self.assertEqual(exe_hash, sha(python.read_bytes()))
-
-    def test_i2_native_configuration_loss_with_a_real_full_interpreter_cannot_use_base(self):
-        self.configuration_loss(full_interpreter=True)
-
-    def test_i2_native_standard_loader_configuration_loss_is_a_separate_control(self):
-        self.configuration_loss(full_interpreter=False)
-
-    def dependency_version_drift(self, hook):
+    def compatible_dependency_versions(self, hook):
         environment, python, site, _ = self.private_runtime()
-        self.install(hooks=(hook,), python=python)
-        # Genuine local dist-info version drift, not a mocked import or prefix.
-        info = site / "jsonschema-0.0.dist-info"
+        # A real local dist-info record for a version other than requirements.lock
+        # (no mocked import/metadata). Importable compatible code is what counts.
+        info = site / "jsonschema-4.99.0.dist-info"
         info.mkdir()
-        (info / "METADATA").write_bytes(b"Metadata-Version: 2.1\nName: jsonschema\nVersion: 0.0\n")
+        (info / "METADATA").write_bytes(b"Metadata-Version: 2.1\nName: jsonschema\nVersion: 4.99.0\n")
+        self.install(hooks=(hook,), python=python)
         self.stage_artifact()
-        before = self.state()
         result = self.native_commit()
-        self.assertNotEqual(0, result.returncode, self.receipts[-1])
+        self.assertEqual(0, result.returncode, self.receipts[-1])
         report = self.native_reports(result)[0]
-        self.assertEqual(2, report["exit_code"])
-        self.assertIn("DEPENDENCY_UNAVAILABLE", self.finding_codes(report))
-        self.assertEqual({}, report["snapshot"])
-        self.assertNotIn("checks", report)
-        self.assertIn("requirements.lock", report["findings"][0]["message"])
+        self.assertEqual((hook, 0), (report["hook"], report["exit_code"]))
+        self.assertTrue(report["startup_validated"])
+        self.assertEqual("4.99.0", report["runtime"]["dependencies"]["jsonschema"])
         self.assertEqual(str(environment), report["runtime"]["prefix"])
-        after = self.state()
-        for key in ("head", "entries", "files", "config_sha256", "hooks"):
-            self.assertEqual(before[key], after[key], key)
+        if hook == "pre-commit":
+            self.assertEqual(1, report["checked_count"])
 
-    def test_i2_native_pre_commit_refuses_dependency_version_drift_before_source_checks(self):
-        self.dependency_version_drift("pre-commit")
+    def test_i2_native_pre_commit_accepts_compatible_unpinned_dependency_versions(self):
+        self.compatible_dependency_versions("pre-commit")
 
-    def test_i2_native_commit_msg_refuses_dependency_version_drift_before_source_checks(self):
-        self.dependency_version_drift("commit-msg")
+    def test_i2_native_commit_msg_accepts_compatible_unpinned_dependency_versions(self):
+        self.compatible_dependency_versions("commit-msg")
+
+    def test_i2_native_non_venv_interpreter_with_importable_dependencies_is_accepted(self):
+        # The base (system/conda-style) interpreter has no pyvenv.cfg and
+        # prefix == base_prefix; dependencies come only from an explicit path.
+        base = Path(sys._base_executable).absolute()
+        import yaml
+        native_env = dict(self.env, PYTHONPATH=str(Path(yaml.__file__).parent.parent))
+        self.receipts.append({"observation": "non_venv_runtime", "selected": str(base),
+                              "PYTHONPATH": native_env["PYTHONPATH"], "global_installs": False})
+        result = self.installer("--apply", python=base, env=native_env)
+        self.assertEqual(0, result.returncode, self.receipts[-1])
+        self.stage_artifact()
+        committed = self.native_commit(env=native_env)
+        self.assertEqual(0, committed.returncode, self.receipts[-1])
+        reports = self.native_reports(committed)
+        self.assertEqual([("pre-commit", 0), ("commit-msg", 0)],
+                         [(r["hook"], r["exit_code"]) for r in reports])
+        self.assertEqual(sys.base_prefix, reports[0]["runtime"]["prefix"])
+        self.assertEqual(1, reports[0]["checked_count"])
 
     def test_runtime_tool_identity_is_not_mislabeled_as_the_staged_tool_blob(self):
         self.install(hooks=("pre-commit",))
@@ -861,10 +804,9 @@ class StartupReportTests(HookFixture):
         self.message_bytes = b"Controlled message\n\nReviewed-by: Fixture Reviewer\n"
         self.message.write_bytes(self.message_bytes)
 
-    def report_call(self, hook, report, *, refused=False, observe=False, extra=()):
+    def report_call(self, hook, report, *, python=None, observe=False, extra=()):
         arguments = [hook, "--root", str(self.root), "--report", str(report), *extra]
-        if refused:
-            arguments += ["--selected-prefix", str(self.workspace / "not the selected venv")]
+        python = str(python or sys.executable)
         if hook == "commit-msg":
             arguments.append(str(self.message))
         if observe:
@@ -890,10 +832,10 @@ class StartupReportTests(HookFixture):
                 print("VALIDATOR_IMPORTS=" + json.dumps(observed))
                 raise SystemExit(code)
                 """)
-            argv = [sys.executable, "-B", "-X", "utf8", "-c", script,
+            argv = [python, "-B", "-X", "utf8", "-c", script,
                     str(self.root / ".github/utilities"), *arguments]
         else:
-            argv = [sys.executable, "-B", "-X", "utf8",
+            argv = [python, "-B", "-X", "utf8",
                     str(self.root / ".github/utilities/hook_checks.py"), *arguments]
         result = self.call(argv)
         lines = result.stdout.decode("utf-8").splitlines()
@@ -903,6 +845,8 @@ class StartupReportTests(HookFixture):
         return result, payload, imports
 
     def refused_report(self, *, existing, observe):
+        # A real refusal: a private interpreter without importable dependencies.
+        _, python, _, _ = self.private_runtime(dependencies=False)
         for hook in ("pre-commit", "commit-msg"):
             with self.subTest(hook=hook):
                 report = self.workspace / (hook + " refused report.json")
@@ -910,16 +854,19 @@ class StartupReportTests(HookFixture):
                 if existing:
                     report.write_bytes(owner)
                 before = self.state()
-                result, payload, imports = self.report_call(hook, report, refused=True, observe=observe)
+                result, payload, imports = self.report_call(hook, report, python=python, observe=observe)
                 self.assertEqual(2, result.returncode, self.receipts[-1])
-                self.assertIn("ENVIRONMENT_UNAVAILABLE", self.finding_codes(payload))
+                self.assertFalse(payload["startup_validated"])
                 self.assertEqual({}, payload["snapshot"])
                 if observe:
-                    self.assertEqual([], imports, "Report handling imported validators after startup refusal")
+                    # Only the failed startup dependency probe; no validator or
+                    # report-writer import after refusal.
+                    self.assertEqual(["yaml"], imports,
+                                     "Report handling imported validators after startup refusal")
                 self.assertFalse(payload["report_output"]["written"])
                 self.assertEqual("startup-refused", payload["report_output"].get("reason"))
                 self.assertEqual(str(report), payload["report_output"]["path"])
-                self.assertEqual({"ENVIRONMENT_UNAVAILABLE"}, self.finding_codes(payload))
+                self.assertEqual({"DEPENDENCY_UNAVAILABLE"}, self.finding_codes(payload))
                 self.assertIn("requirements.lock", payload["findings"][0]["message"])
                 if existing:
                     self.assertEqual(owner, report.read_bytes())
@@ -970,6 +917,23 @@ class StartupReportTests(HookFixture):
                 self.assertEqual(payload, json.loads(report.read_bytes()))
         self.assertEqual(self.message_bytes, self.message.read_bytes())
         self.assertEqual(before, self.state())
+
+    def test_selected_launcher_paths_are_report_facts_not_refusal_reasons(self):
+        # Existing launchers pass these; a differing/moved prefix alone must not
+        # refuse a usable interpreter (the launcher itself guards a missing one).
+        selected = self.workspace / "other selected" / "python"
+        prefix = self.workspace / "not a venv prefix"
+        for hook in ("pre-commit", "commit-msg"):
+            with self.subTest(hook=hook):
+                report = self.workspace / (hook + " selected facts report.json")
+                result, payload, _ = self.report_call(
+                    hook, report, extra=("--selected-python", str(selected), "--selected-prefix", str(prefix)))
+                self.assertEqual(0, result.returncode, self.receipts[-1])
+                self.assertTrue(payload["startup_validated"])
+                self.assertEqual(str(selected), payload["runtime"]["selected_executable"])
+                self.assertEqual(str(prefix), payload["runtime"]["selected_prefix"])
+                self.assertEqual(sys.prefix, payload["runtime"]["prefix"])
+                self.assertTrue(payload["report_output"]["written"])
 
 
 if __name__ == "__main__":

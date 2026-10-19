@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -117,6 +118,11 @@ def _path(value: PathInput, code: str, context: Path | str) -> Path:
         return Path(value)
     except (TypeError, ValueError) as error:
         raise ArtifactInputError(code, context, 1, str(error)) from error
+
+
+def _sha(raw: bytes) -> str:
+    """The one prefixed content identity used in reports, plans and baselines."""
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
 def _resolve_root(root: PathInput, context: Path | str) -> Path:

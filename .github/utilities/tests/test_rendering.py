@@ -691,18 +691,21 @@ class RenderingTests(unittest.TestCase):
                 self.assertEqual("REPORT_CONFLICT", json.loads(result.stdout)["findings"][0]["code"])
                 self.assertEqual(before, source_bytes(self.root))
 
-    def test_output_alias_and_canceled_traversal_do_not_escape_protection(self):
+    def test_output_through_a_link_is_written_once_at_the_resolved_location(self):
         self.graph()
         target = self.workspace / "alias-target"
         target.mkdir()
         alias = self.workspace / "alias"
         with directory_link(alias, target):
-            for output in (alias / "new.svg", alias / ".." / "escaped.svg"):
-                result = self.cli("render_traceability", "--format", "svg", "--output", str(output))
-                self.assertEqual(2, result.returncode)
-                self.assertEqual("REPORT_CONFLICT", json.loads(result.stdout)["findings"][0]["code"])
-                self.assertFalse((target / "new.svg").exists())
-                self.assertFalse((self.workspace / "escaped.svg").exists())
+            output = alias / "new.svg"
+            result = self.cli("render_traceability", "--format", "svg", "--output", str(output))
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            written = (target / "new.svg").read_bytes()
+            self.assertTrue(written.startswith(b"<svg"))
+            repeated = self.cli("render_traceability", "--format", "svg", "--output", str(output))
+            self.assertEqual(2, repeated.returncode)
+            self.assertEqual("REPORT_CONFLICT", json.loads(repeated.stdout)["findings"][0]["code"])
+            self.assertEqual(written, (target / "new.svg").read_bytes())
 
     def test_missing_output_parent_is_not_created(self):
         self.graph()
@@ -819,26 +822,6 @@ class RenderingTests(unittest.TestCase):
             self.assert_error("FILE_READ_ERROR", lambda: module.render_traceability(
                 {"root": self.root, "scope": SCOPE}))
 
-    def test_source_mutation_detected_by_rechecking_acquired_bytes(self):
-        inputs = self.architecture(sequence=None)
-        module = self.tool("render_architecture")
-        source = self.root / "architecture/规格 空格.md"
-        original = Path.read_bytes
-        count = 0
-
-        def changing(path):
-            nonlocal count
-            raw = original(path)
-            if path == source:
-                count += 1
-                if count > 1:
-                    return raw + b"\nchanged during read\n"
-            return raw
-
-        with patch.object(Path, "read_bytes", changing):
-            self.assert_error("INPUT_CHANGED", lambda: module.render_architecture(inputs, "html"))
-
-    # Self-review regressions: preserve actual source order and finite boundaries.
     def test_source_literal_stays_between_its_original_surrounding_prose(self):
         inputs = self.architecture(sequence=None)
         source = self.artifact("SWAS-002", "architecture-specification",

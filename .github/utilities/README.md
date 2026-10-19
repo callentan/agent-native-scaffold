@@ -4,9 +4,9 @@
 
 ## 工具环境
 
-运行工具需要 Python 3.11+。环境及命令登记见[开发说明的维护工具一节](../../docs/development.md#maintenance-tools)，与下游业务应用分开；制作仓回归测试和执行历史不是下游使用前提。
+运行工具需要 Python 3.11+，功能面向 Windows、Linux、macOS。环境及命令登记见[开发说明的维护工具一节](../../docs/development.md#maintenance-tools)，与下游业务应用分开；制作仓回归测试和执行历史不是下游使用前提。位置由显式参数和项目相对资源决定，不要求特定盘符或目录。检查器只服务 DDD 工件、引用、覆盖和派生结果，不是文件系统审计或 sandbox。
 
-- [requirements.txt](requirements.txt) 只列获准的 PyYAML 6.0.2、jsonschema 4.23.0。
+- [requirements.txt](requirements.txt) 只列获准的 PyYAML 6.0.2、jsonschema 4.23.0；这是锁定与测试版本，运行时只要求两者可导入。
 - [requirements.lock](requirements.lock) 保留 Python 3.13 环境实际解析的六项版本，另有 Python `<3.13` 所需、在 3.11 实际安装核对的 `typing-extensions==4.16.0` 条件项；3.11 选择七项，3.13 仍选择原六项。条件来自 `referencing` 的包元数据，不升级原 pins。pip 是环境安装工具，不是工具运行依赖；没有猜测 hashes。
 - 从仓库根执行 `python -m venv .venv` 后，用 `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` 恢复锁定环境，再运行 `.venv\Scripts\python.exe -m pip check`。
 - 不需要激活环境或全局 pip；没有媒体、DOCX/PDF 额外包、二进制格式 renderer、云端 SDK 或应用依赖。窄 DOCX 适配使用 stdlib ZIP/XML；[可选 media 清单](requirements-media.txt)没有选定包。本地 JSON/SVG/HTML 使用 stdlib，[rendering 清单](requirements-rendering.txt)不选择 PDF/PPTX 引擎。其他宿主使用其实际 `.venv/bin/python`；使用者须核对本机解释器与已安装依赖。
@@ -24,11 +24,11 @@ schema_version,record_id,recorded_at,tool_name,tool_version,task_ref,object_ref,
 
 字段含义、最小数据边界与限制见[AI 工具说明](../../docs/ai-tooling.md#interaction-ledger)。[`_templates/reports/ai-interaction-log.csv`](../../_templates/reports/ai-interaction-log.csv) 是空白可复制表头，不是活动账本；先在已有本地目录中自行复制为新 `.csv`，不得直接把模板当账本写入。API/CLI 要求显式绝对路径、已存在普通文件及既有 v1 表头，不创建父目录、不修复坏记录。每行必须有 `YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)` 时区时间；时间与用量原文字面值保留，值仅接受有限非负普通十进制，不接受指数记法。摘要最多 512 字符；调用者不得放入完整交互/敏感数据。
 
-Windows 用例与读写边界：
+跨平台读写边界：
 
-- 所有写路径都要求 caller attestation：API 的 `attest_local_storage=True` 或 CLI `--attest-local-storage`。缺省以 `WRITE_ATTESTATION_REQUIRED` 拒绝，且不创建锁/输出。它是用户对选定目录为单机本地、非网络/非云同步位置的声明，不是 OS/供应商验证或持久性保证；不探测环境/注册表/供应商。网络/UNC、可移动盘、非固定/未知盘、reparse 点和硬链接仍由存储检查拒绝。
-- 追加用固定相邻空 `.lock` 文件的 `msvcrt` 一字节排他范围锁串行化本机工具进程；锁侧车保留，不自动删除。默认无输出摘要不取锁、不创建文件；它比较两次原始 CSV bytes 与文件 identity/大小/时间属性，源在读取期变化则 typed 拒绝，损坏/半行也不作统计。
-- 显式 `write_summary`/CLI `--output` 要求 attestation，使用源锁与 Windows 目录句柄链；不允许删除共享的目录句柄绑定，按 pinned parent handle 进行 `NtCreateFile` exclusive `FILE_CREATE`/no-reparse 创建，并在写后复查父目录与源 bytes。native file handle 创建后、CRT descriptor wrapping/首个 `fstat` 之前先缓存 volume/file identity；无法绑定就 fail closed。任一创建后错误的恢复标记包含本进程输出 identity；不自动删除或重建。
+- 所有写路径都要求 caller attestation：API 的 `attest_local_storage=True` 或 CLI `--attest-local-storage`。缺省以 `WRITE_ATTESTATION_REQUIRED` 拒绝，且不创建锁/输出。它是用户对选定目录为单机本地、非网络/非云同步位置的声明，不是 OS/供应商验证或持久性保证；不检测固定盘、注册表或供应商。
+- 追加用相邻 `.lock` 文件串行化本机工具进程；Windows 使用 `msvcrt`，Linux/macOS 使用 `fcntl`，锁侧车保留。追加在锁内写入前核对账本字节未变，这是唯一的变化检测。默认无输出摘要只读一次、不取锁、不创建文件；损坏/半行不作统计。跨模块公开接口为 `read_ledger`、`file_lock`、`validate_existing_log`、`validate_new_output`、`require_write_attestation` 与 `emit_error`。
+- 显式 `write_summary`/CLI `--output` 要求 attestation，使用源锁和标准库独占创建，不覆盖已有文件、不创建缺失父目录。保留读写一致性和部分失败恢复信息，但不提供原生目录句柄绑定或恶意并发替换路径的隔离保证；不自动删除或重建输出。
 - OneDrive 同步目录即使映射在固定盘也没有跨主机协调保证，调用者不应为它作 attestation。CSV 是数据交换，不是 spreadsheet-safe 格式；引用/单元格内容不执行。
 
 CLI 示例（尖括号用本次提供的值替换；路径必须绝对且引号内可含空格）：
@@ -94,10 +94,9 @@ API/default CLI 无写入；显式输出只 exclusive create root 内的新 JSON
 使用实际 index 与原始 blobs，而不是工作文件；可给精确 `--base` 与新 `--report`。
 两份 Python hook 入口和下游资料 workflow 复用此模块。适配器仅负责快照/上下文与
 格式政策，工件、Markdown、owner AC/VC 和覆盖规则仍归现有三个模块。
-入口在读取 index/工件前核对选定解释器、项目 venv/prefix、`pyvenv.cfg`、
-Python 最低版本及固定直接依赖的版本/可导入性；配置丢失或回到 base 环境时拒绝，
-不是仅把实际 prefix 记入成功报告。原生 launcher 保存选定绝对路径与 prefix，
-检查前后还核对环境配置/依赖身份；不会自行恢复或切换解释器。
+入口在读取 index/工件前只确认 Python 3.11+ 且 PyYAML、jsonschema 可导入；
+venv、conda 或系统解释器均可，不核对固定版本、`pyvenv.cfg` 或 prefix。
+launcher 传入的选定路径/prefix 只记入报告，不作为拒绝理由；不会自行切换解释器。
 `read_inventory` 的私有 `_base_root` 只使临时快照从原 Git root 取得历史原始对象；
 `_trace_inventory` 复用同一已获取库存，零 owner 时仍反查 targets。公开本地
 `run_check`、`trace_report` 的工作树/非空交付选择契约不变。
@@ -235,10 +234,10 @@ run_check(root: str | os.PathLike[str], base_sha: str | None = None) -> CheckRep
 
 Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat-file`，不调用 diff/textconv、clean/smudge filters、hooks 或来源命令；清除继承的仓库/index/Git 配置环境，不用替换 refs 或 lazy fetch，不寻找 main/master 或新的 HEAD。失败保留诊断并返回输入错误。
 
-共享 reader 在 Git 命令前另检查本地 Gitfile/common/worktree metadata，拒绝
-`include` / `includeIf` 声明、网络指针、配置别名和不完整布局；不靠 transport 禁止
-推导 include 安全，也不调用 Git 探测被包含位置。[明确读取边界](../../docs/domain-sources.md#git-config-boundary)
-说明兼容限制；普通无 Git 的本地内容输入不要求建立仓库。
+每次 Git 调用以所选根的上级为 `GIT_CEILING_DIRECTORIES`，缺失或不完整的 metadata 返回
+`BASE_UNAVAILABLE`，不借用祖先仓库；保留宿主 Git 的 `GIT_EXEC_PATH`。仓库自身配置按 Git
+原生规则生效，工具不另行解析。[Git 调用环境](../../docs/domain-sources.md#git-config-boundary)
+说明其范围；普通无 Git 的本地内容输入不要求建立仓库。
 
 <a id="checker-output"></a>
 ### JSON 字段、计数与稳定代码
@@ -256,7 +255,7 @@ Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat
 | `baseline.comparison_complete` | 无 base 为 `null`；base 比较遇到读取/路径问题为 `false`，只列已知比较且不把缺少读数冒充删除；正常读取为 `true`。这不等于元数据/文档有效 |
 | `baseline.snapshot_sha256` | 按 path 排序的 `files` 数组，经 `json.dumps(sort_keys=True, separators=(",", ":"))` 编码后计算 SHA-256；标识本次实际读集，不把脏工作树标成只有 HEAD |
 
-两个读点不一致报 `INPUT_CHANGED`。读集并非文件系统事务；记录调用所用工具版本，后续文件或工具改变后重新检查，不把摘要当批准证明。
+每个输入在一次检查中只读一次，后续引用共享同一份 bytes。读集并非文件系统事务；记录调用所用工具版本，后续文件或工具改变后重新检查，不把摘要当批准证明。
 
 供同目录工具复用的 `read_inventory(root, base_sha=None) -> Inventory` 与 `run_check` 使用同一次完整发现/解析/检查。`Inventory` 的 `report` 就是上述 `CheckReport`，另保留不可变 tuple：`artifacts`、`raw_files`（实际路径与已读 bytes）和 `base_raw_files`（历史相对路径与原始 blob bytes）。消费者不重新读取 Markdown 猜测同一个快照。历史解析使用原 parser 的字节入口；独立 YAML/JSON 来源使用 `load_yaml_mapping(text, path)`，仍是同一 SafeLoader、重键/别名检查和 1-based 定位，不另有 frontmatter 或 owner parser。
 
@@ -266,12 +265,11 @@ Git 读取使用参数列表、显式 cwd、`shell=False` 和原始 `ls-tree/cat
 | `MISSING_TITLE`, `EMPTY_TITLE`, `MULTIPLE_TITLES` | `invalid`；H1 结构 |
 | `INCOMPLETE_ARTIFACT` | `invalid`；明确残留占位 |
 | `BROKEN_LINK`, `BROKEN_ANCHOR`, `UNRESOLVED_REFERENCE`, `UNSUPPORTED_FRAGMENT`, `INVALID_LINK` | `invalid`；本地链接或支持范围 |
-| `DIRECTORY_READ_ERROR`, `INPUT_CHANGED`, `EXCLUDED_TARGET` | `input-error`；读取或边界；其他路径/解码代码复用 parser |
+| `DIRECTORY_READ_ERROR`, `EXCLUDED_TARGET` | `input-error`；读取或边界；其他路径/解码代码复用 parser |
 | `INVALID_BASE`, `BASE_UNAVAILABLE` | `input-error`；基线形状或精确对象读取失败 |
-| `GIT_CONFIG_INCLUDES_UNSUPPORTED`, `GIT_CONFIG_UNSAFE` | `input-error`；命令前拒绝不支持的本地 include 或不安全 Git metadata，不访问其外部位置 |
 | `REPORT_CONFLICT`, `REPORT_WRITE_ERROR` | `input-error`；输出冲突或写入失败 |
 
-`--report` 只能显式创建本地新 `.json` 文件；相对路径以 root 为准，绝对路径按本次授权使用。父目录必须已经存在，不自动建目录，不覆盖任何已有文件（包括空文件、源文件和历史报告）。使用 exclusive create，失败退出 2；若已创建新文件后写入失败，可能留下不完整的新报告，不能当成功证据。CLI 的 `report_output={path,written}` 独立于保护的输入读集，默认/API 不产生此文件。CLI 参数用法错误由 argparse 输出到 stderr 并退出 2；其他已定义错误在 JSON 中返回。
+所有工具的显式输出共用 `check_artifacts._output_path` / `_write_new` 一条规则：本地新文件、后缀符合、父目录已存在，不覆盖、不建目录，文件名不含 `:`（Windows 备用数据流），不写入 `.git`，不与所读或已声明来源重叠；路径按宿主正常方式解析，`..` 先按字面归一。`--report` 只能显式创建本地新 `.json` 文件；相对路径以 root 为准，绝对路径按本次授权使用。使用 exclusive create，失败退出 2；若已创建新文件后写入失败，可能留下不完整的新报告，不能当成功证据。CLI 的 `report_output={path,written}` 独立于保护的输入读集，默认/API 不产生此文件。CLI 参数用法错误由 argparse 输出到 stderr 并退出 2；其他已定义错误在 JSON 中返回。
 
 <a id="traceability"></a>
 ## 完整交付覆盖
@@ -339,7 +337,7 @@ check_model(root, scope, model_path) -> CheckReport
 
 主 `source.root` 固定为可移植的 `.`。各 artifact baseline 是实际读到的原始 bytes 的 `sha256:`（含 BOM/换行），upstream/targets、工件、视图、refs 与 gaps 确定排序。主 `source.baseline` 是以下对象经 `json.dumps(sort_keys=True, separators=(",", ":"))`、UTF-8 编码后的 `sha256:`：`scope`、按 path 排序的 Task6 `files` 读集记录、`manifest: absent/present`、排序的可选失败 `(选择路径, code)`、artifact/model/model-sources 所用契约的原始摘要；采用实施报告 adapter 时还包括 bc-config/implementation-report 契约。读集包括选择用 guide、清单、实际可选 YAML/JSON 与证据文件，不只包含正式 Markdown。无时间戳/随机数据；工具版本另随检查记录保存。
 
-canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope 消费者也能回源。代码/表头/普通 AC 提及不会自动成为 source 字段或 owner 验收。两次读取不一致返回 `INPUT_CHANGED` / 2；这不是文件系统事务，仍不保证抵御检查/打开之间的恶意替换。
+canonical 引用还保留其实际 owner 文件的 evidence baseline，跨 scope 消费者也能回源。代码/表头/普通 AC 提及不会自动成为 source 字段或 owner 验收。同一次派生中每个文件只读一次；这不是文件系统事务，派生期间不要修改来源。
 
 `check_model` 读取显式本地 `.json/.yaml/.yml`（可为 root 外另行授权的模型文件），校验并重算；主来源身份变化为 `STALE_MODEL_SOURCE` / 1，同源但手改结构为 `MODEL_MISMATCH` / 1。非法持久模型/schemaVersion/scope 为输入错误 / 2。它不修复旧模型，派生 model 也不能作为源或来源证据；清单自引用被拒绝。
 
@@ -382,7 +380,7 @@ build_report(root, object_sha, evidence_files, *, scope=None) -> dict
 
 主要诊断包括 `INVALID_BASE / BASE_UNAVAILABLE / OBJECT_PATH_MISSING / BASE_MISMATCH / PLAN_MISMATCH / OBJECT_MISMATCH`（对象/来源）、`AMBIGUOUS_SCOPE / INVALID_SCOPE / UNKNOWN_SCOPE / EMPTY_ACCEPTANCE`（范围）、`INVALID_EVIDENCE_OWNER / SCOPE_MISMATCH / REQUIREMENT_MISMATCH`（所有者）、`DUPLICATE_EVIDENCE / AMBIGUOUS_RUN / UNKNOWN_RUN / AMBIGUOUS_RESULT / INVALID_RUN`（选择/记录）、`INVALID_EXECUTION / INVALID_OBSERVATION / INVALID_EVIDENCE / MISSING_TEST_REFERENCE / INVALID_MARKER`（实际定位/证据）、`INVALID_APPLICABILITY / AMBIGUOUS_APPLICABILITY`（独立复核）。共用文件/schema 诊断仍保留；`REPORT_CONFLICT / REPORT_WRITE_ERROR` 不会静默覆盖旧报告。
 
-报告可重建但不是来源事务：读取期间发现同一路径字节变化会失败；不宣称防御所有并发恶意替换。报告写入中断可能留下不完整的新文件，下一次仍拒绝覆盖。领域源 `readOnly: false` 也不授权写入；不执行 hooks、filter、replace-ref、fetch 或配置中的任何命令。
+报告可重建但不是来源事务：同一次收集中每个文件只读一次，收集期间不要修改来源。报告写入中断可能留下不完整的新文件，下一次仍拒绝覆盖。领域源 `readOnly: false` 也不授权写入；不执行 hooks、filter、replace-ref、fetch 或配置中的任何命令。
 
 <a id="template-update"></a>
 ## 只读模板与明确 BC 场景提案
@@ -421,8 +419,8 @@ BC 配置，必须另给准确 target 与独立 index 同意；原始 blob 写�
 
 BC token 只标识实际用于解析/规划的原始配置 bytes，inspect 内的后续读取变化也拒绝。
 新 native 目标不会复活 HEAD 中已由 owner 暂存删除的 `.gitmodules`，目标本身也不能
-占用 metadata 文件。共享 Git reader 与 native helper 都在命令前拒绝不支持的 includes，
-包括准确源仓、父仓、common/worktree config 和显式配置文件，不运行 include 检测命令。
+占用 metadata 文件。共享 Git reader 与 native helper 使用同一干净 Git 环境，以所选根
+为 discovery 上限，不借用祖先仓库，也不另行解析仓库配置。
 
 完整 API/CLI、可编辑配置布局、原生命令和保留部分状态的恢复边界见
 [领域源说明](../../docs/domain-sources.md)，字段仍归[原契约](../contracts/README.md#bc-configuration)。

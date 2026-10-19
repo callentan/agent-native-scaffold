@@ -40,7 +40,8 @@ def _new_path(value, suffix):
         return None
     if value.startswith(("//", "\\\\")) or "://" in value:
         raise ValueError("Output must be a local new file")
-    path = Path(value).absolute()
+    requested = Path(value).absolute()
+    path = requested.parent.resolve() / requested.name
     if (path.suffix != suffix or path.exists() or path.is_symlink()
             or not path.parent.is_dir() or path.parent.resolve() != path.parent):
         raise ValueError(f"Output requires an existing local parent and absent {suffix} file: {path}")

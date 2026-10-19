@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import csv
-import base64
 from contextlib import redirect_stderr
-import ctypes
+import errno
 import hashlib
 import importlib
 import importlib.util
@@ -13,7 +12,6 @@ import io
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,7 +22,6 @@ from unittest.mock import patch
 
 WORKTREE = Path(__file__).resolve().parents[3]
 UTILITIES = WORKTREE / ".github" / "utilities"
-FIXTURES = WORKTREE / ".venv" / "task18-fixtures"
 HEADER = (
     "schema_version,record_id,recorded_at,tool_name,tool_version,task_ref,"
     "object_ref,object_baseline,operation_summary,decision_ref,usage_value,"
@@ -52,16 +49,12 @@ def directory_inventory(root: Path) -> tuple[tuple[str, str], ...]:
     return tuple(entries)
 
 
-def powershell_literal(value: Path) -> str:
-    return "'" + str(value).replace("'", "''") + "'"
-
-
 class InteractionLogTests(unittest.TestCase):
     def setUp(self):
-        FIXTURES.mkdir(parents=True, exist_ok=True)
-        temporary = tempfile.TemporaryDirectory(prefix="task18-", dir=FIXTURES)
+        temporary = tempfile.TemporaryDirectory(prefix="task18-")
         self.addCleanup(temporary.cleanup)
-        self.workspace = Path(temporary.name)
+        self.caller_workspace = Path(temporary.name)
+        self.workspace = Path(temporary.name).resolve()
         self.root = self.workspace / "路径 with spaces"
         self.root.mkdir()
         self.log = self.root / "interaction log.csv"
@@ -114,42 +107,8 @@ class InteractionLogTests(unittest.TestCase):
             timeout=20,
         )
 
-    def powershell(self, command: str):
-        executable = shutil.which("powershell.exe")
-        self.assertIsNotNone(executable, "Windows PowerShell is needed for a local junction fixture")
-        encoded = base64.b64encode(command.encode("utf-16-le")).decode("ascii")
-        return subprocess.run(
-            [executable, "-NoLogo", "-NoProfile", "-NonInteractive",
-             "-EncodedCommand", encoded],
-            cwd=self.workspace,
-            shell=False,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            timeout=10,
-        )
-
-    def create_junction(self, junction: Path, target: Path, moved: Path):
-        result = self.powershell(
-            "$ErrorActionPreference='Stop'; "
-            f"$link={powershell_literal(junction)}; "
-            f"$target={powershell_literal(target)}; "
-            f"$moved={powershell_literal(moved)}; "
-            "Move-Item -LiteralPath $link -Destination $moved; "
-            "New-Item -ItemType Junction -Path $link -Target $target | Out-Null"
-        )
-        self.assertEqual(0, result.returncode, result.stderr)
-
-    def create_junction_at_absent_path(self, junction: Path, target: Path):
-        result = self.powershell(
-            "$ErrorActionPreference='Stop'; "
-            f"$link={powershell_literal(junction)}; "
-            f"$target={powershell_literal(target)}; "
-            "New-Item -ItemType Junction -Path $link -Target $target | Out-Null"
-        )
-        self.assertEqual(0, result.returncode, result.stderr)
-
-    def append_cli(self, record_id: str, *, attest_local_storage=True, **changes):
+    def append_cli(self, record_id: str, *, attest_local_storage=True,
+                   lock_timeout=10.0, **changes):
         values = {
             "recorded_at": "2026-10-18T12:34:56+08:00",
             "tool_name": "copilot-cli",
@@ -170,6 +129,7 @@ class InteractionLogTests(unittest.TestCase):
             "--object-ref", values["object_ref"],
             "--object-baseline", values["object_baseline"],
             "--summary", values["operation_summary"],
+            "--lock-timeout", str(lock_timeout),
         ]
         for key, option in (
             ("decision_ref", "--decision-ref"),
@@ -204,51 +164,15 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual(before, after_api)
         self.assertEqual(before, after_cli)
 
-    def test_FIX1_02_default_summary_reports_concurrent_owner_bytes_without_lock(self):
+    def test_FIX1_03_default_summary_reports_partial_owner_row_without_lock(self):
         ledger = self.module("log_interaction")
-        original_reader = ledger._read_log_bytes
-        before = directory_inventory(self.root)
-        calls = 0
+        with self.log.open("ab") as owner:
+            owner.write(b"1,partia")
 
-        def append_owner_after_first_read(path):
-            nonlocal calls
-            result = original_reader(path)
-            calls += 1
-            if calls == 1:
-                with path.open("ab") as owner:
-                    owner.write(OWNER_ROW)
-            return result
+        with self.assertRaises(ledger.LedgerError) as caught:
+            self.module("summarize_usage").summarize_usage(self.log)
 
-        with patch.object(ledger, "_read_log_bytes", side_effect=append_owner_after_first_read):
-            with self.assertRaises(ledger.LedgerError) as caught:
-                self.module("summarize_usage").summarize_usage(self.log)
-
-        self.assertEqual("OWNER_BYTES_CHANGED", caught.exception.code)
-        self.assertEqual(before[0][0], directory_inventory(self.root)[0][0])
-        self.assertEqual(HEADER + OWNER_ROW, self.log.read_bytes())
-        self.assertEqual(("interaction log.csv", "sha256:" + hashlib.sha256(
-            HEADER + OWNER_ROW).hexdigest()), directory_inventory(self.root)[0])
-        self.assertFalse(self.log.with_name(self.log.name + ".lock").exists())
-
-    def test_FIX1_03_default_summary_reports_partial_owner_write_without_lock(self):
-        ledger = self.module("log_interaction")
-        original_reader = ledger._read_log_bytes
-        calls = 0
-
-        def append_partial_after_first_read(path):
-            nonlocal calls
-            result = original_reader(path)
-            calls += 1
-            if calls == 1:
-                with path.open("ab") as owner:
-                    owner.write(b"1,partia")
-            return result
-
-        with patch.object(ledger, "_read_log_bytes", side_effect=append_partial_after_first_read):
-            with self.assertRaises(ledger.LedgerError) as caught:
-                self.module("summarize_usage").summarize_usage(self.log)
-
-        self.assertEqual("OWNER_BYTES_CHANGED", caught.exception.code)
+        self.assertEqual("INVALID_LOG_ROW", caught.exception.code)
         self.assertEqual(HEADER + b"1,partia", self.log.read_bytes())
         self.assertEqual((("interaction log.csv", "sha256:" + hashlib.sha256(
             HEADER + b"1,partia").hexdigest()),), directory_inventory(self.root))
@@ -322,204 +246,55 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(self.log.read_bytes()).hexdigest(),
                          json.loads(summary.stdout)["source_sha256"])
 
-    def test_FIX1_08_output_parent_junction_swap_after_validation_is_refused(self):
-        if os.name != "nt":
-            with self.assertRaises(self.module("log_interaction").LedgerError) as caught:
-                self.module("summarize_usage").write_summary(
-                    self.log, self.root / "not-supported" / "summary.json",
-                    attest_local_storage=True,
-                )
-            self.assertEqual("UNSUPPORTED_STORAGE", caught.exception.code)
-            return
-
-        output_parent = self.root / "selected-output"
-        output_parent.mkdir()
-        junction = output_parent
-        moved = self.workspace / "original-output-parent"
-        outside = self.workspace / "outside-owner"
-        outside.mkdir()
-        owner = outside / "owner.bin"
-        owner.write_bytes(b"fixed owner bytes")
-        output = output_parent / "summary.json"
-        source_before = self.log.read_bytes()
-        outside_before = directory_inventory(outside)
-        original_validator = self.module("log_interaction")._validate_new_output
-        swapped = False
-
-        def restore_parent():
-            if junction.exists():
-                junction.rmdir()
-            if moved.exists() and not output_parent.exists():
-                moved.rename(output_parent)
-
-        self.addCleanup(restore_parent)
-
-        def validate_then_swap(value, *, source, suffix):
-            nonlocal swapped
-            validated = original_validator(value, source=source, suffix=suffix)
-            if not swapped:
-                self.create_junction(junction, outside, moved)
-                swapped = True
-            return validated
-
-        with patch.object(self.module("log_interaction"), "_require_write_attestation",
-                          return_value=None, create=True), patch.object(
-                              self.module("log_interaction"), "_validate_new_output",
-                              side_effect=validate_then_swap):
-            with self.assertRaises(self.module("log_interaction").LedgerError) as caught:
-                self.module("summarize_usage")._write_summary(self.log, output)
-
-        self.assertTrue(swapped)
-        self.assertEqual("UNSAFE_PATH", caught.exception.code)
-        self.assertFalse((outside / "summary.json").exists())
-        self.assertEqual(outside_before, directory_inventory(outside))
-        self.assertEqual(source_before, self.log.read_bytes())
-        self.assertFalse(self.log.with_name(self.log.name + ".lock").exists())
-
-    def test_FIX1_09_summary_output_is_bound_to_unchanged_source_bytes(self):
-        output = self.root / "bound summary.json"
+    def test_FIX1_08_output_created_by_owner_at_create_boundary_is_not_overwritten(self):
+        output = self.root / "owner-wins.json"
         ledger = self.module("log_interaction")
-        summary_module = self.module("summarize_usage")
-        original_builder = summary_module._summary
-        calls = 0
+        original_open = os.open
+        collided = False
 
-        def build_then_owner_appends(path, raw, records):
-            nonlocal calls
-            result = original_builder(path, raw, records)
-            calls += 1
-            if calls == 1:
-                with self.log.open("ab") as owner:
-                    owner.write(OWNER_ROW)
-            return result
+        def owner_creates_before_exclusive_open(path, flags, *args, **kwargs):
+            nonlocal collided
+            if Path(path) == output and flags & os.O_EXCL:
+                output.write_bytes(b"owner file")
+                collided = True
+            return original_open(path, flags, *args, **kwargs)
 
-        with patch.object(ledger, "_require_write_attestation", return_value=None,
-                          create=True), patch.object(summary_module, "_summary",
-                                                      side_effect=build_then_owner_appends):
+        with patch.object(os, "open", side_effect=owner_creates_before_exclusive_open):
             with self.assertRaises(ledger.LedgerError) as caught:
-                summary_module._write_summary(self.log, output)
-
-        self.assertEqual("OWNER_BYTES_CHANGED", caught.exception.code)
-        self.assertEqual(HEADER + OWNER_ROW, self.log.read_bytes())
-        self.assertFalse(output.exists())
-
-    def test_FIX1_10_source_change_after_summary_create_is_reported_with_output_identity(self):
-        output = self.root / "summary-after-source-change.json"
-        ledger = self.module("log_interaction")
-        summary_module = self.module("summarize_usage")
-        original_write = summary_module.os.write
-        source_before = self.log.read_bytes()
-        changed = False
-
-        def write_output_then_append_owner(descriptor, content):
-            nonlocal changed
-            written = original_write(descriptor, content)
-            if not changed:
-                with self.log.open("ab") as owner:
-                    owner.write(OWNER_ROW)
-                changed = True
-            return written
-
-        with patch.object(ledger, "_require_write_attestation", return_value=None,
-                          create=True), patch.object(summary_module.os, "write",
-                                                      side_effect=write_output_then_append_owner):
-            with self.assertRaises(ledger.LedgerError) as caught:
-                summary_module._write_summary(self.log, output)
-
-        self.assertEqual("OWNER_BYTES_CHANGED", caught.exception.code)
-        self.assertTrue(caught.exception.recovery_required)
-        self.assertIn("output_identity", caught.exception.recovery)
-        self.assertEqual(source_before + OWNER_ROW, self.log.read_bytes())
-        self.assertTrue(output.is_file())
-        self.assertEqual(output.stat().st_ino,
-                         caught.exception.recovery["output_identity"]["file_id"])
-        summary = json.loads(output.read_text(encoding="utf-8"))
-        self.assertEqual(hashlib.sha256(source_before).hexdigest(),
-                         summary["source_sha256"])
-
-    def test_FIX1_11_output_create_boundary_cannot_follow_a_parent_junction_swap(self):
-        if os.name != "nt":
-            with self.assertRaises(self.module("log_interaction").LedgerError) as caught:
-                self.module("summarize_usage").write_summary(
-                    self.log, self.root / "not-supported" / "summary.json",
-                    attest_local_storage=True,
-                )
-            self.assertEqual("UNSUPPORTED_STORAGE", caught.exception.code)
-            return
-
-        output_parent = self.root / "pinned-output"
-        output_parent.mkdir()
-        moved = self.workspace / "moved-pinned-output"
-        outside = self.workspace / "outside-during-create"
-        outside.mkdir()
-        owner = outside / "owner.bin"
-        owner.write_bytes(b"owner data must remain byte-identical")
-        outside_before = directory_inventory(outside)
-        output = output_parent / "summary.json"
-        escaped = outside / "summary.json"
-        source_before = self.log.read_bytes()
-        state = {"move_succeeded": None, "move_error": None, "junction_created": False}
-        ledger = self.module("log_interaction")
-        original_create = ledger._create_exclusive_output
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-        move_file = kernel32.MoveFileExW
-        move_file.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32]
-        move_file.restype = ctypes.c_int
-
-        def restore_paths():
-            if output_parent.exists() and output_parent.is_symlink():
-                output_parent.rmdir()
-            elif output_parent.exists():
-                details = output_parent.lstat()
-                if getattr(details, "st_file_attributes", 0) & 0x400:
-                    output_parent.rmdir()
-            if moved.exists() and not output_parent.exists():
-                moved.rename(output_parent)
-
-        self.addCleanup(restore_paths)
-
-        def attack_at_exclusive_create(parent_binding, file_name, *, on_created=None):
-            if file_name == output.name and state["move_succeeded"] is None:
-                ctypes.set_last_error(0)
-                moved_ok = bool(move_file(str(output_parent), str(moved), 0))
-                state["move_succeeded"] = moved_ok
-                state["move_error"] = ctypes.get_last_error()
-                if moved_ok:
-                    self.create_junction_at_absent_path(output_parent, outside)
-                    state["junction_created"] = True
-            return original_create(
-                parent_binding, file_name, on_created=on_created)
-
-        failure = None
-        with patch.object(ledger, "_create_exclusive_output",
-                          side_effect=attack_at_exclusive_create):
-            try:
                 self.module("summarize_usage").write_summary(
                     self.log, output, attest_local_storage=True)
-            except self.module("log_interaction").LedgerError as caught:
-                # A detected post-create change is a fail-closed outcome; assertions
-                # below still prove no file escaped to the owner directory.
-                failure = caught
 
-        self.assertIsNotNone(state["move_succeeded"])
-        if state["move_succeeded"]:
-            self.assertTrue(state["junction_created"])
-            self.assertIsNotNone(failure)
-            self.assertTrue(failure.recovery_required)
-            self.assertIn("output_identity", failure.recovery)
-            self.assertEqual(
-                (moved / "summary.json").stat().st_ino,
-                failure.recovery["output_identity"]["file_id"],
-            )
-        else:
-            self.assertIn(state["move_error"], (5, 32))
-            self.assertFalse(state["junction_created"])
-            self.assertIsNone(failure)
-            self.assertTrue(output.is_file())
-        self.assertFalse(escaped.exists())
-        self.assertEqual(outside_before, directory_inventory(outside))
-        self.assertEqual(source_before, self.log.read_bytes())
-        self.assertTrue((moved / "summary.json").is_file()
-                        if state["move_succeeded"] else output.is_file())
+        self.assertTrue(collided)
+        self.assertEqual("OUTPUT_EXISTS", caught.exception.code)
+        self.assertFalse(caught.exception.recovery_required)
+        self.assertEqual(b"owner file", output.read_bytes())
+        self.assertEqual(HEADER, self.log.read_bytes())
+
+    def test_FIX1_11_append_and_summary_accept_normalized_parent_paths(self):
+        parent = self.root / "already-existing"
+        parent.mkdir()
+        # No platform-specific root spelling or fixed drive is required.
+        aliased_log = parent / ".." / self.log.name
+        result = self.append(self.record(record_id="normalized-parent"), log=aliased_log)
+        self.assertEqual("appended", result.status)
+        output = parent / ".." / "summary.json"
+        summary = self.module("summarize_usage").write_summary(
+            aliased_log, output, attest_local_storage=True)
+        self.assertEqual(1, summary["record_count"])
+        self.assertEqual(summary, json.loads(output.read_text(encoding="utf-8")))
+        self.assertEqual(["record_id", "normalized-parent"],
+                         [row[1] for row in independent_row_bytes(self.log.read_bytes())])
+
+    def test_PORTABLE_01_caller_system_temp_alias_is_usable_without_drive_detection(self):
+        log = self.caller_workspace / self.root.name / self.log.name
+        self.assertEqual("appended", self.append(log=log).status)
+        output = self.caller_workspace / self.root.name / "temporary summary.json"
+        result = self.cli("summarize_usage", "--log", str(log),
+                          "--output", str(output), "--attest-local-storage")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(1, json.loads(output.read_text(encoding="utf-8"))["record_count"])
+        self.assertEqual(hashlib.sha256(self.log.read_bytes()).hexdigest(),
+                         json.loads(result.stdout)["source_sha256"])
 
     def test_LEDGER_01_appends_explicit_record_without_rewriting_prior_bytes(self):
         previous = (
@@ -750,7 +525,7 @@ class InteractionLogTests(unittest.TestCase):
     def test_LEDGER_10_native_process_lock_serializes_two_writers_without_lost_rows(self):
         module = self.module("log_interaction")
         processes = []
-        with module._file_lock(self.log, timeout=5):
+        with module.file_lock(self.log, timeout=5):
             processes = [
                 subprocess.Popen(
                     [
@@ -786,7 +561,51 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual(["proc-A", "proc-B"], sorted(row[1] for row in rows[1:]))
         self.assertEqual(3, len(rows))
 
-    def test_LEDGER_10_owner_byte_change_between_snapshot_and_write_is_detected(self):
+    def test_PORTABLE_02_real_process_timeout_and_unlocked_summary(self):
+        module = self.module("log_interaction")
+        with module.file_lock(self.log, timeout=1):
+            result = self.append_cli("blocked-process", lock_timeout=0.1)
+            self.assertEqual(2, result.returncode, result.stdout)
+            self.assertEqual("LOCK_TIMEOUT", json.loads(result.stderr)["code"])
+            before = directory_inventory(self.root)
+            readonly = self.cli("summarize_usage", "--log", str(self.log),
+                                "--lock-timeout", "0")
+            self.assertEqual(0, readonly.returncode, readonly.stderr)
+            self.assertEqual(0, json.loads(readonly.stdout)["record_count"])
+            self.assertEqual(before, directory_inventory(self.root))
+        self.assertEqual(HEADER, self.log.read_bytes())
+        self.assertEqual(b"", self.log.with_name(self.log.name + ".lock").read_bytes())
+        self.assertEqual(0, self.append_cli("after-timeout", lock_timeout=1).returncode)
+
+    def test_PORTABLE_03_invalid_timeout_and_nonempty_lock_preserve_owner_bytes(self):
+        module = self.module("log_interaction")
+        before = directory_inventory(self.root)
+        for timeout in (-1, float("nan"), float("inf"), "1"):
+            with self.subTest(timeout=timeout):
+                with self.assertRaises(module.LedgerError) as caught:
+                    module.append_record(self.log, self.record(),
+                                         attest_local_storage=True, lock_timeout=timeout)
+                self.assertEqual("INVALID_LOCK_TIMEOUT", caught.exception.code)
+                self.assertEqual(before, directory_inventory(self.root))
+        lock = self.log.with_name(self.log.name + ".lock")
+        lock.write_bytes(b"owner data")
+        result = self.append_cli("nonempty-lock")
+        self.assertEqual(2, result.returncode)
+        self.assertEqual("INVALID_LOCK_FILE", json.loads(result.stderr)["code"])
+        self.assertEqual(b"owner data", lock.read_bytes())
+        self.assertEqual(HEADER, self.log.read_bytes())
+
+    def test_PORTABLE_04_lock_primitive_failure_is_explicit_and_can_be_retried(self):
+        module = self.module("log_interaction")
+        with patch.object(module, "_lock_descriptor",
+                          side_effect=OSError(errno.ENOSYS, "controlled locking failure")):
+            with self.assertRaises(module.LedgerError) as caught:
+                self.append()
+        self.assertEqual("LOCK_UNAVAILABLE", caught.exception.code)
+        self.assertEqual(HEADER, self.log.read_bytes())
+        self.assertEqual("appended", self.append().status)
+
+    def test_LEDGER_10_owner_byte_change_after_locked_read_is_detected_before_write(self):
         module = self.module("log_interaction")
         original_reader = module._read_log_bytes
         calls = 0
@@ -921,31 +740,57 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual(12, caught.exception.recovery["observed_bytes"])
         partial = output.read_bytes()
         self.assertEqual(12, len(partial))
-        self.assertEqual(output.stat().st_ino,
-                         caught.exception.recovery["output_identity"]["file_id"])
+        self.assertGreater(caught.exception.recovery["expected_bytes"], 12)
         self.assertEqual(before, self.log.read_bytes())
         retry = self.cli("summarize_usage", "--log", str(self.log),
                          "--output", str(output), "--attest-local-storage")
         self.assertEqual(2, retry.returncode)
         self.assertEqual(partial, output.read_bytes())
 
-    def test_FIX2_01_open_osfhandle_failure_reports_native_output_identity(self):
-        output = self.root / "native-created-before-wrap.json"
+    def test_PORTABLE_06_relative_or_missing_input_paths_never_create_parents(self):
+        module = self.module("log_interaction")
+        before = directory_inventory(self.root)
+        for log, code in (
+            (Path("relative.csv"), "EXPLICIT_ABSOLUTE_PATH_REQUIRED"),
+            (self.root / "absent.csv", "LOCAL_PATH_MISSING"),
+            (self.root / "absent" / "log.csv", "LOCAL_PATH_MISSING"),
+        ):
+            with self.subTest(log=log):
+                with self.assertRaises(module.LedgerError) as caught:
+                    self.append(log=log)
+                self.assertEqual(code, caught.exception.code)
+                result = self.cli("summarize_usage", "--log", str(log))
+                self.assertEqual(2, result.returncode)
+                self.assertEqual(code, json.loads(result.stderr)["code"])
+        self.assertEqual(before, directory_inventory(self.root))
+
+    def test_PORTABLE_07_exact_totals_exceed_default_decimal_context_precision(self):
+        self.append(self.record(record_id="very-large",
+                                usage_value="999999999999999999999999999999.00000000000000000001"))
+        self.append(self.record(record_id="small",
+                                usage_value="0.99999999999999999999"))
+        summary = self.module("summarize_usage").summarize_usage(self.log)
+        self.assertEqual("1000000000000000000000000000000.00000000000000000000",
+                         summary["usage"]["known_groups"][0]["total_value"])
+        self.assertEqual(["small", "very-large"],
+                         summary["usage"]["known_groups"][0]["record_ids"])
+
+    def test_FIX2_01_first_output_write_failure_reports_retained_empty_file(self):
+        output = self.root / "created-before-write.json"
         source_before = self.log.read_bytes()
         summary_module = self.module("summarize_usage")
-        ledger = self.module("log_interaction")
         calls = 0
         stderr = io.StringIO()
 
-        def fail_after_native_create(native_handle, flags):
+        def fail_after_create(descriptor, content):
             nonlocal calls
             calls += 1
             self.assertTrue(output.is_file(),
-                            "NtCreateFile must already have created the real output")
-            raise OSError("controlled open_osfhandle failure after native create")
+                            "exclusive open must already have created the real output")
+            raise OSError("controlled first write failure after exclusive create")
 
-        with patch.object(ledger.msvcrt, "open_osfhandle",
-                          side_effect=fail_after_native_create), redirect_stderr(stderr):
+        with patch.object(summary_module.os, "write",
+                          side_effect=fail_after_create), redirect_stderr(stderr):
             exit_code = summary_module.main([
                 "--log", str(self.log),
                 "--output", str(output),
@@ -958,50 +803,6 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual("SUMMARY_OUTPUT_RECOVERY_REQUIRED", payload["code"])
         self.assertTrue(payload["recovery_required"])
         self.assertEqual(0, payload["recovery"]["observed_bytes"])
-        self.assertEqual(
-            output.stat().st_ino,
-            payload["recovery"]["output_identity"]["file_id"],
-        )
-        self.assertEqual(b"", output.read_bytes())
-        self.assertEqual(source_before, self.log.read_bytes())
-
-    def test_FIX2_02_first_output_fstat_failure_uses_cached_native_identity(self):
-        output = self.root / "fstat-failure-after-wrap.json"
-        source_before = self.log.read_bytes()
-        summary_module = self.module("summarize_usage")
-        ledger = self.module("log_interaction")
-        original_wrap = ledger.msvcrt.open_osfhandle
-        original_fstat = os.fstat
-        output_descriptor = None
-        fstat_failed = False
-
-        def wrap_and_capture_native_output(native_handle, flags):
-            nonlocal output_descriptor
-            output_descriptor = original_wrap(native_handle, flags)
-            return output_descriptor
-
-        def fail_first_output_fstat(descriptor):
-            nonlocal fstat_failed
-            if output_descriptor is not None and descriptor == output_descriptor and not fstat_failed:
-                fstat_failed = True
-                raise OSError("controlled first output fstat failure")
-            return original_fstat(descriptor)
-
-        with patch.object(ledger.msvcrt, "open_osfhandle",
-                          side_effect=wrap_and_capture_native_output), patch.object(
-                              summary_module.os, "fstat", side_effect=fail_first_output_fstat):
-            with self.assertRaises(summary_module.LedgerError) as caught:
-                summary_module.write_summary(
-                    self.log, output, attest_local_storage=True)
-
-        self.assertTrue(fstat_failed)
-        self.assertEqual("SUMMARY_OUTPUT_RECOVERY_REQUIRED", caught.exception.code)
-        self.assertTrue(caught.exception.recovery_required)
-        self.assertEqual(0, caught.exception.recovery["observed_bytes"])
-        self.assertEqual(
-            output.stat().st_ino,
-            caught.exception.recovery["output_identity"]["file_id"],
-        )
         self.assertEqual(b"", output.read_bytes())
         self.assertEqual(source_before, self.log.read_bytes())
 
@@ -1022,31 +823,46 @@ class InteractionLogTests(unittest.TestCase):
         self.assertEqual("TEMPLATE_NOT_LEDGER", caught.exception.code)
         self.assertEqual(before, template.read_bytes())
 
-    def test_LEDGER_12_native_directory_symlink_escape_is_rejected(self):
-        outside = self.workspace / "outside-owner"
-        outside.mkdir()
-        output_target = outside / "escaped-summary.json"
-        junction = self.root / "escape-to-owner"
-        if os.name == "nt":
-            made = self.powershell(
-                "$ErrorActionPreference='Stop'; "
-                f"$link={powershell_literal(junction)}; "
-                f"$target={powershell_literal(outside)}; "
-                "New-Item -ItemType Junction -Path $link -Target $target | Out-Null"
-            )
-            self.assertEqual(0, made.returncode, made.stderr)
-        else:
-            junction.symlink_to(outside, target_is_directory=True)
-        self.addCleanup(lambda: junction.rmdir() if junction.exists() else None)
+    def test_LEDGER_12_hard_link_log_and_existing_output_are_refused(self):
+        link = self.root / "hard-linked.csv"
+        os.link(self.log, link)
+        for path in (self.log, link):
+            result = self.cli("summarize_usage", "--log", str(path))
+            self.assertEqual(2, result.returncode, result.stdout)
+            self.assertEqual("UNSAFE_PATH", json.loads(result.stderr)["code"])
+        self.assertEqual(HEADER, self.log.read_bytes())
+        self.assertEqual(HEADER, link.read_bytes())
+        link.unlink()
+        output = self.root / "hard-linked.json"
+        os.link(self.log, output)
+        result = self.cli("summarize_usage", "--log", str(self.log),
+                          "--output", str(output), "--attest-local-storage")
+        self.assertEqual(2, result.returncode)
+        self.assertEqual(HEADER, output.read_bytes())
+        self.assertEqual(HEADER, self.log.read_bytes())
 
-        result = self.cli(
-            "summarize_usage", "--log", str(self.log),
-            "--output", str(junction / "escaped-summary.json"),
-            "--attest-local-storage",
-        )
-
-        self.assertEqual(2, result.returncode, result.stdout)
-        self.assertFalse(output_target.exists())
+    def test_LEDGER_12_symbolic_link_log_and_output_are_refused(self):
+        link = self.root / "symbolic.csv"
+        try:
+            link.symlink_to(self.log)
+        except OSError as exc:
+            if os.name == "nt" and getattr(exc, "winerror", None) == 1314:
+                self.skipTest("Windows host has no symlink privilege or Developer Mode")
+            raise
+        self.addCleanup(link.unlink)
+        result = self.cli("summarize_usage", "--log", str(link))
+        self.assertEqual(2, result.returncode)
+        self.assertEqual("UNSAFE_PATH", json.loads(result.stderr)["code"])
+        with self.assertRaises(self.module("log_interaction").LedgerError) as caught:
+            self.append(log=link)
+        self.assertEqual("UNSAFE_PATH", caught.exception.code)
+        output = self.root / "symbolic.json"
+        output.symlink_to(self.log)
+        self.addCleanup(output.unlink)
+        result = self.cli("summarize_usage", "--log", str(self.log),
+                          "--output", str(output), "--attest-local-storage")
+        self.assertEqual(2, result.returncode)
+        self.assertEqual("OUTPUT_EXISTS", json.loads(result.stderr)["code"])
         self.assertEqual(HEADER, self.log.read_bytes())
 
 

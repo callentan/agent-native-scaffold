@@ -287,10 +287,6 @@ class SourceBoundaryTests(UpdateFixture):
                     self.error("UNSAFE_PATH")
         self.assertEqual(before, source_bytes(target))
 
-    def test_explicit_root_alias_is_not_accepted_as_an_independent_tree(self):
-        with directory_link(self.workspace / "alias", self.base) as alias:
-            self.error("UNSAFE_ROOT", alias, self.local, self.candidate)
-
     def test_unreadable_directory_is_not_reported_as_an_empty_tree(self):
         scandir = os.scandir
         def refuse(directory):
@@ -327,33 +323,6 @@ class SourceBoundaryTests(UpdateFixture):
             finally:
                 path.chmod(0o600)
 
-    def test_update_16_actual_source_mutations_in_bytes_and_file_set_are_detected(self):
-        for mutation in ("bytes", "addition", "deletion"):
-            with self.subTest(mutation=mutation):
-                self.triplet("rules.md", b"old", b"old", b"new")
-                path = self.candidate / "rules.md"
-                extra = self.candidate / "new owner.txt"
-                before_owner = source_bytes(self.local)
-                read = Path.read_bytes
-                changed = False
-                def mutate(actual):
-                    nonlocal changed
-                    raw = read(actual)
-                    if actual == path and not changed:
-                        changed = True
-                        if mutation == "bytes":
-                            path.write_bytes(b"changed after first real read")
-                        elif mutation == "addition":
-                            extra.write_bytes(b"added after first real read")
-                        else:
-                            path.unlink()
-                    return raw
-                with patch.object(Path, "read_bytes", mutate):
-                    self.error("INPUT_CHANGED")
-                self.assertTrue(changed)
-                self.assertEqual(before_owner, source_bytes(self.local))
-                if extra.exists():
-                    extra.unlink()
 
 
 class SingleCliTests(UpdateFixture):
@@ -868,25 +837,10 @@ class BatchProposalTests(UpdateFixture):
         self.assertEqual("REPORT_CONFLICT", data["findings"][0]["code"])
         self.assertFalse(output.exists())
 
-    def test_registration_mutation_is_detected_and_batch_order_is_deterministic(self):
+    def test_batch_order_is_deterministic(self):
         first = self.batch(("conflict", "aligned", "clean"))
         second = self.batch(("clean", "conflict", "aligned"))
         self.assertEqual(first.to_dict(), second.to_dict())
-        original_read = Path.read_bytes
-        changed = False
-        def change_registration(path):
-            nonlocal changed
-            raw = original_read(path)
-            if path == self.registration and not changed:
-                changed = True
-                self.registration.write_bytes(raw + b"\n# changed after first read\n")
-            return raw
-        module = self.tool()
-        with patch.object(Path, "read_bytes", change_registration):
-            with self.assertRaises(ArtifactInputError) as caught:
-                module.plan_batch(self.registration, ("clean",))
-        self.assertEqual("INPUT_CHANGED", caught.exception.code)
-        self.assertTrue(changed)
 
     def test_nonexistent_declared_source_file_cannot_be_a_fake_nochange_scenario(self):
         self.data["source"]["files"][0]["path"] = "scenarios/not there.feature"
@@ -908,48 +862,6 @@ class BatchProposalTests(UpdateFixture):
         self.save_registration()
         target_error = self.batch(("aligned",)).targets[0].findings[0]
         self.assertEqual("targets/aligned/local", target_error.path)
-
-    def test_candidate_mutation_invalidates_all_dependent_target_plans(self):
-        module = self.tool()
-        path = self.candidate / self.source_file
-        original_read = Path.read_bytes
-        changed = False
-        def mutate(actual):
-            nonlocal changed
-            raw = original_read(actual)
-            if actual == path and not changed:
-                changed = True
-                actual.write_bytes(b"Feature: changed during batch\n")
-            return raw
-        owner_before = {name: source_bytes(root) for name, root in self.targets.items()}
-        with patch.object(Path, "read_bytes", mutate):
-            result = module.plan_batch(self.registration, ("aligned", "clean", "conflict"))
-        self.assertTrue(changed)
-        self.assertEqual(["unavailable"] * 3, [target.status for target in result.targets])
-        self.assertEqual(["INPUT_CHANGED"] * 3, [target.findings[0].code for target in result.targets])
-        self.assertTrue(all(target.plan is None for target in result.targets))
-        self.assertEqual(owner_before, {name: source_bytes(root) for name, root in self.targets.items()})
-
-    def test_one_target_mutation_does_not_erase_an_independent_clean_target(self):
-        module = self.tool()
-        path = self.targets["aligned"] / self.target_file
-        original_read = Path.read_bytes
-        changed = False
-        def mutate(actual):
-            nonlocal changed
-            raw = original_read(actual)
-            if actual == path and not changed:
-                changed = True
-                actual.write_bytes(b"Feature: owner changed during batch\n")
-            return raw
-        clean_before = source_bytes(self.targets["clean"])
-        with patch.object(Path, "read_bytes", mutate):
-            result = module.plan_batch(self.registration, ("aligned", "clean"))
-        self.assertTrue(changed)
-        self.assertEqual("unavailable", result.targets[0].status)
-        self.assertEqual("INPUT_CHANGED", result.targets[0].findings[0].code)
-        self.assertEqual("proposed", result.targets[1].status)
-        self.assertEqual(clean_before, source_bytes(self.targets["clean"]))
 
     def test_core_consumer_needs_no_maintainer_tests_history_workflow_or_application(self):
         consumer = self.workspace / "standalone updater"
@@ -995,7 +907,7 @@ class BatchProposalTests(UpdateFixture):
         self.assertEqual(before, source_bytes(self.workspace))
 
 
-class Fix1PathTests(UpdateFixture):
+class PathAndReservationTests(UpdateFixture):
     """ENH-11 / T11-I1..I3: actual topology/traversal/reservations, not mocked paths."""
 
     def registration(self, relative="targets.yaml"):
@@ -1126,81 +1038,6 @@ class Fix1PathTests(UpdateFixture):
         self.assertEqual("PATH_COLLISION", payload["targets"][1]["findings"][0]["code"])
         self.assertEqual("add", payload["targets"][0]["plan"]["changes"][0]["action"])
 
-    def test_fix1_i2_source_junction_parent_cannot_substitute_a_shadow_tree(self):
-        path, data, source_file, _ = self.registration()
-        for role, root in (("base", self.base), ("candidate", self.candidate)):
-            git(root, "init", "--quiet", "--template=")
-            git(root, "add", "--", ".")
-            git(root, "commit", "--quiet", "-m", "Owned fix1 shadow source")
-            data["source"][role]["version"] = git(root, "rev-parse", "HEAD")
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        self.write(self.workspace / "other" / self.base.name, source_file, b"Different external old bytes\n")
-        self.write(self.workspace / "other" / self.candidate.name, source_file, b"Different external new bytes\n")
-        with directory_link(self.workspace / "link", inner):
-            for role, root in (("base", self.base), ("candidate", self.candidate)):
-                with self.subTest(role=role):
-                    original = data["source"][role]["root"]
-                    data["source"][role]["root"] = "link/../" + root.name
-                    self.save(path, data)
-                    before = source_bytes(self.workspace)
-                    try:
-                        result = self.tool().plan_batch(path, ("clean",))
-                        self.assertEqual(before, source_bytes(self.workspace))
-                        self.assertEqual("input-error", result.status)
-                        self.assertEqual("unavailable", result.targets[0].status)
-                        self.assertEqual("UNSAFE_ROOT", result.targets[0].findings[0].code)
-                    finally:
-                        data["source"][role]["root"] = original
-
-    def test_fix1_i2_selected_target_junction_parent_does_not_borrow_clean_target(self):
-        path, data, _, target_file = self.registration()
-        git(self.local, "init", "--quiet", "--template=")
-        git(self.local, "add", "--", ".")
-        git(self.local, "commit", "--quiet", "-m", "Owned fix1 shadow target")
-        exact = git(self.local, "rev-parse", "HEAD")
-        data["targets"][0]["local"]["version"] = exact
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        with directory_link(self.workspace / "link", inner):
-            self.extra_target(data, "link/../" + self.local.name, target_file)
-            data["targets"][-1]["local"]["version"] = exact
-            self.save(path, data)
-            before = source_bytes(self.workspace)
-            run, payload = self.batch_cli(path, "clean", "unsafe")
-            self.assertEqual(before, source_bytes(self.workspace))
-            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
-            self.assertEqual(["proposed", "unavailable"], [t["status"] for t in payload["targets"]])
-            self.assertEqual("UNSAFE_ROOT", payload["targets"][1]["findings"][0]["code"])
-
-    def test_fix1_i2_missing_or_file_prefix_before_parent_is_not_an_existing_source(self):
-        path, data, _, _ = self.registration()
-        self.write(self.workspace, "ordinary-file", b"Not a traversable directory")
-        for prefix in ("not-there", "ordinary-file"):
-            with self.subTest(prefix=prefix):
-                data["source"]["base"]["root"] = prefix + "/../" + self.base.name
-                self.save(path, data)
-                before = source_bytes(self.workspace)
-                result = self.tool().plan_batch(path, ("clean",))
-                self.assertEqual(before, source_bytes(self.workspace))
-                self.assertEqual("unavailable", result.targets[0].status)
-                self.assertEqual("INVALID_ROOT", result.targets[0].findings[0].code)
-
-    def test_fix1_i2_direct_api_and_cli_check_canceled_junction_before_resolution(self):
-        self.triplet("rules.md", b"old", b"old", b"new")
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        with directory_link(self.workspace / "link", inner):
-            raw_base = self.workspace / "link" / ".." / self.base.name
-            before = source_bytes(self.workspace)
-            try:
-                self.error("UNSAFE_ROOT", raw_base, self.local, self.candidate)
-                run = self.cli("--base", raw_base)
-                self.assertEqual(2, run.returncode, run.stdout + run.stderr)
-                self.assertEqual("UNSAFE_ROOT", json.loads(run.stdout)["findings"][0]["code"])
-            finally:
-                self.assertEqual(before, source_bytes(self.workspace))
-
     def test_fix1_i2_normal_sibling_roots_keep_exact_git_versions_and_owner_bytes(self):
         path, data, _, _ = self.registration("configuration/targets.yaml")
         commits = []
@@ -1220,54 +1057,6 @@ class Fix1PathTests(UpdateFixture):
                          [source["root"] for source in plan["sources"]])
         self.assertEqual(commits, [source["version"] for source in plan["sources"]])
         self.assertEqual(before, source_bytes(self.workspace), "Local Git reads must not change owner or metadata bytes")
-
-    def test_fix1_i2_registration_path_cannot_erase_a_canceled_junction(self):
-        path, _, _, _ = self.registration()
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        with directory_link(self.workspace / "link", inner):
-            raw_registration = self.workspace / "link" / ".." / path.name
-            before = source_bytes(self.workspace)
-            run, payload = self.batch_cli(raw_registration, "clean")
-            self.assertEqual(before, source_bytes(self.workspace))
-            self.assertEqual(2, run.returncode, run.stdout + run.stderr)
-            self.assertEqual("UNSAFE_PATH", payload["findings"][0]["code"])
-
-    def test_fix1_i2_unselected_alias_reservation_blocks_output_not_clean_stdout(self):
-        path, data, _, target_file = self.registration()
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        with directory_link(self.workspace / "link", inner):
-            self.extra_target(data, "link/../" + self.local.name, target_file)
-            self.save(path, data)
-            before = source_bytes(self.workspace)
-            run, payload = self.batch_cli(path, "clean")
-            self.assertEqual(0, run.returncode, run.stdout + run.stderr)
-            self.assertEqual(["proposed"], [t["status"] for t in payload["targets"]])
-            self.assertEqual(before, source_bytes(self.workspace))
-            self.assert_output_refused(path, self.workspace / "safe outside.json", "clean")
-
-    def test_fix1_i2_unresolved_parent_reservation_is_not_normalized_for_output(self):
-        path, data, _, target_file = self.registration()
-        self.extra_target(data, "not-there/../" + self.local.name, target_file)
-        self.save(path, data)
-        self.assert_output_refused(path, self.workspace / "safe outside.json", "clean")
-
-    def test_fix1_i2_output_traversal_cannot_be_rewritten_past_a_junction_or_missing_prefix(self):
-        self.triplet("rules.md", b"old", b"old", b"new")
-        inner = self.workspace / "other/inner"
-        inner.mkdir(parents=True)
-        with directory_link(self.workspace / "link", inner):
-            for prefix in ("link", "not-there"):
-                with self.subTest(prefix=prefix):
-                    output = self.workspace / prefix / ".." / ("out-" + prefix + ".json")
-                    before = source_bytes(self.workspace)
-                    run = self.cli("--output", output)
-                    after = source_bytes(self.workspace)
-                    self.assertEqual(2, run.returncode, run.stdout + run.stderr)
-                    self.assertEqual("REPORT_CONFLICT", json.loads(run.stdout)["findings"][0]["code"])
-                    self.assertEqual(before, after)
-                    self.assertFalse((self.workspace / ("out-" + prefix + ".json")).exists())
 
     def test_fix1_i3_unselected_missing_target_file_ancestor_is_protected(self):
         path, data, _, target_file = self.registration()

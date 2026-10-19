@@ -682,7 +682,7 @@ class Task8BoundaryTests(ImplementationFixture):
         self.error("INVALID_EVIDENCE_SELECTION", {"verification/VT-002.md": "copied status is not an evidence selector"})
 
 
-class Task8Fix1EvidenceTests(ImplementationFixture):
+class EvidenceSelectionTests(ImplementationFixture):
     """T8-I2/I3: source-owned accounting and protected committed criteria."""
 
     def assert_input_error_preserves_sources(self, code, selector):

@@ -409,7 +409,7 @@ class ImpactTests(TraceFixture):
         self.assertEqual(before, source_bytes(self.root))
 
 
-class Fix1CriterionIsolationTests(TraceFixture):
+class CriterionIsolationTests(TraceFixture):
     def test_fix1_i4_next_criterion_cannot_fill_an_empty_previous_criterion(self):
         path = self.root / "verification/VT-002.md"
         text = path.read_text(encoding="utf-8")

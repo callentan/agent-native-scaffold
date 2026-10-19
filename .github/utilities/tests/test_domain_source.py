@@ -1,4 +1,4 @@
-"""Task15 / ENH-15 / SOURCE-01..12: real local sources, bytes and native Git."""
+"""Domain-source setup: real local sources, bytes, native Git, index intent and metadata."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import importlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import unittest
@@ -281,14 +282,15 @@ class SourceInspectionTests(DomainFixture):
                 self.assertEqual("unavailable", result["status"])
                 self.assertEqual([], result["written"])
 
-    def test_source_12_source_root_link_even_canceled_by_parent_is_rejected(self):
+    def test_source_12_source_root_reached_through_a_link_reads_the_linked_source(self):
         alias = self.workspace / "alias"
         with directory_link(alias, self.source):
             for root in ("../alias", "../alias/../领域 source"):
                 with self.subTest(root=root):
                     result = self.inspect(dict(self.declaration, root=root))
-                    self.assertEqual("unavailable", result["status"])
-                    self.assertTrue(self.codes(result) & {"UNSAFE_ROOT", "OUTSIDE_ROOT"})
+                    self.assertEqual("ready", result["status"], result)
+                    self.assertEqual(str(self.source.resolve()), result["location"]["root"])
+                    self.assertEqual([], result["written"])
 
     def test_source_12_selected_path_link_cannot_escape_or_alias(self):
         alias = self.source / "domain-model/alias"
@@ -550,14 +552,16 @@ class SourceSubmoduleTests(DomainFixture):
         self.assertEqual("conflict", repeated["status"])
         self.assertEqual(before_repeat, self.snapshot())
 
-    def test_source_12_target_link_and_parent_escape_are_unavailable(self):
+    def test_source_12_target_link_and_parent_escape_are_refused_without_writes(self):
         alias = self.root / "alias"
         with directory_link(alias, self.source):
             for target in ("alias/new", "../outside", ".git/modules/data"):
                 with self.subTest(target=target):
+                    before = self.snapshot()
                     result = self.inspect(operation="submodule", target=target)
-                    self.assertEqual("unavailable", result["status"])
+                    self.assertIn(result["status"], ("unavailable", "conflict"), result)
                     self.assertEqual([], result["written"])
+                    self.assertEqual(before, self.snapshot())
 
     def test_source_12_changed_native_index_invalidates_preflight(self):
         expected = self.inspect(operation="submodule", target="external domain")["preflight"]
@@ -739,23 +743,6 @@ class SourceBoundaryTests(DomainFixture):
         self.assertEqual(digest((metadata / "HEAD").read_bytes()), files["HEAD"]["sha256"])
         self.assertEqual(digest((metadata / "index").read_bytes()), files["index"]["sha256"])
 
-    def test_source_11_registration_guard_refuses_source_change_during_staged_write(self):
-        tool = self.tool()
-        source = self.source / "domain-model/规则.md"
-        config_before = self.config.read_bytes()
-        original = tool.os.fsync
-
-        def owner_change(descriptor):
-            original(descriptor)
-            source.write_bytes(b"Owner changed bytes while preparation was in progress\n")
-
-        with patch.object(tool.os, "fsync", side_effect=owner_change):
-            result = self.apply(owned=True)
-        self.assertEqual(("conflict", "partial"), (result["status"], result["outcome"]))
-        self.assertIn("INPUT_CHANGED", self.codes(result))
-        self.assertEqual(config_before, self.config.read_bytes())
-        self.assertTrue(source.read_bytes().startswith(b"Owner changed"))
-
     def test_source_11_late_native_index_failure_reports_object_and_preserves_owner_lock(self):
         module = self.tool()
         original = module._native
@@ -790,6 +777,198 @@ class SourceBoundaryTests(DomainFixture):
                                "--apply", "--owned-target", "--index-consent", "--expect", plan["preflight"])
         self.assertEqual((0, "materialized"), (run.returncode, result["outcome"]), result)
         self.assertEqual(self.version, git(self.root / "external domain", "rev-parse", "HEAD"))
+
+
+class MetadataFixture(DomainFixture):
+    def owned_modules_staged_deletion(self, relative=".gitmodules"):
+        path = self.root / relative
+        path.write_bytes(b'# Owner metadata\n[submodule "owner"]\n\tpath = owner-data\n\turl = ../owner-data\n')
+        git(self.root, "add", "--", relative)
+        git(self.root, "commit", "--quiet", "-m", "Owned native metadata before Task15")
+        git(self.root, "rm", "--cached", "--", relative)
+        self.assertEqual("", git(self.root, "ls-files", "--stage", "--", relative))
+        self.assertTrue(path.is_file())
+
+    def source_arguments(self):
+        return ["--root", str(self.root), "--config", "bc-config.yaml", "--source-id", self.declaration["id"],
+                "--kind", "git", "--source-root", self.declaration["root"], "--source-path", "domain-model",
+                "--baseline", self.version, "--read-only"]
+
+    def shared_metadata_fixture(self, root):
+        """Owned native Gitfile/commondir layout, not an app/real worktree operation."""
+        common = self.workspace / (root.name + " common metadata")
+        (root / ".git").rename(common)
+        selected = common / "worktrees/owned-fixture"
+        selected.mkdir(parents=True)
+        for name in ("HEAD", "index"):
+            if (common / name).exists():
+                shutil.copyfile(common / name, selected / name)
+        (selected / "commondir").write_bytes(b"../..\n")
+        (selected / "gitdir").write_text((root / ".git").as_posix() + "\n", encoding="utf-8")
+        (root / ".git").write_text("gitdir: " + selected.as_posix() + "\n", encoding="utf-8")
+        return common, selected
+
+
+class IndexIntentTests(MetadataFixture):
+    def test_i1_first_new_target_inspect_rejects_head_gitmodules_staged_deletion(self):
+        self.owned_modules_staged_deletion()
+        result = self.inspect(operation="submodule", target="new domain")
+        self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+        self.assertIn("INDEX_CONFLICT", self.codes(result))
+        self.assertFalse((self.root / "new domain").exists())
+        self.assertFalse((self.root / ".git/modules").exists())
+
+    def test_i1_index_consent_cannot_reverse_owner_deletion_during_apply(self):
+        self.owned_modules_staged_deletion()
+        plan = self.inspect(operation="submodule", target="new domain")
+        before = self.snapshot()
+        result = self.tool().apply_domain_source(
+            self.root, self.declaration, operation="submodule", config_path="bc-config.yaml",
+            expected=plan["preflight"], owned=True, index_consent=True, target="new domain",
+        )
+        self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+        self.assertIn("INDEX_CONFLICT", self.codes(result))
+        self.assertEqual([], result["written"])
+        self.assertEqual(before, self.snapshot())
+        self.assertFalse((self.root / "new domain").exists())
+
+    def test_i1_cli_new_target_does_not_restage_deleted_owner_metadata(self):
+        self.owned_modules_staged_deletion()
+        before = self.snapshot()
+        run, result = self.cli("--operation", "submodule", "--target", "new domain")
+        self.assertEqual((1, "conflict"), (run.returncode, result["status"]), result)
+        self.assertIn("INDEX_CONFLICT", self.codes(result))
+        self.assertEqual(before, self.snapshot())
+
+    def test_i1_head_metadata_case_alias_deletion_is_not_resurrected_as_lowercase(self):
+        self.owned_modules_staged_deletion(".GitModules")
+        result = self.inspect(operation="submodule", target="new domain")
+        self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+        self.assertIn("INDEX_CONFLICT", self.codes(result))
+        self.assertFalse((self.root / "new domain").exists())
+
+    def test_i1_staged_metadata_case_alias_is_not_silently_replaced(self):
+        path = self.root / ".GitModules"
+        path.write_bytes(b"# Staged owner metadata with case alias\n")
+        git(self.root, "add", "--", ".GitModules")
+        result = self.inspect(operation="submodule", target="new domain")
+        self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+        self.assertIn("INDEX_CONFLICT", self.codes(result))
+        self.assertFalse((self.root / ".git/modules").exists())
+
+    def test_i1_truly_new_untracked_gitmodules_preserves_other_staged_entries(self):
+        original = b'# New local owner metadata, never in HEAD\n[submodule "other"]\n\tpath = other\n\turl = ../other\n'
+        (self.root / ".gitmodules").write_bytes(original)
+        (self.root / "owner staged.txt").write_bytes(b"Unrelated staged owner bytes\n")
+        git(self.root, "add", "--", "owner staged.txt")
+        staged = git(self.root, "ls-files", "--stage", "--", "owner staged.txt")
+        source = source_bytes(self.source)
+        result = self.apply(operation="submodule", target="new domain", owned=True, index_consent=True)
+        self.assertEqual("materialized", result["outcome"], result)
+        self.assertTrue((self.root / ".gitmodules").read_bytes().startswith(original))
+        self.assertEqual(staged, git(self.root, "ls-files", "--stage", "--", "owner staged.txt"))
+        self.assertEqual(source, source_bytes(self.source))
+
+    def test_i1_genuinely_unborn_parent_can_materialize_new_metadata_without_commit(self):
+        root = self.workspace / "unborn BC"
+        root.mkdir()
+        git(root, "init", "--quiet", "--template=")
+        (root / "docs").mkdir()
+        (root / "docs/development.md").write_bytes((self.root / "docs/development.md").read_bytes())
+        (root / "bc-config.yaml").write_bytes(self.config.read_bytes())
+        head = (root / ".git/HEAD").read_bytes()
+        plan = self.tool().inspect_domain_source(root, self.declaration, operation="submodule", target="domain")
+        self.assertEqual("ready", plan["status"], plan)
+        result = self.tool().apply_domain_source(
+            root, self.declaration, operation="submodule", config_path="bc-config.yaml",
+            expected=plan["preflight"], owned=True, index_consent=True, target="domain",
+        )
+        self.assertEqual("materialized", result["outcome"], result)
+        self.assertEqual(head, (root / ".git/HEAD").read_bytes())
+        self.assertEqual("", git(root, "for-each-ref", "--format=%(refname)"))
+        self.assertIn("160000 " + self.version, git(root, "ls-files", "--stage", "--", "domain"))
+
+
+class WritableOverlapTests(MetadataFixture):
+    def test_m1_target_metadata_case_and_descendant_overlap_is_preflight_conflict(self):
+        for target in (".gitmodules", ".GitModules", ".gitmodules/checkout", ".GITMODULES/nested"):
+            with self.subTest(target=target):
+                result = self.inspect(operation="submodule", target=target)
+                self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+                self.assertIn("TARGET_CONFLICT", self.codes(result))
+                self.assertEqual([], result["written"])
+                self.assertFalse((self.root / ".git/modules").exists())
+
+    def test_m1_apply_impossible_target_never_creates_partial_checkout_or_module(self):
+        plan = self.inspect(operation="submodule", target=".gitmodules")
+        before = self.snapshot()
+        result = self.tool().apply_domain_source(
+            self.root, self.declaration, operation="submodule", config_path="bc-config.yaml",
+            expected=plan["preflight"], owned=True, index_consent=True, target=".gitmodules",
+        )
+        self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]), result)
+        self.assertIn("TARGET_CONFLICT", self.codes(result))
+        self.assertEqual([], result["written"])
+        self.assertEqual(before, self.snapshot())
+        self.assertFalse((self.root / ".gitmodules").exists())
+        self.assertFalse((self.root / ".git/modules").exists())
+
+    def test_m1_real_cli_rejects_metadata_target_before_any_native_setup(self):
+        before = self.snapshot()
+        run, result = self.cli("--operation", "submodule", "--target", ".gitmodules")
+        self.assertEqual((1, "conflict"), (run.returncode, result["status"]), result)
+        self.assertIn("TARGET_CONFLICT", self.codes(result))
+        self.assertEqual(before, self.snapshot())
+
+
+class GitMetadataTests(MetadataFixture):
+    def test_i3_incomplete_metadata_cannot_trigger_ancestor_git_discovery(self):
+        head = self.source / ".git/HEAD"
+        original = head.read_bytes()
+        for value in (None, b"not a Git HEAD\n"):
+            with self.subTest(value=value):
+                if value is None:
+                    head.unlink()
+                else:
+                    head.write_bytes(value)
+                before = self.snapshot()
+                result = self.tool().inspect_domain_source(self.root, self.declaration)
+                self.assertEqual(("unavailable", 2), (result["status"], result["exit_code"]), result)
+                self.assertIn("BASE_UNAVAILABLE", self.codes(result))
+                self.assertEqual(before, self.snapshot())
+        head.write_bytes(original)
+
+    def test_i3_plain_self_contained_config_comments_and_literal_values_remain_readable(self):
+        config = self.source / ".git/config"
+        original = config.read_bytes()
+        config.write_bytes(original + b'\n# [include] is a comment, not a declaration\n'
+                           b'[alias]\n\tnote = "literal [includeIf] text"\n')
+        result = self.inspect()
+        self.assertEqual("ready", result["status"], result)
+        self.assertEqual(self.version, result["location"]["baseline"])
+
+    def test_i3_plain_local_content_source_without_git_metadata_still_registers(self):
+        source = self.workspace / "plain local source"
+        source.mkdir()
+        raw = b"Exact local file bytes\r\n"
+        (source / "rule.md").write_bytes(raw)
+        selected = dict(self.declaration, kind="local", root="../plain local source",
+                        path="rule.md", baseline=digest(raw))
+        result = self.inspect(selected)
+        self.assertEqual("ready", result["status"], result)
+        self.assertEqual("registered", self.apply(selected, owned=True)["outcome"])
+        self.assertEqual(raw, (source / "rule.md").read_bytes())
+
+    def test_i3_owned_common_metadata_remains_readable_but_native_shared_setup_is_refused(self):
+        self.shared_metadata_fixture(self.source)
+        before = source_bytes(self.workspace)
+        result = self.tool().inspect_domain_source(self.root, self.declaration)
+        self.assertEqual("ready", result["status"], result)
+        native = self.tool().inspect_domain_source(self.root, self.declaration,
+                                                   operation="submodule", target="domain")
+        self.assertEqual("conflict", native["status"], native)
+        self.assertIn("SHARED_METADATA", self.codes(native))
+        self.assertEqual(before, source_bytes(self.workspace))
 
 
 if __name__ == "__main__":

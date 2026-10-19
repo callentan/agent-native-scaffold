@@ -10,7 +10,6 @@ from pathlib import Path
 import shlex
 import stat
 import subprocess
-import sys
 
 from hook_checks import HOOKS, HookInputError, git_environment, git_read, git_scope
 
@@ -58,7 +57,7 @@ def _interpreter(value, root):
             if failure:
                 raise HookInputError(failure["code"], failure["path"], failure["message"])
         raise HookInputError("INTERPRETER_UNAVAILABLE", path,
-                             "Restore the selected project venv/pyvenv.cfg and requirements.lock: "
+                             "Use a Python 3.11+ interpreter that can import the requirements.lock dependencies: "
                              + result.stderr.decode("utf-8", errors="replace").strip())
     facts = json.loads(result.stdout)
     return path, facts

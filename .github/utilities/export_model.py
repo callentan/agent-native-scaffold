@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, replace
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -13,12 +12,12 @@ from typing import Any
 import yaml
 
 from artifact_io import (
-    Artifact, ArtifactInputError, PathInput, _artifact_validator, _resolve_file,
-    _schema_validator, iter_markdown_lines, load_yaml_mapping, section_fences,
+    _sha, Artifact, ArtifactInputError, PathInput, _artifact_validator, _resolve_file,
+    _schema_validator, load_yaml_mapping, section_fences,
 )
 from check_artifacts import (
     CheckReport, Finding, Inventory, _anchors, _baseline, _decode, _domain_location, _error, _exclusion,
-    _fixed_file, _HEADING, _local_root, _network_path, _output_path, _read, read_inventory,
+    _fixed_file, _local_root, _network_path, _output_path, _read, _write_new, read_inventory,
 )
 from check_traceability import _meaningful, _table_values, section_lines
 from vt_records import owned_runs as _owned_runs, result_rows
@@ -138,10 +137,6 @@ _DIRECT_VALUES = {
         for name in ("lifecycle", "safetyClass", "currentVersion", "lastReleaseDate", "nextPlannedRelease")
     ),
 }
-
-
-def _sha(raw: bytes) -> str:
-    return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
 def _ordered(data: dict) -> dict:
@@ -624,11 +619,10 @@ def _implementation_source(reader: _Sources, path: Path, baseline: str, data: di
     collection = _validate_collected_report(reader.root, data, path, scope)
     reader.reserved_paths.update(item.resolve() for item in collection.protected)
     reader.reserved_directories.update(collection.directories)
-    for source_path, raw in collection.raw.items():
+    for source_path in collection.raw:
         if source_path.is_relative_to(reader.root):
-            _, current = reader.read(source_path.relative_to(reader.root).as_posix())
-            if raw != current:
-                raise ArtifactInputError("INPUT_CHANGED", source_path, 1, "Report adapter observed different source bytes")
+            # Registers the report's sources as protected model inputs.
+            reader.read(source_path.relative_to(reader.root).as_posix())
     for name in ("bc-config", "implementation-report"):
         contract = Path(__file__).resolve().parents[1] / "contracts" / (name + ".schema.json")
         try:
@@ -825,20 +819,14 @@ def main() -> int:
     try:
         model, report, reader = _derive(inventory, arguments.scope)
         if arguments.output is not None:
-            path = _output_path(arguments.output, arguments.root, (".json", ".yaml", ".yml"))
+            path = _output_path(arguments.output, _local_root(arguments.root), (".json", ".yaml", ".yml"))
             if reader.reservation_errors:
                 raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Malformed declared source/evidence locations prevent safe output isolation")
             if path in reader.reserved_paths or any(path.is_relative_to(directory) for directory in reader.reserved_directories):
                 raise ArtifactInputError("REPORT_CONFLICT", path, 1, "Output is a registered source/selection path, even if absent")
             content = (json.dumps(model, ensure_ascii=False, sort_keys=True, indent=2)
                        if path.suffix.lower() == ".json" else yaml.safe_dump(model, allow_unicode=True, sort_keys=True).rstrip())
-            try:
-                with path.open("x", encoding="utf-8", newline="\n") as destination:
-                    destination.write(content + "\n")
-            except FileExistsError as error:
-                raise ArtifactInputError("REPORT_CONFLICT", path, 1, str(error)) from error
-            except OSError as error:
-                raise ArtifactInputError("REPORT_WRITE_ERROR", path, 1, str(error)) from error
+            _write_new(path, content + "\n")
         print(json.dumps(model, ensure_ascii=False, sort_keys=True, indent=2))
         return 0
     except ArtifactInputError as error:

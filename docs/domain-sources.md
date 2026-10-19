@@ -33,7 +33,8 @@ materialization 的目标，既有内容就是冲突，不能删除占位、覆�
   配置必须符合原 schemaVersion 1，并指向真实的开发登记文件/锚点。本工具不初始化项目配置。
 - 来源 `root` 是相对此项目根的明确目录，可用 `../已有领域源` 选择获准的独立本地源；
   `path` 只相对此源根解释。允许空格/中文和单独的 `.`，不展开变量，不修剪重复目录。
-  根中取消掉的父遍历也须可核实，symlink/junction、越界或 Git/环境数据路径被拒绝。
+  来源根按宿主正常方式解析，经过 symlink/junction 的祖先路径与其实际位置等价；`..` 先按字面
+  归一，使 Windows/Linux/macOS 得到同一位置。越出项目或来源根、Git/环境数据路径仍被拒绝。
 - `git` 来源须给可读的完整小写 40/64 位 **commit**；`local` 可用同样的 commit，
   或一个文件的原始 `sha256:` 摘要。commit 的文件/目录须与本地实际文件集和 bytes 一致。
   SHA256 不是目录摘要。没有默认 HEAD、main/master、分支、短号、tree/blob/tag、index 或远端 fallback。
@@ -43,27 +44,17 @@ materialization 的目标，既有内容就是冲突，不能删除占位、覆�
   不探测 DNS、凭据或远端，不 fetch/clone 网络来源。需要网络资料时先在单独获授权的流程准备本地 checkout。
 
 <a id="git-config-boundary"></a>
-### Git 本地配置也属于读取边界
+### Git 调用环境
 
-`protocol.allow=never` 只限制 Git transport，不能阻止 `include.path` /
-`includeIf` 读取其他文件。调用共享原始 Git reader 或本工具原生命令前，先检查源仓与
-父仓的本地 Gitfile、commondir、config 和选定 metadata 中的 config.worktree（若存在）。
-metadata 必须是可核实的本地普通文件/目录；不解析网络指针，也不借用祖先仓库。
-没有 Git metadata 的普通 local 文件来源仍可按内容摘要检查，不因此要求建立仓库。
+工具用干净的 Git 环境运行本地命令：不继承仓库/index/对象位置覆盖，禁用全局/系统配置、
+网络 transport 与交互提示，保留宿主 Git 自身所需的 `GIT_EXEC_PATH`。每次调用把
+`GIT_CEILING_DIRECTORIES` 设为所选根的上级目录，因此不完整或缺失的 Git metadata 返回
+`BASE_UNAVAILABLE`，不会通过 discovery 借用祖先仓库。没有 Git metadata 的普通 local 文件
+来源仍可按内容摘要检查，不因此要求建立仓库。
 
-本实现不支持 Git 配置 include，即使路径是本地或条件看似不会命中，也在运行受影响的
-Git 命令前返回 `GIT_CONFIG_INCLUDES_UNSUPPORTED`。检查只识别声明，不展开条件/路径，
-不调用 `git config` 去探测 include，不读取被包含文件，不修改或自动展开所有者配置。
-`#` / `;` 注释以物理换行结束，注释中的反斜杠不会把下一行 header 拼入注释。
-只在注释外识别 LF/CRLF continuation；不完整或不支持的 CR continuation 先返回
-`GIT_CONFIG_UNSAFE`。普通注释和实际 quoted literal 仍可读取，不因这项防护被一律拒绝。
-Gitfile/commondir 的网络指针、别名、非普通配置或不完整 metadata 返回
-`GIT_CONFIG_UNSAFE` / `BASE_UNAVAILABLE`，不通过 Git discovery 查找替代位置。
-原生本地 clone 前还会重查准确源仓；显式配置文件相对其命令 cwd 检查。
-
-需要 include 的项目应先由所有者在另一个获授权的范围准备自包含配置；本工具不删除
-这些声明或更改 user/global config。这是有限的执行前读取防护，不是通用 Git 配置
-解释器、OS ACL 或恶意并发文件系统的隔离保证。
+仓库自身的 Git 配置（包括 include）按 Git 原生规则生效，工具不另行解析或改写所有者配置。
+需要严格隔离外部配置时，应在获授权的独立环境中准备本地 checkout；这不是 OS ACL 或
+恶意并发文件系统的隔离保证。
 
 register 保留其他键、来源条目、注释及换行 bytes，只编辑 `domainSources`：
 可追加独立的 `domainSources: []` 或 block-style list；不为编辑 flow-style/JSON/无法安全定位的
@@ -102,13 +93,12 @@ submodule 另需 `target` 与独立 `index_consent=True`。这些参数只是显
 
 `BASE_MISMATCH` 是 conflict；缺失/非法固定对象为 unavailable。
 `SOURCE_ID_CONFLICT / SOURCE_ALIAS / TARGET_CONFLICT / SUBMODULE_CONFLICT / INDEX_CONFLICT`
-保留冲突范围。`INPUT_CHANGED` 也包括 inspect 内部取得配置后发生的修改：
-已解析的原始 bytes 参与 token，后续一致性读取不符就停止，不返回“按 A 规划、用 B 标识”的 ready。
-必须重新核对，不能沿用旧 token；这些检查不构成完整的文件系统事务。
+保留冲突范围。`INPUT_CHANGED` 表示 apply 时重新取得的 preflight 与给定 `--expect` 不同：
+已解析的原始 bytes 参与 token，必须重新 inspect，不能沿用旧 token。
 `OWNERSHIP_CONSENT_REQUIRED / PREFLIGHT_REQUIRED / INDEX_CONSENT_REQUIRED` 不授予隐含许可。
 
-检查及打开间不构成 OS 事务，工具也不是恶意并发进程的 sandbox。
-显式写入前再次核对所选 bytes/身份；不要在来源或目标仍被其他进程修改时应用。
+每个输入只读一次；工具不是文件系统事务，也不是恶意并发进程的 sandbox。
+不要在来源或目标仍被其他进程修改时 inspect 或 apply。
 
 <a id="cli"></a>
 ## 默认只读 CLI
