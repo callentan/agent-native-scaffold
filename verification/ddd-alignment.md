@@ -53,16 +53,27 @@ Tests covered verify-mode report-under-candidate rejection without a candidate i
 - New-root copy: source HEAD `4ec5efbc199f4c61878ef35a0af29167fed0af69` plus five recorded dirty paths; 132 listed files copied, 41 actual Git-inventory paths excluded, manifest SHA-256 `24eabdd69f5b7df5d621e5f7e7a629d8818a842fae1899c7b0179426c0711660`. A direct file-by-file check found 132/132 candidate files matching the copy receipt with 0 mismatches/missing files. The subsequent post-commit verification is retained in the session-local Task12 report.
 - Exact report/output hashes, commands, cwd, executable, full path inventory, and dirty scope are in `task12-evidence/fix1/takeover-20261019/` and the append-only session-local `task12-report.md`. The runner-reported first 37-method focused attempt had one test-only `KeyError`; that failed receipt is preserved but not counted. The corrected 39/39 focused report is the applicable focused result.
 
+## Fix2 / round2: committed-source provenance correction
+
+The fix1 committed-source verification report remains preserved as history but is **superseded for provenance**: its byte check returned `valid`/132, while `source_commit` was an empty list and `dirty_scope` held the commit string. The root cause was the `_verify_receipt` call passing `dirty, commit` to a signature expecting `commit, dirty`.
+
+The fix2 regression performs a real CLI verification of an actual candidate copy; it obtains expected `HEAD` and `git status --porcelain` independently of the copier, asserts the exact commit and path/status pairs, checks all 132 candidate hashes against independently read current source bytes, and confirms the report is outside both source and candidate.
+
+- Exact fix1-commit RED: Python 3.11.15 / Windows 10 build `10.0.26200`; the focused distribution module discovered/executed 40 tests, 1 expected failure in the new provenance test, 0 errors/skips; exit 1. The retained raw receipt shows the swapped report fields. The baseline was exact commit `d3efa8ffbcc133c78cb68d545827a32e05128720`; report/raw output are in `task12-evidence/fix2-provenance/`.
+- Focused GREEN after the one-argument-order correction: **40/40**, 0 failures/errors/skips, exit 0, `inputs_unchanged=true`.
+- One final minimum-version retained+new suite after fix2: **857/857**, 0 failures/errors/skips, exit 0, `inputs_unchanged=true`; the original 848/848 and fix1 856/856 results remain separate.
+- The new-root candidate copy and its post-fix2-commit verification, including the exact commit and clean dirty scope, are recorded separately in the same session-local Task12 report. The new target/receipts are distinct from both the original Task12 candidate and the fix1 candidate; the malformed fix1 provenance report is retained and not overwritten.
+
 ## Open gates and handoff
 
 | Gate | State and reason |
 |---|---|
 | Task12 independent scoped review | Pending; local implementation, full suite, and candidate receipts are not independent review. |
-| Final retained+new Python 3.11 suite | Fix1 pass: 856 discovered/executed, 0 skips/failures/errors; the initial Task12 848/848 receipt remains a separate historical run. Runner input hashes and raw output are in the session-local report/evidence. |
+| Final retained+new Python 3.11 suite | Fix2 pass: 857 discovered/executed, 0 skips/failures/errors; initial Task12 848/848 and fix1 856/856 remain separate historical runs. Runner input hashes and raw output are in the session-local report/evidence. |
 | Human/App/native-client and T17 observations | `not-run`; no human or client simulation was performed. |
 | Real application, generated code, and application behavior | `not-run`; no application project, stack, or command was selected. |
 | Hosted CI, native POSIX hooks, required checks, external platform operations, and publication | `not-run`; no platform configuration or external action was authorized. |
 | Audio, PDF/PPTX, provider/billing/actual usage | `not-run` or unavailable; no service, renderer, provider, actual usage, or charge was invoked. |
 | Historical results and applicability | Preserved under their original maker records/baselines; not copied into the candidate or upgraded to current passes. |
 
-Task12's local implementation is handed off for independent scoped review; the single local commit, committed-source candidate verification, and complete session-local report preserve the final source identity and evidence. Keep the separate not-run gates visible. The local candidate is not a release or a declaration that ENH-01–18 are all satisfied.
+Task12's local implementation is handed off for independent scoped review; fix1 and fix2 commits, the superseding committed-source candidate verification, and the complete session-local report preserve the source identity and evidence history. Keep the separate not-run gates visible. The local candidate is not a release or a declaration that ENH-01–18 are all satisfied.

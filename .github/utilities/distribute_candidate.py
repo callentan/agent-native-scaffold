@@ -1418,7 +1418,7 @@ def main(argv: list[str] | None = None) -> int:
                     _validate_sources(root, safe_root)
                 payload = _verify_receipt(
                     root, candidate, candidate_root, manifest, manifest_sha, snapshots,
-                    excluded, dirty, commit, source_paths, allowed_roots,
+                    excluded, commit, dirty, source_paths, allowed_roots,
                 )
             finally:
                 candidate_root.close()

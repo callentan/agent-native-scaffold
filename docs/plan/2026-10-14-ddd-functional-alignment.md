@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭。Task12 首轮 retained+new 全套 848/848 已完成；2026-10-19 fix1 定向模块 39/39、修正后的唯一 retained+fix 全套 856/856 也已完成，当前只待独立 scoped review。详细候选清单、缺口和结果分别见制作侧验收记录及 Task12 session-local report；不表示发布或全仓 parity。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭。Task12 首轮 retained+new 全套 848/848、fix1 全套 856/856 与 fix2 全套 857/857 分别保留；fix1 定向 39/39、fix2 定向 40/40 均通过。fix2 修正了 fix1 committed-source 报告的 provenance 参数顺序；新的唯一候选复制与提交后验证及对应 provenance 记录见 Task12 session-local report。当前只待独立 scoped review，不表示发布或全仓 parity。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
 
 ## 1. 文件结构与职责
 
@@ -482,6 +482,8 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 **Fix1 接续（2026-10-19）：** 原实现者不可用后，在保留 HEAD `4ec5efbc199f4c61878ef35a0af29167fed0af69`、原候选与既有证据的前提下继续同一工作区。报告输出现拒绝源树/候选重叠；源与候选 hardlink 在读取前拒绝；实际 Windows junction 竞争由句柄相对 no-reparse I/O 阻断。8 项真实文件/硬链接/目录替换边界用例在精确原始 copier 上 RED（7 失败、保留的 copy-mode overlap 1 通过）；修正后定向 39/39 与唯一最低版 retained+fix 856/856 通过，0 跳过/失败/错误。精确命令、cwd、环境、报告/输出散列及新根 candidate 复制和提交后验证见 [制作侧验收记录](../../verification/ddd-alignment.md) 与 Task12 session-local report。此前首轮 848/848 结果保持原样，不合并计数。当前仍等待独立 scoped review；此结果不表示业务/应用/客户端/平台验收、发布或整体 parity。
 
+**Fix2 / round2（2026-10-19）：** 提交 fix1 后发现 `_verify_receipt` 调用参数把 `dirty` 与 `commit` 反序传入，导致字节验证虽然有效，fix1 receipt 的 `source_commit`/`dirty_scope` 颠倒。新增真实 CLI provenance 测试：独立通过 Git 查询期望 HEAD 与 porcelain dirty paths，检查 132 项数量/散列，并使用候选外新 report。精确 fix1 commit 上 focused 40 项中只有该新例按预期 RED（其余 39 通过）；最小修正参数顺序后 focused 40/40、唯一 Python 3.11.15 retained+new 全套 857/857 通过，0 跳过/失败/错误。fix1 的 848/856 收据与 malformed verification receipt 均保留；fix2 的新唯一 candidate copy、提交后验证和正确 provenance 在 session-local Task12 report 中单独记录，不与旧运行合并。新的提交是 fix1 之后的窄 coauthored follow-up；review、Task13/14、外部与发布关卡仍未执行。
+
 **当前退出状态：** Task12 本地实现与证据整理完成，等待独立限定复核；manifest 是唯一文件清单，候选/局部测试均不构成发布或整体 parity 结论。
 
 ### 任务 13：真实行为和客户端验收
@@ -655,4 +657,4 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 首轮 848/848 与 fix1 唯一最低版 retained+fix 856/856 全套均已完成，fix1 定向 39/39 通过；精确文件级 candidate 及提交后验证另有回执，当前等待独立范围复核。Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 首轮 848/848、fix1 856/856 与 fix2 857/857 retained+new 全套，以及 fix2 定向 40/40 结果均按各自报告保留；fix1 malformed committed-source provenance 被 fix2 修正并由新提交后验证单独证明。Task12 当前等待独立范围复核。Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。

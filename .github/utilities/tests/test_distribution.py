@@ -1334,6 +1334,63 @@ class DistributionTests(unittest.TestCase):
             self.assertIn(b"not-run", current_bytes)
         self.assertIn("Allowance limit: 3", rule.read_text(encoding="utf-8"))
 
+    def test_fix2_dist_20_verification_receipt_preserves_commit_and_dirty_scope(self):
+        expected_commit = git(WORKTREE, "rev-parse", "HEAD")
+        git_environment = {key: value for key, value in os.environ.items()
+                           if not key.startswith("GIT_")}
+        git_environment.update({
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_OPTIONAL_LOCKS": "0",
+        })
+        status_run = subprocess.run(
+            ["git", "--no-pager", "-c", "core.quotepath=false", "-c", "core.fsmonitor=false",
+             "status", "--porcelain=v1", "--untracked-files=all", "--ignore-submodules=all"],
+            cwd=WORKTREE, env=git_environment, shell=False, capture_output=True,
+            text=True, encoding="utf-8",
+        )
+        self.assertEqual(0, status_run.returncode, status_run.stdout + status_run.stderr)
+        status_lines = status_run.stdout.splitlines()
+        expected_dirty = sorted(
+            ({"status": line[:2], "path": line[3:]} for line in status_lines),
+            key=lambda item: item["path"],
+        )
+        candidate, _ = self.copied_candidate("verify-provenance")
+        before = source_bytes(candidate)
+        report_path = self.report_workspace / "verification-provenance.json"
+        self.assertFalse(report_path.is_relative_to(candidate))
+        self.assertFalse(report_path.is_relative_to(WORKTREE))
+
+        run = subprocess.run(
+            [sys.executable, "-B", "-X", "utf8", str(COPY_TOOL),
+             "--root", str(WORKTREE), "--verify", str(candidate),
+             "--allow-output-root", str(self.workspace),
+             "--allow-output-root", str(self.report_workspace),
+             "--report", str(report_path)],
+            cwd=WORKTREE, shell=False, capture_output=True, text=True, encoding="utf-8",
+        )
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        verification = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual("valid", verification["status"])
+        self.assertEqual(0, verification["exit_code"])
+        self.assertEqual(expected_commit, verification["provenance"]["source_commit"])
+        self.assertEqual(
+            expected_dirty,
+            sorted(verification["provenance"]["dirty_scope"], key=lambda item: item["path"]),
+        )
+
+        expected_hashes = {
+            entry["path"]: sha256(
+                WORKTREE.joinpath(*PurePosixPath(entry["path"]).parts).read_bytes()
+            )
+            for entry in self.manifest()["files"]
+        }
+        reported_hashes = {item["path"]: item["candidate_sha256"] for item in verification["files"]}
+        self.assertEqual(len(expected_hashes), 132)
+        self.assertEqual(132, verification["verified_count"])
+        self.assertEqual(expected_hashes, reported_hashes)
+        self.assertEqual(before, source_bytes(candidate))
+
     def test_dist_19_candidate_verifier_reports_missing_and_drifted_files(self):
         candidate, _ = self.copied_candidate("resource-drift")
         drifted = candidate / "README.md"
