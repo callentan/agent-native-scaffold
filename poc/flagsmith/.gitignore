@@ -1,0 +1,18 @@
+**/node_modules/
+**/dist/
+**/bin/
+**/obj/
+.worktrees/
+
+# Local-only POC configuration and generated verification artifacts.
+poc/**/poc-config.json
+poc/**/.env
+poc/**/.env.*
+poc/**/appsettings.Local.json
+poc/**/appsettings.*.local.json
+poc/**/local-secrets/
+poc/**/local-config/
+poc/frontend/.angular/
+poc/**/playwright-report/
+poc/**/test-results/
+poc/**/*.log

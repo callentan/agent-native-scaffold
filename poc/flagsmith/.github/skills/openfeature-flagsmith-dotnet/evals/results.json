@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-16",
+  "method": "Five fresh no-guidance controls, one pre-edit guide application, five fresh guided applications, then one focused post-refactor Angular application.",
+  "modelSelection": "Runtime defaults; model identifiers were not captured. No model override or external model API was used.",
+  "responseStorage": "Full responses are retained in the originating Copilot session tool transcript; this portable record contains manually checked verbatim excerpts and observations, not a full response corpus.",
+  "controls": [
+    {
+      "name": "control-1",
+      "evidence": [
+        "// In local mode this primes the environment document.",
+        "\"Flagsmith\": \"Information\"",
+        "// degraded=true does not force checkout_v2=false."
+      ],
+      "failures": ["Remote-capable warmup treated as local readiness", "Information-level SDK logging retained", "Degraded positive UI result accepted"]
+    },
+    {
+      "name": "control-2",
+      "evidence": [
+        "new FlagsmithConfig",
+        "public void Dispose() => client.Dispose();",
+        "\"Flagsmith\": \"None\""
+      ],
+      "failures": ["Unverified configuration and disposal APIs", "SDK diagnostics disabled entirely", "Degraded positive UI result accepted"],
+      "successes": ["Document-only HTTP guard proposed"]
+    },
+    {
+      "name": "control-3",
+      "evidence": [
+        "await client.GetEnvironmentFlags(stoppingToken);",
+        "\"Flagsmith\": \"Information\"",
+        "checkout_v2: raw.degraded ? false : raw.flags.checkout_v2"
+      ],
+      "failures": ["Remote-capable warmup treated as local readiness", "Unsupported cancellation overload assumed", "Information-level SDK logging retained"],
+      "successes": ["Conservative degraded UI decision"]
+    },
+    {
+      "name": "control-4",
+      "evidence": [
+        "new Flagsmith900LocalEvaluator",
+        "Flagsmith900LocalEvaluator is the thin 9.0.0 adapter.",
+        "// Preserve degraded=true and checkout_v2=true exactly as returned."
+      ],
+      "failures": ["Critical evaluator adapter left unimplemented", "Degraded positive UI result accepted"],
+      "successes": ["Document-only HTTP guard proposed"]
+    },
+    {
+      "name": "control-5",
+      "evidence": [
+        "?? \"https://api.flagsmith.com/api/v1/\"",
+        "await client.GetEnvironmentFlags();"
+      ],
+      "failures": ["Implicit SaaS fallback introduced", "Remote-capable warmup treated as local readiness", "Degraded positive UI result accepted"]
+    }
+  ],
+  "preEditGuide": {
+    "finding": "The guide contained operational requirements but left the transport guard, Angular state/lifecycle, and degraded override to the implementer.",
+    "evidence": "If `degraded=true` and `checkout_v2=true`, `installSnapshot` still installs `true`, and `readCheckoutV2()` returns `true`."
+  },
+  "guidedApplications": [
+    {
+      "name": "guided-1",
+      "coreDecisions": "Document-only guard; approved smoke before traffic; exact FlagsmithSdk Warning filter; bound context/generation; degraded=false required for new UI; frontend scope preserved.",
+      "freshness": "Explicitly described independent expiry and visibility restoration.",
+      "evidence": "Recheck the clock on `visibilitychange` before using a restored snapshot."
+    },
+    {
+      "name": "guided-2",
+      "coreDecisions": "Document-only guard; approved smoke before traffic; exact FlagsmithSdk Warning filter; bound context/generation; degraded=false required for new UI; frontend scope preserved.",
+      "freshness": "Explicitly described independent expiry and visibility restoration.",
+      "evidence": "on visibility restoration, recheck `expiresAt` before refreshing"
+    },
+    {
+      "name": "guided-3",
+      "coreDecisions": "Document-only guard; approved smoke before traffic; exact FlagsmithSdk Warning filter; bound context/generation; degraded=false required for new UI; frontend scope preserved.",
+      "freshness": "Explicitly described independent expiry and visibility restoration.",
+      "evidence": "On `visibilitychange` to visible, recheck `expiresAt` against `Date.now()` before refreshing."
+    },
+    {
+      "name": "guided-4",
+      "coreDecisions": "Document-only guard; approved smoke before traffic; exact FlagsmithSdk Warning filter; bound context/generation; degraded=false required for new UI; frontend scope preserved.",
+      "remainingGaps": ["Visibility-restoration handling omitted from the response", "Reconstructed validation used Record<string, any> instead of the typed reference"],
+      "evidence": "const x = raw as Record<string, any>;"
+    },
+    {
+      "name": "guided-5",
+      "coreDecisions": "Document-only guard; approved smoke before traffic; exact FlagsmithSdk Warning filter; bound context/generation; degraded=false required for new UI; frontend scope preserved.",
+      "remainingGaps": ["Visibility-restoration handling omitted from the response"],
+      "evidence": "expiryTimer intentionally remains active"
+    }
+  ],
+  "refinement": {
+    "change": "Task routing now names tab restoration; implementation instructions start from the typed working service; the BFF handoff explicitly requires late-work, degradation, pending-refresh expiry, visibility, and teardown coverage.",
+    "focusedRetest": "Fresh frontend-only application preserved the existing BFF/backend scope and named the context source and every required lifecycle guard.",
+    "evidence": [
+      "On visible-tab restoration, recheck TTL before using state or refreshing; do not trust throttled timers.",
+      "Given the stated compatible BFF, I would change nothing backend-side."
+    ]
+  },
+  "executableEvidence": {
+    "originalDotnetStartupRed": "FAIL: startupFailed=False, remoteEvaluations=1; expected true and zero.",
+    "dotnet": "Three real-SDK/synthetic-transport scenarios passed, including document failure with a successful remote endpoint, local hot-path evaluation, Details, logging, and blocked requests.",
+    "angular": "Twenty TypeScript/service cases passed, including degraded payloads, identity changes, pending-refresh expiry, read-time TTL after a previous positive read, authorization failures, owner-safe provider teardown, and SSR state isolation.",
+    "structure": "English text, frontmatter, local links/anchors, PowerShell labels/syntax, and support-file checks passed."
+  },
+  "focusedCodeReview": {
+    "initialFindings": [
+      "Angular computed cached a positive decision after TTL when no reactive dependency changed.",
+      "The global browser provider retained a closure to a destroyed service."
+    ],
+    "redEvidence": "Three new regression tests failed: browser cached TTL, SSR cached TTL, and releasing the owned global provider. The replacement-owner test already passed.",
+    "corrections": [
+      "Use an uncached decision accessor that reads the state signal and checks current time on every invocation.",
+      "Retain the provider instance; on browser teardown, replace its binding with NOOP_PROVIDER only if its metadata object is still the active owner."
+    ],
+    "greenEvidence": "All twenty Angular cases and all three .NET scenarios passed after both corrections.",
+    "scope": "The reviewer did not rerun the corrected implementation; regression results are the post-fix evidence."
+  },
+  "limitations": [
+    "The guided responses were reasoned implementations, not individually compiled generated applications.",
+    "The control/guided comparison is a small diagnostic sample, not a statistical reliability benchmark.",
+    "A focused scenario was rerun after the final wording refinement; the entire five-sample comparison was not repeated.",
+    "No target business application, real identity flow, rendered Angular template, live BFF, live browser provider, or cloud deployment was certified.",
+    "The pinned .NET native SDK still lacks a deterministic polling teardown contract; the harness exits its process."
+  ]
+}

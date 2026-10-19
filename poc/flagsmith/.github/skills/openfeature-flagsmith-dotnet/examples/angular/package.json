@@ -1,0 +1,20 @@
+{
+  "name": "openfeature-angular-bff-reference",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pretest": "tsc --project tsconfig.json",
+    "test": "node --test dist/feature-session.spec.js"
+  },
+  "dependencies": {
+    "@angular/common": "20.3.0",
+    "@angular/core": "20.3.0",
+    "@openfeature/web-sdk": "1.10.0",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@angular/compiler": "20.3.0",
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3"
+  }
+}

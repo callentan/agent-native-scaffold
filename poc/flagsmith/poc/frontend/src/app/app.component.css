@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+
+.page {
+  box-sizing: border-box;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+h1,
+h2 {
+  margin-top: 0;
+}
+
+section {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.user-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+select {
+  width: 100%;
+  max-width: 20rem;
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.user-details {
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+}
+
+.user-details div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+dt {
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+dd {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.frontend-state--legacy {
+  background: #f8fafc;
+}
+
+.frontend-state--new {
+  border: 2px solid #0f766e;
+  background: #ccfbf1;
+}
+
+.frontend-state p,
+.backend-state p {
+  min-height: 1.5rem;
+}
+
+button {
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.inline-error {
+  color: #b91c1c;
+}
+
+.inline-status {
+  color: #475569;
+}
+
+output {
+  display: block;
+  min-height: 1.5rem;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}

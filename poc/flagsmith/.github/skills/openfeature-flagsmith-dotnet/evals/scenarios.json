@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "microtest": {
+    "repetitionsPerVariant": 5,
+    "variants": ["no-guidance", "with-skill"],
+    "task": "Two existing-app tickets are due in 30 minutes and the release lead asks for minimal changes: A) .NET 10 service, Flagsmith 9.0.0, local evaluation required, Information logging by default. Supply the minimal startup/lifecycle C# and appsettings logging change to guarantee no remote evaluation if the environment document is unavailable; the /flags endpoint may still respond successfully. Keep evaluation errors observable without logging raw rules. B) Angular 20 CSR app already has an authenticated GET /api/ui-features BFF and existing HttpClient interceptors. Only frontend changes are authorized. Snapshot shape: schemaVersion=1, contextVersion, evaluatedAt, expiresAt, degraded, flags.checkout_v2. Supply the concrete service/update algorithm for identity changes, an old response finishing late, degraded=true with checkout_v2=true, and TTL expiry. Do not implement unrelated backend/infra work. Output only a compact implementation response with code/algorithm and scope.",
+    "rubric": [
+      {
+        "id": "local-only",
+        "pass": "Block every non-document SDK request before transport; require real local smoke evaluation before provider readiness. A /flags success cannot satisfy readiness."
+      },
+      {
+        "id": "logging",
+        "pass": "Filter the exact configured SDK logger category to Warning or above, preserve warning/error diagnostics, and report safe metadata rather than bodies."
+      },
+      {
+        "id": "real-apis",
+        "pass": "Use the documented FlagsmithConfiguration and real provider APIs, or directly reuse the supplied compiled helper. Do not invent SDK readiness/disposal methods."
+      },
+      {
+        "id": "degraded",
+        "pass": "A degraded snapshot cannot enable checkout_v2, even if the payload says true; report the fallback."
+      },
+      {
+        "id": "identity",
+        "pass": "Clear immediately on session change, require the trusted expected context version, and prevent late old work from restoring a decision."
+      },
+      {
+        "id": "freshness",
+        "pass": "Expiry remains effective during refresh; every decision accessor rechecks time even after a previous positive read, including SSR; background restoration clears expired results."
+      },
+      {
+        "id": "scope",
+        "pass": "Preserve existing interceptors and BFF. No unrequested backend, framework migration, infrastructure, commit, or deployment."
+      }
+    ]
+  },
+  "applicationScenarios": [
+    {
+      "id": "backend-only",
+      "task": "Add a Boolean rollout flag to an existing ASP.NET Core service. No frontend is present.",
+      "expected": ["Read the .NET route only", "Do not request Angular version or add frontend packages", "Preserve authentication", "Pass invocation context", "Observe Details"]
+    },
+    {
+      "id": "frontend-existing-bff",
+      "task": "Add checkout_v2 UI gating to Angular with an existing compatible authenticated BFF. Backend and infrastructure changes are not authorized.",
+      "expected": ["Use the Angular BFF example", "Require session contextVersion", "Use existing HttpClient interceptors", "Validate unknown JSON", "Do not modify the backend"]
+    },
+    {
+      "id": "document-failure",
+      "task": "The environment-document endpoint returns 503 while /flags responds 200. Local-only evaluation is mandatory.",
+      "expected": ["Startup is not ready", "Block remote fallback before transport", "Do not treat GetEnvironmentFlags success as proof", "No silent mode switch"]
+    },
+    {
+      "id": "identity-and-expiry",
+      "task": "Tenant A's old request finishes after switching to B. A refresh is pending when the old snapshot expires. The BFF returns degraded=true with checkout_v2=true.",
+      "expected": ["Clear A immediately", "Ignore late A work", "Keep expiry independent of refresh", "Do not cache a positive decision beyond TTL", "Suppress new UI on degradation", "Emit bounded reason-code telemetry"]
+    },
+    {
+      "id": "ssr",
+      "task": "Two authenticated users render concurrently through Angular SSR, then hydrate.",
+      "expected": ["Request-owned state", "No server global OpenFeature provider/context", "Transfer only safe fields", "Validate identity and TTL on every decision read and hydration", "No personalized static prerender"]
+    },
+    {
+      "id": "out-of-scope",
+      "task": "Explain an existing flag key or review a frontend change without implementing anything.",
+      "expected": ["Answer or review only", "Do not run the integration workflow unconditionally", "Do not deploy or change production flags"]
+    }
+  ]
+}

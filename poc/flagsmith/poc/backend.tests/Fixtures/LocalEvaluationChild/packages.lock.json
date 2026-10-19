@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Flagsmith": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "tcRVws0p9/0JYbkedSFlGUyeF7jdN7u37gUaUP8HHJ1Zgb1Z52C+S7L6IUEKeXYsAG49OHEqixehsqQa21K+5Q==",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "Polly": "7.2.3",
+          "semver": "2.3.0"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+      },
+      "OpenFeature": {
+        "type": "Transitive",
+        "resolved": "2.14.1",
+        "contentHash": "ubw4ACEyAcHzeRNepzStTE0DgIJHpsYqRNcvdghUpPFXIf9whYiZlYLgBU6jdI2qdoVMXBrzqP6y9w9iDOuEDQ=="
+      },
+      "OpenFeature.Contrib.Providers.Flagsmith": {
+        "type": "Transitive",
+        "resolved": "0.3.1",
+        "contentHash": "bZCdjTifD3lhEqhbnSDsUjnZRivrfV9+PzDuUE82k0A9+DHW6X91rC1oPYDI3mBTLtTXcdx8KoOq0pul8yOvDg==",
+        "dependencies": {
+          "Flagsmith": "[8.0.1, 10.0.0)",
+          "OpenFeature": "[2.0.0, 3.0.0)"
+        }
+      },
+      "Polly": {
+        "type": "Transitive",
+        "resolved": "7.2.3",
+        "contentHash": "DeCY0OFbNdNxsjntr1gTXHJ5pKUwYzp04Er2LLeN3g6pWhffsGuKVfMBLe1lw7x76HrPkLxKEFxBlpRxS2nDEQ=="
+      },
+      "Semver": {
+        "type": "Transitive",
+        "resolved": "2.3.0",
+        "contentHash": "4vYo1zqn6pJ1YrhjuhuOSbIIm0CpM47grbpTJ5ABjOlfGt/EhMEM9ed4MRK5Jr6gVnntWDqOUzGeUJp68PZGjw=="
+      },
+      "poc.api": {
+        "type": "Project",
+        "dependencies": {
+          "Flagsmith": "[9.0.0, )",
+          "OpenFeature": "[2.14.1, )",
+          "OpenFeature.Contrib.Providers.Flagsmith": "[0.3.1, )"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+# Baseline for Flagsmith Chart 0.84.0. This is not a complete production release.
+# See docs/private-deployment.md for prerequisites and environment overlays.
+devPostgresql:
+  enabled: false
+
+databaseExternal:
+  enabled: true
+  urlFromExistingSecret:
+    enabled: true
+    name: flagsmith-runtime
+    key: DATABASE_URL
+
+api:
+  replicacount: 3
+  image:
+    tag: "2.285.0"
+  secretKeyFromExistingSecret:
+    enabled: true
+    name: flagsmith-runtime
+    key: DJANGO_SECRET_KEY
+  enableMigrateDbInitContainer: false
+  bootstrap:
+    enabled: false
+  logging:
+    format: json
+  extraEnv:
+    ENV: production
+    PREVENT_SIGNUP: "true"
+    ALLOW_REGISTRATION_WITHOUT_INVITE: "false"
+    ENABLE_ADMIN_ACCESS_USER_PASS: "false"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+frontend:
+  replicacount: 2
+  image:
+    tag: "2.285.0"
+  apiProxy:
+    enabled: false
+  extraEnv:
+    FLAGSMITH_API_URL: "https://flags-admin.internal.example.com/api/v1/"
+    FLAGSMITH_ON_FLAGSMITH_API_URL: "https://flags-admin.internal.example.com/api/v1/"
+    USE_SECURE_COOKIES: "true"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+taskProcessor:
+  enabled: true
+  replicacount: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+hpa:
+  api:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilization: 60
+  taskProcessor:
+    enabled: false
+  sse:
+    enabled: false
+
+pdb:
+  api:
+    enabled: true
+    minAvailable: 2
+  frontend:
+    enabled: true
+    minAvailable: 1
+
+jobs:
+  migrateDb:
+    enabled: false
+
+ingress:
+  frontend:
+    enabled: false
+  api:
+    enabled: false
+  sse:
+    enabled: false
+
+sse:
+  enabled: false
+
+experimentation:
+  enabled: false
+
+tests:
+  enabled: false
+
+_destructiveTests:
+  enabled: false

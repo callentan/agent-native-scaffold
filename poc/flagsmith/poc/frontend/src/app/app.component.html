@@ -1,0 +1,64 @@
+<main class="page">
+  <h1>Feature flag POC</h1>
+
+  <section class="user-panel" aria-labelledby="user-heading">
+    <h2 id="user-heading">Demo user</h2>
+    <label for="demo-user">Select a fixed demo user</label>
+    <select
+      id="demo-user"
+      data-testid="demo-user"
+      [value]="selectedUserId()"
+      #demoUserSelect
+      (change)="onUserChange(demoUserSelect.value)">
+      @for (user of users(); track user.id) {
+        <option [value]="user.id">{{ user.label }}</option>
+      }
+    </select>
+    <dl class="user-details">
+      <div>
+        <dt>ID</dt>
+        <dd data-testid="selected-user-id">{{ selectedUser()?.id ?? '' }}</dd>
+      </div>
+      <div>
+        <dt>beta</dt>
+        <dd data-testid="selected-user-beta">{{ selectedUser()?.beta ? 'true' : 'false' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section
+    class="frontend-state"
+    [class.frontend-state--new]="
+      frontendState().status === 'ready' && frontendState().enabled
+    "
+    [class.frontend-state--legacy]="
+      frontendState().status === 'ready' && !frontendState().enabled
+    "
+    aria-labelledby="frontend-heading">
+    <h2 id="frontend-heading">Frontend flag</h2>
+    @if (frontendState().status === 'loading') {
+      <p data-testid="frontend-result">Frontend loading…</p>
+    } @else if (frontendState().status === 'ready') {
+      <p data-testid="frontend-result">
+        {{ frontendState().enabled ? 'Frontend: new' : 'Frontend: legacy' }}
+      </p>
+    } @else {
+      <p data-testid="frontend-result">Frontend unavailable.</p>
+    }
+    <p class="inline-error" data-testid="frontend-error">{{ frontendState().error ?? '' }}</p>
+  </section>
+
+  <section class="backend-state" aria-labelledby="backend-heading">
+    <h2 id="backend-heading">Backend invocation</h2>
+    <button
+      type="button"
+      data-testid="call-backend"
+      [disabled]="selectedUser() === null || backendLoading()"
+      (click)="callBackend()">
+      Call backend
+    </button>
+    <p class="inline-status">{{ backendLoading() ? 'Calling backend…' : '' }}</p>
+    <p class="inline-error" data-testid="backend-error">{{ backendError() ?? '' }}</p>
+    <output data-testid="backend-result">{{ backendResultText() }}</output>
+  </section>
+</main>
