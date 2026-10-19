@@ -216,13 +216,13 @@ T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额
 
 ## 7. 六仓功能对齐增强（已开始）
 
-2026-10-19 Task12 已冻结精确逐文件 owner manifest，完成候选复制/校验、隔离导入与资源闭包及原 T01/T05/T07–T16 适用本地路径回归。最低版本 retained+new 全套与候选文件/哈希回执已保存；当前等待独立限定复核。证据与 `not-run` 关卡见[制作侧验收记录](../../verification/ddd-alignment.md)和[Task12 交接](../../logs/2026-10-19-task12-candidate.md)；不继承旧 38 文件候选、App/人/应用/平台/发布结果，不关闭整体 parity。
+2026-10-19 Task12 已冻结精确逐文件 owner manifest，完成候选复制/校验、隔离导入与资源闭包及原 T01/T05/T07–T16 适用本地路径回归；完整 fix-wave 独立限定复核已确认 3 Important 与 1 Minor/后续 provenance finding 均已处理，无新增问题。新的 fix2 committed-source 验证 receipt 与当前提交 provenance 一致（132文件、41 exclusions、0 findings，dirty scope空）。最低版本 retained+new 最终为857/857；848/856历史运行与 malformed fix1 provenance 旧报告保留原样。证据与 `not-run` 关卡见[制作侧验收记录](../../verification/ddd-alignment.md)和[Task12 交接](../../logs/2026-10-19-task12-candidate.md)；不继承旧38文件候选、App/人/应用/平台/发布结果，不关闭整体 parity。
 
 2026-10-14 用户要求为六个 `ddd-*` 仓库的功能对齐生成增强计划，并确认保留单仓/技术栈中立、按功能等价而非旧格式兼容。2026-10-15 进一步确认脚本基本统一为 Python：本地、hooks 与 CI 复用同一逻辑，取消必需的 PowerShell 包装层；保留原生 CI YAML 和必要的薄启动适配，不自研 CLI/执行器。
 
 用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
 
-源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地实现与复核均已完成，无遗留的这些任务审阅发现，但不代表真实资格或批准。当前九方法、二十二 prompts、三模式。Task16 的本地文本/JSONL、有界 stdlib DOCX、透明评分与音频拒绝入口已完成限定复审；真实音频仍 not-run，ENH-16 未关闭。Task17 本地 JSON/SVG/HTML 关系图、架构/有限 SEQ 与参数化演示已完成限定复审，PDF/PPTX 与实际二进制格式检查未选 renderer/未授权，ENH-17/full parity 仍 open。Task18 的本地显式账本/摘要及 fix1/fix2 均完成限定复审，最终最低版本回归 817 项执行、0 跳过/失败/错误；真实 provider/billing/usage 与 ENH-18 整体结论仍 open。Task12 候选实现、适用本地回归与唯一最低版本 retained+new 全套均已完成，现等待独立 scoped review；候选不关闭 full parity。Task13–14 实际人工/应用/平台/发布关卡未执行。不初始化应用、安装到真实项目、更改远端门禁或执行外部 fan-out。原 P3 入口/人工观察不升级。
+源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15、Task16 离线范围、Task17 本地导出、Task18 本地账本及 Task12 候选的限定本地实现/复核均已完成，无遗留 scoped review finding，但不代表真实资格或批准。Task16 音频仍 not-run，ENH-16 未关闭；Task17 PDF/PPTX 与实际二进制格式 gates 未执行，ENH-17/full parity open；Task18 provider/billing/真实 usage 与 ENH-18 整体结论仍 open。Task12 fix-wave review 已关闭候选报告覆盖、reparse TOCTOU、hardlink、过期计划状态和 provenance 参数顺序 issues；新候选 provenance 精确绑定 cda3cfd，132文件逐字节匹配，41 exclusions、0 findings。候选不等于发布/full parity。下一步 Task13 受缺少真实用户选择的 app/project/stack/version/location/commands/allowed scope 及实际参与者/client/platform inputs/授权阻塞；Task14 不得越过适用外部门禁做整体等价结论。原 P3 入口/人工观察不升级；不初始化应用、安装到真实项目、更改远端门禁或执行外部 fan-out。
 
 目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7/8 的审阅修正已关闭；报告和模型仍只引用原始来源。Task9 演练不补未知风险或决定、不改写 VT。Task10 的原生启动、环境和报告边界结果分别保留，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留，历史记录不改写。
 

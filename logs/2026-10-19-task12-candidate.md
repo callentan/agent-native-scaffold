@@ -67,3 +67,37 @@ After fix1 commit `d3efa8ffbcc133c78cb68d545827a32e05128720`, inspection of the 
 Fix2 adds a real CLI test over the current checkout and a real copied candidate. Expected `HEAD` and the exact Git porcelain dirty-scope pairs come from separate Git subprocesses, not copier helpers; the test asserts 132 file hashes and source/candidate/report separation. Exact-base RED ran the 40-method distribution module with exactly one expected failure, 0 errors/skips. After only the argument-order change, focused GREEN was **40/40**, and the sole final Python 3.11.15 retained+new minimum suite was **857/857**, 0 skips/failures/errors, `inputs_unchanged=true`. The original 848 and fix1 856 runs remain separate.
 
 The malformed fix1 receipt/report is preserved. Fix2 creates a new unique candidate target and reports, then verifies that candidate against the fix2 commit; the corrected commit, clean dirty scope, receipt hashes and old-candidate preservation are documented in the session-local Task12 report. Independent scoped review is next. No Task13/14 or external operation is authorized.
+
+<a id="task12-fix-wave-review"></a>
+## Task12 fix-wave independent scoped review
+
+The independent reviewer inspected the exact fix range
+`4ec5efbc199f4c61878ef35a0af29167fed0af69..cda3cfd8d0391324abfc5865654614a2012afece`
+and confirmed all findings ADDRESSED: verify-report output overlap; reparse/junction
+TOCTOU for source/copy/verify; hardlinked source/candidate files; stale plan-level
+suite status; and the committed-source provenance argument order. No new issue was
+found in the fix wave. The review is limited to this candidate-boundary fix work;
+it is not a release or full-parity review.
+
+The provenance correction has an independent real CLI regression comparing the
+receipt to separate Git HEAD/porcelain subprocess results. After fix2, a new
+candidate copy and committed-source verification report `source_commit` exactly
+`cda3cfd8d0391324abfc5865654614a2012afece`, `dirty_scope=[]`, 132 files verified,
+41 excluded inventory paths and 0 findings. Parent independently rehashed all132
+source/candidate file bytes. The malformed fix1 provenance report remains in
+session-local evidence but is explicitly superseded; no prior report was erased.
+
+Task12 author final minimum Python3.11 suite is 857/857, zero failures/errors/skips,
+with49 current input hashes verified by the parent. These are maker/test/candidate
+results, not reviewer runtime execution, application VT, human use or publication.
+The earlier intermediate report with exit1/raw `KeyError` is retained as failed,
+not treated as green; final supported receipts remain the subsequent40/40 focused
+and857/857 full run.
+
+Task12 local candidate scope is closed. Still not run/open: Task13 actual project/
+stack/environment/commands, human/App/client/native discovery and authorized
+platform/hosted CI; Task14 full capability reconciliation/publication; audio,
+PDF/PPTX, provider/billing/real usage, required checks and release. The deferred
+`summarize_usage(lock_timeout=...)` compatibility Minor remains for final branch
+triage. This log does not authorize external actions or declare ENH-01–18 fully
+equivalent.

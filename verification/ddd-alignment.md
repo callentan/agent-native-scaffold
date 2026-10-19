@@ -68,7 +68,7 @@ The fix2 regression performs a real CLI verification of an actual candidate copy
 
 | Gate | State and reason |
 |---|---|
-| Task12 independent scoped review | Pending; local implementation, full suite, and candidate receipts are not independent review. |
+| Task12 fix-wave independent scoped review | Complete for local candidate scope: the three Important candidate-boundary findings, the stale plan status, and fix1 provenance-order defect were all ADDRESSED; no new fix-wave finding. Full verdict is in the session-local `task12-fix-wave-rereview.md`; reviewer did not rerun tests. This does not authorize publication or close overall parity. |
 | Final retained+new Python 3.11 suite | Fix2 pass: 857 discovered/executed, 0 skips/failures/errors; initial Task12 848/848 and fix1 856/856 remain separate historical runs. Runner input hashes and raw output are in the session-local report/evidence. |
 | Human/App/native-client and T17 observations | `not-run`; no human or client simulation was performed. |
 | Real application, generated code, and application behavior | `not-run`; no application project, stack, or command was selected. |
@@ -76,4 +76,16 @@ The fix2 regression performs a real CLI verification of an actual candidate copy
 | Audio, PDF/PPTX, provider/billing/actual usage | `not-run` or unavailable; no service, renderer, provider, actual usage, or charge was invoked. |
 | Historical results and applicability | Preserved under their original maker records/baselines; not copied into the candidate or upgraded to current passes. |
 
-Task12's local implementation is handed off for independent scoped review; fix1 and fix2 commits, the superseding committed-source candidate verification, and the complete session-local report preserve the source identity and evidence history. Keep the separate not-run gates visible. The local candidate is not a release or a declaration that ENH-01–18 are all satisfied.
+Task12's local candidate implementation and fix-wave scoped review are complete. The new post-fix2 candidate verification has exact `source_commit=cda3cfd8d0391324abfc5865654614a2012afece`, empty dirty scope, 132 verified files, 41 exclusions, and zero findings; its session-local receipt supersedes the malformed fix1 provenance receipt, which remains unchanged as history. The final author full run is 857/857; this is not reviewer execution or a release. Task13 still lacks selected real application/project/stack/location/commands and separate human/client/platform inputs/authorization, so remains blocked/not-run. Task14 must not claim full parity while applicable gates lack evidence/accepted alternatives. The candidate is not a release or a declaration that ENH-01–18 are all satisfied.
+
+## Task12 fix-wave scoped review
+
+The independent reviewer covered the full `4ec5efbc199f4c61878ef35a0af29167fed0af69`
+through `cda3cfd8d0391324abfc5865654614a2012afece` fix wave. It confirmed all three
+Important candidate-boundary findings, the stale status sentence, and the provenance
+argument-order finding as ADDRESSED, with no new issue in that diff. Parent independently
+verified the commit chain, both coauthor trailers, clean status, 857/857 final receipt and
+49 test-input hashes, plus the new 132-file candidate/provenance receipt and byte pairs.
+Exact reviewer verdict and local report paths are kept in the Task12 session-local
+artifacts; no business VT, human/App, platform, hosted CI, publication or release test
+was performed by this review.

@@ -12,7 +12,7 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15、Task16 离线范围及 Task17 本地导出范围已完成各自的有限本地实现与复核；Task18 fix2 也已完成限定复审，原四项 Important 均已处理、无新增问题。当前九方法、二十二 prompts、三模式。Task16 的本地来源/候选评分和音频拒绝入口已完成限定复审，原四项发现均已处理；实际音频仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示实现已完成限定审阅，原两项发现均已处理；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和整体 parity 均保持 open。Task18 base 804、fix1 815、fix2 817 项结果各自保留；fix2 的错误恢复 identity 经复审确认，真实供应商/账单/用量仍未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` 参数移除 Minor 依指示 deferred（无仓内 caller，API 未发布），最终整体审阅再行 triage。Task12 的精确 manifest、maker-only copy/verify、候选隔离回归、一次最低版本 retained+new 全套与真实文件级回执均已完成；当前实现范围等待独立 scoped review。计数、命令、哈希和 `not-run` 证据见[制作侧验收记录](../../verification/ddd-alignment.md)与 Task12 session-local report。Task13–14 仍未执行，不能把本地渲染/账本/候选检查当成人、应用或平台验收。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围、Task17 本地导出范围及 Task18 本地账本范围均完成各自的有限本地实现与复核；Task12 精确文件级候选及 fix wave 也已完成独立限定复审。当前九方法、二十二 prompts、三模式。Task16 的音频真实服务仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示已完成限定审阅；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和 overall parity 仍 open。Task18 的 base 804、fix1 815、fix2 817 测试结果分别保留；fix2 恢复身份问题已完成复审，真实 provider/billing/usage 未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` Minor 因新 API 未发布且无仓内 caller 而 deferred，交最终整体审阅 triage。Task12 local candidate gate 已关闭；132 文件候选和 provenance 经限定 review，未获发布授权，也不证明 overall parity。Task13 的真实 app/project/stack/version/location/commands/allowed scope、human/client/platform inputs 与对应授权仍未提供，当前不启动；Task14 的全矩阵/发布结论不得越过适用外部 gate。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -30,7 +30,7 @@
 - 文档工作可在应用未配置时继续；生成代码的实际应用验收须在任务 13 先获独立输入和授权。
 - 原六个方法、三个模式和现有 prompt 的能力保留；增强以活动拆分，不增加角色流水线。
 - 可重复维护逻辑统一用 Python，直接调用项目解释器；本地/hooks/CI 不维护三套实现，不把 PowerShell 7 设为工具使用前提。
-- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出及 Task18 本地账本均已完成本次范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 的真实供应商/账单与用量未接入，ENH-18 不整体关闭。Task12 首轮 retained+new 全套 848/848、fix1 全套 856/856 与 fix2 全套 857/857 分别保留；fix1 定向 39/39、fix2 定向 40/40 均通过。fix2 修正了 fix1 committed-source 报告的 provenance 参数顺序；新的唯一候选复制与提交后验证及对应 provenance 记录见 Task12 session-local report。当前只待独立 scoped review，不表示发布或全仓 parity。Task13–14 的外部/人工验收也未执行，不能把其他计划路径当成已存在的功能。
+- Task2 契约/parser、Task3 表单、Task4 方法/入口、Task5 资料契约、Task6 检查器、Task7 模型/追溯、Task8 实施摘要、Task9 文档、Task10 本地接入、Task11 有限提案、Task15 本地来源接入、Task16 离线来源候选/评分、Task17 本地导出、Task18 本地账本及 Task12 file-level candidate 均完成本次各自范围复核，结果见各自记录。Task16 实际音频关卡未关闭；Task17 PDF/PPTX 与完整 ENH-17 未关闭；Task18 真实供应商/账单与用量未接入，ENH-18 不整体关闭。Task12 fix-wave 审阅确认 verify-report overlap、reparse TOCTOU、hardlink、过期状态句和 provenance 参数顺序问题均已处理；848/856/857 测试基线和 provenance 收据分别保留，修复后的新候选验证为 132 文件、41 exclusions、0 findings、source commit 等于 `cda3cfd`、dirty scope 为空。Task12 本地 candidate gate 已完成，但不代表发布/overall parity。Task13 的真实 app/stack/位置/命令/允许范围及 human/client/platform 输入和授权尚缺；Task14 不能将未执行外部门禁写成通过。
 
 ## 1. 文件结构与职责
 
@@ -478,15 +478,17 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 - [x] `test_distribution.py` 从真实文件复制生成 candidate，在副本内检查 Markdown 链接/锚点、Python imports、schema/resources 和 validation workflow closure；maker tests/copy helper 不进入候选，candidate 不从 maker path 补缺。
 - [x] 验证 basic docs 无 Python/import prerequisite；可选维护环境使用原有 lock。业务命令保持未配置，维护工具不代替应用测试。
 - [x] 重做适用的 T01/T05/T07–T16 本地文件/CLI路径；原 P3 的 client/human/发布结果不继承。T17/GUI/native client 与 hosted platform 继续保持未运行。
-- [x] 在已选最低 Python 3.11.15 上完成唯一一次 retained+new 全计数 suite；保留真实复制/验证回执、文件哈希、dirty scope、排除列表与原始输出。此 Task12 变更以单一 scoped 本地 commit 保存，不发布、不推送、不建 PR。
+- [x] 在已选最低 Python 3.11.15 上完成唯一一次 retained+new 全计数 suite；保留真实复制/验证回执、文件哈希、dirty scope、排除列表与原始输出。初始候选、fix1 与 fix2 以原提交及窄范围 follow-up commits 保存，不发布、不推送、不建 PR。
 
-**Fix1 接续（2026-10-19）：** 原实现者不可用后，在保留 HEAD `4ec5efbc199f4c61878ef35a0af29167fed0af69`、原候选与既有证据的前提下继续同一工作区。报告输出现拒绝源树/候选重叠；源与候选 hardlink 在读取前拒绝；实际 Windows junction 竞争由句柄相对 no-reparse I/O 阻断。8 项真实文件/硬链接/目录替换边界用例在精确原始 copier 上 RED（7 失败、保留的 copy-mode overlap 1 通过）；修正后定向 39/39 与唯一最低版 retained+fix 856/856 通过，0 跳过/失败/错误。精确命令、cwd、环境、报告/输出散列及新根 candidate 复制和提交后验证见 [制作侧验收记录](../../verification/ddd-alignment.md) 与 Task12 session-local report。此前首轮 848/848 结果保持原样，不合并计数。当前仍等待独立 scoped review；此结果不表示业务/应用/客户端/平台验收、发布或整体 parity。
+**Fix1 接续（2026-10-19）：** 原实现者不可用后，在保留 HEAD `4ec5efbc199f4c61878ef35a0af29167fed0af69`、原候选与既有证据的前提下继续同一工作区。报告输出现拒绝源树/候选重叠；源与候选 hardlink 在读取前拒绝；实际 Windows junction 竞争由句柄相对 no-reparse I/O 阻断。8 项真实文件/硬链接/目录替换边界用例在精确原始 copier 上 RED（7 失败、保留的 copy-mode overlap 1 通过）；修正后定向 39/39 与唯一最低版 retained+fix 856/856 通过，0 跳过/失败/错误。精确命令、cwd、环境、报告/输出散列及新根 candidate 复制和提交后验证见 [制作侧验收记录](../../verification/ddd-alignment.md) 与 Task12 session-local report。此前首轮 848/848 结果保持原样，不合并计数。该阶段仍待独立 scoped review；此结果不表示业务/应用/客户端/平台验收、发布或整体 parity。
 
-**Fix2 / round2（2026-10-19）：** 提交 fix1 后发现 `_verify_receipt` 调用参数把 `dirty` 与 `commit` 反序传入，导致字节验证虽然有效，fix1 receipt 的 `source_commit`/`dirty_scope` 颠倒。新增真实 CLI provenance 测试：独立通过 Git 查询期望 HEAD 与 porcelain dirty paths，检查 132 项数量/散列，并使用候选外新 report。精确 fix1 commit 上 focused 40 项中只有该新例按预期 RED（其余 39 通过）；最小修正参数顺序后 focused 40/40、唯一 Python 3.11.15 retained+new 全套 857/857 通过，0 跳过/失败/错误。fix1 的 848/856 收据与 malformed verification receipt 均保留；fix2 的新唯一 candidate copy、提交后验证和正确 provenance 在 session-local Task12 report 中单独记录，不与旧运行合并。新的提交是 fix1 之后的窄 coauthored follow-up；review、Task13/14、外部与发布关卡仍未执行。
+**Fix2 / round2（2026-10-19）：** 提交 fix1 后发现 `_verify_receipt` 调用参数把 `dirty` 与 `commit` 反序传入，导致字节验证虽然有效，fix1 receipt 的 `source_commit`/`dirty_scope` 颠倒。新增真实 CLI provenance 测试：独立通过 Git 查询期望 HEAD 与 porcelain dirty paths，检查 132 项数量/散列，并使用候选外新 report。精确 fix1 commit 上 focused 40 项中只有该新例按预期 RED（其余 39 通过）；最小修正参数顺序后 focused 40/40、唯一 Python 3.11.15 retained+new 全套 857/857 通过，0 跳过/失败/错误。fix1 的 848/856 收据与 malformed verification receipt 均保留；fix2 的新唯一 candidate copy、提交后验证和正确 provenance 在 session-local Task12 report 中单独记录，不与旧运行合并。新的提交是 fix1 之后的窄 coauthored follow-up；当时独立 review 与 Task13/14、外部和发布关卡均未执行。
 
-**当前退出状态：** Task12 本地实现与证据整理完成，等待独立限定复核；manifest 是唯一文件清单，候选/局部测试均不构成发布或整体 parity 结论。
+**当前退出状态：** Task12 local candidate 实现、provenance 与独立 fix-wave 限定复核均已完成；manifest 是唯一文件清单。132 文件候选有效是本地 file-level 结果，不代表发布、business/software VT 或整体 parity 结论。Task13 需要另行提供实际应用及人/App/client/platform 输入/授权，当前为 blocked/not-run；Task14 保持未执行。
 
 ### 任务 13：真实行为和客户端验收
+
+**当前状态：blocked/not-run。** 尚无用户选定的真实应用/项目、技术栈与版本、路径、命令/cwd、报告位置及允许修改范围；实际参与者、App/client/platform 环境与对应授权也未提供。此门槛不由本地候选或维护工具结果代替。
 
 **文件：** `verification\ddd-alignment.md`、`docs\agent-support.md`、获授权的开发日志；应用/目标 repo 为独立可丢弃试验对象，不进入候选。
 
@@ -657,4 +659,4 @@ fix1 唯一最终 minimum run 已完成：3.11.15 发现/执行 707（688 保留
 | ENH-17 | 17、5、13 | 空图注入 demo、输出覆盖、渲染未执行但宣称 PDF/PPTX 成功 |
 | ENH-18 | 18、9、13 | 重复/冲突记账、未知计费乱加、账本冒充审批 |
 
-执行状态按本计划和制作日志更新：任务 1–11、Task15、Task16 离线范围、Task17 本地导出及 Task18 本地账本的有限本地交付和复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 的 PDF/PPTX 与 ENH-17/full parity 保持 open。Task18 真实 ENH-18 provider/billing/usage、资格与整体 parity 仍 open，且 `lock_timeout` Minor 已单列 deferred。Task12 首轮 848/848、fix1 856/856 与 fix2 857/857 retained+new 全套，以及 fix2 定向 40/40 结果均按各自报告保留；fix1 malformed committed-source provenance 被 fix2 修正并由新提交后验证单独证明。Task12 当前等待独立范围复核。Task13–14 尚未执行，真实人工、应用、平台与发布关卡保持各自限制。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、未来计划或源码存在代替完整增强验收。
+执行状态按本计划和制作日志更新：任务 1–12、Task15–18 的有限本地交付与复核已完成，当前九方法、二十二 prompts、三模式。Task16 音频仍 not-run，ENH-16 未整体关闭；Task17 PDF/PPTX 与 ENH-17/full parity 保持 open；Task18 真实 provider/billing/usage 和 ENH-18 整体结论仍 open，Minor API compatibility 留待最终整体审阅。Task12 精确 file-level 候选及 fix-wave review 已完成，但不是发布或完整 parity。Task13 所需真实 app/project/stack/location/commands/allowed scope 及 human/client/platform inputs/authorization 缺失，保持 blocked/not-run；Task14 依赖适用的外部门禁结果，尚未执行。原 P3 与来源盘点结论保留其基线；不能用局部测试通过、候选有效、未来计划或源码存在代替完整增强验收。
