@@ -12,7 +12,11 @@
 
 **规格：** [六仓功能对齐增强规格](../design/ddd-functional-alignment.md)，包含 ENH-01 至 ENH-18、完整固定版本和工具接口。执行者必须读取该文件，不能仅凭本计划标题推断行为。
 
-**当前状态：** 任务 1–11、Task15、Task16 离线范围、Task17 本地导出范围及 Task18 本地账本范围均完成各自的有限本地实现与复核；Task12 精确文件级候选及 fix wave 也已完成独立限定复审。当前九方法、二十二 prompts、三模式。Task16 的音频真实服务仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示已完成限定审阅；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和 overall parity 仍 open。Task18 的 base 804、fix1 815、fix2 817 测试结果分别保留；fix2 恢复身份问题已完成复审，真实 provider/billing/usage 未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` Minor 因新 API 未发布且无仓内 caller 而 deferred，交最终整体审阅 triage。Task12 local candidate gate 已关闭；132 文件候选和 provenance 经限定 review，未获发布授权，也不证明 overall parity。Task13 的真实 app/project/stack/version/location/commands/allowed scope、human/client/platform inputs 与对应授权仍未提供，当前不启动；Task14 的全矩阵/发布结论不得越过适用外部 gate。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+**当前状态：** 任务 1–11、Task15、Task16 离线范围、Task17 本地导出范围及 Task18 本地账本范围均完成各自的有限本地实现与复核；Task12 精确文件级候选及 fix wave 也已完成独立限定复审。当前九方法、二十二 prompts、三模式。Task16 的音频真实服务仍 not-run，ENH-16 未整体关闭。Task17 的本地 JSON/SVG/HTML 关系图、架构/SEQ 与参数化演示已完成限定审阅；PDF/PPTX 与其实际格式 gates 未获 renderer 选择/执行授权，ENH-17 和 overall parity 仍 open。Task18 的 base 804、fix1 815、fix2 817 测试结果分别保留；fix2 恢复身份问题已完成复审，真实 provider/billing/usage 未接入，ENH-18 不整体关闭。`summarize_usage(lock_timeout=...)` Minor 因新 API 未发布且无仓内 caller 而 deferred，交最终整体审阅 triage。Task12 local candidate gate 已关闭；132 文件候选和 provenance 经限定 review，未获发布授权，也不证明 overall parity。Task13 已有用户选择的 Flagsmith/OpenFeature 技术 POC，并按固定提交复制到隔离的 `poc/flagsmith`；该对象不是接入业务系统的真实应用。其锁定依赖在副本内恢复，POC unit/build/controlled-browser 分别为 19/19、35/35、10/10；live Flagsmith、代码生成/维护、人/App/client/platform gates 仍 not-run；详情见[Task13 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。Task14 的全矩阵/发布结论不得越过适用外部门禁。没有在真实工作树安装 hooks，托管 CI/required checks、外部 fan-out 为 not-run。原 P3 原生/人工记录和增强整体完成状态不随之升级，不创建应用或更改真实平台门禁。
+
+**当前交付目标（2026-10-19）：** 用户明确表示优先要“脚手架 ready”，不认为真实应用展示演练是当前重点。当前 readiness 以本地可复制的精确 manifest candidate、候选隔离与文档/工具的适用本地验证为目标；不要求 live showcase、发布或声称六仓完整 parity。Task13/14 的开放验收仍保留作独立的完整 parity/外部证据关卡，不用它们阻止本地脚手架 ready 的判断。
+
+**本地 candidate readiness（2026-10-19）：** 按当前 manifest 新鲜复制的 132 文件候选绑定来源 HEAD `ee463901725ade1d0cab05261b8c875189fd229e` 与 dirty scope；独立 verify 为 132/132、0 findings，聚焦 `test_distribution.py` 为 40/40，0 skipped/failure/error。临时本地 `poc/` 已由 manifest 明确排除；完整 receipt/raw output 在 [Task13/ready-scope 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)所指的 session-local artifacts。该证据只支持可复制候选 readiness，不是发布或 full parity。
 
 **2026-10-15 规划修订（历史）：** 按用户“基本都用 Python 脚本”的决定，移除必需的 PowerShell 启动文件及其任务；宿主原生 YAML/最薄启动适配保留，方法正文仍归 Markdown。该次只修改规划，不将新增自动化一概归为原仓已有功能；当前实现进度以上述状态及逐任务记录为准。
 
@@ -484,12 +488,12 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 
 **Fix2 / round2（2026-10-19）：** 提交 fix1 后发现 `_verify_receipt` 调用参数把 `dirty` 与 `commit` 反序传入，导致字节验证虽然有效，fix1 receipt 的 `source_commit`/`dirty_scope` 颠倒。新增真实 CLI provenance 测试：独立通过 Git 查询期望 HEAD 与 porcelain dirty paths，检查 132 项数量/散列，并使用候选外新 report。精确 fix1 commit 上 focused 40 项中只有该新例按预期 RED（其余 39 通过）；最小修正参数顺序后 focused 40/40、唯一 Python 3.11.15 retained+new 全套 857/857 通过，0 跳过/失败/错误。fix1 的 848/856 收据与 malformed verification receipt 均保留；fix2 的新唯一 candidate copy、提交后验证和正确 provenance 在 session-local Task12 report 中单独记录，不与旧运行合并。新的提交是 fix1 之后的窄 coauthored follow-up；当时独立 review 与 Task13/14、外部和发布关卡均未执行。
 
-**当前退出状态：** Task12 local candidate 实现、provenance 与独立 fix-wave 限定复核均已完成；manifest 是唯一文件清单。132 文件候选有效是本地 file-level 结果，不代表发布、business/software VT 或整体 parity 结论。Task13 需要另行提供实际应用及人/App/client/platform 输入/授权，当前为 blocked/not-run；Task14 保持未执行。
+**当前退出状态：** Task12 local candidate 实现、provenance 与独立 fix-wave 限定复核均已完成；manifest 是唯一文件清单。132 文件候选有效是本地 file-level 结果，不代表发布、business/software VT 或整体 parity 结论。Task13 已选定并复制一个本地技术 POC，unit/build/controlled-browser 子范围通过；live Flagsmith、代码生成/既有文件维护验收及人/App/client/platform 关卡仍未完成；Task14 保持 partial/blocked。
 
 <a id="task13"></a>
 ### 任务 13：真实行为和客户端验收
 
-**当前状态：blocked/not-run。** 尚无用户选定的真实应用/项目、技术栈与版本、路径、命令/cwd、报告位置及允许修改范围；实际参与者、App/client/platform 环境与对应授权也未提供。此门槛不由本地候选或维护工具结果代替。
+**状态：deferred for current scaffold-readiness goal; open for full Task13 acceptance.** 用户明确表示当前更需要 ready-to-use scaffold，不认为演练优先。保留已选 Flagsmith/OpenFeature POC 的隔离副本与有限 unit/build/controlled-browser 证据；不再把 live showcase 作为本地候选 readiness 的前置。但 Task13 计划中的真实应用行为、live Flagsmith、代码生成/既有文件维护、人/App/client/platform 仍是 `not-run`，不得称 Task13 全部完成或用此决定关闭整体 parity。详见[Task13 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。
 
 **文件：** `verification\ddd-alignment.md`、`docs\agent-support.md`、获授权的开发日志；应用/目标 repo 为独立可丢弃试验对象，不进入候选。
 
@@ -506,7 +510,7 @@ fix1 执行者未启动 subagent/reviewer、改变依赖或实施 Task15，也�
 <a id="task14"></a>
 ### 任务 14：矩阵收口、版本与交接
 
-**当前状态：partial / blocked。** 本地计划、规格和路线图已记录 Task12 的候选范围复核结果，能力矩阵也已明确其固定来源/实施前基线与当前未关闭的关卡；但本任务要求的逐行回源、实现位置/基线/结果对照，以及每个保留差异的责任人决定尚未完成。Task13 所需真实应用/参与者/客户端/平台输入缺失，不能据此宣称完整等价或发布就绪。
+**当前状态：partial / blocked for full parity; not a gate for the user's current local scaffold-readiness goal.** 本地计划、规格和路线图已记录 Task12 的候选范围复核结果，能力矩阵也已明确其固定来源/实施前基线与当前未关闭的关卡；但本任务要求的逐行回源、实现位置/基线/结果对照，以及每个保留差异的责任人决定尚未完成。Task13 的本地技术 POC unit/build/controlled-browser 子范围已实测，但未连接真实业务系统或 Flagsmith 服务；实际参与者、客户端/平台证据及授权仍不足，不能据此宣称完整等价或发布就绪。当前本地 candidate 可复制状态独立核对，不继承完整 parity 结论。
 
 **文件：** 能力矩阵、enhancement 验收、roadmap、blueprint、distribution 与一份制作 handoff。
 

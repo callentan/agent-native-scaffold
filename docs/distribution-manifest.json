@@ -160,6 +160,7 @@
     {"path": ".github/workflows/validate-artifacts.yml", "component": "downstream-validation"}
   ],
   "excluded": [
+    {"path": "poc/", "reason": "User-authorized local Task13 exercise copy; it is not part of the reusable scaffold candidate."},
     {"path": ".github/utilities/tests/", "reason": "Maker-only regression tests, fixtures, helpers, and the counted runner."},
     {"path": ".github/utilities/distribute_candidate.py", "reason": "Maker-only exact-copy and verification utility; not downstream runtime."},
     {"path": ".github/workflows/tooling-tests.yml", "reason": "Maker-only regression workflow; it is not a downstream dependency."},
