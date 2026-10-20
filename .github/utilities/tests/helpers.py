@@ -167,9 +167,16 @@ def write_delivery_fixture(root: Path, omit_software_reject: bool = False) -> tu
     return delivery
 
 
-def source_bytes(root: Path) -> dict[str, bytes]:
-    return {path.relative_to(root).as_posix(): path.read_bytes()
-            for path in sorted(root.rglob("*")) if path.is_file()}
+def source_bytes(root: Path, *, include_git: bool = True) -> dict[str, bytes]:
+    result = {}
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(root).as_posix()
+        if not include_git and (relative == ".git" or relative.startswith(".git/")):
+            continue
+        result[relative] = path.read_bytes()
+    return result
 
 
 def git(root: Path, *arguments: str) -> str:

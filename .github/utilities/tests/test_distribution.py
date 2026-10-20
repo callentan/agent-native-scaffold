@@ -470,13 +470,22 @@ class DistributionTests(unittest.TestCase):
                 manifest = json.loads(path.read_text(encoding="utf-8"))
                 manifest["files"][0]["path"] = relative
                 path.write_text(json.dumps(manifest), encoding="utf-8")
-                before = source_bytes(source)
+                before_files = source_bytes(source, include_git=False)
+                before_head = git(source, "rev-parse", "HEAD")
+                before_status = git(
+                    source, "status", "--porcelain=v1", "--untracked-files=all",
+                )
                 target = self.workspace / f"invalid-output-{index}"
                 run = self.fixture_cli(source, target)
                 self.assertEqual(2, run.returncode, run.stdout + run.stderr)
                 self.assertEqual("INVALID_MANIFEST_PATH", json.loads(run.stdout)["findings"][0]["code"])
                 self.assertFalse(target.exists())
-                self.assertEqual(before, source_bytes(source))
+                self.assertEqual(before_files, source_bytes(source, include_git=False))
+                self.assertEqual(before_head, git(source, "rev-parse", "HEAD"))
+                self.assertEqual(
+                    before_status,
+                    git(source, "status", "--porcelain=v1", "--untracked-files=all"),
+                )
 
     def test_dist_01_manifest_duplicate_missing_self_and_parent_collision_are_errors(self):
         cases = (

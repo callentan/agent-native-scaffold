@@ -38,10 +38,14 @@ def independent_row_bytes(raw: bytes) -> list[list[str]]:
     return list(csv.reader(io.StringIO(raw.decode("utf-8"), newline=""), strict=True))
 
 
-def directory_inventory(root: Path) -> tuple[tuple[str, str], ...]:
+def directory_inventory(
+    root: Path, *, excluded_paths: frozenset[str] = frozenset(),
+) -> tuple[tuple[str, str], ...]:
     entries = []
     for path in sorted(root.rglob("*"), key=lambda item: item.relative_to(root).as_posix()):
         relative = path.relative_to(root).as_posix()
+        if relative in excluded_paths:
+            continue
         if path.is_file():
             entries.append((relative, "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()))
         elif path.is_dir():
@@ -567,14 +571,21 @@ class InteractionLogTests(unittest.TestCase):
             result = self.append_cli("blocked-process", lock_timeout=0.1)
             self.assertEqual(2, result.returncode, result.stdout)
             self.assertEqual("LOCK_TIMEOUT", json.loads(result.stderr)["code"])
-            before = directory_inventory(self.root)
+            lock_path = self.log.with_name(self.log.name + ".lock")
+            lock_relative = lock_path.relative_to(self.root).as_posix()
+            self.assertTrue(lock_path.is_file())
+            before = directory_inventory(self.root, excluded_paths=frozenset({lock_relative}))
             readonly = self.cli("summarize_usage", "--log", str(self.log),
                                 "--lock-timeout", "0")
             self.assertEqual(0, readonly.returncode, readonly.stderr)
             self.assertEqual(0, json.loads(readonly.stdout)["record_count"])
-            self.assertEqual(before, directory_inventory(self.root))
+            self.assertEqual(HEADER, self.log.read_bytes())
+            self.assertEqual(
+                before,
+                directory_inventory(self.root, excluded_paths=frozenset({lock_relative})),
+            )
         self.assertEqual(HEADER, self.log.read_bytes())
-        self.assertEqual(b"", self.log.with_name(self.log.name + ".lock").read_bytes())
+        self.assertEqual(b"", lock_path.read_bytes())
         self.assertEqual(0, self.append_cli("after-timeout", lock_timeout=1).returncode)
 
     def test_PORTABLE_03_invalid_timeout_and_nonempty_lock_preserve_owner_bytes(self):
