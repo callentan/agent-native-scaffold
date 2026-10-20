@@ -1,0 +1,5 @@
+# Optional source-reference form; no project, source, result or approval is prefilled.
+# Copy only when local paths, explicit scopes and actual fixed baselines are known.
+# Format and accepted sources: ../../.github/contracts/README.md#model-sources
+schemaVersion: 1
+scopes: {}

@@ -1,0 +1,58 @@
+name: Validate project artifacts
+
+"on":
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: python
+        working-directory: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore the project tool environment
+        run: |
+          import os, pathlib, subprocess, venv
+          environment = pathlib.Path(os.environ["RUNNER_TEMP"]) / "ddd-validation"
+          builder = venv.EnvBuilder(with_pip=True)
+          builder.create(environment)
+          python = builder.ensure_directories(environment).env_exec_cmd
+          subprocess.run([python, "-m", "pip", "install", "--requirement", ".github/utilities/requirements.lock"], check=True)
+          subprocess.run([python, "-m", "pip", "check"], check=True)
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as output:
+              output.write(f"DDD_PYTHON={python}\n")
+      - name: Validate the exact candidate index and complete owner inventory
+        env:
+          VALIDATION_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          import os, pathlib, subprocess, sys
+          args = [os.environ["DDD_PYTHON"], "-B", "-X", "utf8",
+                  ".github/utilities/hook_checks.py", "pre-commit",
+                  "--root", os.environ["GITHUB_WORKSPACE"],
+                  "--report", str(pathlib.Path(os.environ["RUNNER_TEMP"]) / "artifact-validation.json")]
+          if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
+              args += ["--base", os.environ["VALIDATION_BASE"]]
+          sys.exit(subprocess.run(args).returncode)
+      - name: Retain the JSON result (raw output also remains in job logs)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-validation
+          path: ${{ runner.temp }}/artifact-validation.json
+          if-no-files-found: warn

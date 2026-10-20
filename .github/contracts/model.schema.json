@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-native-scaffold:model:1",
+  "title": "Derived model reference index v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scope", "source", "artifacts", "implementationReports", "views"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "scope": {"$ref": "#/$defs/scope"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "baseline"],
+      "properties": {
+        "root": {"$ref": "#/$defs/text"},
+        "baseline": {"$ref": "#/$defs/fixedBaseline"}
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "implementationReports": {"$ref": "#/$defs/evidenceRefs"},
+    "views": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirements", "stories", "architecture", "sequences", "verification",
+        "quality", "governance", "risk", "release"
+      ],
+      "properties": {
+        "requirements": {"$ref": "#/$defs/view"},
+        "stories": {"$ref": "#/$defs/view"},
+        "architecture": {"$ref": "#/$defs/view"},
+        "sequences": {"$ref": "#/$defs/view"},
+        "verification": {"$ref": "#/$defs/view"},
+        "quality": {"$ref": "#/$defs/view"},
+        "governance": {"$ref": "#/$defs/view"},
+        "risk": {"$ref": "#/$defs/view"},
+        "release": {"$ref": "#/$defs/view"}
+      }
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "scope": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "artifactKey": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "artifactReference": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z][A-Za-z0-9._:-]*)?$",
+      "not": {"pattern": "\\s"}
+    },
+    "anchoredReference": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*#[A-Za-z][A-Za-z0-9._:-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "anchor": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "repoPath": {
+      "anyOf": [
+        {"const": "."},
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "not": {"pattern": "(^/|/$|//|(^|/)\\.{1,2}(/|$)|[\\\\:#\\r\\n])"}
+        }
+      ]
+    },
+    "fileReference": {
+      "type": "string",
+      "pattern": "^[^\\s:#][^:#]*(?:#[A-Za-z][A-Za-z0-9._:-]*)?$",
+      "not": {"pattern": "(^/|/$|/#|//|(^|/)\\.{1,2}(/|#|$)|[\\\\\\r\\n])"}
+    },
+    "fixedBaseline": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64}|sha256:[0-9a-f]{64})$",
+      "not": {"pattern": "\\s"}
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "baseline"],
+      "properties": {
+        "reference": {"$ref": "#/$defs/fileReference"},
+        "baseline": {"$ref": "#/$defs/text"}
+      }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/evidenceRef"}
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "criterionAnchor"],
+      "properties": {
+        "target": {"$ref": "#/$defs/anchoredReference"},
+        "criterionAnchor": {"$ref": "#/$defs/anchor"},
+        "testId": {"$ref": "#/$defs/text"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "path", "baseline", "upstream", "targets"],
+      "properties": {
+        "key": {"$ref": "#/$defs/artifactKey"},
+        "path": {"$ref": "#/$defs/repoPath"},
+        "baseline": {"$ref": "#/$defs/fixedBaseline"},
+        "upstream": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/artifactReference"}
+        },
+        "targets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/target"}
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "artifactRefs", "evidenceRefs", "gaps"],
+      "properties": {
+        "state": {"enum": ["available", "partial", "unverified"]},
+        "artifactRefs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/anchoredReference"}
+        },
+        "evidenceRefs": {"$ref": "#/$defs/evidenceRefs"},
+        "gaps": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "unverified"}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "artifactRefs": {"maxItems": 0},
+              "evidenceRefs": {"maxItems": 0},
+              "gaps": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"state": {"const": "partial"}}, "required": ["state"]},
+          "then": {
+            "properties": {"gaps": {"minItems": 1}},
+            "anyOf": [
+              {"properties": {"artifactRefs": {"minItems": 1}}},
+              {"properties": {"evidenceRefs": {"minItems": 1}}}
+            ]
+          }
+        },
+        {
+          "if": {"properties": {"state": {"const": "available"}}, "required": ["state"]},
+          "then": {
+            "properties": {"gaps": {"maxItems": 0}},
+            "anyOf": [
+              {"properties": {"artifactRefs": {"minItems": 1}}},
+              {"properties": {"evidenceRefs": {"minItems": 1}}}
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

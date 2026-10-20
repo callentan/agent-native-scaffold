@@ -1,0 +1,69 @@
+name: Maintainer template proposals
+
+"on":
+  workflow_dispatch:
+    inputs:
+      registration:
+        description: Absolute local registration path on the trusted pre-provisioned runner
+        required: true
+        type: string
+      targets:
+        description: Explicit comma-separated registered target IDs (no spaces)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  propose:
+    # This is a maker-repository tool, not a downstream runtime workflow.
+    if: ${{ github.repository == 'callentan/agent-native-scaffold' }}
+    runs-on: [self-hosted, template-proposals]
+    defaults:
+      run:
+        shell: python
+        working-directory: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Prepare the isolated maintainer tool environment
+        run: |
+          import os, pathlib, subprocess, venv
+          environment = pathlib.Path(os.environ["RUNNER_TEMP"]) / f"proposal-tools-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}"
+          builder = venv.EnvBuilder(with_pip=True)
+          builder.create(environment)
+          python = builder.ensure_directories(environment).env_exec_cmd
+          subprocess.run([python, "-m", "pip", "install", "--requirement", ".github/utilities/requirements.lock"], check=True)
+          subprocess.run([python, "-m", "pip", "check"], check=True)
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as output:
+              output.write(f"DDD_PYTHON={python}\n")
+      - name: Produce local read-only proposals with real failure propagation
+        env:
+          REGISTRATION: ${{ inputs.registration }}
+          TARGET_IDS: ${{ inputs.targets }}
+        run: |
+          import os, pathlib, subprocess, sys
+          args = [os.environ["DDD_PYTHON"], "-B", "-X", "utf8",
+                  ".github/utilities/plan_template_update.py",
+                  "--registration", os.environ["REGISTRATION"]]
+          for target in os.environ["TARGET_IDS"].split(","):
+              args += ["--target", target]
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / f"template-proposals-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}.json"
+          sys.exit(subprocess.run([*args, "--output", str(output)]).returncode)
+      - name: Retain the proposal, including conflicts or unavailable targets
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-proposals
+          path: ${{ runner.temp }}/template-proposals-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: warn

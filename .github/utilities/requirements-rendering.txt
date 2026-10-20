@@ -1,0 +1,5 @@
+# Local JSON/SVG/HTML exports use Python 3.11+ stdlib and the existing locked core.
+# No additional renderer/package/template/container/service has been selected.
+# PDF/PPTX are unavailable, not successful foreign-format exports.
+# Selection, version locking, installation and real format/content checks need
+# separate authorization. Do not add guessed packages or floating versions.

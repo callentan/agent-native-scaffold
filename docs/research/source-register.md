@@ -128,3 +128,13 @@ OpenAI 开发者文档的 AGENTS 指南在本次 HTTP 读取中返回 403，没�
 这一表记录命名选择与依据的粒度，不是新一轮代码或目录审计。模板保持独立、无自研 CLI、Copilot 优先；采用名称不等于强制完整 DDD 流程。
 
 同日补齐 P0 时，用户选择 GitHub Copilot App 首测，并明确只交付 repo 骨架、在 `src` 内自行创建任意类型的项目，首版只验收骨架与文档流程。上述历史来源不变，也不是 App 原生能力的验证依据；当前决策见[决策记录](../plan/decisions-and-risks.md)。
+
+## 9. 六仓完整源码盘点补充（2026-10-15）
+
+本次按增强计划通过现有 Git 凭据只读获取 R3–R8 的六个完整 commit，没有导出凭据、运行其程序、更新子模块或修改远端。浏览器最初跳转登录，但 native Git 可读，未以登录问题绕过认证或用摘要替代源码。
+
+六份 `ls-tree -r -t` 共 252 entries（195 blobs、53 trees、4 gitlinks），与上表 root-inclusive API 总数相差六个仓库根。185 个文件全文读取；10 个 roadmap 文件按记录范围读取并标为提案；目录/gitlink 只做元数据盘点。每个条目、能力载体、原 commit/路径、读取范围和限制见[能力矩阵](ddd-capability-matrix.md)。
+
+新确认的现有能力包括 BC 的 `tools\setup-domain-model-submodule.ps1`、领域的输入适配/音频/评分、关系图/交互账本，以及模板/方法中的 QAS、战术工件、SEQ/Gherkin、SWAS/PDF 等。它们分别是脚本、pipeline、Agent 方法或表单，源码存在不代表执行成功。旧 E07 是局部证据，不是工具的穷尽清单。
+
+原始 Git 对象、散列 manifest、三组报告和独立清单核对保存在本机制作 artifacts，不随候选分发；四处越过文件末尾的引用范围已纠正。不同消费者 gitlink 版本、外部 ADR/风险/ADO/服务、人工资格和运行结果仍未测试，不扩大本次源码盘点的结论。

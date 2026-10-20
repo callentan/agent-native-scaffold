@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-native-scaffold:implementation-report:1",
+  "title": "Implementation evidence reference report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scope", "object", "bcConfig", "domainSources", "artifactRefs", "entries"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "scope": {"$ref": "#/$defs/scope"},
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "baseline"],
+      "properties": {
+        "root": {"$ref": "#/$defs/text"},
+        "baseline": {"$ref": "#/$defs/fixedBaseline"}
+      }
+    },
+    "bcConfig": {"$ref": "#/$defs/evidenceRef"},
+    "domainSources": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["root", "path", "baseline"],
+        "properties": {
+          "root": {"$ref": "#/$defs/text"},
+          "path": {"$ref": "#/$defs/repoPath"},
+          "baseline": {"$ref": "#/$defs/fixedBaseline"}
+        }
+      }
+    },
+    "artifactRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/anchoredReference"}
+    },
+    "entries": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "scope": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "anchoredReference": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*#[A-Za-z][A-Za-z0-9._:-]*$",
+      "not": {"pattern": "\\s"}
+    },
+    "repoPath": {
+      "anyOf": [
+        {"const": "."},
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "not": {"pattern": "(^/|/$|//|(^|/)\\.{1,2}(/|$)|[\\\\:#\\r\\n])"}
+        }
+      ]
+    },
+    "fileReference": {
+      "type": "string",
+      "pattern": "^[^\\s:#][^:#]*(?:#[A-Za-z][A-Za-z0-9._:-]*)?$",
+      "not": {"pattern": "(^/|/$|/#|//|(^|/)\\.{1,2}(/|#|$)|[\\\\\\r\\n])"}
+    },
+    "fixedBaseline": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64}|sha256:[0-9a-f]{64})$",
+      "not": {"pattern": "\\s"}
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "baseline"],
+      "properties": {
+        "reference": {"$ref": "#/$defs/fileReference"},
+        "baseline": {"$ref": "#/$defs/text"}
+      }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/evidenceRef"}
+    },
+    "codeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "baseline"],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "baseline": {"$ref": "#/$defs/fixedBaseline"},
+        "symbol": {"$ref": "#/$defs/text"}
+      }
+    },
+    "testRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "baseline", "testId"],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "baseline": {"$ref": "#/$defs/fixedBaseline"},
+        "testId": {"$ref": "#/$defs/text"}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidenceRefs"],
+      "properties": {
+        "status": {"enum": ["not-run", "pass", "fail", "skipped"]},
+        "evidenceRefs": {"$ref": "#/$defs/evidenceRefs"},
+        "reason": {"$ref": "#/$defs/text"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"enum": ["pass", "fail"]}}, "required": ["status"]},
+          "then": {"properties": {"evidenceRefs": {"minItems": 1}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["not-run", "skipped"]}}, "required": ["status"]},
+          "then": {"required": ["reason"]}
+        }
+      ]
+    },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {"enum": ["unverified", "applicable", "not-applicable"]},
+        "reason": {"$ref": "#/$defs/text"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "codeRefs", "testRefs", "execution", "applicability"],
+      "properties": {
+        "target": {"$ref": "#/$defs/anchoredReference"},
+        "codeRefs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/codeRef"}},
+        "testRefs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/testRef"}},
+        "execution": {"$ref": "#/$defs/execution"},
+        "applicability": {"$ref": "#/$defs/applicability"}
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-native-scaffold:model-sources:1",
+  "title": "Optional local model source selection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scopes"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "scopes": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$",
+        "not": {"pattern": "\\s"}
+      },
+      "additionalProperties": {"$ref": "#/$defs/views"}
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "baseline"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {"pattern": "(^[\\s/]|\\s$|/$|//|(^|/)\\.{1,2}(/|$)|[\\\\:#\\x00-\\x1f])"}
+        },
+        "baseline": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64}|sha256:[0-9a-f]{64})$",
+          "not": {"pattern": "\\s"}
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/source"}
+    },
+    "views": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requirements": {"$ref": "#/$defs/sources"},
+        "stories": {"$ref": "#/$defs/sources"},
+        "architecture": {"$ref": "#/$defs/sources"},
+        "sequences": {"$ref": "#/$defs/sources"},
+        "verification": {"$ref": "#/$defs/sources"},
+        "quality": {"$ref": "#/$defs/sources"},
+        "governance": {"$ref": "#/$defs/sources"},
+        "risk": {"$ref": "#/$defs/sources"},
+        "release": {"$ref": "#/$defs/sources"}
+      }
+    }
+  }
+}

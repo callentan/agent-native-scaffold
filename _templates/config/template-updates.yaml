@@ -1,0 +1,14 @@
+# Optional data form, not an executable manifest or authorization.
+# Fill the exact contract in docs/template-updates.md#registration.
+# Empty values/lists below are deliberately not usable input.
+schemaVersion: 1
+source:
+  repository: ""
+  base:
+    root: ""
+    version: ""
+  candidate:
+    root: ""
+    version: ""
+  files: []
+targets: []

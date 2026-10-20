@@ -1,0 +1,9 @@
+# 常见操作系统元数据。
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 项目本地维护工具环境与 Python 字节码；不排除正式文档或日志。
+/.venv/
+__pycache__/
+*.py[cod]

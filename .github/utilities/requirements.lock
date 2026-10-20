@@ -1,0 +1,9 @@
+# Six pins resolved on Python 3.13.15, Windows; conditional pin verified on 3.11.15.
+# Direct inputs are requirements.txt. No optional media/cloud dependencies.
+attrs==26.1.0
+jsonschema==4.23.0
+jsonschema-specifications==2025.9.1
+PyYAML==6.0.2
+referencing==0.37.0
+rpds-py==2026.9.1
+typing-extensions==4.16.0 ; python_version < "3.13"

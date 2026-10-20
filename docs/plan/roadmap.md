@@ -1,6 +1,6 @@
 # Repo 模板首版实施与验收
 
-**P0 决策已完成（2026-10-13）；P1–P3 尚未实施。首测选择 GitHub Copilot App，首版只交付与验收 repo 骨架。此前的 CLI、协调器、状态库和平台适配开发里程碑不再沿用，旧工期估计也不适用于本计划。**
+**更新：2026-10-14。P1/P2 已完成本地制作；P3 已完成本地文档演练、真实 App 核心接入/方法/角色及 Git 接手，仍有入口匹配、人工对照和发布确认未完成。逐项范围见[实际验收记录](#actual-acceptance)，不声明 P3 整体通过。** P0 决策于 2026-10-13 完成；此前的 CLI、协调器、状态库和平台适配开发里程碑不再沿用。
 
 ## 1. 首版交付目标
 
@@ -27,9 +27,9 @@
 | 阶段 | 交付内容 | 前置条件 | 当前状态 |
 |---|---|---|---|
 | P0：确定最小内容 | 文件职责、App 首测、`src` 边界、轻量建模/追溯与共享方法、设置输入及分发边界 | 模板形态与参考命名方向已确认 | 决策已完成并补强 |
-| P1：项目资料模板 | 既定资料骨架与七类表单，包含领域建模指引、验收引用/覆盖字段、人工导航；其余文件按蓝图 | P0 | 待开始 |
-| P2：Agent 能力文件 | 既定 instructions、3 个 agents、6 个 skills、5 个可选 prompts；连接模型、追溯、影响分析及人机共享入口 | P1 资料骨架就绪 | 待开始 |
-| P3：骨架使用与发布准备 | 冷启动、文档语义与故障场景、变更影响、人机路径与交接；整理干净发布候选 | P1、P2，以及 GitHub Copilot App 可用 | 待开始 |
+| P1：项目资料模板 | 既定资料骨架与七类表单，包含领域建模指引、验收引用/覆盖字段、人工导航；其余文件按蓝图 | P0 | 本地制作完成，`52735a0` |
+| P2：Agent 能力文件 | 既定 instructions、3 个 agents、6 个 skills、5 个可选 prompts；连接模型、追溯、影响分析及人机共享入口 | P1 资料骨架就绪 | 本地制作完成，`4856c47` |
+| P3：骨架使用与发布准备 | 冷启动、文档语义与故障场景、变更影响、人机路径与交接；整理干净发布候选 | P1、P2，以及 GitHub Copilot App 可用 | 进行中；本地和 App 核心场景完成，余下入口、人工及发布事项待完成 |
 
 决策依据与发布前保留事项见[P0 决策记录](decisions-and-risks.md)。不为每个文件建立独立发布包；先用一套可审阅的内容完成骨架文档任务，再根据使用问题修订规则。
 
@@ -46,7 +46,7 @@
 - [x] 将轻量 DDD、最小追溯、变更影响和人工共用方法列为内容要求，保留既定目录及文件数量。
 - [x] 明确纯文档语义演练的固定输入、覆盖缺口、悬空引用、规则变更与结果判定，不将文档检查当成应用验证。
 
-这些勾选只表示决策完成，不表示 P1 文件存在或 P3 场景已通过。
+这些勾选只表示 P0 决策完成；P1/P2 的制作记录与 P3 的实际结果分别登记，不从决策勾选推导验收通过。
 
 ### P1：资料模板能被直接使用
 
@@ -110,7 +110,7 @@ VT-001/VT-002 的业务或软件行为未实际执行，始终标为 `not-run`�
 
 ## 4. 首批验收场景
 
-以下是模板实现后的验收清单，不是本次已经通过的测试结果。
+以下是固定验收标准；是否实际运行及其通过范围见下一节，不从文件已实现推导整项通过。
 
 | ID | 场景 | 可观察的通过条件 |
 |---|---|---|
@@ -136,8 +136,125 @@ VT-001/VT-002 的业务或软件行为未实际执行，始终标为 `not-run`�
 
 模板检查与模型行为演练是两件事：相对链接、元数据和文件格式可用现有工具检查；是否正确建模、解释追溯、处理缺失输入与规则变化，需要实际操作。T13–T17 通过只表示文档语义与共享方法的演练完成，不表示所规划的业务/软件行为 VT 已执行。首版未验证任何应用的编码、构建或测试，也不据此宣称支持所有语言工具链。有限演练不构成安全证明或成功率承诺。
 
-## 5. 后续按实际需要扩展
+<a id="actual-acceptance"></a>
+## 5. 实际验收记录（2026-10-14）
+
+本节是此次骨架制作的验收记录，不随下游模板分发。源基线为 P1 `52735a0`、P2 `4856c47`；正式分发清单仍以[蓝图](../design/repository-blueprint.md#2-首版模板目录)为准，共 38 个文件。P1/P2 分别经过范围与内容审阅。模板保持空白业务事实，`src` 只有说明。
+
+首轮使用本地工具及两个通用子代理，结果只支持**本地文件路径**。后续用户允许独立本机测试项目，App 的 `create_session` 启动四个真实隔离会话：默认接入、reviewer、planner、implementer/Git 接手；均已按限定范围完成，不是把普通子代理改称 App 实测。宿主进程文件版本为 App 1.1.29，四个会话启动 CLI 元信息均为 1.0.95-3，系统 Windows 10.0.26200.0；GUI 选择器、整个 App 重启、其他客户端与实际人工操作仍未测。
+
+| ID | 本次状态 | 实际观察与未完成部分 |
+|---|---|---|
+| T01 | 本地通过 | 按 38 个具体文件复制；不用业务依赖即可读取、填写资料，未配置项保留 |
+| T02 | App 新会话通过 | 新 worktree 会话实际找到目标、规范、当前任务、命令及日志位置并识别未配置；版本、原生事件和源记录保留，不等于整个 App 冷重启已测 |
+| T03 | 部分完成 | 三个角色 API 选择及六个项目 skills 原生调用已核对成功；路径自动匹配/非匹配、GUI 和可选 prompts 原生入口仍未验证 |
+| T04 | App 路径通过 | 自然语言任务、原生方法加载与显式文件读取完成文档工作，没有用 prompt 快捷入口 |
+| T05 | 本地与 App 通过 | 两条路径均填写固定名称/范围、核对 src 导航并记录实际文档检查与日志；没有创建应用 |
+| T06 | App/Git 接手通过 | 全新 implementer 从真实 source commit 和仓库/日志接手，识别精确缺口、历史来源与未执行项；仅提交交接日志/索引，不声称修复额度规格 |
+| T07 | 本地通过 | 缺项目、技术栈、cwd、命令与创建授权时阻塞编码；文档工作继续，未知业务政策未被补造 |
+| T08 | 本地通过 | 带既有规则的独立夹具识别 5 处冲突并停止受影响写入，7 个文件散列完全保留；通过的是拒绝覆盖/预检分支，不是未经确认的迁移已完成 |
+| T09 | 本地通过 | 演练仅使用干净副本与给定素材，不读取参考项目或依赖其凭据 |
+| T10 | 部分完成 | 无推送、发布或权限变更；真实 reviewer 的工具选择为 `["*"]`，只读是对话约定而非已建立门禁；App/OS 强制权限边界未验证 |
+| T11 | 本地通过 | 实际形成模型、REQ、SR、分层 VT 与日志；不创建 US/ABB 也可追溯，结果与索引分工明确 |
+| T12 | 本地通过 | 候选的 `src` 只有 README，没有应用、固定测试目录、依赖或锁文件；开发命令未配置 |
+| T13 | 本地通过 | 概念关系、两项规则、两个上下文职责与交互可定位；资格失效后的既有借用处理、并发一致性仍未决 |
+| T14 | 本地通过 | 四项 REQ/SR 验收分别由 VT-001/VT-002 的准确目标引用覆盖；无 US，行为计划仍为 `not-run` |
+| T15 | 本地通过 | 两个独立故障副本分别识别 `SR-001-AC-02` 未覆盖、`SR-001-AC-99` 悬空；真实验收项未删除，故障副本未被修饰成通过 |
+| T16 | 本地通过 | 上限 2→3 后更新 REQ/SR/VT 的边界；资格规则与旧运行原文保留，B1 结果先标当前待复核，再新增 B2 文档结果；行为仍未执行 |
+| T17 | 未验证 | 用户选择本轮先完成 App/本地验收，人工对照保留未验证，不以代理模拟人 |
+
+### 对象、结果与证据
+
+初始副本用规定的成员、物品、借用记录素材形成 B1；新代理在独立副本中完成 B2。B1、B2 的文档检查各运行 16 项，均退出 0；其结果记在独立文档型 VT-003，**不写入业务 VT-001 或软件 VT-002**。两个行为 VT 的 B1、B2 记录均为 `not-run`。
+
+另行只读核对 32 项候选与证据约束：从真实 REQ/SR 锚点盘点四项验收、解析实际 VT 目标，确认故障精确隔离、B1 五个及 B2 九个对象的 SHA-256、旧报告与 RUN-01 原文、资格规则、行为未执行状态及候选一致性。32 项均通过。这不是应用测试，也不构成客户端安全或一般可靠性证明。
+
+首轮最终候选有 38/38 个文件、228 个可解析的相对链接；无研究、设计、计划、制作日志、演练文件或 Git 历史。副本创建后检测到源 README 两处表格分隔符排版变化，未回退或代为提交；候选重新捕获当前字节，receipt 明确记录 `README.md` 是未提交的分发文件。后续接入说明更新另存新候选与 receipt，不把旧候选或排版变动当作相同 commit 的字节。
+
+原始记录位于制作会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的本机 `files`：
+
+| 本机工件标识 | 内容与限制 |
+|---|---|
+| `release-candidate-final`、`release-candidate-final-receipt.json` | 38 文件候选及来源、未提交范围、逐文件散列；仅为本地候选，尚未发布 |
+| `candidate-final-check.json`、`evidence-audit.json` | 文件/链接检查和只读完整性核对的实际输出 |
+| `exercise-baseline`、`exercise-coverage`、`exercise-dangling`、`exercise-change` | B1、独立故障和 B2 副本；全部排除出分发 |
+| `p3-initial-report.md`、`p3-followup-report.md`、`p3-findings.json` | 代理实际读取、操作、命令、结果及限制；不是跨机器可用的 CI 证据 |
+
+演练中产生的 `document-check-b1.ps1` / `document-check-b2.ps1` 是本机一次性文档检查助手，**不在 38 文件候选中**。后继报告将 B1 助手称为 “shipped” 不准确。B1 助手会重写同名快照，且使用固定文件清单，不能在变更后的副本直接复跑来充当新证据。本次保留它的原记录，另建 B2 记录并以只读散列核对历史；不把这些助手交付成模板运行层。
+
+接手若无法访问上述本机工件，应按本计划的固定输入重新制作副本并记录新结果，不能假称恢复了原始证据。制作交接见[开发日志](../../logs/2026-10-14-skeleton-p1-p3.md)。
+
+### 后续 App 与冲突观察
+
+本机测试项目由 38 文件候选建立独立 Git 仓库，无远端，初始 checkpoint 为 `7e478845fc64ceb0b66ba5b655771c543728d0eb`。注册后只在 App 管理的 worktree 中操作，未修改原项目配置或测试项目主 checkout。
+
+[P3 reviewer entry](ghapp://sessions/40a224f5-795a-4877-af01-159b9070254e) 通过 App API 选择工作模式；启动事件包含 `subagent.selected`，这里是角色选择记录，不是创建 task 子代理。原始事件第 70、244 行的 `skill.invoked` 分别为 `verify-change`、`record-handoff`，`source=project`，路径均指向该 worktree 的 `.github\skills`。起止 Git 状态只有分支行，实际无文件改动。两个 selected-agent 事件的 `tools` 均为 `["*"]`，不能称强制只读。
+
+[P3 app cold start](ghapp://sessions/712829a4-a056-4e78-a55a-b5e39d717c50) 已在 checkpoint `29eacba44f7d63f0a930ed23963feabac7fb86b0` 完成固定设置、文档检查、日志与本地提交，仅改五个文档/证据文件，其余 36 个原文件不变。它实际原生调用 onboarding、实施、验证、交接四个方法；父会话对不可变 Git 对象与工具事件的 11 项只读核对通过。App 新会话不等于整个共享 App 被重启。
+
+在该会话完成并空闲后，父会话只在其 worktree 准备部分变更 checkpoint `59aebcda25ff671cf19a0d7177d1ade6c777ccc4`：历史 B1 作为历史素材保留，RULE-002 已变为 3，下游旧边界和 VT 缺口待核对；没有复跑旧 helper。它不是本次额度更新“已完成”的结果。
+
+[P3 planner entry](ghapp://sessions/fcf7e330-6f15-47f1-954a-4349967cf605) 只读应用需求/规格方法，正确指出旧边界、缺 SR-001-AC-02、索引不符及 B1 历史来源；无写入或新计划。[P3 git resumption](ghapp://sessions/9d65e97e-92ed-442d-b257-ed238dea848d) 从 source 接手，形成 `312c3f8a067170f3d3621d41fd936282c6781255`：只改日志索引并新增交接，52 个其他原文件保留，工作树/暂存区干净。父会话 12 项只读核对通过。行为与规格修正尚未执行，未把接手或日志检查通过当成额度验证。
+
+四个真实会话的原生事件合并核对，六个项目方法均有 `source=project`、本 worktree 路径及成功 tool completion；三个自定义角色都有实际 selected-agent 事件，工具选择均为 `["*"]`。因此证实的是此环境中的 API 选择、方法加载与有限使用，不是 GUI、任意自然触发、自动路径匹配或强制权限。逐入口范围见[接入说明](../agent-support.md#template-observations)。
+
+T08 另在七文件既有内容夹具中实际应用 onboarding：README 事实、AGENTS 的真值位置/编号、Copilot 入口、Markdown 范围规则及 `logs` 忽略策略分别与候选冲突。停止受影响的合入，不并列追加矛盾规则，前后 SHA-256 清单确认全部原文保留。未来迁移选择由维护者决定，不属于该预检的成功声明。
+
+新增本机证据包括宿主版本、四份 `app-*-events.json`、`app-native-audit.json`、onboarding/resumption 两份不可变 checkpoint 核对、各自观察摘要及 T08 冲突/散列记录。版本来自工具进程 ancestry 和文件元数据，不是 About；事件与人工摘录分开，其中“人工摘录/核对”是 Agent 的文件操作，不是 T17 人工参与。上面的会话链接仅用于当前 App 历史访问，不是跨机器的公共证据。全部原始素材仅在制作会话或本机测试仓库，不随候选分发。
+
+### P3 剩余退出条件
+
+T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额外观察；现有 trace 只证明列表、加载与明确读取，不补写这些结果。T17 按用户本轮选择保留未验证。后续分别填写[客户端记录](../agent-support.md#client-records)，使用同一固定输入和真实人/App 操作；不以 API 选择或 Agent 模拟代替。已观察项与未测项不能合成“全支持”。
+
+发布前仍需责任人确认许可证、位置、可见性、版本、维护者、权限及审阅安排。当前研究仓库不得直接整仓分发，也未改为 GitHub template；P3 尚未整体通过。
+
+## 6. 后续按实际需要扩展
 
 更多 Agent 的薄入口、技术栈专项规则、接口/数据/运维文档模板，以及更深的 DDD 建模内容，都以真实使用需求为前提。已有目录命名不要求填满全部领域工件，也不要为兼容性预先复制多套正文。
 
 项目需要 CI、开发容器或检查脚本时，复用该技术栈与平台的原生机制。不把这些需求重新扩展成 skeleton 运行时、自动发布引擎或跨项目管理平台。
+
+## 7. 六仓功能对齐增强（已开始）
+
+2026-10-19 Task12 已冻结精确逐文件 owner manifest，完成候选复制/校验、隔离导入与资源闭包及原 T01/T05/T07–T16 适用本地路径回归；完整 fix-wave 独立限定复核已确认 3 Important 与 1 Minor/后续 provenance finding 均已处理，无新增问题。新的 fix2 committed-source 验证 receipt 与当前提交 provenance 一致（132文件、41 exclusions、0 findings，dirty scope空）。最低版本 retained+new 最终为857/857；848/856历史运行与 malformed fix1 provenance 旧报告保留原样。证据与 `not-run` 关卡见[制作侧验收记录](../../verification/ddd-alignment.md)和[Task12 交接](../../logs/2026-10-19-task12-candidate.md)；不继承旧38文件候选、App/人/应用/平台/发布结果，不关闭整体 parity。
+
+2026-10-14 用户要求为六个 `ddd-*` 仓库的功能对齐生成增强计划，并确认保留单仓/技术栈中立、按功能等价而非旧格式兼容。2026-10-15 进一步确认脚本基本统一为 Python：本地、hooks 与 CI 复用同一逻辑，取消必需的 PowerShell 包装层；保留原生 CI YAML 和必要的薄启动适配，不自研 CLI/执行器。
+
+2026-10-19 用户将当前优先目标明确为 ready-to-use 本地脚手架，不把真实应用展示演练作为当前 readiness 前置。按精确 manifest 复制与隔离验证候选，不等同于发布授权或六仓 full parity；Task13 live/人/App/client/platform 与 Task14 全矩阵等价结论仍分列为未完成关卡。
+
+当前 manifest 下已产生新的本地 candidate：132 文件、来源 HEAD `ee46390`、dirty scope 独立记录、132/132 再验证、0 findings；`test_distribution.py` 40/40、无跳过/失败/错误。隔离 Flagsmith POC 的 `poc/` 已列入 manifest 排除，候选不会带入演练副本。详细收据见[Task13/ready-scope 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)；artifact 及测试 raw report 仅在本会话 session-local evidence，未作为跨机器证据。
+
+2026-10-19 按模板蓝图核对历史 P1/P2 38 个路径，主工作树 38/38 已有；在用户提供的 POC 根目录建立 sibling `agent-native-scaffold/` 完整 132 文件 enhanced-manifest 副本，与 `flagsmith/` 分离。此副本不是旧 38 文件路径集逐项原样复刻：`docs/agent-support.md` 含历史客户端观察，仍由 manifest 安全排除。工作树内候选曾造成根级 artifact checker 将嵌套表单识为正式工件，因此已迁到工作树外并清理工作树内重复副本；最终 sibling copy verify 132/132、0 findings，根级 artifact checker 恢复 `empty`，记录见[Task13 handoff](../../logs/2026-10-19-task13-flagsmith-poc.md)。
+
+用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
+
+源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15、Task16 离线范围、Task17 本地导出、Task18 本地账本及 Task12 候选的限定本地实现/复核均已完成，无遗留 scoped review finding，但不代表真实资格或批准。Task16 音频仍 not-run，ENH-16 未关闭；Task17 PDF/PPTX 与实际二进制格式 gates 未执行，ENH-17/full parity open；Task18 provider/billing/真实 usage 与 ENH-18 整体结论仍 open。Task12 fix-wave review 已关闭候选报告覆盖、reparse TOCTOU、hardlink、过期计划状态和 provenance 参数顺序 issues；新候选 provenance 精确绑定 cda3cfd，132文件逐字节匹配，41 exclusions、0 findings。候选不等于发布/full parity。Task13 已按用户选择的 Flagsmith/OpenFeature 技术 POC 建立 `poc/flagsmith` 隔离副本；只复制固定提交 `beade3c` 的 86 个跟踪文件，未复制 `.git`、忽略依赖/密钥配置或源仓新增的未跟踪设计文件。隔离副本锁定 restore 后，POC unit/build/controlled-browser 为 19/19、成功、10/10；静态结构/链接检查的一项既有中文文档失败保持记录。该 POC 不是接入业务系统的应用，live Flagsmith、代码生成/维护、人/App/client/platform gates 尚未完成；详见[Task13 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。Task14 逐行矩阵收口仍未完成；不得越过适用外部门禁做整体等价结论。原 P3 入口/人工观察不升级；不更改远端门禁或执行外部 fan-out。
+
+目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7/8 的审阅修正已关闭；报告和模型仍只引用原始来源。Task9 演练不补未知风险或决定、不改写 VT。Task10 的原生启动、环境和报告边界结果分别保留，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留，历史记录不改写。
+
+2026-10-16 的 Task8 独立 review 提出三个 Important；[第 1 轮窄修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix1) 完成 RED/GREEN 和 395 方法全量验证后，限定复审关闭原三项并指出新兼容性问题。它不升级业务/审批或完整增强结论。
+
+新 T8-F1-N1 经[第 2 轮局部修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix2) 和[限定复审](../../logs/2026-10-15-ddd-alignment.md#task8-review)关闭；合法业务 tree 的导出/检查往返恢复，实际领域源保护保留。旧 395 全套和不同对象的局部结果各自保留，不改标为一次新运行。
+
+Task16 独立审阅在 `9942e70` 提出三个 Important 与一个 Minor；本轮
+[fix1](2026-10-14-ddd-functional-alignment.md#task16-fix1) 仅修正源单元限定语、
+共享 Markdown context、计数/位置关系和 gridless 表格宽度，已完成范围复审。
+旧 688 与本轮新的局部/最低版本结果分开保留；实际音频/ENH-16 未整体关闭，
+限定复审在 `97d35aa` 确认原四项发现均已处理，无新的相关发现；
+入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task16-review)。
+Task17 本地格式与 fix1 已完成限定复审，原两项发现均已处理、无新发现；见[复审记录](../../logs/2026-10-18-task17-resume.md#task17-fix1-review)。PDF/PPTX 仍为 `unavailable` / `not-run`。
+不以音频拒绝合同冒充真实服务结果、不以本地格式关闭 ENH-17/full parity 或越过 Task18/候选交付而解锁 Task12。
+
+2026-10-19 Task18 已实现显式本地 CSV 交互账本与分组用量摘要，新增 17 项测试和最终 Python 3.11.15 保留+新增回归 804/804 执行、0 跳过/失败/错误。当前仅本地范围实现，等待独立限定审阅；没有读取真实用户会话、账单、供应商价格或生产数据。Windows 固定本地盘 byte-range lock 的实际单机多进程行为有测试；网络/跨主机/同步目录耐久性不在支持声明内。Task12 仍需 Task18 审阅与候选交付，ENH-18 真实 provider/billing 与 overall parity 保持 open；入口见[Task18 交接](../../logs/2026-10-19-task18-resume.md)。
+
+2026-10-19 Task18 fix1/round1 依审阅的三个 Important 更新：无输出摘要现在是无 sidecar 文件副作用的稳定两次字节/身份快照；追加和新摘要输出均须 caller 显式 `--attest-local-storage`/`attest_local_storage=True`；摘要输出按 pinned Windows directory handle 进行 `NtCreateFile` relative exclusive create，写后复查父目录、源和新文件 identity。新增 11 项回归，Task18 定向套件 28/28、0 跳过/失败/错误；fix1 的最终 retained+new Python 3.11 套件仍待执行，之后再提交并等待 scoped re-review。Attestation 是调用者声明而不是存储供应商/OS 证明；真实用量/费用与 Task12、ENH-18/parity 仍 open。
+
+2026-10-19 fix1 最终 Python 3.11.15 minimum retained+new 回归 815/815、0 跳过/失败/错误，退出 0；`inputs_unchanged=true`。实现待本地 coauthor commit 和独立 scoped re-review；Task12 未解锁，真实 provider/billing/usage 及 overall parity 仍 open。
+
+2026-10-19 Task18 fix1 最终最低版本保留+新增 Python 3.11.15 回归为 815/815 执行、0 跳过/失败/错误，退出 0，输入未变；全部 Task18 定向为 28/28。修正目前本地提交待执行、随后等待独立 scoped re-review；不解锁 Task12。fix1 原始 RED/GREEN 及最终收据见本机 Task18 fix1 报告/evidence；该结果不表示 provider/billing/真实 usage 或 overall parity 已验证。
+
+2026-10-19 Task18 fix2/round2 处理新 Important：native `FILE_CREATE` 后先从原生 file handle 缓存稳定 identity，再包装 CRT descriptor/执行首个 `fstat`；所有创建后的失败都保留并报告 recovery identity，不删除输出。两个 injected post-create failure tests 已通过，Task18 targeted 30/30；fix2 的 retained+new Python 3.11 full suite 待最后一次运行。reviewer 的 Minor（移除 `summarize_usage(lock_timeout=...)` kwarg）根据本地 `rg` 未发现调用者，按用户指示记为 deferred，不扩大 fix2。Task12 仍等待 scoped re-review/候选。
+
+2026-10-19 Task18 fix2 最终最低版本 retained+new Python 3.11.15 回归为 817/817 执行、0 跳过/失败/错误，退出 0，`inputs_unchanged=true`；Task18 targeted 30/30。新 API 的 Minor 参数建议保持 deferred；修正待本地提交与 independent scoped re-review，Task12 未解锁。
+
+2026-10-19 Task18 fix2 已由独立限定复审确认 post-native-create recovery identity Important 已处理，未发现新 breakage；Task18 本地实现/审阅范围现关闭。中间两测试收据 `green-create-failure-report-02.json` 存在 JSON summary 与 raw output 不一致（exit 1/raw `KeyError`），不算通过；最终只采用后续 Task18 targeted 30/30 与 minimum 817/817 收据，原始文件保留。Minor `summarize_usage(lock_timeout=...)` 参数建议因无仓内调用且 API 未发布而 deferred，列待最终整体审阅。Task12 本地前置现齐备，下一步开始候选交付；候选与后续人工/应用/平台门禁仍分别验收。
