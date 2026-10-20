@@ -69,6 +69,16 @@ class DomainFixture(unittest.TestCase):
     def snapshot(self):
         return source_bytes(self.root), source_bytes(self.source)
 
+    def owner_repository_state(self, root):
+        return (
+            source_bytes(root, include_git=False),
+            git(root, "rev-parse", "HEAD"),
+            git(root, "write-tree"),
+            git(root, "status", "--porcelain=v1", "--untracked-files=all"),
+            git(root, "for-each-ref", "--format=%(refname) %(objectname)"),
+            (root / ".git" / "config").read_bytes(),
+        )
+
     def inspect(self, declaration=None, **kwargs):
         before, cwd = self.snapshot(), Path.cwd()
         result = self.tool().inspect_domain_source(
@@ -417,13 +427,22 @@ class SourceSubmoduleTests(DomainFixture):
         target = self.root / "domain-model"
         target.mkdir()
         (target / "README.md").write_bytes(b"Owner content must survive\n")
-        before = self.snapshot()
+        before = (
+            self.owner_repository_state(self.root),
+            self.owner_repository_state(self.source),
+        )
         result = self.inspect(operation="submodule", target="domain-model")
         self.assertEqual(("conflict", 1), (result["status"], result["exit_code"]))
         self.assertIn("TARGET_CONFLICT", self.codes(result))
         applied = self.apply(operation="submodule", target="domain-model", owned=True, index_consent=True)
         self.assertEqual("conflict", applied["status"])
-        self.assertEqual(before, self.snapshot())
+        self.assertEqual(
+            before,
+            (
+                self.owner_repository_state(self.root),
+                self.owner_repository_state(self.source),
+            ),
+        )
 
     def test_source_10_optional_submodule_discloses_native_metadata_and_separate_index_consent(self):
         result = self.inspect(operation="submodule", target="external domain")
