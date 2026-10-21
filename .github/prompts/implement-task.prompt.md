@@ -4,10 +4,19 @@ description: Implement one explicit task within real inputs and the authorized s
 
 # Implement a task
 
-Current input (filled in by the user):
-- Task basis, goal, paths to modify, and non-goals: TBD.
-- Completion criteria, related acceptance/VT, and baselines: TBD.
-- Documentation or coding scope; if coding, the selected project/stack and the location of the real development registration: TBD.
-- Current authorization, known blockers, and changes to keep: TBD.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [AGENTS](../../AGENTS.md) first, then use [implement-task](../skills/implement-task/SKILL.md) and [verify-change](../skills/verify-change/SKILL.md). This entry point does not fill in missing inputs or extend operational authorization.
+- Task basis and goal: TBD
+- Paths to modify and non-goals: TBD
+- Completion criteria, related acceptance/VT, and baselines: TBD
+- Documentation or coding scope: TBD
+- If coding: the selected project/stack and the location of the real development registration: TBD
+- Current authorization: TBD
+- Known blockers and changes to keep: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [implement-task](../skills/implement-task/SKILL.md) and [verify-change](../skills/verify-change/SKILL.md) in full, then use them.
+3. This prompt does not fill in missing inputs or extend operational authorization.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

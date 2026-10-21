@@ -4,10 +4,19 @@ description: Plan layered VTs and applicable scenarios from all acceptance sourc
 
 # Plan verification
 
-Current input (filled in by the user):
-- Delivery scope, and the owner/ID/original text, layer, and baseline of every acceptance criterion: TBD, including items that have no VT yet.
-- Existing VT/TS, companions, actual tests/reports, and their versions: TBD.
-- Actual environment, commands/cwd/report registration, or specific gaps: TBD.
-- Intended location, planning scope, and authorization: TBD; list run authorization separately.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [AGENTS](../../AGENTS.md) first, read [specify-feature](../skills/specify-feature/SKILL.md) in full, and use its [pre-implementation verification plan](../skills/specify-feature/SKILL.md#plan-verification) section. This entry point only selects the method; a plan or the existence of files does not count as a test run.
+- Delivery scope: TBD
+- Owner, ID, original text, layer, and baseline of every acceptance criterion, including items that have no VT yet: TBD
+- Existing VT/TS, companions, actual tests/reports, and their versions: TBD
+- Actual environment and commands/cwd/report registration, or the specific gaps: TBD
+- Intended location and planning scope: TBD
+- Planning authorization: TBD
+- Run authorization (list separately): TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [pre-implementation verification plan](../skills/specify-feature/SKILL.md#plan-verification) section.
+3. This prompt only selects the method. A plan or the existence of files does not count as a test run.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

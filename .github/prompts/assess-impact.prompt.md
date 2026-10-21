@@ -4,9 +4,19 @@ description: Propose source-backed semantic impact and items pending re-review f
 
 # Assess change impact
 
-Current input (filled in by the user):
-- Change source, actual artifacts/locations, old and new baselines, and confirmation status: TBD.
-- Full delivery scope, known dependencies/consumers, original acceptance criteria, and entry points to actual results: TBD.
-- Desired impact proposal and authorization: TBD; read-only by default, and running or writing needs a separately stated scope.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [the semantic impact check in verify-change](../skills/verify-change/SKILL.md#impact) in full; that file is authoritative for modes, coverage checks, and stop conditions.
+- Change source and the actual artifacts/locations: TBD
+- Old and new baselines, and confirmation status: TBD
+- Full delivery scope: TBD
+- Known dependencies/consumers: TBD
+- Original acceptance criteria and entry points to actual results: TBD
+- Desired impact proposal: TBD
+- Authorization: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [semantic impact check](../skills/verify-change/SKILL.md#impact) section.
+3. Work read-only by default. Running or writing needs a separately stated scope.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

@@ -4,9 +4,18 @@ description: Crunch domain knowledge when model meaning, boundaries, or actual u
 
 # Distill the domain model
 
-Current input (filled in by the user):
-- Model path, context, and version, plus actual statements or usage signals: TBD.
-- Doubts about language, relationships, rules, or boundaries, and known decisions: TBD.
-- Expected findings/candidates and the permitted write scope: TBD; without authorization, return proposals only.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [knowledge crunching and model drift in define-requirements](../skills/define-requirements/SKILL.md#distill) in full; that file is authoritative for the method and its stop conditions.
+- Model path, context, and version: TBD
+- Actual statements or usage signals: TBD
+- Doubts about language, relationships, rules, or boundaries: TBD
+- Known decisions: TBD
+- Expected findings/candidates: TBD
+- Permitted write scope: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [define-requirements](../skills/define-requirements/SKILL.md) in full, then apply its [knowledge crunching and model drift](../skills/define-requirements/SKILL.md#distill) section.
+3. Without authorization, return proposals only.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

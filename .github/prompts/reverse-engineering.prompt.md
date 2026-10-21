@@ -4,10 +4,18 @@ description: Extract domain candidates to be confirmed from existing materials, 
 
 # Extract domain candidates by reverse engineering
 
-Current input (filled in by the user):
-- Extraction question, domain/context, and scope: TBD.
-- Documents, code, excerpts, or external records permitted to be read, with their actual identity, versions, and missing locations: TBD.
-- Existing models/rules, conflicts, and fact owners: TBD.
-- Expected output and permitted write locations: TBD; reading an implementation does not authorize running it or sending materials.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [extraction and comparison in reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md#extract) in full; that file is authoritative for the method, candidate fields, and stop conditions.
+- Extraction question, domain/context, and scope: TBD
+- Documents, code, excerpts, or external records permitted to be read: TBD
+- Their actual identity and versions, and missing locations: TBD
+- Existing models/rules, conflicts, and fact owners: TBD
+- Expected output: TBD
+- Permitted write locations: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md) in full, then apply its [extraction and comparison](../skills/reverse-engineer-domain/SKILL.md#extract) section.
+3. Reading an implementation does not authorize running it or sending materials.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

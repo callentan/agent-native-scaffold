@@ -4,10 +4,20 @@ description: Organize a source-backed sequence diagram from actual scenarios and
 
 # Sequence diagram
 
-Current input (filled in by the user):
-- Scenario scope, plus the original text, baselines, and confirmation basis of the actual UC/ABB and related rules: TBD.
-- Known participants, production/consumption direction, and event/interface contracts: TBD.
-- Sources and gaps for success/rejection/error paths and for asynchronous or delivery conventions: TBD.
-- Existing SEQ, intended location, and the authorization for this session: TBD.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [AGENTS](../../AGENTS.md) first, read [specify-feature](../skills/specify-feature/SKILL.md) in full, and use its [sequence diagram](../skills/specify-feature/SKILL.md#sequence-diagram) section. This entry point does not infer a messaging system or runtime results.
+- Scenario scope: TBD
+- Original text, baselines, and confirmation basis of the actual UC/ABB and related rules: TBD
+- Known participants and production/consumption direction: TBD
+- Event/interface contracts: TBD
+- Sources and gaps for success/rejection/error paths: TBD
+- Sources and gaps for asynchronous or delivery conventions: TBD
+- Existing SEQ and intended location: TBD
+- Authorization for this session: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [sequence diagram](../skills/specify-feature/SKILL.md#sequence-diagram) section.
+3. This prompt does not infer a messaging system or runtime results.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

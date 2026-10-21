@@ -4,9 +4,17 @@ description: Check domain artifacts, the full acceptance scope, and gaps in actu
 
 # Review domain artifacts
 
-Current input (filled in by the user):
-- Artifact paths, scope, acceptance sources, and baselines: TBD.
-- Known doubts, open questions, and actual decision/run evidence: TBD.
-- Desired review focus and output scope: TBD; read-only by default, without running check commands or writing files.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [domain artifact review in verify-change](../skills/verify-change/SKILL.md#domain-review) in full; that file is authoritative for modes, finding fields, and stop conditions.
+- Artifact paths and scope: TBD
+- Acceptance sources and baselines: TBD
+- Known doubts and open questions: TBD
+- Actual decision/run evidence: TBD
+- Desired review focus and output scope: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [domain artifact review](../skills/verify-change/SKILL.md#domain-review) section.
+3. Work read-only by default, without running check commands or writing files.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

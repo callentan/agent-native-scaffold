@@ -1,13 +1,24 @@
 ---
-description: Provide this session's inputs for a template version change or a scenario-source change of an explicit BC.
+description: Propose a template version update, or a scenario-source change for an explicit BC, from this session's inputs.
 ---
 
 # Template update proposal
 
-Current input (filled in by the user):
-- Task, completion criteria, permitted file scope, and operational authorization: TBD.
-- Actual old baseline, local owner content, root and version of the new candidate, and existing modifications: TBD.
-- Local registration of multiple targets, and the repositories/contexts/files explicitly selected this time: TBD.
-- Current tool environment, new report location, and content to keep: TBD.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [AGENTS](../../AGENTS.md) first, then read [update-template](../skills/update-template/SKILL.md) and its actual inputs in full. This entry point does not supply missing facts or grant write or propagation permissions.
+- Task and completion criteria: TBD
+- Permitted file scope and operational authorization: TBD
+- Actual old baseline: TBD
+- Local owner content and existing modifications: TBD
+- Root and version of the new candidate: TBD
+- Local registration of multiple targets: TBD
+- Repositories/contexts/files explicitly selected this time: TBD
+- Current tool environment and new report location: TBD
+- Content to keep: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [update-template](../skills/update-template/SKILL.md) and its actual inputs in full.
+3. This prompt does not supply missing facts or grant write or propagation permissions.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

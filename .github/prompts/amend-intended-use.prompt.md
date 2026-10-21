@@ -1,12 +1,22 @@
 ---
-description: When an existing Intended Use is provided, analyze section amendments, scope impact, and decisions that need escalation.
+description: Analyze section amendments, scope impact, and decisions that need escalation for a provided existing Intended Use.
 ---
 
 # Amend Intended Use
 
-Current input (filled in by the user):
-- Existing complete file, version/baseline, fact owner, and target sections: TBD.
-- Proposed content, rationale, and the governance/risk basis actually provided and applicable: TBD.
-- Expected difference/impact proposal, permitted modification scope, and authorization: TBD; without the original text, do not generate substitute intended-use facts.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [the optional Intended Use amendment in define-requirements](../skills/define-requirements/SKILL.md#intended-use) in full; that file is authoritative for the method and its stop conditions.
+- Existing complete Intended Use file and its version/baseline: TBD
+- Fact owner: TBD
+- Target sections: TBD
+- Proposed content and rationale: TBD
+- Governance/risk basis actually provided and applicable: TBD
+- Expected difference/impact proposal: TBD
+- Permitted modification scope and authorization: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [define-requirements](../skills/define-requirements/SKILL.md) in full, then apply its [optional Intended Use amendment](../skills/define-requirements/SKILL.md#intended-use) section.
+3. Without the original text, do not generate substitute intended-use facts.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

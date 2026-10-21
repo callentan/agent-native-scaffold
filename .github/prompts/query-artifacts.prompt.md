@@ -4,9 +4,17 @@ description: Query the real artifact inventory and sources read-only within an e
 
 # Query actual artifacts
 
-Current input (filled in by the user):
-- Actual root directory, object types, scope, or filters: TBD.
-- Query question, known source files, and versions to compare: TBD.
-- Fields and scope to return: TBD; read-only by default, with no authorization for output files or exports.
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-Read [the actual inventory query in verify-change](../skills/verify-change/SKILL.md#query) in full; that file is authoritative for modes, source boundaries, and stop conditions.
+- Actual root directory: TBD
+- Object types, scope, or filters: TBD
+- Query question: TBD
+- Known source files and versions to compare: TBD
+- Fields and scope to return: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [actual inventory query](../skills/verify-change/SKILL.md#query) section.
+3. Work read-only by default, with no authorization for output files or exports.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

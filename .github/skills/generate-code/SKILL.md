@@ -1,48 +1,122 @@
 ---
 name: generate-code
-description: Use when initial code generation or project scaffolding is requested for an identified task, including when project, stack, target paths or execution inputs may be missing.
+description: Use when initial code generation or project scaffolding is requested for an identified task, including when the project, stack, target paths, or execution inputs may be missing. Not for maintaining existing code or independent documentation fixes (use implement-task).
 ---
 
-# Safe initial code generation
+# Generate initial code safely
 
-This is a file-based method shared by humans and agents, not a generator program. It handles only authorized initial generation; existing code maintenance uses [implement-task](../implement-task/SKILL.md), and independent documentation fixes also follow its documentation path. Do not stop unrelated documentation tasks because application inputs are missing.
+This is a file-based method shared by humans and agents, not a generator program. It handles only authorized initial generation. **Write nothing to a target until it has passed every preflight check below.**
 
 ## Inputs
 
-- The actual task, confirmed scope/non-goals, behavior sources and all acceptance criteria, planned VTs, and their respective baselines; US/ABB only when the task actually needs them.
-- The application/project, language/stack and versions, target location, and creation authorization selected by the user; the actual layout, environment/dependency sources, commands, and each command's cwd and report location from the [development registration](../../../docs/development.md#project-registration).
-- Directories authorized for reading, directories/files to be written, and content that must be preserved; when a [BC configuration](../../../architecture/README.md#bc-configuration) is adopted, its actual source roots, paths, pinned objects, and read-only nature.
+- Required:
+  - The actual task, confirmed scope and non-goals, behavior sources, all acceptance criteria, and planned VTs, each with its baseline.
+  - Selected by the user: the application/project, language/stack and versions, target location, and creation authorization.
+  - From the [development registration](../../../docs/development.md#project-registration): the actual layout, environment/dependency sources, commands, and each command's cwd and report location.
+  - Directories authorized for reading, directories/files to be written, and content that must be preserved.
+- When applicable:
+  - US/ABB, only when the task actually needs them.
+  - When a [BC configuration](../../../architecture/README.md#bc-configuration) is adopted: its actual source roots, paths, pinned objects, and read-only nature.
+
+## Steps
+
+1. Confirm the route:
+   - Authorized initial generation: continue with this method.
+   - Existing code maintenance: use [implement-task](../implement-task/SKILL.md).
+   - Independent documentation fix: follow the documentation path of implement-task.
+2. Complete the preflight gate.
+3. Prepare the proposed-files statement.
+4. Write and verify.
+5. Report the result as described in Done when.
 
 <a id="preflight"></a>
-## Pre-generation checks
+## Preflight gate
 
-1. Check the directory, Git branch/full commit, index, and pre-existing changes. Read the task and the actual sources, and check the acceptance criteria/plan with [specify-feature](../specify-feature/SKILL.md#plan-verification). Unconfirmed rules, unreadable sources, or conflicts support only questions/candidates; never generate definite business behavior from them.
-2. Verify each [project creation input](../../../docs/development.md#creation-inputs) and the authorization to run each command. When a new project has no source code yet, state explicitly that it does not exist, and verify the intended native layout and the files the tools can produce; existing projects keep their actual layout. If the project, stack/version, path, environment, actual commands/cwd/reports, or creation permission is missing, record `blocked` with the exact gaps and keep the related behavioral VTs `not-run`; never unblock by borrowing the maintenance tools' Python stack, a sample application, or fake commands.
-3. Explicitly read the [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), [security](../../instructions/security.instructions.md), and applicable [test rules](../../instructions/tests.instructions.md) in full. Rule globs do not cover every actual code location, and they do not authorize execution.
-4. Resolve the actual root, parent directory, and link targets of every path to be written, and check the allowed scope and all existing content. A mismatched directory, an out-of-scope or unreadable path, or a conflict with a non-empty target stops that write; list the exact path. Without explicit authorization, do not overwrite, append, delete, or rename. Task changes to existing files go to the maintenance path; do not use an initializer in place of review. Keep the original bytes or a retrievable snapshot; **skipping conflicts does not mean generation is complete**.
+This is a hard gate: complete every check here before any write.
+
+1. Check the directory, Git branch, full commit, index, and pre-existing changes.
+2. Read the task and its actual sources. Check the acceptance criteria and plan with [specify-feature](../specify-feature/SKILL.md#plan-verification).
+   - Unconfirmed rules, unreadable sources, and conflicts support only questions or candidates.
+   - Never generate definite business behavior from them.
+3. Verify each [project creation input](../../../docs/development.md#creation-inputs) and the authorization to run each command.
+   - New project with no source code yet: state explicitly that it does not exist. Verify the intended native layout and the files the tools can produce.
+   - Existing project: keep its actual layout.
+   - If the project, stack/version, path, environment, actual commands/cwd/reports, or creation permission is missing, record `blocked` with the exact gaps. Keep the related behavioral VTs `not-run`.
+   - Never unblock by borrowing the maintenance tools' Python stack, a sample application, or fake commands.
+4. Explicitly read the [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), [security](../../instructions/security.instructions.md), and applicable [test rules](../../instructions/tests.instructions.md) in full. Rule globs do not cover every actual code location, and they do not authorize execution.
+5. For every path to be written, resolve its actual root, parent directory, and link targets. Check the allowed scope and all existing content.
+   - Stop the write to a path when its directory does not match, it is out of scope or unreadable, or it is a non-empty target that conflicts. List the exact path.
+   - Send task changes to existing files to the maintenance path ([implement-task](../implement-task/SKILL.md)). Do not use an initializer in place of review.
+   - Keep the original bytes or a retrievable snapshot.
+
+Record: `blocked` with the exact gaps, and the exact path of every stopped write.
 
 <a id="proposed-files"></a>
 ## Proposed files
 
-Before writing, show the requester the following information or save it in an authorized task record; it is not automatically treated as approval:
+Before writing, state what will be generated. Record these fields for each proposed file:
 
-| Each proposed file | What to record |
+| Field | What to record |
 |---|---|
 | Path and action | Resolved exact target, owning project, existing content/conflicts, and the allowed creation scope |
 | Source and responsibility | Actual source text, pinned baseline, and the behavior the file is and is not responsible for; gaps must not turn into default implementations |
 | Acceptance and trace marker | Full owner-qualified IDs/anchors, and how they are located in native project comments, test identifiers, or task records |
 | Native generation/check scope | Actual tools and arguments, explicit cwd, files the tools may write as a side effect, environment/dependencies, report location, and current authorization |
 
-When there is not enough information to list the outputs, side effects, or commands, stop any generation that depends on that tool; do not add bootstrap steps, dependency choices, authentication/deployment configuration, or test projects that were not shown. Maintenance tasks without formal artifacts may cite the actual task conditions; do not invent IDs.
+1. Show the statement to the requester, or save it in an authorized task record. It is not automatically treated as approval.
+2. If you cannot list a tool's outputs, side effects, or commands, stop any generation that depends on that tool.
+3. Do not add bootstrap steps, dependency choices, authentication/deployment configuration, or test projects that were not shown.
+4. A maintenance task without formal artifacts may cite the actual task conditions. Do not invent IDs.
+
+Record: the proposed-files statement.
 
 <a id="generation"></a>
 ## Writing and verification
 
-1. Generate only for targets that passed preflight without conflicts and are authorized. Recheck the existing content right before writing, and leave user content, read-only domain sources, and unrelated paths unchanged. If a tool produces out-of-scope output or a new conflict, stop further actions, describe the actual changes, and ask how to proceed; do not clean up owner files yourself.
-2. Check the actual diff, sources, and trace markers against the proposed-files statement. Report omitted, skipped, and unauthorized extra files separately, and do not call partial generation complete. Keep an explicit blocker for a missing business policy; do not generate default behavior that merely "looks usable".
-3. Following [verify-change](../verify-change/SKILL.md), run only registered and authorized native checks, and check the discovered/executed/skipped counts and the per-item reports. File existence, a successful compile, a test name, or a zero exit code alone cannot prove behavioral acceptance. Tests that were not run stay `not-run`; do not fabricate results or auto-generate tests to pass them off as execution.
-4. Following [record-handoff](../record-handoff/SKILL.md), link the actual files, the checks and their baselines, preserved content, conflicts, and remaining inputs. Commits, installs, remote operations, and releases are handled separately under current authorization; this method does not grant these permissions.
+Write only what passed preflight, then check what was actually produced.
 
-## Completion and stop points
+1. Generate only for authorized targets that passed preflight without conflicts. Recheck the existing content right before writing.
+   - If a tool produces out-of-scope output or a new conflict, stop further actions. Describe the actual changes and ask how to proceed.
+   - Do not clean up owner files yourself.
+2. Check the actual diff, sources, and trace markers against the proposed-files statement.
+   - Report omitted, skipped, and unauthorized extra files separately. Do not call partial generation complete.
+   - For a missing business policy, keep an explicit blocker. Do not generate default behavior that merely "looks usable".
+3. Following [verify-change](../verify-change/SKILL.md), run only registered and authorized native checks. Check the discovered/executed/skipped counts and the per-item reports.
+   - File existence, a successful compile, a test name, or a zero exit code alone cannot prove behavioral acceptance.
+   - Tests that were not run stay `not-run`. Do not fabricate results or auto-generate tests to pass them off as execution.
+4. Following [record-handoff](../record-handoff/SKILL.md), link the actual files, the checks and their baselines, preserved content, conflicts, and remaining inputs.
 
-Report the generation result for a scope only when the authorized files are fully written, the diff and sources have been checked, the required native checks have actual evidence, and the remaining gaps are clear. Report blocked/partial generation, documentation derivation, source generation, actual runs, and acceptance success separately; never cover a missing source, a path conflict, or insufficient execution prerequisites with "done".
+Record: the handoff links from action 4.
+
+## Guardrails
+
+- Without explicit authorization, do not overwrite, append, delete, or rename.
+- Leave user content, read-only domain sources, and unrelated paths unchanged.
+- Commits, installs, remote operations, and releases are handled separately under current authorization. This method does not grant these permissions.
+
+## Outputs
+
+- Generated files → only authorized targets that passed preflight without conflicts.
+- Proposed-files statement → shown to the requester or saved in an authorized task record.
+- Native check evidence → the registered report locations.
+- Links to files, checks, baselines, preserved content, conflicts, and remaining inputs → the handoff record (record-handoff).
+
+## Done when
+
+Report the generation result for a scope only when:
+
+- the authorized files are fully written;
+- the diff and sources have been checked;
+- the required native checks have actual evidence;
+- the remaining gaps are clear.
+
+Report blocked or partial generation, documentation derivation, source generation, actual runs, and acceptance success separately. **Skipping conflicts does not mean generation is complete.** Never cover a missing source, a path conflict, or insufficient execution prerequisites with "done".
+
+## Stop conditions
+
+- Stop generation and record `blocked` when a creation input or permission is missing (Preflight gate 3).
+- Stop the write to a path whose directory does not match, that is out of scope or unreadable, or that is a conflicting non-empty target (Preflight gate 5).
+- Stop generation that depends on a tool whose outputs, side effects, or commands you cannot list (Proposed files 2).
+- Stop further actions when a tool produces out-of-scope output or a new conflict, and ask how to proceed (Writing and verification 1).
+- Then: keep the exact gaps and paths visible.
+- Do not stop unrelated documentation tasks because application inputs are missing.
