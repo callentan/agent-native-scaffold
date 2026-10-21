@@ -9,40 +9,40 @@ targets:
   - target: PROJECT/CTX-NNN/REQ-NNN#req-nnn-ac-01
     criterionAnchor: criterion-01
 ---
-# VT-NNN：待填写
+# VT-NNN: TBD
 
-> 空白验证计划及记录表单，不是测试执行证据。先读[验证指引](../../verification/README.md)及[目标声明约定](../../verification/README.md#domain-scenarios)，按需复制到 `verification\VT-NNN-<slug>.md`。确认并替换 `PROJECT/CTX-NNN`、占位编号、目标和锚点，保留已有记录、检查实际落点的相对链接后删除本提示。先盘点全部范围内验收项，再填写目标，不只从已有 VT 判断覆盖。
+> Blank verification plan and record form; it is not test-run evidence. Read the [verification guide](../../verification/README.md) and the [target declaration conventions](../../verification/README.md#domain-scenarios) first, then copy it to `verification/VT-NNN-<slug>.md` as needed. Confirm and replace `PROJECT/CTX-NNN`, placeholder IDs, targets, and anchors; keep existing records and check the relative links from the actual location, then delete this notice. Inventory every in-scope acceptance criterion before filling in targets; do not judge coverage only from existing VTs.
 
 <a id="plan"></a>
-## 计划与层次
+## Plan and layer
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 验证层次 | 待选择：业务验收／软件行为／适用的设计验证／独立维护或文档检查 |
-| 任务依据、范围与非目标 | 待填写 |
-| 计划日期、记录者及来源说明 | 待填写；内容状态和确认声明归 frontmatter |
-| 计划验证的对象基线 | 待填写：对象、分支、commit；有未提交内容时说明范围与可定位快照 |
-| 需求/设计/任务完成条件基线 | 待填写：来源文件或记录及版本，不能只写编号 |
-| VT 计划基线 | 待填写：本计划的 commit 或可定位修订范围 |
+| Verification layer | To be selected: Business acceptance / Software behavior / Applicable design verification / Standalone maintenance or document check |
+| Task basis, scope, and non-goals | TBD |
+| Plan date, recorder, and source notes | TBD; content state and confirmation statements belong in the frontmatter |
+| Object baseline planned for verification | TBD: object, branch, commit; if there is uncommitted content, describe its scope and a locatable snapshot |
+| Requirement/design/task completion-condition baseline | TBD: source file or record and its version; an ID alone is not enough |
+| VT plan baseline | TBD: commit or locatable revision range of this plan |
 
 <a id="targets"></a>
-## 逐项目标与判据
+## Targets and criteria by item
 
-frontmatter 的 `targets` 是目标关系的唯一声明，每项含完整 `scope/id#anchor` 及本文件的 `criterionAnchor`。正文按判据锚点逐项展开；不能只写 `AC-01`、需求文件标题或一个泛化“验证全部”。采用业务输入时可定位 UC/REQ/INV/QAS 的具体条目，不能混淆验证层次。
+The frontmatter `targets` list is the only declaration of target relationships; each entry contains a full `scope/id#anchor` and this file's `criterionAnchor`. The body expands each criterion anchor one by one; do not write only `AC-01`, a requirement file title, or a generic "verify everything". When business inputs are used, targets may point at specific UC/REQ/INV/QAS entries, but do not mix up verification layers.
 
 <a id="criterion-01"></a>
-### 判据 01
+### Criterion 01
 
-| 本目标的判定信息 | 内容 |
+| Criterion information for this target | Content |
 |---|---|
-| 源条目的阅读导航 | 待填写实际相对链接；目标声明仍以 frontmatter 为准 |
-| 本目标预期与独立判定标准 | 待填写：如何观察与判断这一项 |
-| 对应方法/步骤或实际测试标识 | 待填写；不存在不猜测 |
-| 前提、禁止副作用及未决事项 | 待填写 |
+| Reading navigation to the source item | TBD: actual relative link; the frontmatter remains authoritative for the target declaration |
+| Expected outcome and independent pass criterion for this target | TBD: how to observe and judge this item |
+| Corresponding method/steps or actual test identifier | TBD; if none exists, do not guess |
+| Preconditions, forbidden side effects, and open items | TBD |
 
-增加目标时增加独立判据块及锚点。引用验收原文，只补本方法如何判断目标满足，不另写一套要求或映射。不同层次宜分开建 VT，文档检查不能填作业务或软件行为执行。
+When you add a target, add a separate criterion block and anchor. Cite the original acceptance text and add only how this method judges that the target is met; do not write a second set of requirements or mappings. Prefer separate VTs for different layers; a document check cannot be recorded as a business or software behavior run.
 
-正式 VT 中的相对链接形式示意如下，替换为实际存在的工件后才能使用：
+Relative links in a formal VT take the form below; use them only after replacing them with artifacts that actually exist:
 
 ```markdown
 [REQ-NNN-AC-01](../stakeholder-requirements/REQ-NNN-<slug>.md#req-nnn-ac-01)
@@ -50,73 +50,73 @@ frontmatter 的 `targets` 是目标关系的唯一声明，每项含完整 `scop
 ```
 
 <a id="method"></a>
-## 方法与执行前提
+## Method and run preconditions
 
-| 方法信息 | 内容 |
+| Method information | Content |
 |---|---|
-| 方法、步骤顺序及目标对应 | 待填写；人工检查说明具体操作与观察 |
-| 测试标识/代码位置（若适用） | 待填写；不预设测试已存在 |
-| 已有业务场景或 `.feature` 及其基线（若适用） | 未提供；存在时链接唯一正文，不在本表复制 Gherkin |
-| 输入、准备、必要清理和限制 | 待填写 |
-| 所需环境、依赖与版本 | 未配置；依据真实对象补充 |
-| 对应开发登记与命令来源 | 未配置；配置后填写实际来源 |
-| 计划命令与工作目录 | 未配置；仅填已确认的真实命令和仓库相对 cwd |
-| 计划报告/输出位置 | 未配置；只登记实际工具支持的位置 |
+| Method, step order, and target mapping | TBD; for manual checks, describe the specific operations and observations |
+| Test identifier/code location (if applicable) | TBD; do not presume that tests exist |
+| Existing validation scenario or `.feature` and its baseline (if applicable) | Not provided; if one exists, link its single body text and do not copy Gherkin into this table |
+| Inputs, preparation, necessary cleanup, and limitations | TBD |
+| Required environment, dependencies, and versions | Not configured; fill in from the real object |
+| Corresponding development registration and command source | Not configured; fill in the actual source once configured |
+| Planned command and working directory | Not configured; enter only confirmed real commands and a repository-relative cwd |
+| Planned report/output location | Not configured; record only locations the actual tool supports |
 
-非命令型检查说明不适用原因，不编造命令。输入不齐备时保持 `not-run` 并记录具体缺项。没有应用时，应用构建/测试对文档任务不适用；已规划的行为 VT 不因此变成通过或被删除。
+For non-command checks, state why commands do not apply; do not invent commands. While inputs are incomplete, keep `not-run` and record the specific missing items. When there is no application, application build/test does not apply to documentation tasks; a planned behavior VT does not thereby become passed or get deleted.
 
 <a id="feature"></a>
-## Gherkin companion（按需）
+## Gherkin companion (as needed)
 
-行为场景适用时，从[空白 feature 表单](verification-test.feature)复制到与本 VT 同一目录的同名 `.feature`，并按[companion 指引](../../verification/README.md#feature-companion)填写。删除本节提示后，只保留方法表中实际文件/基线导航；`.feature` 独占 Given/When/Then 场景正文，Markdown 不再维护第二份场景。
+When behavior scenarios apply, copy the [blank feature form](verification-test.feature) to a `.feature` file with the same name in the same directory as this VT, and fill it in following the [companion guide](../../verification/README.md#feature-companion). After deleting this section's notes, keep only the actual file/baseline navigation in the method table; the `.feature` file exclusively owns the Given/When/Then scenario text, and the Markdown does not maintain a second copy of the scenario.
 
-`targets[].testId` 可定位实际存在的场景或原生测试标识；源文件名/场景名只证明文本位置，不等于 runner 可发现的测试。每个目标仍通过 `criterionAnchor` 拥有独立判据。安全/风险标签只能来自已提供的具名来源，空表不预置。没有应用、步骤实现、runner、命令/cwd 或报告时行为结果为 `not-run`，只能报告实际做过的文本、语法或映射检查。
+`targets[].testId` may point at a scenario or native test identifier that actually exists; a source file name or scenario name only proves a text location and is not a test the runner can discover. Each target still owns an independent criterion through `criterionAnchor`. Safety/risk tags may come only from named sources already provided; the blank form presets none. Without an application, step implementations, a runner, a command/cwd, or a report, the behavior result is `not-run`; report only the text, syntax, or mapping checks actually performed.
 
 <a id="runs"></a>
-## 实际执行记录
+## Actual run records
 
-下面是待填写记录块，每个目标默认 `not-run`，不是一次已发生的运行。实际执行后填入当时观察；再次检查时追加新块并分配新的运行锚点，旧结果与原基线保留。不能把计划命令复制过来冒充已经执行。
+Below is a record block to be filled in; every target defaults to `not-run`, and it is not a run that has happened. After an actual run, fill in the observations made at that time; for a repeat check, append a new block with a new run anchor and keep the old results and their original baselines. Do not copy the planned command here to pretend it has been run.
 
 <a id="vt-nnn-run-01"></a>
-### VT-NNN-RUN-01：待执行
+### VT-NNN-RUN-01: Pending run
 
-| 实际执行信息 | 内容 |
+| Actual run information | Content |
 |---|---|
-| 日期、执行者与方式 | 未执行，待填写 |
-| 实际对象基线 | 未执行；执行时记录对象、分支、commit 和实际未提交范围/快照 |
-| 当时的需求/设计/任务依据基线 | 未执行，待填写来源与版本 |
-| 当时的 VT 基线 | 未执行，待填写本次所用计划版本 |
-| 实际环境与工具版本 | 未执行；配置后按实际填写 |
-| 实际工作目录 | 未执行；命令型检查填写已确认的仓库相对 cwd |
-| 实际命令或人工步骤/测试标识 | 未执行，不填推测的命令 |
-| 退出码、发现/执行/跳过数量（适用时） | 未执行，不能预填零或成功 |
-| 原始报告与具体位置 | 未执行，无报告；执行后填真实相对链接或获准报告入口 |
-| 报告可访问性与限制 | 待填写；仅本机可用的资料不能声称跨机器可访问 |
+| Date, executor, and mode | Not run; TBD |
+| Actual object baseline | Not run; when run, record the object, branch, commit, and the actual uncommitted scope/snapshot |
+| Requirement/design/task basis baseline at the time | Not run; TBD: source and version |
+| VT baseline at the time | Not run; TBD: plan version used for this run |
+| Actual environment and tool versions | Not run; fill in from the actual setup once configured |
+| Actual working directory | Not run; for command checks, enter the confirmed repository-relative cwd |
+| Actual command or manual steps/test identifier | Not run; do not enter a guessed command |
+| Exit code and discovered/executed/skipped counts (when applicable) | Not run; do not prefill zero or success |
+| Raw report and exact location | Not run, so no report; after the run, enter a real relative link or an authorized report entry point |
+| Report accessibility and limitations | TBD; material available only on this machine cannot be claimed as accessible from other machines |
 
-逐项记录实际结果，命令退出为零或全局汇总不能替代各项目标的判定。
+Record the actual result for each item; a zero exit code or an overall summary cannot replace the judgment for each target.
 
-| 判据链接（目标由 frontmatter 定位） | 实际观察及原始报告定位 | 实际结果 | 未执行/跳过原因或失败差异 |
+| Criterion link (target located by frontmatter) | Actual observation and raw report location | Actual result | Not-run/skip reason or failure difference |
 |---|---|---|---|
-| [判据 01](#criterion-01) | 未执行 | not-run | 尚未执行，具体原因待填写 |
+| [Criterion 01](#criterion-01) | Not run | not-run | Not run yet; the specific reason is TBD |
 
-结果可为 `not-run`、`pass`、`fail` 或 `skipped`，必须有相应观察；零发现、全跳过不能报目标已验证。不要在日志或覆盖索引重新维护这张结果表。
+The result can be `not-run`, `pass`, `fail`, or `skipped` and must have a matching observation; zero discovered tests or all tests skipped cannot be reported as the target being verified. Do not maintain this result table again in logs or the coverage index.
 
 <a id="applicability"></a>
-## 当前适用性复核（与实际结果分开）
+## Current applicability review (separate from actual results)
 
-复核适用性时追加一行，保留历史结论；相同运行和目标的最新复核行说明其对当前基线的适用性。基线或规则改变后先记“待复核”，不能直接沿用旧成功，也不能把历史成功改成失败。
+Append a row each time applicability is reviewed and keep historical conclusions; the latest review row for the same run and target states its applicability to the current baseline. After a baseline or rule changes, first record `unverified`; do not simply carry over an old success, and do not change a historical success into a failure.
 
-| 复核日期与记录者 | 原运行/结果及目标链接 | 当前对象、需求与 VT 基线 | 适用性 | 理由、影响与待重查事项 |
+| Review date and recorder | Original run/result and target link | Current object, requirement, and VT baselines | Applicability | Rationale, impact, and items to recheck |
 |---|---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待复核 | 尚未执行，没有可复用结果 |
+| TBD | TBD | TBD | unverified | Not run yet; no reusable result |
 
-适用性为“待复核／适用／不适用”，需说明依据；它不替代实际执行状态。受影响检查重新执行后追加新记录、新基线和原始报告，不覆盖原记录。
+Applicability is `unverified`, `applicable`, or `not-applicable` and needs a stated basis; it does not replace the actual run status. After an affected check is rerun, append a new record with the new baseline and raw report; do not overwrite the original record.
 
 <a id="gaps"></a>
-## 缺口与下一步
+## Gaps and next steps
 
-- 尚未覆盖的目标、错误引用或缺失前提：待填写。
-- 未确认事实、阻塞及需谁提供什么：待填写。
-- 待复核/未执行的具体检查及下一步：待填写。
+- Uncovered targets, wrong references, or missing preconditions: TBD.
+- Unconfirmed facts, blockers, and who must provide what: TBD.
+- Specific checks pending re-review or not run, and next steps: TBD.
 
-不得通过删除真实验收项、补造目标或降低判据消除缺口。业务/软件行为未执行时，即使文档一致性检查完成，也仍须保留其未执行状态。
+Do not close gaps by deleting real acceptance criteria, fabricating targets, or lowering criteria. While business/software behavior has not been run, keep its not-run status even if the document consistency check is complete.

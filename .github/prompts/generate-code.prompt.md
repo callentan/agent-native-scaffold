@@ -1,13 +1,13 @@
 ---
-description: 在明确项目与授权范围内处理初始代码生成请求。
+description: Handle an initial code generation request within an explicit project and authorized scope.
 ---
 
-# 初始代码生成
+# Initial code generation
 
-当前输入（由用户填写）：
-- 任务、已确认行为来源、范围/非目标、验收与 VT 基线：待填写。
-- 用户选定的应用/项目、语言/栈/版本、准确目标与原生布局：待填写。
-- 环境/依赖、实际命令、各自 cwd 和报告登记：待填写。
-- 创建/执行授权、允许读写的目录、已有内容与需保留的修改：待填写。
+Current input (filled in by the user):
+- Task, confirmed behavior sources, scope/non-goals, acceptance, and VT baselines: TBD.
+- User-selected application/project, language/stack/versions, exact targets, and native layout: TBD.
+- Environment/dependencies, actual commands, the cwd for each, and report registration: TBD.
+- Creation/run authorization, permitted read/write directories, existing content, and changes to keep: TBD.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [generate-code](../skills/generate-code/SKILL.md)，从其[预检](../skills/generate-code/SKILL.md#preflight)开始。本入口不补齐缺失输入或授予创建/安装权限。
+Read [AGENTS](../../AGENTS.md) first, read [generate-code](../skills/generate-code/SKILL.md) in full, and start from its [preflight](../skills/generate-code/SKILL.md#preflight). This entry point does not fill in missing inputs or grant permission to create or install.

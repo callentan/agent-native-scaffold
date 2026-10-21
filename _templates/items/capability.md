@@ -7,43 +7,43 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# CAP-NNN：待填写业务能力
+# CAP-NNN: TBD business capability
 
-> 可选空表单，不是技术组件清单。先读[领域工件指引](../../domain-model/README.md#strategic-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\CAP-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，按落点修正相对链接，保留已有内容后删除本提示。
+> Optional blank form; not a list of technical components. First read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CAP-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links for the actual location, keep any existing content, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与认识边界
+## Sources and knowledge boundaries
 
-- 已知业务事实及来源定位、日期或版本：待填写。
-- 推导候选及推导依据：待填写。
-- 未决问题及需要谁确认：待填写。
+- Known business facts with source location, date, or version: TBD.
+- Derived candidates and the basis for deriving them: TBD.
+- Open questions and who needs to confirm them: TBD.
 
-上游关系归 frontmatter，正文说明能力为何存在、来源支持到哪里。
+Upstream relationships belong in the frontmatter; the body explains why the capability exists and how far the sources support it.
 
 <a id="capability"></a>
-## 业务能力与所有者
+## Business capability and owner
 
-| 业务信息 | 内容 |
+| Business information | Content |
 |---|---|
-| 业务能够完成什么及其价值 | 待填写；不用类名或接口名替代 |
-| 受益者、业务参与者 | 待填写 |
-| 负责该能力的上下文与业务责任人 | 待填写；共同参与不等于共同拥有所有事实 |
-| 所需事实及其各自所有者 | 待填写 |
-| 适用范围、前提和明确非目标 | 待填写 |
-| 约束该能力的规则来源 | 待填写原文导航与约束含义 |
+| What the business can accomplish and its value | TBD; do not substitute class or interface names |
+| Beneficiaries and business actors | TBD |
+| Context responsible for the capability and the accountable business owner | TBD; joint participation does not mean joint ownership of all facts |
+| Required facts and their respective owners | TBD |
+| Scope, preconditions, and explicit non-goals | TBD |
+| Sources of the rules that constrain this capability | TBD: navigation to the source text and the meaning of the constraint |
 
 <a id="use-cases"></a>
-## 相关用例导航
+## Related use case navigation
 
-| 用例原文链接 | 对本能力的具体作用 | 尚未覆盖的业务问题 |
+| Link to the use case source text | Specific role for this capability | Business questions not yet covered |
 |---|---|---|
-| 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD |
 
-UC 的 frontmatter 维护它引用的 CAP；这里仅作阅读导航，不再维护一份反向关系或用例状态清单。
+A UC's frontmatter maintains the CAPs it references; this table is reading navigation only and does not maintain a second set of reverse relationships or a list of use case statuses.
 
 <a id="questions"></a>
-## 缺口与变化
+## Gaps and changes
 
-- 能力边界、参与者或规则尚未明确的部分：待填写。
-- 需谁提供什么来源；必要时链接 BL：待填写。
-- 旧新基线及业务影响：待填写；技术实现仍由后续明确任务决定。
+- Parts of the capability boundary, actors, or rules that are not yet clear: TBD.
+- Who needs to supply which sources; link BLs where needed: TBD.
+- Old and new baselines and business impact: TBD; the technical implementation is still decided by later explicit tasks.

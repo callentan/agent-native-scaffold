@@ -1,13 +1,13 @@
 ---
-description: 从允许读取的既有资料、实现或明确片段提取待确认的领域候选。
+description: Extract domain candidates to be confirmed from existing materials, implementations, or explicit excerpts that you are permitted to read.
 ---
 
-# 反向提取领域候选
+# Extract domain candidates by reverse engineering
 
-当前输入（由用户填写）：
-- 提取问题、领域/上下文与范围：待填写。
-- 允许读取的文档、代码、片段或外部记录；实际身份、版本及缺失定位：待填写。
-- 已有模型/规则、冲突与事实所有者：待填写。
-- 期望输出与允许写入的位置：待填写；读取实现不授权执行或发送资料。
+Current input (filled in by the user):
+- Extraction question, domain/context, and scope: TBD.
+- Documents, code, excerpts, or external records permitted to be read, with their actual identity, versions, and missing locations: TBD.
+- Existing models/rules, conflicts, and fact owners: TBD.
+- Expected output and permitted write locations: TBD; reading an implementation does not authorize running it or sending materials.
 
-完整读取 [reverse-engineer-domain 的提取与对照](../skills/reverse-engineer-domain/SKILL.md#extract)，方法正文、候选字段与停止条件以该文件为准。
+Read [extraction and comparison in reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md#extract) in full; that file is authoritative for the method, candidate fields, and stop conditions.

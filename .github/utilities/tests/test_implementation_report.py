@@ -91,14 +91,14 @@ class ImplementationFixture(unittest.TestCase):
             encoding="utf-8", newline="\n",
         )
         relative = f"../reports/{raw_path.name}"
-        link = f"[原始输入](<{relative}>)"
+        link = f"[raw input](<{relative}>)"
         basis = requirement_basis or f"{self.scope}/{owner}@{self.object}"
         report_field = f"{link} @ {digest(raw_path.read_bytes())}" if report else "not-run"
         rows = []
         for criterion in criteria:
             status = statuses.get(criterion, "not-run")
             observation = (f"Observed the prepared state against {criterion}; {link}"
-                           if status in ("pass", "fail") else "未执行")
+                           if status in ("pass", "fail") else "Not run")
             reason = ("Prepared observation differs from the independent criterion." if status == "fail"
                       else "No execution input was supplied for this criterion." if status == "not-run"
                       else "Fixture environment was explicitly unavailable." if status == "skipped" else "")
@@ -106,18 +106,20 @@ class ImplementationFixture(unittest.TestCase):
         anchor = f"{vt.lower()}-run-{number:02d}"
         block = (
             f'\n<a id="{anchor}"></a>\n### {vt}-RUN-{number:02d}: synthetic input\n\n'
-            "| 实际执行信息 | 内容 |\n|---|---|\n"
-            f"| 日期、执行者与方式 | 2026-10-16; recorder=synthetic fixture; mode={mode} |\n"
-            f"| 实际对象基线 | {object_basis or self.object} |\n"
-            f"| 当时的需求/设计/任务依据基线 | {basis} |\n"
-            f"| 当时的 VT 基线 | {plan_basis or self.object} |\n"
-            "| 实际环境与工具版本 | Synthetic collector input on a controlled local fixture |\n"
-            "| 实际工作目录 | . |\n"
-            f"| 实际命令或人工步骤/测试标识 | {steps or ('Inspect prepared membership, then compare the business register.' if mode == 'manual' else 'fixture-input-only-runner test_record test_no_write')} |\n"
-            + (f"| 退出码、发现/执行/跳过数量（适用时） | {counts} |\n" if counts is not None else "")
-            + f"| 原始报告与具体位置 | {report_field} |\n"
-            "| 报告可访问性与限制 | Local synthetic fixture input only; no external event is asserted. |\n\n"
-            "| 判据链接（目标由 frontmatter 定位） | 实际观察及原始报告定位 | 实际结果 | 未执行/跳过原因或失败差异 |\n"
+            "| Actual run information | Content |\n|---|---|\n"
+            f"| Date, executor, and mode | 2026-10-16; recorder=synthetic fixture; mode={mode} |\n"
+            f"| Actual object baseline | {object_basis or self.object} |\n"
+            f"| Requirement/design/task basis baseline at the time | {basis} |\n"
+            f"| VT baseline at the time | {plan_basis or self.object} |\n"
+            "| Actual environment and tool versions | Synthetic collector input on a controlled local fixture |\n"
+            "| Actual working directory | . |\n"
+            f"| Actual command or manual steps/test identifier | {steps or ('Inspect prepared membership, then compare the business register.' if mode == 'manual' else 'fixture-input-only-runner test_record test_no_write')} |\n"
+            + (f"| Exit code and discovered/executed/skipped counts (when applicable) | {counts} |\n"
+               if counts is not None else "")
+            + f"| Raw report and exact location | {report_field} |\n"
+            "| Report accessibility and limitations | Local synthetic fixture input only; no external event is asserted. |\n\n"
+            "| Criterion link (target located by frontmatter) | Actual observation and raw report location "
+            "| Actual result | Not-run/skip reason or failure difference |\n"
             "|---|---|---|---|\n" + "\n".join(rows) + "\n"
         )
         with path.open("a", encoding="utf-8", newline="\n") as output:
@@ -242,8 +244,8 @@ class ImplementationReportTests(ImplementationFixture):
     def test_each_record_keeps_its_own_fields_without_cross_run_stitching(self):
         first, _ = self.run_record()
         second, _ = self.run_record(number=2)
-        self.replace_in_vt("| 实际环境与工具版本 | Synthetic collector input on a controlled local fixture |",
-                           "| 实际环境与工具版本 | 未配置 |")
+        self.replace_in_vt("| Actual environment and tool versions | Synthetic collector input on a controlled local fixture |",
+                           "| Actual environment and tool versions | Not configured |")
         self.error("INVALID_RUN", [first])
         self.error("INVALID_RUN", [second])
 
@@ -254,7 +256,7 @@ class ImplementationReportTests(ImplementationFixture):
         self.replace_in_vt(f"{self.scope}/SR-001@{self.object}", f"{self.scope}/SR-001@sha256:" + "0" * 64)
         self.error("BASE_MISMATCH", [selector])
         self.replace_in_vt("sha256:" + "0" * 64, self.object)
-        self.replace_in_vt(f"| 当时的 VT 基线 | {self.object} |", "| 当时的 VT 基线 | HEAD |")
+        self.replace_in_vt(f"| VT baseline at the time | {self.object} |", "| VT baseline at the time | HEAD |")
         self.error("INVALID_BASE", [selector])
 
     def test_requirement_basis_is_exact_owner_not_another_same_short_id(self):
@@ -263,7 +265,8 @@ class ImplementationReportTests(ImplementationFixture):
 
     def test_plan_drift_in_supplied_current_vt_is_not_just_an_appended_run(self):
         selector, _ = self.run_record()
-        self.replace_in_vt("有效请求新增一条关联会员的记录。", "有效请求删除所有关联会员记录。")
+        self.replace_in_vt("A valid request adds one record linked to the member.",
+                           "A valid request deletes all records linked to the member.")
         self.error("PLAN_MISMATCH", [selector])
 
     def test_other_commit_is_accepted_only_when_requirement_and_plan_content_match(self):
@@ -445,13 +448,13 @@ class ImplementationReportTests(ImplementationFixture):
         selector, _ = self.run_record()
         path = self.root / "verification/VT-002.md"
         row = (
-            f"| 2026-10-16; recorder=synthetic reviewer | [运行](#{selector.split('#')[1]}) [判据](#record) "
+            f"| 2026-10-16; recorder=synthetic reviewer | [Run](#{selector.split('#')[1]}) [Criterion](#record) "
             f"| object={self.object}; requirement={self.scope}/SR-001@{self.object}; vt={self.object} "
-            "| 适用 | Independent synthetic applicability input for this exact criterion and bases. |\n"
+            "| applicable | Independent synthetic applicability input for this exact criterion and bases. |\n"
         )
         with path.open("a", encoding="utf-8") as output:
-            output.write('\n<a id="applicability"></a>\n## 当前适用性复核\n\n'
-                         '| 复核日期与记录者 | 原运行/结果及目标链接 | 当前对象、需求与 VT 基线 | 适用性 | 理由、影响与待重查事项 |\n'
+            output.write('\n<a id="applicability"></a>\n## Current applicability review\n\n'
+                         '| Review date and recorder | Original run/result and target link | Current object, requirement, and VT baselines | Applicability | Rationale, impact, and items to recheck |\n'
                          '|---|---|---|---|---|\n' + row)
         self.assertEqual("applicable", self.entries(self.collect([selector]))[DELIVERY[2]]["applicability"]["state"])
         self.assertEqual("unverified", self.entries(self.collect([selector]))[DELIVERY[3]]["applicability"]["state"])
@@ -517,13 +520,13 @@ class Task8BoundaryTests(ImplementationFixture):
     def test_status_only_observations_cannot_be_execution_evidence(self):
         selector, _ = self.run_record()
         actual = "Observed the prepared state against record; "
-        for word in ("Approved", "success", "passed", "成功", "已通过"):
+        for word in ("Approved", "success", "passed", "Successful", "Pass"):
             with self.subTest(word=word):
                 self.replace_in_vt(actual, word + " ")
                 try:
                     self.error("INVALID_OBSERVATION", [selector])
                 finally:
-                    self.replace_in_vt(word + " [原始输入]", actual + "[原始输入]")
+                    self.replace_in_vt(word + " [raw input]", actual + "[raw input]")
 
     def test_short_real_recorder_name_is_not_rejected_as_missing_prose(self):
         selector, _ = self.run_record()
@@ -560,7 +563,9 @@ class Task8BoundaryTests(ImplementationFixture):
     def test_different_requirement_content_at_readable_commit_is_not_same_basis(self):
         selected = self.object
         path = self.root / "software-requirements/SR-001.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("新增一条", "新增两条"), encoding="utf-8")
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("adds one loan record", text)
+        path.write_text(text.replace("adds one loan record", "adds two loan records"), encoding="utf-8")
         other = self.commit()
         self.object = selected
         selector, _ = self.run_record(requirement_basis=f"{self.scope}/SR-001@{other}")
@@ -568,7 +573,8 @@ class Task8BoundaryTests(ImplementationFixture):
 
     def test_different_plan_content_at_readable_commit_is_not_same_plan(self):
         selected = self.object
-        self.replace_in_vt("有效请求新增一条关联会员的记录。", "有效请求新增两条关联会员的记录。")
+        self.replace_in_vt("A valid request adds one record linked to the member.",
+                           "A valid request adds two records linked to the member.")
         other = self.commit()
         # Restore the tested object's plan in the working tree before appending.
         raw = subprocess.run(
@@ -584,7 +590,7 @@ class Task8BoundaryTests(ImplementationFixture):
         self.error("INVALID_EXECUTION", [selector])
 
     def test_actual_manual_steps_cannot_be_replaced_by_unexecuted_placeholder(self):
-        selector, _ = self.run_record(vt="VT-001", mode="manual", counts=None, steps="未执行")
+        selector, _ = self.run_record(vt="VT-001", mode="manual", counts=None, steps="Not run")
         self.error("INVALID_RUN", [selector])
 
     def test_valid_bc_without_any_owner_acceptances_is_explicitly_empty_input(self):
@@ -656,13 +662,13 @@ class Task8BoundaryTests(ImplementationFixture):
         selector, _ = self.run_record()
         path = self.root / "verification/VT-002.md"
         with path.open("a", encoding="utf-8") as output:
-            output.write('\n<a id="applicability"></a>\n## 当前适用性复核\n\n'
-                         '| 复核日期与记录者 | 原运行/结果及目标链接 | 当前对象、需求与 VT 基线 | 适用性 | 理由、影响与待重查事项 |\n'
+            output.write('\n<a id="applicability"></a>\n## Current applicability review\n\n'
+                         '| Review date and recorder | Original run/result and target link | Current object, requirement, and VT baselines | Applicability | Rationale, impact, and items to recheck |\n'
                          '|---|---|---|---|---|\n'
                          '```text\nA literal example interrupts the real table.\n```\n'
-                         f'| 2026-10-16; recorder=synthetic reviewer | [运行](#{selector.split("#")[1]}) [判据](#record) '
+                         f'| 2026-10-16; recorder=synthetic reviewer | [Run](#{selector.split("#")[1]}) [Criterion](#record) '
                          f'| object={self.object}; requirement={self.scope}/SR-001@{self.object}; vt={self.object} '
-                         '| 适用 | This isolated row is not part of the preceding table. |\n')
+                         '| applicable | This isolated row is not part of the preceding table. |\n')
         self.assertEqual("unverified", self.entries(self.collect([selector]))[DELIVERY[2]]["applicability"]["state"])
 
     def test_final_plan_projection_uses_parser_line_boundaries_without_normalizing_bytes(self):
@@ -760,7 +766,7 @@ class EvidenceSelectionTests(ImplementationFixture):
                 skipped = 2 if status == "skipped" else 0
                 selector, _ = self.run_record(
                     number=number, statuses={"record": status, "no-write": status},
-                    steps="未执行", report=False,
+                    steps="Not run", report=False,
                     counts=f"exit=0; discovered={skipped}; executed=0; skipped={skipped}",
                 )
                 before = source_bytes(self.root)
@@ -777,17 +783,17 @@ class EvidenceSelectionTests(ImplementationFixture):
         block = text[start:end]
         text = text[:start] + text[end:]
         if section == "runs":
-            heading = '<a id="runs"></a>\n## 实际执行\n\n'
+            heading = '<a id="runs"></a>\n## Actual runs\n\n'
             self.assertIn(heading, text)
             text = text.replace(heading, heading + block)
         else:
-            text += '\n<a id="applicability"></a>\n## 当前适用性复核\n\n' + block
+            text += '\n<a id="applicability"></a>\n## Current applicability review\n\n' + block
         path.write_text(text, encoding="utf-8", newline="\n")
         self.commit()
-        old = ("有效请求新增一条关联会员的记录。" if criterion == "record"
-               else "超额请求返回拒绝且前后记录完全相同。")
-        new = ("有效请求删除所有关联会员记录。" if criterion == "record"
-               else "超额请求返回许可并重写既有记录。")
+        old = ("A valid request adds one record linked to the member." if criterion == "record"
+               else "An over-allowance request returns a rejection and the records before and after are identical.")
+        new = ("A valid request deletes all records linked to the member." if criterion == "record"
+               else "An over-allowance request is permitted and rewrites the existing records.")
         committed = git(self.root, "show", self.object + ":verification/VT-002.md")
         self.assertIn(old, committed)
         self.assertLess(committed.index(f'<a id="{section}"></a>'),
@@ -827,7 +833,7 @@ class EvidenceSelectionTests(ImplementationFixture):
         path = self.root / "verification/VT-002.md"
         raw = path.read_bytes().replace(
             b'<a id="runs"></a>',
-            ("Known plan note：" + "\u2028" * 3 + '\n<a id="runs"></a>').encode("utf-8"),
+            ("Known plan note\uff1a" + "\u2028" * 3 + '\n<a id="runs"></a>').encode("utf-8"),
         )
         path.write_bytes(b"\xef\xbb\xbf" + raw.replace(b"\n", b"\r\n"))
         self.commit()
@@ -835,12 +841,12 @@ class EvidenceSelectionTests(ImplementationFixture):
         selector, _ = self.run_record()
         self.assertTrue(path.read_bytes().startswith(committed_prefix))
         with path.open("a", encoding="utf-8", newline="\r\n") as output:
-            output.write('\n<a id="applicability"></a>\n## 当前适用性复核\n\n'
-                         '| 复核日期与记录者 | 原运行/结果及目标链接 | 当前对象、需求与 VT 基线 | 适用性 | 理由、影响与待重查事项 |\n'
+            output.write('\n<a id="applicability"></a>\n## Current applicability review\n\n'
+                         '| Review date and recorder | Original run/result and target link | Current object, requirement, and VT baselines | Applicability | Rationale, impact, and items to recheck |\n'
                          '|---|---|---|---|---|\n'
-                         f'| 2026-10-16; recorder=fixture reviewer | [运行](#{selector.split("#")[1]}) [判据](#record) '
+                         f'| 2026-10-16; recorder=fixture reviewer | [Run](#{selector.split("#")[1]}) [Criterion](#record) '
                          f'| object={self.object}; requirement={self.scope}/SR-001@{self.object}; vt={self.object} '
-                         '| 适用 | Independently supplied synthetic applicability for these exact bases. |\n')
+                         '| `applicable` | Independently supplied synthetic applicability for these exact bases. |\n')
         before = source_bytes(self.root)
         entry = self.entries(self.collect([selector]))[DELIVERY[2]]
         self.assertEqual("pass", entry["execution"]["status"])

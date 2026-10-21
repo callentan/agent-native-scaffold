@@ -1,145 +1,145 @@
-# 研发工作流、日志与交接约定
+# Development workflow, logging, and handoff conventions
 
-**本文件定义 repo 模板的工作约定，不是自研执行器的协议。对应的 P1 表单与 P2 共享方法已制作；2026-10-14 的有限演练结果及未完成项见[实际验收记录](../plan/roadmap.md#actual-acceptance)。**
+**This file defines the working conventions of the repo template; it is not a protocol for a home-grown executor. The corresponding P1 forms and P2 shared methods have been produced; for the limited exercise results of 2026-10-14 and the unfinished items, see the [actual acceptance record](../plan/roadmap.md#actual-acceptance).**
 
-## 1. 按任务选择必要的流程
+## 1. Choose the process each task needs
 
-常见顺序是“领域与业务要求 → 必要的软件要求与交付切片 → 实现 → 验证 → 记录与交付”。目录采用参考工程的命名，但不是每次修改都必须新建整条 REQ/SR/US/ABB/VT 链，也不要求先调用一串不同的 Agent。
+The usual order is "domain and business requirements → necessary software requirements and delivery slices → implementation → verification → recording and delivery". Directories use the reference projects' naming, but not every change has to create a whole new REQ/SR/US/ABB/VT chain, and there is no requirement to call a series of different agents first.
 
-DDD 提供业务模型与边界，V-model 将不同层次的要求与验证对应起来；表单定义产物结构，skills 定义共享方法，prompts 发起本次活动。轻流程可以复用已有工件，但不能丢失当前任务的业务依据、验收来源或未验证状态。
+DDD provides the business model and boundaries, and the V-model maps requirements at different levels to their verification; forms define artifact structure, skills define the shared methods, and prompts start the current activity. A lightweight process can reuse existing artifacts but must not lose the current task's business basis, acceptance source, or unverified status.
 
-| 活动 | 输入 | 产物与结束条件 |
+| Activity | Input | Output and exit condition |
 |---|---|---|
-| 项目起步 | 用户提供的目标、约束和仓库现状 | 按蓝图填写共同术语、概念关系、规则与上下文边界；形成业务需求、未决项及开发环境说明 |
-| 功能规划 | 相关模型与业务要求、已有代码和架构 | SR、可检验验收项及对应验证计划；按需安排 US 和设计工件，显式列出缺口 |
-| 开发或修复 | 已确认的任务、相关规范、实际工作区 | 代码和测试变更；不夹带无关改造 |
-| 验证与审阅 | 当前交付的验收项清单、本次变更、验证计划及适用命令 | 覆盖与引用检查、实际结果、基线适用性、未执行说明与待审问题 |
-| 交接或交付 | 当前 Git 状态、任务与验证结果 | 开发日志和交付摘要；需要时形成待审 PR |
+| Project start | Goals and constraints provided by the user, and the current repository state | Shared terms, concept relationships, rules, and context boundaries filled in per the blueprint; stakeholder requirements, open items, and a development environment guide |
+| Feature planning | Related model and business requirements, existing code and architecture | SR, testable acceptance criteria, and the corresponding verification plan; US and design artifacts arranged as needed, with gaps listed explicitly |
+| Development or fix | Confirmed task, related specifications, actual workspace | Code and test changes, without bundling unrelated rework |
+| Verification and review | List of acceptance criteria for the current delivery, the current changes, the verification plan, and applicable commands | Coverage and reference checks, actual results, baseline applicability, explanations of what was not run, and questions awaiting review |
+| Handoff or delivery | Current Git status, task, and verification results | Development log and delivery summary; a PR awaiting review when needed |
 
-一个通用 Agent 可以贯穿这些活动。Planner、implementer、reviewer 只是可选择的工作模式，不代表自动调度或独立审批身份。
+One general-purpose agent can carry all of these activities. Planner, implementer, and reviewer are only selectable working modes; they do not imply automatic dispatching or an independent approver identity.
 
-人从 README 的活动导航读取同一份 skill、表单和项目资料，Agent 从 AGENTS 进入同一方法；输入、产物、完成与停止条件相同，不另设人工版事实或规则。人工操作不要求运行 Agent、专属 prompt 命令或模型服务。
+Humans read the same skill, forms, and project materials from the README activity navigation, and agents enter the same method from AGENTS; inputs, outputs, and completion and stop conditions are the same, with no separate human-only facts or rules. Manual work does not require running an agent, a dedicated prompt command, or a model service.
 
-骨架初始没有业务项目。浏览、设置资料、规划和文档维护可以独立进行；只有用户决定创建或修改具体项目时，才进入编码步骤。以下编码约定面向下游使用，不要求首版骨架附带应用演练。
+The skeleton initially contains no business project. Browsing, setting up project materials, planning, and documentation maintenance can proceed independently; coding steps begin only when the user decides to create or modify a concrete project. The coding conventions below are for downstream use and do not require the first-release skeleton to ship an application exercise.
 
-## 2. 开始前应知道什么
+## 2. What to know before starting
 
-Agent 先读取 `AGENTS.md`，再定位当前 US 或 issue、相关领域事实和 REQ/SR、开发说明与最近的相关日志。只读取与任务有关的资料，不把整个研究目录默认注入上下文。
+An agent first reads `AGENTS.md`, then locates the current US or issue, the related domain facts and REQ/SR, the development guide, and the most recent related logs. Read only the materials relevant to the task; do not inject the whole research directory into the context by default.
 
-任务至少需要说明目标、范围、现有依据和完成条件。交付功能时在 `user-stories\` 的 US 文件中维护实施清单；独立维护或缺陷任务可沿用 issue/PR，不强行创建用户故事，也不另设一套同内容的任务目录。任务记录建议包含：
+A task must state at least its goal, scope, existing basis, and completion conditions. When delivering a feature, maintain the implementation checklist in the US file under `user-stories/`; standalone maintenance or defect tasks can keep using an issue/PR, without forcing a user story and without setting up a separate task directory with the same content. A task record should include:
 
-| 内容 | 说明 |
+| Content | Notes |
 |---|---|
-| 目标与非目标 | 本次要完成什么，哪些工作不在范围内 |
-| 输入链接 | 相关 REQ/SR/US、缺陷或讨论记录 |
-| 修改范围 | 相关目录或模块，以及不能修改的内容 |
-| 验收条件 | 可观察的行为、需要执行的检查 |
-| 状态与负责人 | 人和 Agent 可读的进度，不作为并发锁 |
-| 记录链接 | 验证结果、开发日志、必要的 PR 或审阅记录 |
+| Goals and non-goals | What this task will accomplish, and which work is out of scope |
+| Input links | Related REQ/SR/US, defects, or discussion records |
+| Change scope | Related directories or modules, and what must not be modified |
+| Acceptance criteria | Observable behavior and the checks that must be run |
+| Status and owner | Progress readable by humans and agents; not used as a concurrency lock |
+| Record links | Verification results, development log, and any necessary PR or review records |
 
-微小修复可以使用用户请求或 PR 描述表达这些内容，不必制造重复任务文档。缺少会影响行为的业务事实时，先提出具体问题；不能因为模板有空栏就自动补成“已确认”。
+Minor fixes can express this content in the user request or PR description, without creating a duplicate task document. When business facts that affect behavior are missing, ask specific questions first; do not fill in an empty template field and mark it "confirmed" just because the field exists.
 
-开始写入前检查分支、工作目录和已有改动。遇到与他人修改冲突时保留双方内容并停止受影响操作，不以重新初始化模板来覆盖旧工程。
+Before writing, check the branch, the working directory, and existing changes. On a conflict with someone else's changes, keep both sides' content and stop the affected operation; do not overwrite an existing project by reinitializing the template.
 
-开始编码前，还需确认 `src\` 内的目标项目位置、技术栈、现有布局与真实开发方式，并在 `docs\development.md` 按子项目登记相对路径、命令和工作目录。用户尚未选择时记录缺项，不自行运行项目生成器；未选技术栈不阻塞纯文档任务。
+Before coding, also confirm the target project location within `src/`, the tech stack, the existing layout, and the real development workflow, and register the relative path, commands, and working directory per subproject in `docs/development.md`. If the user has not chosen yet, record the missing items and do not run a project generator on your own; an unselected tech stack does not block pure documentation tasks.
 
-## 3. 工件分工与内容归属
+## 3. Artifact responsibilities and content ownership
 
-PRD 的产品目标和范围放在 `stakeholder-requirements\` 的入口与业务要求中；领域概念、规则和上下文放在 `domain-model\`，最低填写要求见[蓝图第 3.1 节](repository-blueprint.md)。业务验收归 REQ，软件行为与软件验收归 SR，交付范围与实施进度归 US，必要设计归 `architecture\`，验证方式和结果引用归 `verification\`。不简单把整份 PRD 当成一条 REQ，也不把所有 spec 内容都塞进 SR。
+The PRD's product goals and scope go in the entry point and the business requirements of `stakeholder-requirements/`; domain concepts, rules, and contexts go in `domain-model/`, with the minimum filling requirements in [blueprint section 3.1](repository-blueprint.md). Business acceptance belongs to REQ, software behavior and software acceptance to SR, delivery scope and implementation progress to US, necessary design to `architecture/`, and verification methods and result references to `verification/`. Do not simply treat a whole PRD as a single REQ, and do not cram all spec content into SR.
 
-US 通过链接引用需求，不复制一份会独立变化的软件要求；VT 直接引用其验证的 REQ/SR 验收项，必要时关联设计约束或独立维护任务的完成条件。US 不是需求到 VT 的必经层级。`verification\` 保存验证文档，不是测试代码目录；骨架不预建 `src\tests\`，实际项目与测试路径服从下游技术栈或已有工程。
+US references requirements through links and does not copy software requirements that would then change independently; VT directly references the REQ/SR acceptance criteria it verifies and, when needed, links design constraints or the completion conditions of a standalone maintenance task. US is not a mandatory layer between requirements and VT. `verification/` stores verification documents and is not a test code directory; the skeleton does not pre-create `src/tests/`, and actual project and test paths follow the downstream tech stack or the existing project.
 
-小变更沿用已有工件；新业务决策先记录为提案。需要架构决策历史时在 `architecture\decisions\` 写 ADR，普通进展写日志，不强制所有修改都产生 ADR。文档表单从 `_templates\items\` 取用，填写后放入对应工件目录。
+Small changes reuse existing artifacts; new business decisions are first recorded as proposals. When architecture decision history is needed, write an ADR in `architecture/decisions/`; ordinary progress goes in the log, and not every change has to produce an ADR. Take document forms from `_templates/items/` and, once filled in, place them in the corresponding artifact directory.
 
-模板文件中的填写提示和示例不是业务事实。参考项目也不是当前任务的隐含需求源。
+Filling hints and examples in template files are not business facts. Nor are the reference projects an implicit source of requirements for the current task.
 
-### 3.1 最小追溯与覆盖检查
+### 3.1 Minimum traceability and coverage check
 
-| 要求或设计 | 对应的验证问题 | 最小关联 |
+| Requirement or design | Corresponding verification question | Minimum linkage |
 |---|---|---|
-| 业务要求 REQ | 是否满足使用者的业务目标与规则？ | REQ 引用相关模型规则/上下文；业务验收项关联业务验收型 VT |
-| 软件要求 SR | 软件行为、边界与错误处理是否满足规格？ | SR 引用上游 REQ 或明确任务依据；软件验收项关联行为验证型 VT |
-| 必要设计 ABB 或设计约束 | 设计承担的边界、协作与约束是否成立？ | 设计引用需求及业务边界；需要验证的约束关联适当的集成、组件或设计检查，不强制新增层级 |
+| Stakeholder requirement (REQ) | Does it satisfy the users' business goals and rules? | REQ references the related model rules/contexts; business acceptance criteria link to business-acceptance VTs |
+| Software requirement (SR) | Do software behavior, boundaries, and error handling meet the specification? | SR references its upstream REQ or explicit task basis; software acceptance criteria link to behavior-verification VTs |
+| Necessary design (ABB) or design constraint | Do the boundaries, collaborations, and constraints that the design is responsible for hold? | The design references requirements and business boundaries; constraints that need verification link to appropriate integration, component, or design checks, without mandating an extra layer |
 
-VT 标明验证层次、目标验收项、方法与预期结果。一个验收项可以由多个 VT 覆盖，一个 VT 也可覆盖多个验收项，但必须逐项列明目标与判定依据；软件检查通过不能自动推导业务验收通过。规划时就确定适用的验证方式，不等代码完成后再倒推需求。
+A VT states its verification layer, target acceptance criteria, method, and expected results. One acceptance criterion can be covered by several VTs, and one VT can cover several acceptance criteria, but each target and its pass criterion must be listed item by item; passing software checks does not automatically imply that business acceptance passes. Decide the applicable verification method during planning, rather than working backwards to requirements after the code is done.
 
-SR 保存其上游关系，VT 保存其目标关系；每个引用使用所属工件、稳定验收标识及可定位链接，不能只有不知所属的 `AC-1`。反向查询通过引用与搜索实现，不要求手工复制双向关系。工件改名时更新引用，撤销验收项时保留变更依据，不复用旧标识掩盖历史。
+SR stores its upstream relationships and VT stores its target relationships; each reference uses the owning artifact, a stable acceptance identifier, and a locatable link, never a bare `AC-1` of unknown ownership. Reverse lookups are done through references and search, without manually copying relationships in both directions. Update references when an artifact is renamed; when an acceptance criterion is withdrawn, keep the basis for the change and do not reuse the old identifier to hide history.
 
-覆盖检查先列出当前交付范围内的所有验收项，再寻找对应 VT；不能只扫描已有 VT 来推断“需求都已覆盖”。逐项检查缺少验证方式、VT 指向不存在或错误验收项、过期引用及结果基线不符。明确记录缺口、影响与待处理事项；延期或不适用需要理由及相应责任人的确认，Agent 不能通过缩小范围或补造需求消除缺口。
+A coverage check first lists all acceptance criteria in the current delivery scope and then looks for the corresponding VTs; do not merely scan the existing VTs to infer that "all requirements are covered". Check each item for a missing verification method, a VT pointing to a nonexistent or wrong acceptance criterion, stale references, and result baseline mismatches. Record gaps, impact, and pending items explicitly; deferral or not applicable needs a rationale and confirmation by the accountable owner, and an agent must not eliminate gaps by narrowing the scope or fabricating requirements.
 
-`verification\README.md` 提供按验收项查找的覆盖索引，包含缺口和核对基线，关系与结果仍回源读取。映射完整、实际执行和执行通过是不同事实；没有执行结果时保留 `not-run`，不能用“已有 VT”替代验证。当前没有业务需求的维护任务可直接引用已记录的用户请求或 issue 完成条件，不强行新建 REQ、SR 或 US。
+`verification/README.md` provides a coverage index searchable by acceptance criterion, including gaps and the checked baseline; relationships and results are still read from their sources. Complete mapping, actual execution, and passing execution are different facts; without a run result keep `not-run`, and do not substitute "a VT exists" for verification. A maintenance task with no current stakeholder requirement can directly reference the recorded user request or the issue's completion conditions, without forcing a new REQ, SR, or US.
 
-### 3.2 变更影响与旧结果处理
+### 3.2 Change impact and old results
 
-1. 记录变化的模型规则、上下文职责、需求或验收项，保留原基线、新内容及变更依据；未知业务意图先澄清。
-2. 沿实际引用并结合内容核对受影响的 REQ、SR、设计、VT 和任务。列出需要更新或复核的项；判断无影响时写明依据，不能只因链接仍有效就认定语义未变。
-3. 更新需要修改的说明、验收项、VT 预期与覆盖索引，保留缺口和待确认项。旧结果留在原基线上，对当前变更的适用性标为待复核，不把历史成功改写成失败，也不自动沿用为当前成功。
-4. 对受影响内容重新执行适用检查并记录新基线。文档一致性检查通过只证明文档约定一致；行为验证所需的应用或环境不可用时保持未执行，不能用文档检查替代。交接记录须指出尚未复核和未执行的项。
+1. Record the changed model rules, context responsibilities, requirements, or acceptance criteria, keeping the original baseline, the new content, and the basis for the change; clarify unknown business intent first.
+2. Follow the actual references, together with the content, to check the affected REQs, SRs, designs, VTs, and tasks. List the items that need updating or re-review; when you judge there is no impact, state the basis, and do not conclude that the meaning is unchanged just because the links still resolve.
+3. Update the descriptions, acceptance criteria, VT expectations, and coverage index that need changes, keeping gaps and items to be confirmed. Old results stay on their original baseline, and their applicability to the current change is marked `unverified` (pending re-review); do not rewrite a historical success as a failure, and do not automatically carry it over as a current success.
+4. Rerun the applicable checks on the affected content and record the new baseline. A passing document-consistency check proves only that the documentation conventions are consistent; when the application or environment needed for behavior verification is unavailable, keep the verification not run, and do not substitute document checks for it. The handoff record must point out the items not yet re-reviewed and the items not run.
 
-## 4. 实现与验证
+## 4. Implementation and verification
 
-使用项目原生构建、运行和测试工具。Skill 说明何时、为何执行这些步骤，实际命令及工作目录以 `docs\development.md` 和真实工程配置为依据，不调用一个自研 `ans run`。
+Use the project's native build, run, and test tools. Skills explain when and why to perform these steps; actual commands and working directories are based on `docs/development.md` and the real project configuration, not on calling a home-grown `ans run`.
 
-功能变更需覆盖相应验收条件；缺陷修复先复现原症状再验证修复。文档类修改采用适合内容的检查，不为了流程完整而执行无关业务测试。
+Feature changes must cover the corresponding acceptance criteria; defect fixes first reproduce the original symptom and then verify the fix. Documentation changes use checks suited to the content; do not run unrelated business tests just to make the process look complete.
 
-首版骨架只验收文件、入口、文档流程与交接，不选择样例技术栈。没有应用时，应用构建与测试记为不适用并说明原因；已有项目但检查无法执行时记为 `not-run`，两者都不能写成应用验证通过。
+The first-release skeleton is accepted only on its files, entry points, documentation workflow, and handoff, and does not choose a sample tech stack. When there is no application, record the application build and tests as not applicable and give the reason; when a project exists but the checks cannot run, record `not-run`; neither may be written up as a passed application verification.
 
-验证记录至少说明：
+A verification record states at least:
 
-| 项目 | 要求 |
+| Item | Requirement |
 |---|---|
-| 验证对象 | 分支、commit 或实际未提交变更范围；不能将旧结果套在新代码上 |
-| 验收依据 | 对应 REQ/SR、设计约束或独立维护任务的验收项及适用 VT；同名编号需带所属文件 |
-| 执行方式 | 实际命令、工作目录、必要的环境信息 |
-| 真实结果 | 成功、失败、跳过、未执行；适用时记录退出码和测试数量 |
-| 原始依据 | 测试报告、CI 运行或必要输出的位置，避免只留一句“测试通过” |
-| 结果适用性 | 结果对应的需求、VT 与工作区基线；变更后是否待复核，与历史执行结果分开记录 |
-| 剩余问题 | 未覆盖行为、外部依赖、基线失败和阻塞原因 |
+| Verification object | Branch, commit, or the actual scope of uncommitted changes; old results must not be applied to new code |
+| Acceptance basis | Acceptance criteria of the corresponding REQ/SR, design constraint, or standalone maintenance task, and the applicable VTs; identically numbered criteria must include their owning file |
+| Run method | Actual command, working directory, and necessary environment information |
+| Actual result | Success, failure, skipped, or not run; when applicable, record the exit code and test counts |
+| Raw evidence | Location of the test report, CI run, or necessary output; do not leave only a line saying "tests passed" |
+| Result applicability | The requirement, VT, and workspace baselines the result corresponds to; whether it is pending re-review after a change, recorded separately from historical run results |
+| Remaining issues | Uncovered behavior, external dependencies, baseline failures, and reasons for blockers |
 
-有测试文件、命令退出为零和验收通过是不同事实。必需测试零发现、全跳过或未执行时，不写“已验证”。代码、测试或验收条件变化后重新运行受影响检查；不能删除测试或降低标准来让任务显示完成。
+Having test files, a command exiting with zero, and passing acceptance are different facts. When zero required tests are discovered, all are skipped, or they were not run, do not write "verified". After code, tests, or acceptance criteria change, rerun the affected checks; do not delete tests or lower the standard to make a task appear complete.
 
-日志是结果摘要，不是不可伪造证据。CI、项目测试和人类审阅提供实际依据；本模板不另建“可信验证器”产品。
+A log is a summary of results, not tamper-proof evidence. CI, project tests, and human review provide the actual basis; this template does not build a separate "trusted verifier" product.
 
-## 5. 开发日志与交接
+## 5. Development logs and handoff
 
-建议每个任务或工作会话使用独立文件，例如 `logs\2026-10-13-US-001-session-a.md`，维护任务可使用其 issue 或 PR 标识，避免所有 Agent 同时改一个全局日志。US 或 issue 链接相关日志，进度以对应任务记录为入口，日志保留当时的观察。`logs\` 是我们的补充目录，不宣称沿用了参考仓库的同名日志路径。
+A separate file per task or work session is recommended, for example `logs/2026-10-13-US-001-session-a.md`; maintenance tasks can use their issue or PR identifier. This avoids all agents editing one global log at the same time. The US or issue links the related logs, progress is tracked from the corresponding task record, and logs keep the observations made at the time. `logs/` is our own additional directory and does not claim to reuse a same-named log path from the reference repositories.
 
-日志最小结构：
+Minimum log structure:
 
-- 关联任务、日期和会话标识，必要时记录使用的 Agent。
-- 工作分支、基线版本、已提交与未提交改动的位置。
-- 本次已完成的变更，以及重要的判断依据。
-- 实际运行的检查、结果和原始报告链接。
-- 当前阻塞、追溯缺口、受影响工件、待复核或未执行项、下一步及需要重新核验的条件。
+- Related task, date, and session identifier; record the agent used when needed.
+- Working branch, baseline version, and where committed and uncommitted changes are.
+- Changes completed in this session, and the basis for important judgments.
+- Checks actually run, their results, and links to raw reports.
+- Current blockers, traceability gaps, affected artifacts, items pending re-review or not run, next steps, and the conditions that need rechecking.
 
-不保存完整聊天、隐藏推理过程、访问令牌、生产数据或大段机器输出。需要保留的原始报告使用项目既有输出位置或获准的 CI artifacts；本地临时文件不能被描述为其他机器可直接访问的交接材料。
+Do not store full chats, hidden reasoning, access tokens, production data, or large chunks of machine output. Raw reports that must be kept use the project's existing output locations or authorized CI artifacts; local temporary files must not be described as handoff material that other machines can access directly.
 
-重要里程碑、暂停和交付时更新日志，不要求每次文件修改写一条。持续维护的用户变更说明可以另用 changelog，不与开发流水账混在一起。
+Update the log at important milestones, pauses, and deliveries; an entry is not required for every file change. User-facing change notes that are maintained over time can go in a separate changelog, kept apart from the running development log.
 
-## 6. 换一个会话或 Agent 继续
+## 6. Continuing in another session or agent
 
-1. 读取通用入口、当前任务、相关模型与 REQ/SR/VT、覆盖索引和最新日志，不要求任务必须是 US。
-2. 检查 Git 状态、工件引用、已知缺口、结果基线与日志是否一致，区分映射完成、文档检查和软件行为验证。
-3. 确认未决问题是否已解决，用户是否改变目标或授权范围。
-4. 对无法访问的补丁、报告或资料明确说明，不能假装已恢复。
-5. 从尚未完成且具备输入的一步继续，按需要重新验证。
+1. Read the common entry point, the current task, the related model and REQ/SR/VT, the coverage index, and the latest log; the task does not have to be a US.
+2. Check whether the Git status, artifact references, known gaps, result baselines, and the log are consistent, and distinguish completed mapping, document checks, and software behavior verification.
+3. Confirm whether open questions have been resolved, and whether the user has changed the goal or the authorized scope.
+4. State explicitly which patches, reports, or materials cannot be accessed; do not pretend they have been recovered.
+5. Continue from a step that is not yet complete and whose inputs are available, and re-verify as needed.
 
-日志提供接手线索，不保证恢复上个进程、工具会话、未保存编辑或外部系统状态。日志中的“已创建 PR”若无法确认，应查询现有平台后再操作，避免重复提交。
+Logs provide takeover clues; they do not guarantee restoring the previous process, tool session, unsaved edits, or external system state. If a "PR created" entry in the log cannot be confirmed, query the existing platform before acting, to avoid a duplicate submission.
 
-多人并行依赖分支、worktree 和正常 Git 协作；本模板不提供任务领取、租约或跨机器状态同步。
+Parallel work by several people relies on branches, worktrees, and normal Git collaboration; this template provides no task claiming, leases, or cross-machine state synchronization.
 
-## 7. 完成、审阅与权限
+## 7. Completion, review, and permissions
 
-任务可用 `todo`、`in-progress`、`blocked`、`review-ready`、`done` 等简单状态，但这些是工作记录，不是程序强制状态机。`done` 只表示本次约定交付完成，不自动表示合并或上线。
+Tasks can use simple statuses such as `todo`, `in-progress`, `blocked`, `review-ready`, and `done`, but these are work records, not a program-enforced state machine. `done` means only that the agreed delivery for this task is complete; it does not automatically mean merged or released.
 
-完成时给出变更摘要、验证结果、剩余限制和日志位置。是否推送或创建 PR 按用户授权与现有客户端能力决定，不是复制模板或读取 prompt 的副作用。
+On completion, give a change summary, the verification results, the remaining limitations, and the log location. Whether to push or create a PR is decided by user authorization and the existing client capabilities; it is not a side effect of copying the template or reading a prompt.
 
-Agent 在文件里写 `Approved`、选择 reviewer 模式或自我审阅，都不能代替有权限的人的决定。需要正式合并门禁时，由维护者在托管平台配置审阅、必需检查和权限。模板里的声明不会自动启用这些设置。
+An agent writing `Approved` in a file, selecting the reviewer mode, or reviewing its own work cannot replace the decision of an authorized person. When a formal merge gate is needed, maintainers configure reviews, required checks, and permissions on the hosting platform. Statements in the template do not enable these settings automatically.
 
-同样，工具范围、隔离、预算和取消由客户端与宿主环境控制。本模板不保证 Markdown 规则能阻止所有越权行为，也不自建凭据保管或发布服务。
+Likewise, tool scope, isolation, budgets, and cancellation are controlled by the client and the host environment. This template does not guarantee that Markdown rules can prevent every unauthorized action, and it does not build its own credential storage or release service.
 
-## 8. 明确停下来的情况
+## 8. When to stop
 
-业务事实矛盾、必需资料不可读、验证失败、授权不足、已有修改冲突或外部操作结果不明时，报告具体问题并保留工作。只重试有明确理由的操作，不无限循环、不静默降低要求。
+When business facts contradict each other, required materials are unreadable, verification fails, authorization is insufficient, existing changes conflict, or the outcome of an external operation is unclear, report the specific problem and preserve the work. Retry only operations that have a clear reason to be retried; do not loop indefinitely, and do not silently lower the requirements.
 
-没有测试环境时可以交付未验证的变更供讨论，但必须标明 `not-run` 或阻塞，不能把“文件已写好”描述成行为已验证。未选择技术栈的空模板也不能报告应用构建成功。
+Without a test environment you may deliver unverified changes for discussion, but they must be marked `not-run` or blocked; do not describe "the files are written" as verified behavior. An empty template with no tech stack chosen also cannot report a successful application build.

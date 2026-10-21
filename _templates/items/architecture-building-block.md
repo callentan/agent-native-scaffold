@@ -7,75 +7,75 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# ABB-NNN：待填写
+# ABB-NNN: TBD
 
-> 可选设计表单，尚无已确认架构。先读[架构指引](../../architecture/README.md#building-blocks)与[元数据约定](../../domain-model/README.md#artifact-metadata)，按需复制到 `architecture\ABB-NNN-<slug>.md`。项目/上下文明确后替换占位编号与锚点，删除本提示并核对相对链接。
+> Optional design form; there is no confirmed architecture yet. Read the [architecture guide](../../architecture/README.md#building-blocks) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `architecture/ABB-NNN-<slug>.md` as needed. Once the project/context is clear, replace placeholder IDs and anchors, delete this notice, and check the relative links.
 
 <a id="basis"></a>
-## 依据与范围
+## Basis and scope
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 来源阅读导航及设计理由 | 待填写：实际 REQ/SR、CAP/上下文、QAS、适用 ADR 或任务依据及基线 |
-| 相关业务上下文、规则与边界 | 待填写：链接，不复制规则全文 |
-| 设计范围与非目标 | 待填写 |
-| 记录日期与提出者 | 待填写；内容状态及确认声明归 frontmatter |
+| Source reading navigation and design rationale | TBD: actual REQ/SR, CAP/context, QAS, applicable ADR, or task basis, with baselines |
+| Related business context, rules, and boundaries | TBD: links; do not copy the full rule text |
+| Design scope and non-goals | TBD |
+| Record date and proposer | TBD; content state and confirmation statements belong in the frontmatter |
 
-`upstream` 是声明来源的唯一位置；正文导航解释来源，不独立维护另一份关系表。已有 US 可说明切片，但不是 ABB 的必经前提。QAS 仍为 draft、ADR 未决定或版本未知时，相关设计仅为候选；不借表单完成选型。
+`upstream` is the only place to declare sources; the body navigation explains the sources and does not maintain a separate relationship table. An existing US can explain the slice, but it is not a mandatory prerequisite for an ABB. While a QAS is still draft, an ADR is undecided, or versions are unknown, the related design is only a candidate; do not use the form to complete technology selection.
 
 <a id="structure"></a>
-## 结构、责任与协作
+## Structure, responsibilities, and collaboration
 
-| 项目 | 内容 |
+| Item | Content |
 |---|---|
-| 构件及结构说明 | 待填写 |
-| 负责与不负责的事项 | 待填写 |
-| 拥有的事实与仅使用的外部事实 | 待填写 |
-| 提供方 → 使用方、信息或能力及约定 | 待填写 |
-| 接口、依赖和失败边界 | 待填写 |
-| 约束来源、假设与未决事项 | 待填写 |
+| Components and structure description | TBD |
+| What it is and is not responsible for | TBD |
+| Facts owned and external facts only used | TBD |
+| Provider → user, information or capability, and agreements | TBD |
+| Interfaces, dependencies, and failure boundaries | TBD |
+| Constraint sources, assumptions, and open items | TBD |
 
-上下文不强制映射到服务、仓库或代码层。不确定的边界和实现只记为提案。
+Contexts are not required to map to services, repositories, or code layers. Record uncertain boundaries and implementations only as proposals.
 
 <a id="interfaces"></a>
-## 接口、依赖与集成（适用时）
+## Interfaces, dependencies, and integration (when applicable)
 
-| 提供方 → 消费方与事实所有者 | 契约原文、版本及语义 | 端口/适配边界与依赖方向 | 失败、时序和兼容约定的来源或缺项 |
+| Provider → consumer and fact owner | Contract text, version, and semantics | Port/adapter boundary and dependency direction | Source or missing item for failure, timing, and compatibility agreements |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD | TBD |
 
-仅当来源给出事件消费/异步集成契约时采用相应异步边界；概念交换不等于服务调用。依赖产品和版本未选定就保留缺项，不添加默认 SDK、broker 或交付保证。合法装配入口与领域依赖方向按[架构规则](../../.github/instructions/architecture.instructions.md)分别核对。
+Adopt an asynchronous boundary only when a source provides an event consumption/asynchronous integration contract; a conceptual exchange is not a service call. While dependency products and versions are not selected, keep the missing items; do not add a default SDK, broker, or delivery guarantee. Check the legitimate composition entry point and the domain dependency direction separately against the [architecture rules](../../.github/instructions/architecture.instructions.md).
 
 <a id="runtime"></a>
-## 运行、部署与质量约束（适用时）
+## Runtime, deployment, and quality constraints (when applicable)
 
-| 关注点 | 实际来源/基线的导航、适用性与具体缺口 |
+| Concern | Navigation to actual sources/baselines, applicability, and specific gaps |
 |---|---|
-| 运行协作与 SEQ | 待填写；没有序列来源就说明不可用 |
-| 部署/环境及依赖版本 | 待填写；不从逻辑构件推导基础设施 |
-| QAS 响应、观测与判定方法 | 待填写；指标/测量未定时不能确认满足 |
-| 安全、治理或风险约束 | 待填写实际提供且适用的来源；没有资料不推导分类或批准 |
+| Runtime collaboration and SEQ | TBD; if there is no sequence source, state that it is not available |
+| Deployment/environment and dependency versions | TBD; do not derive infrastructure from logical components |
+| QAS response, observation, and judgment method | TBD; while metrics/measurement are undecided, satisfaction cannot be confirmed |
+| Safety, governance, or risk constraints | TBD: sources actually provided and applicable; without such material, do not derive classifications or approvals |
 
 <a id="verification-needs"></a>
-## 设计约束与验证需要
+## Design constraints and verification needs
 
-需要单独验证的约束按实际数量复制以下块；已有约束直接链接。设计检查不自动等同于业务或软件行为验收。
+Copy the block below once for each constraint that needs separate verification; link existing constraints directly. A design check is not automatically equivalent to business or software behavior acceptance.
 
 <a id="abb-nnn-vc-01"></a>
-### ABB-NNN-VC-01：待填写
+### ABB-NNN-VC-01: TBD
 
-- 有来源的设计约束及适用边界：待填写。
-- 细化依据与原文导航：待填写；关系与本工件内容声明仍归 frontmatter。
-- 可观察的判定标准：待填写。
-- 需要的设计/组件/集成等检查及前提：待填写，不预设已存在的测试。
+- Sourced design constraint and its scope of application: TBD.
+- Refinement basis and navigation to the original text: TBD; relationships and this artifact's content statements still belong in the frontmatter.
+- Observable pass criterion: TBD.
+- Required design/component/integration checks and their preconditions: TBD; do not presume tests already exist.
 
-VT 维护对此约束的目标引用；这里不重复保存验证结果。
+The VT maintains the target reference to this constraint; verification results are not stored again here.
 
 <a id="tradeoffs"></a>
-## 取舍与变化
+## Trade-offs and changes
 
-| 备选方案或变化 | 采用/不采用的理由、代价与风险 | 依据、状态或相关 ADR 链接 |
+| Alternative or change | Rationale for adopting or rejecting it, cost, and risk | Basis, status, or related ADR link |
 |---|---|---|
-| 待填写 | 待填写 | 待确认 |
+| TBD | TBD | To be confirmed |
 
-需保留长期决策时再写 ADR。相关规则或要求变化后复核设计边界和验证需要，旧结果仍绑定原基线。
+Write an ADR only when a long-term decision needs to be kept. After related rules or requirements change, re-review the design boundaries and verification needs; old results remain bound to their original baselines.

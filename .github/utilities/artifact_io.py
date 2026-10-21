@@ -483,6 +483,7 @@ def section_fences(artifact: Artifact, anchor: str) -> tuple[MarkdownFence, ...]
 def _body_entries(
     body: str, path: Path, start: int, artifact_id: str, owner: str,
 ) -> tuple[tuple[Anchor, ...], tuple[Acceptance, ...]]:
+    # A full-width colon may follow the acceptance ID in non-English headings.
     heading = re.compile(
         r" {0,3}#{1,6}[ \t]+(" + re.escape(artifact_id) + r"-(?:AC|VC)-[0-9]+)(?=$|[ \t:：])"
     )

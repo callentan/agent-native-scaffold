@@ -2,12 +2,13 @@
 applyTo: "**/*.md"
 ---
 
-# 文档事实与引用
+# Documentation facts and references
 
-- 区分已确认事实、提案、未决与实际结果；状态必须有来源和适用基线，不能预填批准或通过。
-- 方法从 [README 活动导航](../../README.md#activities)读取；正式工件按[填写约定](../../README.md#forms)使用现有表单并落到所属目录，不复制整套方法正文。
-- 规则正文归领域模型，上游关系归 SR，验收目标关系及执行记录归 VT；索引只导航和记缺口，日志只总结并链接权威记录。
-- 链接使用真实相对路径和稳定锚点，验收 ID 包含所属工件；改名/撤销保留依据和历史，不复用编号。语义变化按 [verify-change](../skills/verify-change/SKILL.md#impact)处理，不能只检查链接可打开。
-- 文档检查与行为验收分开；旧结果保留原基线，未执行写 `not-run`，不可访问的证据明确说明。
-- 获准执行正式工件检查时，按[工具契约](../utilities/README.md#artifact-checker)使用明确 root、可选精确 base 和新报告路径；保留 findings 的 owner/行/target、计数及原始字节基线。`empty` 不算业务通过，`--base` 不省略未改库存，也不是暂存区检查。
-- 检查器只覆盖约定的正式输入和 Markdown 语法。不能靠移走身份字段、缩小范围或覆盖旧报告消除错误；普通 guide、覆盖和语义仍另行核对。
+- Distinguish confirmed facts, proposals, open items, and actual results. Every status needs a source and an applicable baseline; never pre-fill approval or a pass.
+- Read methods from the [README activity navigation](../../README.md#activities). Formal artifacts use the existing forms according to the [form conventions](../../README.md#forms) and go in their owning directories; do not copy whole method bodies.
+- Rule text belongs to the domain model, upstream relationships to the SR, and acceptance-target relationships and run records to the VT. Indexes only navigate and record gaps; logs only summarize and link to authoritative records.
+- Links use real relative paths and stable anchors, and acceptance IDs include their owning artifact. Renames and withdrawals keep their basis and history, and numbers are never reused. Handle semantic changes according to [verify-change](../skills/verify-change/SKILL.md#impact); checking only that links open is not enough.
+- Keep document checks separate from behavioral acceptance. Old results keep their original baseline; write `not-run` for anything not run, and state explicitly when evidence is inaccessible.
+- When authorized to run the formal artifact check, follow the [tool contract](../utilities/README.md#artifact-checker): an explicit root, an optional exact base, and a new report path. Keep the findings' owner/line/target, the counts, and the raw byte baseline. `empty` is not a business pass; `--base` does not omit the unchanged inventory, and it is not an index (staging area) check.
+- The checker covers only the agreed formal inputs and Markdown syntax. Do not clear errors by removing identity fields, narrowing the scope, or overwriting old reports; ordinary guides, coverage, and semantics still need separate review.
+- Write scaffold-owned prose, headings, form labels, placeholders, and code comments in English; keep the exact form labels that the maintenance tools parse (see the [tool reference](../utilities/README.md)).

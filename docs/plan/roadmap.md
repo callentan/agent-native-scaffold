@@ -1,260 +1,260 @@
-# Repo 模板首版实施与验收
+# Repo Template First Release: Implementation and Acceptance
 
-**更新：2026-10-14。P1/P2 已完成本地制作；P3 已完成本地文档演练、真实 App 核心接入/方法/角色及 Git 接手，仍有入口匹配、人工对照和发布确认未完成。逐项范围见[实际验收记录](#actual-acceptance)，不声明 P3 整体通过。** P0 决策于 2026-10-13 完成；此前的 CLI、协调器、状态库和平台适配开发里程碑不再沿用。
+**Updated: 2026-10-14. P1/P2 have been built locally; P3 has completed the local document exercise, core integration/methods/roles in the real App, and Git takeover, while entry-point matching, the human comparison, and release confirmation remain outstanding. See the [actual acceptance record](#actual-acceptance) for per-item scope; P3 is not declared passed as a whole.** The P0 decisions were completed on 2026-10-13; the earlier development milestones for the CLI, coordinator, state store, and platform adapters are no longer followed.
 
-## 1. 首版交付目标
+## 1. First-release delivery goal
 
-交付一个已经定义好骨架、可直接复制使用的研发 repo，包含项目资料模板和 Agent 能力文件。优先在 GitHub Copilot App 中使用；其他能读写仓库的 Agent 有明确的通用接入路径。用户自行在 `src\` 内创建任意类型的项目，骨架不预置应用、技术栈或依赖。
+Deliver a development repo with a predefined skeleton that can be copied and used directly, containing project-material templates and Agent capability files. It is meant primarily for GitHub Copilot App; other Agents that can read and write the repository have a clear generic integration path. Users create projects of any type inside `src/` themselves; the skeleton presets no application, tech stack, or dependencies.
 
-目录命名采用 DDD 与参考工程的例子：`domain-model`、`stakeholder-requirements`、`software-requirements`、`user-stories`、`architecture`、`verification`，表单集中在 `_templates`。方法上明确采用轻量 DDD 表达业务模型与边界、V-model 组织需求到验证的追溯、templates/skills/prompts 统一人和 Agent 的流程；不是只借用名称，也不继承完整方法、参考源码或多仓库依赖。
+Directory names follow DDD and the reference projects' examples: `domain-model`, `stakeholder-requirements`, `software-requirements`, `user-stories`, `architecture`, `verification`, with forms gathered in `_templates`. Methodologically, the skeleton explicitly uses lightweight DDD to express the business model and boundaries, the V-model to organize traceability from requirements to verification, and templates/skills/prompts to unify the human and Agent workflow; it does not merely borrow the names, nor does it inherit the full methods, reference source code, or multi-repository dependencies.
 
-验收重点是“拿到骨架就能找到资料、表达模型与边界、核对需求到验证的关系及变更影响，并留下人和 Agent 都能接手的记录”，而不是执行器能否无人值守运行，也不是某个业务应用能否运行。模板不需要额外的 skeleton 软件包、服务、个人 skills 或参考仓库权限。
+Acceptance focuses on "with the skeleton in hand, one can find the project material, express the model and boundaries, check requirement-to-verification relationships and change impact, and leave records that both humans and Agents can take over", not on whether an executor can run unattended or whether some business application runs. The template needs no extra skeleton software package, service, personal skills, or access to the reference repositories.
 
-| 首版包含 | 不包含 |
+| Included in the first release | Not included |
 |---|---|
-| README、AGENTS、领域/REQ/SR/US/ABB/VT/日志/ADR 的填写指引与表单 | 自研 CLI、生成器、执行循环、状态数据库 |
-| 轻量领域建模、需求与验证对应、覆盖缺口及结果适用性的约定 | 强制战术 DDD 模式、完整 V-model 工件套件或追溯数据库 |
-| Copilot 仓库级和按路径 instructions | 自建审批系统、可信发布器、权限隔离层 |
-| 少量实用 custom agents、skills 和 prompt files | 自动编排的角色团队、任务队列或 Web 平台 |
-| 真实的模板使用说明、交接约定和兼容记录 | 所有客户端原生功能完全一致的承诺 |
-| 干净副本中的建模、追溯、规则变更与人机接手的纯文档演练 | 合成应用、临时编码项目、业务项目集成或固定技术栈 |
-| 模板来源版本、更新说明、正常 diff 合入 | 自动覆盖式升级和跨仓库同步 |
+| README, AGENTS, and filling guides and forms for domain/REQ/SR/US/ABB/VT/logs/ADR | Custom CLI, generators, execution loop, state database |
+| Conventions for lightweight domain modeling, requirement-to-verification mapping, coverage gaps, and result applicability | Mandatory tactical DDD patterns, a full V-model artifact suite, or a traceability database |
+| Copilot repository-wide and path-specific instructions | A home-built approval system, trusted publisher, or permission-isolation layer |
+| A small number of practical custom agents, skills, and prompt files | Auto-orchestrated role teams, task queues, or a web platform |
+| Real template usage notes, handoff conventions, and compatibility records | A promise that every client's native features behave identically |
+| Document-only exercises in a clean copy covering modeling, traceability, rule changes, and human/Agent takeover | Synthetic applications, throwaway coding projects, business-project integration, or a fixed tech stack |
+| Template source version, update notes, normal diff-based merging | Automatic overwriting upgrades and cross-repository sync |
 
-技术栈无关的模板应能直接用于需求、规划和记录；未选技术栈是合法初始状态，不阻塞骨架交付。编码、构建与测试在用户后来创建具体项目时，按其原生工具执行，不属于首版骨架的应用验收承诺。
+A tech-stack-agnostic template should be directly usable for requirements, planning, and records; having no tech stack selected is a valid initial state and does not block skeleton delivery. Coding, building, and testing run with the project's native tools once the user later creates a specific project; they are not part of the first-release skeleton's application-acceptance commitment.
 
-## 2. 实施顺序
+## 2. Implementation sequence
 
-| 阶段 | 交付内容 | 前置条件 | 当前状态 |
+| Phase | Deliverables | Prerequisites | Current status |
 |---|---|---|---|
-| P0：确定最小内容 | 文件职责、App 首测、`src` 边界、轻量建模/追溯与共享方法、设置输入及分发边界 | 模板形态与参考命名方向已确认 | 决策已完成并补强 |
-| P1：项目资料模板 | 既定资料骨架与七类表单，包含领域建模指引、验收引用/覆盖字段、人工导航；其余文件按蓝图 | P0 | 本地制作完成，`52735a0` |
-| P2：Agent 能力文件 | 既定 instructions、3 个 agents、6 个 skills、5 个可选 prompts；连接模型、追溯、影响分析及人机共享入口 | P1 资料骨架就绪 | 本地制作完成，`4856c47` |
-| P3：骨架使用与发布准备 | 冷启动、文档语义与故障场景、变更影响、人机路径与交接；整理干净发布候选 | P1、P2，以及 GitHub Copilot App 可用 | 进行中；本地和 App 核心场景完成，余下入口、人工及发布事项待完成 |
+| P0: Settle the minimum content | File responsibilities, App as the first test, `src` boundary, lightweight modeling/traceability and shared methods, setup inputs, and distribution boundary | Template shape and reference-naming direction confirmed | Decisions completed and reinforced |
+| P1: Project-material templates | The defined project-material skeleton and seven form types, including domain-modeling guidance, acceptance reference/coverage fields, and human navigation; other files per the blueprint | P0 | Built locally, `52735a0` |
+| P2: Agent capability files | The defined instructions, 3 agents, 6 skills, 5 optional prompts; connect the model, traceability, impact analysis, and the shared human/Agent entry points | P1 project-material skeleton ready | Built locally, `4856c47` |
+| P3: Skeleton use and release preparation | Cold start, document semantic and fault scenarios, change impact, human/Agent paths and handoff; assemble a clean release candidate | P1, P2, and GitHub Copilot App available | In progress; local and App core scenarios done, remaining entry-point, human, and release items outstanding |
 
-决策依据与发布前保留事项见[P0 决策记录](decisions-and-risks.md)。不为每个文件建立独立发布包；先用一套可审阅的内容完成骨架文档任务，再根据使用问题修订规则。
+See the [P0 decision record](decisions-and-risks.md) for the decision basis and the items held until release. No separate release package is built per file; first complete the skeleton document tasks with one reviewable set of content, then revise the rules based on issues found in use.
 
-## 3. 阶段退出条件
+## 3. Phase exit criteria
 
-### P0：范围足够小且具体（已完成决策）
+### P0: Scope small and concrete enough (decisions completed)
 
-- [x] 区分正式模板与研究资料：按具体文件清单分发，不携带研究、制作记录或 Git 历史；许可证与发布权限另行确认。
-- [x] 固定首批文档与能力清单；文件职责和 skill/agent/prompt 的映射见蓝图，不增加运行层或技术栈包。
-- [x] 保留目录命名来源，区分参考命名与单仓整理；历史 `src\tests\` 路径不再成为预建目录。
-- [x] 首测选择 GitHub Copilot App，其他客户端分别记录；prompt files 不作为 App 必需入口。
-- [x] 按用户要求用骨架文档任务替代合成应用演练，不选择技术栈，不创建临时业务项目。
-- [x] 明确浏览、资料填写、编码和发布各阶段的必需输入；技术栈与命令可在初次使用时保持未配置。
-- [x] 将轻量 DDD、最小追溯、变更影响和人工共用方法列为内容要求，保留既定目录及文件数量。
-- [x] 明确纯文档语义演练的固定输入、覆盖缺口、悬空引用、规则变更与结果判定，不将文档检查当成应用验证。
+- [x] Separate the formal template from research material: distribute by an explicit file list, without research, maker records, or Git history; license and release permissions are confirmed separately.
+- [x] Fix the first set of documents and capabilities; file responsibilities and the skill/agent/prompt mapping are in the blueprint, with no runtime layer or tech-stack packs added.
+- [x] Keep the origin of directory names and distinguish reference naming from single-repo organization; the historical `src/tests/` path no longer becomes a pre-created directory.
+- [x] Choose GitHub Copilot App as the first test and record other clients separately; prompt files are not a required App entry point.
+- [x] As the user requested, replace the synthetic-application exercise with skeleton document tasks; choose no tech stack and create no throwaway business project.
+- [x] Define the required inputs for browsing, filling in project material, coding, and releasing; the tech stack and commands may stay not configured at first use.
+- [x] List lightweight DDD, minimal traceability, change impact, and the shared human method as content requirements, keeping the defined directories and file count.
+- [x] Define the fixed inputs, coverage gaps, dangling references, rule change, and result judgment for the document-only semantic exercise, without treating document checks as application verification.
 
-这些勾选只表示 P0 决策完成；P1/P2 的制作记录与 P3 的实际结果分别登记，不从决策勾选推导验收通过。
+These check marks mean only that the P0 decisions are complete; P1/P2 build records and P3 actual results are registered separately, and passing acceptance is not inferred from the decision check marks.
 
-### P1：资料模板能被直接使用
+### P1: Project-material templates are directly usable
 
-- README 清楚区分首次设置、日常开发与接手任务，提供人可直接使用的活动、资料与表单导航。
-- `domain-model\README.md` 提供共同术语、概念关系、业务规则、上下文职责与交互、事实来源的填写指引；初始不预填业务模型。
-- REQ、SR、US、ABB、VT 和日志的职责无重复；表单与正式工件分开，填写提示不被误认成已确认事实。
-- REQ 有业务验收与模型引用，SR 有上游依据与软件验收，VT 有验证层次、逐项目标、预期、结果基线和适用性字段；US 不成为必经追溯层。
-- 验证入口说明如何从交付验收项清单核对覆盖、反查 VT 目标和记录缺口；索引不复制一套要求正文或结果状态。
-- PRD 的产品说明和功能规格有明确落点，不再并存一组同内容的泛化目录；维护任务无需硬套 User Story。
-- 验证文档与实际测试代码分开，开发日志只引用结果，不维护另一份验收事实。
-- `src\` 只包含使用说明，不预置代码、依赖或 `src\tests\`；下游可创建任意类型的项目。
-- 未选技术栈时明确标注未配置，不提供假构建和假测试成功；以后按实际子项目记录真实命令与工作目录。
-- 通用入口可定位目标、规范、任务、开发命令和相关日志。
-- 入口只链接已交付的文件；P2 再补充能力文件链接，不把尚未创建的文件当作可用入口。
-- 不需要额外的 manifest、状态文件或全局工具安装才能阅读和开始使用。
+- README clearly separates first-time setup, day-to-day development, and taking over a task, and gives humans directly usable navigation to activities, project material, and forms.
+- `domain-model/README.md` provides filling guidance for shared terms, concept relationships, business rules, context responsibilities and interactions, and fact sources; no business model is prefilled initially.
+- REQ, SR, US, ABB, VT, and logs have non-overlapping responsibilities; forms are kept separate from formal artifacts, and filling hints are not mistaken for confirmed facts.
+- REQ has business acceptance and model references, SR has upstream basis and software acceptance, and VT has fields for verification layer, per-item targets, expectations, result baselines, and applicability; US does not become a mandatory traceability layer.
+- The verification entry point explains how to check coverage from the delivery's acceptance-criteria list, trace VT targets back, and record gaps; indexes do not copy a second set of requirement text or result statuses.
+- The product description and functional specification of a PRD have clear locations, with no parallel set of generic directories holding the same content; maintenance tasks need not be forced into user stories.
+- Verification documents are separate from actual test code, and development logs only reference results instead of maintaining another copy of acceptance facts.
+- `src/` contains only usage notes, with no preset code, dependencies, or `src/tests/`; downstream users can create projects of any type.
+- When no tech stack is selected, it is clearly marked as not configured, with no fake build or fake test success; later, real commands and working directories are recorded per actual subproject.
+- The generic entry point can locate goals, specifications, tasks, development commands, and related logs.
+- Entry points link only to delivered files; P2 adds the capability-file links later, and files not yet created are not treated as usable entry points.
+- No extra manifest, state file, or global tool installation is needed to read the skeleton and start using it.
 
-### P2：能力文件连接起来
+### P2: Capability files are connected
 
-- Copilot 原生文件的目录、命名和必要元数据符合目标客户端约定。
-- Custom agent 只定义工作模式；skill 保留方法正文；prompt 负责本次输入，不复制三份流程。
-- Skill 引用 `_templates` 中的表单并写明正式产物目录，不依赖作者的本地路径、个人 skills 或隐藏聊天记忆。
-- README 与 AGENTS 指向同一份方法；人不启动 Agent 也能按步骤操作，两者使用相同输入、产物和停止条件，不复制人工版流程。
-- `define-requirements` 处理最小业务模型与边界，`specify-feature` 在实施前确定适用的验收项与 VT；不把业务验收简化成软件测试的通过汇总。
-- `verify-change` 从验收项而非仅从已有 VT 核对覆盖，处理悬空引用与基线变化；`record-handoff` 保留影响范围、缺口及待复核/未执行项。
-- 通用入口说明如何显式读取 skill 和专项规则，未自动发现时有可操作的接入方法。
-- GitHub Copilot App 是首测对象；其原生发现行为需要实际记录，不套用 VS Code 或 Copilot CLI 的结果。
-- 5 个 prompt files 是可选便利入口；App 不支持时能用自然语言完成同一任务，不要求专属快捷命令。
-- Onboarding 不自动选栈或初始化应用；implement-task 在缺少具体项目与开发输入时报告缺项，不自行生成项目。
-- 受限工具配置需要实际验证；未验证时不宣传为安全边界。
+- Directories, names, and required metadata of Copilot native files follow the target client's conventions.
+- A custom agent defines only a working mode; a skill holds the method text; a prompt supplies the inputs for one run; the workflow is not copied three times.
+- Skills reference the forms in `_templates` and state the formal output directory, without depending on the author's local paths, personal skills, or hidden chat memory.
+- README and AGENTS point to the same method; a human can follow the steps without launching an Agent; both use the same inputs, outputs, and stop conditions, and no human-only copy of the workflow is made.
+- `define-requirements` handles the minimum business model and boundaries, and `specify-feature` settles the applicable acceptance criteria and VTs before implementation; business acceptance is not reduced to a pass summary of software tests.
+- `verify-change` checks coverage starting from acceptance criteria rather than only from existing VTs, and handles dangling references and baseline changes; `record-handoff` keeps the impact scope, gaps, and items pending re-review or not run.
+- The generic entry point explains how to explicitly read skills and the specific rules, with a workable integration method when nothing is auto-discovered.
+- GitHub Copilot App is the first test target; its native discovery behavior must actually be recorded, without borrowing results from VS Code or Copilot CLI.
+- The 5 prompt files are optional convenience entry points; if the App does not support them, the same task can be done in natural language, with no dedicated shortcut command required.
+- Onboarding does not automatically choose a stack or initialize an application; implement-task reports the gaps when a concrete project and development inputs are missing, instead of generating a project itself.
+- Restricted tool configurations must actually be verified; until verified, they are not advertised as a security boundary.
 
-### P3：演练通过后再发布
+### P3: Release only after the exercises pass
 
-- 在干净骨架副本中，从读取入口到一项文档变更，真实走完文档检查、记录与交接，不创建应用项目。
-- 完成下述固定语义输入的建模与追溯，发现故障副本中的覆盖缺口和悬空引用，正确处理规则变更与旧结果。
-- 新会话仅凭仓库、必要的外部授权和当前任务接手，不依赖旧对话。
-- 完成 GitHub Copilot App 的检查，记录版本、环境和入口实际行为；其他客户端明确列为已测、仅有文档依据或未测试。
-- 在新会话中以自然语言和显式文件读取演练通用接入；不能据此扩大为“全部 Agent 已验证”。
-- 人工路径由人实际按共享步骤操作并记录，与 App 路径比较业务边界、引用、缺口和状态；没有人工参与时保留未验证，不以 Agent 模拟代替。
-- 核对候选骨架没有内部研究材料、制作记录、演练产物、个人绝对路径、密钥或假业务事实，且不依赖被排除的文件。
-- 发布说明包含模板版本、适用范围、必要设置和限制；仓库模板标记、权限及可见性由维护者另行确认。
+- In a clean skeleton copy, go from reading the entry point through one document change, actually completing the document checks, records, and handoff, without creating an application project.
+- Complete the modeling and traceability for the fixed semantic inputs below, find the coverage gap and dangling reference in the fault copies, and handle the rule change and old results correctly.
+- A new session takes over using only the repository, the necessary external authorization, and the current task, without depending on the old conversation.
+- Complete the GitHub Copilot App checks, recording the version, environment, and actual entry-point behavior; other clients are explicitly listed as tested, documentation-backed only, or untested.
+- In a new session, exercise generic integration with natural language and explicit file reads; this must not be stretched into "all Agents verified".
+- On the human path, a person actually follows the shared steps and records the process, comparing business boundaries, references, gaps, and statuses with the App path; without human participation, it stays unverified and is not replaced by Agent simulation.
+- Check that the candidate skeleton contains no internal research material, maker records, exercise outputs, personal absolute paths, keys, or fake business facts, and does not depend on excluded files.
+- Release notes include the template version, scope of application, required setup, and limitations; the repository template flag, permissions, and visibility are confirmed separately by the maintainers.
 
-文档演练使用固定输入：“在干净副本的 README 中将名称填写为‘骨架文档演练’，范围填写为‘只维护资料，不创建应用’；技术栈与命令保持未配置，并核对 `src\README.md` 能指向开发说明中的子项目路径与命令登记位置。”用开发日志表单记录任务范围、实际文档检查、应用检查不适用的原因及下一步，再换新会话接手。名称与范围仅是演练输入，不是下游业务事实；填过的副本和练习记录不进入发布候选。
+The document exercise uses this fixed input: "In the clean copy's README, fill in the name as 'Skeleton document exercise' and the scope as 'Maintain project material only; create no application'; keep the tech stack and commands not configured, and check that `src/README.md` points to where the development guide registers subproject paths and commands." Use the development log form to record the task scope, the actual document checks, the reason application checks are not applicable, and the next step, then take over in a new session. The name and scope are exercise inputs only, not downstream business facts; filled-in copies and exercise records do not enter the release candidate.
 
-### 纯文档语义演练的固定输入
+### Fixed inputs for the document-only semantic exercise
 
-T05 的设置与日志任务保留，但不能单独证明建模和追溯可用。T13–T17 另使用下列自有文档素材；它不是示例应用，不创建工程、依赖、接口实现或可运行测试，也不随骨架分发。
+T05's setup and log task stays, but it alone cannot prove that modeling and traceability work. T13–T17 additionally use the following in-house document material; it is not a sample application, creates no project, dependencies, interface implementation, or runnable tests, and is not distributed with the skeleton.
 
-| 输入 | 演练中明确给定的事实 |
+| Input | Facts explicitly given in the exercise |
 |---|---|
-| 概念与关系 | 成员、物品、借用记录；每条记录关联一名成员与一件物品，未归还的记录计为在借 |
-| 业务边界 | “成员资格”上下文提供资格是否有效，不管理借还与额度；“借用”上下文依据资格结果管理借还及在借额度，不修改成员资格。它们不是预设的服务或项目目录 |
-| 初始规则 | 借用时须有有效资格，每名成员最多有 2 件在借物品。额度场景均以资格有效为前置：已有 1 件时可借第 2 件，已有 2 件时拒绝新增且不改变现有记录 |
-| 未定义事项 | 资格失效后既有借用的处理、并发一致性等不在此次演练范围；被问及时应保留未决，不能补造业务决定 |
-| 规则变更 | 将在借上限改为 3 件，资格规则不变；额度边界场景变为已有 2 件可借第 3 件，已有 3 件时拒绝新增且不改变现有记录 |
+| Concepts and relationships | Member, item, loan record; each record links one member and one item, and an unreturned record counts as an active loan |
+| Business boundary | The "Membership" context reports whether a membership is valid and does not manage loans, returns, or quotas; the "Lending" context manages loans, returns, and the active-loan quota based on the membership result and does not modify membership. They are not predefined services or project directories |
+| Initial rule | Borrowing requires a valid membership, and each member may have at most 2 items on active loan. All quota scenarios assume a valid membership as a precondition: with 1 item already on loan, a 2nd can be borrowed; with 2 already on loan, a new loan is rejected and existing records are unchanged |
+| Undefined matters | Handling of existing loans after a membership lapses, concurrency consistency, and similar matters are outside this exercise; when asked, keep them open and do not invent business decisions |
+| Rule change | The active-loan limit changes to 3 and the membership rule is unchanged; the quota boundary scenarios become: with 2 on loan, a 3rd can be borrowed; with 3 on loan, a new loan is rejected and existing records are unchanged |
 
-在临时副本中至少形成可定位的额度规则、REQ-001 的业务验收、SR-001 的额度行为验收、VT-001 的业务验收计划和 VT-002 的软件行为验证计划。引用须能从需求找到验证、从验证回到目标；可以不创建 US 或 ABB。规则正文保留在领域资料，需求引用它；变更后核对语义影响，不要求每个受影响文件都为了留痕而改写相同数字。
+In a temporary copy, produce at least a locatable quota rule, REQ-001's business acceptance, SR-001's quota-behavior acceptance, VT-001's business acceptance plan, and VT-002's software behavior verification plan. References must lead from requirements to verification and from verification back to the targets; US or ABB may be omitted. The rule text stays in the domain material and requirements reference it; after a change, check the semantic impact, without requiring every affected file to rewrite the same number just to leave a trace.
 
-VT-001/VT-002 的业务或软件行为未实际执行，始终标为 `not-run`。实际完成的文档一致性检查另行记录其对象、结果与基线，不能填入这两个 VT 冒充业务验证。规则变化后，保留旧文档检查结果及原基线，当前适用性待复核；更新受影响工件后再记录新的文档检查结果。
+The business or software behavior of VT-001/VT-002 is not actually run and is always marked `not-run`. The document-consistency checks actually completed record their object, result, and baseline separately and must not be entered into these two VTs to pass as business verification. After the rule changes, keep the old document-check results and their original baseline, with current applicability pending re-review; record new document-check results after updating the affected artifacts.
 
-覆盖故障和悬空目标分别在独立副本中设置，不能通过删除真实验收项或编造需求来消除问题。新会话需指出变化的规则、影响工件、尚未处理的缺口，以及哪些只是文档检查、哪些行为仍未执行。所有练习输入、故障副本和结果均排除在发布候选之外。
+The coverage fault and the dangling target are each set up in a separate copy; the problems must not be removed by deleting real acceptance criteria or inventing requirements. The new session must identify the changed rule, the affected artifacts, the gaps not yet handled, and which items are only document checks and which behaviors are still not run. All exercise inputs, fault copies, and results are excluded from the release candidate.
 
-## 4. 首批验收场景
+## 4. First acceptance scenarios
 
-以下是固定验收标准；是否实际运行及其通过范围见下一节，不从文件已实现推导整项通过。
+These are the fixed acceptance criteria; whether each was actually run and the scope in which it passed are recorded in the next section. A scenario is not inferred to pass in full just because the files have been implemented.
 
-| ID | 场景 | 可观察的通过条件 |
+| ID | Scenario | Observable pass condition |
 |---|---|---|
-| T01 | 复制骨架并首次打开 | 不安装自研工具或业务依赖；README 区分浏览、填写资料和以后创建项目，未决项被明确记录 |
-| T02 | App 冷启动 | 实际读取入口和相关资料，能正确指出目标、规范、任务、命令与日志位置，并识别尚未配置的内容 |
-| T03 | App 能力入口 | 对声明支持的原生入口逐项观察发现和读取；不支持与未验证分别记录，不能用文件存在或手动读取冒充原生发现通过 |
-| T04 | 不依赖 prompt 快捷入口 | 使用自然语言和显式文件读取，完成相同的工作步骤 |
-| T05 | 骨架文档任务 | 按上述固定输入填写 README、核对资料导航并使用日志表单记录相应文档检查；不创建应用、不编造开发命令或应用测试结果 |
-| T06 | 换会话接手 | 根据任务、模型/需求/VT、日志和 Git 状态继续；能找出语义演练中的影响、缺口及未执行项，不盲目复用旧结果 |
-| T07 | 缺需求或开发输入 | 明确提出问题；`src` 未创建项目时不自动选栈、装依赖或生成应用，不能把未执行的应用验证写为通过 |
-| T08 | 已有内容合入 | 用带已有说明、规则与用户标记文件的副本检查合入；保留原内容并报告冲突，不要求接入真实业务工程 |
-| T09 | 无参考项目访问权 | 完成骨架文档演练，不读取参考源码或依赖参考项目凭据 |
-| T10 | 权限和发布限制 | 无授权不推送或改变保护设置；复制模板不被报告为已启用审批、隔离或 CI |
-| T11 | 目录与工件归属 | 入口、表单和 skills 指向同一套命名；区分业务/软件验收、US、VT 与日志，US 不是必经层级，不重复维护事实 |
-| T12 | 技术栈中立 | 发布候选的 `src` 只有 README，没有预置项目、固定测试目录、应用依赖或锁文件；设置说明不要求先选语言才能使用骨架 |
-| T13 | 最小业务模型与边界 | 固定素材中的三个概念及关系、额度规则、两个上下文的职责与交互可定位；未定义事项保持未决，不生成服务或代码结构 |
-| T14 | 分层验证与双向追溯 | REQ-001 的业务验收与 SR-001 的软件验收分别关联适当 VT；每个范围内验收项能查覆盖，每个 VT 能回到准确目标；无 US 仍可完成，映射完整不改变 `not-run` |
-| T15 | 覆盖缺口与悬空引用 | 在故障副本中保留一个现有验收项但移除它的全部 VT 关联，另在独立副本加入指向不存在验收项的引用；分别报告准确的未覆盖项与错误目标，不补造事实或缩小范围 |
-| T16 | 规则变更与结果适用性 | 上限从 2 改为 3 后，定位需复核的 REQ/SR/VT 并更新必要边界场景；资格规则不被无故改写，旧文档结果保留原基线，不被当成当前成功，行为验证仍未执行 |
-| T17 | 人与 App 共用方法 | 人工与 App 从相同固定输入分别按共享步骤操作，得到一致的业务边界、验收引用、缺口及未执行状态；不要求文字一致，记录人工与客户端过程，未运行的一方不报通过 |
+| T01 | Copy the skeleton and open it for the first time | No custom tools or business dependencies are installed; README distinguishes browsing, filling in project material, and later creating a project, and open items are recorded explicitly |
+| T02 | App cold start | Actually reads the entry point and related material, correctly identifies the locations of goals, specifications, tasks, commands, and logs, and recognizes what is not yet configured |
+| T03 | App capability entry points | Discovery and reading are observed one by one for each native entry point claimed as supported; unsupported and unverified are recorded separately, and neither file existence nor manual reading may pass as native discovery |
+| T04 | No dependence on prompt shortcuts | The same work steps are completed with natural language and explicit file reads |
+| T05 | Skeleton document task | Fill in the README with the fixed input above, check the project-material navigation, and record the corresponding document checks with the log form; create no application and invent no development commands or application test results |
+| T06 | Takeover in a new session | Continues from the task, model/requirements/VTs, logs, and Git state; can identify the impact, gaps, and not-run items in the semantic exercise, without blindly reusing old results |
+| T07 | Missing requirement or development inputs | Asks clear questions; when no project has been created in `src`, does not automatically choose a stack, install dependencies, or generate an application, and does not record unrun application verification as passed |
+| T08 | Merging into existing content | Check merging with a copy that has existing notes, rules, and user-marked files; keep the original content and report conflicts, without requiring a real business project to be integrated |
+| T09 | No access to reference projects | Complete the skeleton document exercise without reading reference source code or depending on reference-project credentials |
+| T10 | Permission and release limits | Without authorization, do not push or change protection settings; copying the template is not reported as having enabled approval, isolation, or CI |
+| T11 | Directory and artifact ownership | Entry points, forms, and skills use the same naming; business/software acceptance, US, VT, and logs are distinguished; US is not a mandatory layer, and facts are not maintained twice |
+| T12 | Tech-stack neutrality | The release candidate's `src` contains only a README, with no preset project, fixed test directory, application dependencies, or lock file; the setup notes do not require choosing a language before using the skeleton |
+| T13 | Minimum business model and boundaries | The three concepts and their relationships, the quota rule, and the responsibilities and interactions of the two contexts in the fixed material are locatable; undefined matters stay open, and no service or code structure is generated |
+| T14 | Layered verification and bidirectional traceability | REQ-001's business acceptance and SR-001's software acceptance each link to an appropriate VT; every in-scope acceptance criterion can be checked for coverage, and every VT leads back to its exact target; this works without a US, and a complete mapping does not change `not-run` |
+| T15 | Coverage gap and dangling reference | In one fault copy, keep an existing acceptance criterion but remove all of its VT links; in a separate copy, add a reference to a nonexistent acceptance criterion; report the exact uncovered item and the wrong target respectively, without inventing facts or narrowing scope |
+| T16 | Rule change and result applicability | After the limit changes from 2 to 3, locate the REQ/SR/VT that need re-review and update the necessary boundary scenarios; the membership rule is not rewritten without reason, old document results keep their original baseline and are not treated as current success, and behavior verification remains not run |
+| T17 | Shared method for humans and the App | A human and the App each follow the shared steps from the same fixed input and reach consistent business boundaries, acceptance references, gaps, and not-run statuses; identical wording is not required; the human and client processes are recorded, and a side that did not run does not report a pass |
 
-记录使用界面、版本、实际读取的文件、执行结果和人工修正。失败就修订模板，不把 Agent 的“已完成”作为唯一判据；未运行的场景明确保留为未验证。
+Record the interface used, the version, the files actually read, the run results, and any manual corrections. On failure, revise the template; an Agent's "done" is not the sole criterion; scenarios that were not run are explicitly kept as unverified.
 
-模板检查与模型行为演练是两件事：相对链接、元数据和文件格式可用现有工具检查；是否正确建模、解释追溯、处理缺失输入与规则变化，需要实际操作。T13–T17 通过只表示文档语义与共享方法的演练完成，不表示所规划的业务/软件行为 VT 已执行。首版未验证任何应用的编码、构建或测试，也不据此宣称支持所有语言工具链。有限演练不构成安全证明或成功率承诺。
+Template checks and model-behavior exercises are two different things: relative links, metadata, and file formats can be checked with existing tools, whereas correct modeling, explaining traceability, and handling missing inputs and rule changes require actual operation. Passing T13–T17 means only that the exercise of document semantics and the shared method is complete, not that the planned business/software behavior VTs have been run. The first release has not verified coding, building, or testing of any application and does not use this to claim support for every language toolchain. Limited exercises are neither a security proof nor a success-rate promise.
 
 <a id="actual-acceptance"></a>
-## 5. 实际验收记录（2026-10-14）
+## 5. Actual acceptance record (2026-10-14)
 
-本节是此次骨架制作的验收记录，不随下游模板分发。源基线为 P1 `52735a0`、P2 `4856c47`；正式分发清单仍以[蓝图](../design/repository-blueprint.md#2-首版模板目录)为准，共 38 个文件。P1/P2 分别经过范围与内容审阅。模板保持空白业务事实，`src` 只有说明。
+This section is the acceptance record for this skeleton build and is not distributed with the downstream template. The source baselines are P1 `52735a0` and P2 `4856c47`; the [blueprint](../design/repository-blueprint.md#template-layout) remains authoritative for the formal distribution list of 38 files. P1 and P2 each went through scope and content review. The template keeps business facts blank, and `src` contains only notes.
 
-首轮使用本地工具及两个通用子代理，结果只支持**本地文件路径**。后续用户允许独立本机测试项目，App 的 `create_session` 启动四个真实隔离会话：默认接入、reviewer、planner、implementer/Git 接手；均已按限定范围完成，不是把普通子代理改称 App 实测。宿主进程文件版本为 App 1.1.29，四个会话启动 CLI 元信息均为 1.0.95-3，系统 Windows 10.0.26200.0；GUI 选择器、整个 App 重启、其他客户端与实际人工操作仍未测。
+The first round used local tools and two general-purpose subagents, so its results support only the **local file path**. Later, the user allowed a standalone local test project, and the App's `create_session` started four real isolated sessions: default integration, reviewer, planner, and implementer/Git takeover. All completed within their limited scope; this is not ordinary subagents relabeled as App testing. The host process file version is App 1.1.29, the CLI metadata at launch of all four sessions is 1.0.95-3, and the OS is Windows 10.0.26200.0; the GUI picker, a restart of the whole App, other clients, and actual human operation remain untested.
 
-| ID | 本次状态 | 实际观察与未完成部分 |
+| ID | Status this round | Actual observations and unfinished parts |
 |---|---|---|
-| T01 | 本地通过 | 按 38 个具体文件复制；不用业务依赖即可读取、填写资料，未配置项保留 |
-| T02 | App 新会话通过 | 新 worktree 会话实际找到目标、规范、当前任务、命令及日志位置并识别未配置；版本、原生事件和源记录保留，不等于整个 App 冷重启已测 |
-| T03 | 部分完成 | 三个角色 API 选择及六个项目 skills 原生调用已核对成功；路径自动匹配/非匹配、GUI 和可选 prompts 原生入口仍未验证 |
-| T04 | App 路径通过 | 自然语言任务、原生方法加载与显式文件读取完成文档工作，没有用 prompt 快捷入口 |
-| T05 | 本地与 App 通过 | 两条路径均填写固定名称/范围、核对 src 导航并记录实际文档检查与日志；没有创建应用 |
-| T06 | App/Git 接手通过 | 全新 implementer 从真实 source commit 和仓库/日志接手，识别精确缺口、历史来源与未执行项；仅提交交接日志/索引，不声称修复额度规格 |
-| T07 | 本地通过 | 缺项目、技术栈、cwd、命令与创建授权时阻塞编码；文档工作继续，未知业务政策未被补造 |
-| T08 | 本地通过 | 带既有规则的独立夹具识别 5 处冲突并停止受影响写入，7 个文件散列完全保留；通过的是拒绝覆盖/预检分支，不是未经确认的迁移已完成 |
-| T09 | 本地通过 | 演练仅使用干净副本与给定素材，不读取参考项目或依赖其凭据 |
-| T10 | 部分完成 | 无推送、发布或权限变更；真实 reviewer 的工具选择为 `["*"]`，只读是对话约定而非已建立门禁；App/OS 强制权限边界未验证 |
-| T11 | 本地通过 | 实际形成模型、REQ、SR、分层 VT 与日志；不创建 US/ABB 也可追溯，结果与索引分工明确 |
-| T12 | 本地通过 | 候选的 `src` 只有 README，没有应用、固定测试目录、依赖或锁文件；开发命令未配置 |
-| T13 | 本地通过 | 概念关系、两项规则、两个上下文职责与交互可定位；资格失效后的既有借用处理、并发一致性仍未决 |
-| T14 | 本地通过 | 四项 REQ/SR 验收分别由 VT-001/VT-002 的准确目标引用覆盖；无 US，行为计划仍为 `not-run` |
-| T15 | 本地通过 | 两个独立故障副本分别识别 `SR-001-AC-02` 未覆盖、`SR-001-AC-99` 悬空；真实验收项未删除，故障副本未被修饰成通过 |
-| T16 | 本地通过 | 上限 2→3 后更新 REQ/SR/VT 的边界；资格规则与旧运行原文保留，B1 结果先标当前待复核，再新增 B2 文档结果；行为仍未执行 |
-| T17 | 未验证 | 用户选择本轮先完成 App/本地验收，人工对照保留未验证，不以代理模拟人 |
+| T01 | Passed locally | Copied as the 38 specific files; readable and fillable without business dependencies, with not-configured items kept |
+| T02 | Passed in a new App session | A new worktree session actually found the goals, specifications, current task, commands, and log locations and recognized what is not configured; the version, native events, and source records are kept; this is not equivalent to having tested a cold restart of the whole App |
+| T03 | Partially done | API selection of the three roles and native invocation of the six project skills were confirmed successful; automatic path matching/non-matching, the GUI, and native entry points for optional prompts remain unverified |
+| T04 | Passed on the App path | Natural-language tasks, native method loading, and explicit file reads completed the document work without using prompt shortcuts |
+| T05 | Passed locally and in the App | Both paths filled in the fixed name/scope, checked the src navigation, and recorded the actual document checks and log; no application was created |
+| T06 | Passed for App/Git takeover | A fresh implementer took over from the real source commit and the repository/logs, identifying the exact gaps, historical sources, and not-run items; it committed only the handoff log/index and did not claim to have fixed the quota specification |
+| T07 | Passed locally | Coding was blocked when the project, tech stack, cwd, commands, and creation authorization were missing; document work continued, and unknown business policy was not invented |
+| T08 | Passed locally | An independent fixture with existing rules identified 5 conflicts and stopped the affected writes, and the hashes of all 7 files were fully preserved; what passed is the refuse-to-overwrite/preflight branch, not a completed unconfirmed migration |
+| T09 | Passed locally | The exercise used only the clean copy and the given material, without reading reference projects or depending on their credentials |
+| T10 | Partially done | No push, release, or permission change; the real reviewer's tool selection is `["*"]`, so read-only is a conversational convention rather than an established gate; App/OS-enforced permission boundaries are unverified |
+| T11 | Passed locally | Actually produced the model, REQ, SR, layered VTs, and log; traceable without creating a US/ABB, with a clear division of labor between results and indexes |
+| T12 | Passed locally | The candidate's `src` contains only a README, with no application, fixed test directory, dependencies, or lock file; development commands are not configured |
+| T13 | Passed locally | Concept relationships, the two rules, and the two contexts' responsibilities and interactions are locatable; handling of existing loans after a membership lapses and concurrency consistency remain open |
+| T14 | Passed locally | The four REQ/SR acceptance criteria are each covered by exact target references in VT-001/VT-002; there is no US, and the behavior plans are still `not-run` |
+| T15 | Passed locally | The two independent fault copies identified `SR-001-AC-02` as uncovered and `SR-001-AC-99` as dangling, respectively; real acceptance criteria were not deleted, and the fault copies were not dressed up as passing |
+| T16 | Passed locally | After the limit changed 2→3, the REQ/SR/VT boundaries were updated; the membership rule and the original text of the old run were kept; the B1 result was first marked as pending re-review for current applicability, then a new B2 document result was added; behavior is still not run |
+| T17 | Unverified | The user chose to complete App/local acceptance first this round; the human comparison stays unverified, and no agent simulates a human |
 
-### 对象、结果与证据
+### Objects, results, and evidence
 
-初始副本用规定的成员、物品、借用记录素材形成 B1；新代理在独立副本中完成 B2。B1、B2 的文档检查各运行 16 项，均退出 0；其结果记在独立文档型 VT-003，**不写入业务 VT-001 或软件 VT-002**。两个行为 VT 的 B1、B2 记录均为 `not-run`。
+The initial copy formed B1 from the prescribed member, item, and loan-record material; a new agent completed B2 in a separate copy. The B1 and B2 document checks each ran 16 checks, all exiting 0; their results are recorded in a separate document-type VT-003 and **are not written into the business VT-001 or the software VT-002**. The B1 and B2 records of both behavior VTs are `not-run`.
 
-另行只读核对 32 项候选与证据约束：从真实 REQ/SR 锚点盘点四项验收、解析实际 VT 目标，确认故障精确隔离、B1 五个及 B2 九个对象的 SHA-256、旧报告与 RUN-01 原文、资格规则、行为未执行状态及候选一致性。32 项均通过。这不是应用测试，也不构成客户端安全或一般可靠性证明。
+A separate read-only check covered 32 candidate and evidence constraints: inventorying the four acceptance criteria from the real REQ/SR anchors, parsing the actual VT targets, and confirming exact fault isolation, the SHA-256 of the five B1 objects and nine B2 objects, the old report and the original RUN-01 text, the membership rule, the not-run behavior status, and candidate consistency. All 32 passed. This is not an application test and is not proof of client security or general reliability.
 
-首轮最终候选有 38/38 个文件、228 个可解析的相对链接；无研究、设计、计划、制作日志、演练文件或 Git 历史。副本创建后检测到源 README 两处表格分隔符排版变化，未回退或代为提交；候选重新捕获当前字节，receipt 明确记录 `README.md` 是未提交的分发文件。后续接入说明更新另存新候选与 receipt，不把旧候选或排版变动当作相同 commit 的字节。
+The first round's final candidate has 38/38 files and 228 resolvable relative links, with no research, design, plan, maker logs, exercise files, or Git history. After the copy was created, two table-separator formatting changes in the source README were detected; they were neither reverted nor committed on the owner's behalf. The candidate recaptured the current bytes, and the receipt explicitly records `README.md` as an uncommitted distribution file. The later update to the integration notes was saved as a new candidate and receipt; neither the old candidate nor the formatting changes are treated as bytes of the same commit.
 
-原始记录位于制作会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的本机 `files`：
+The raw records are in the local `files` of maker session `1ff56941-bf56-4aa4-b769-fd4720915e1f`:
 
-| 本机工件标识 | 内容与限制 |
+| Local artifact identifier | Content and limitations |
 |---|---|
-| `release-candidate-final`、`release-candidate-final-receipt.json` | 38 文件候选及来源、未提交范围、逐文件散列；仅为本地候选，尚未发布 |
-| `candidate-final-check.json`、`evidence-audit.json` | 文件/链接检查和只读完整性核对的实际输出 |
-| `exercise-baseline`、`exercise-coverage`、`exercise-dangling`、`exercise-change` | B1、独立故障和 B2 副本；全部排除出分发 |
-| `p3-initial-report.md`、`p3-followup-report.md`、`p3-findings.json` | 代理实际读取、操作、命令、结果及限制；不是跨机器可用的 CI 证据 |
+| `release-candidate-final`, `release-candidate-final-receipt.json` | The 38-file candidate with its sources, uncommitted scope, and per-file hashes; a local candidate only, not yet released |
+| `candidate-final-check.json`, `evidence-audit.json` | Actual output of the file/link check and of the read-only integrity check |
+| `exercise-baseline`, `exercise-coverage`, `exercise-dangling`, `exercise-change` | The B1, independent fault, and B2 copies; all excluded from distribution |
+| `p3-initial-report.md`, `p3-followup-report.md`, `p3-findings.json` | What the agents actually read and did, commands, results, and limitations; not CI evidence usable across machines |
 
-演练中产生的 `document-check-b1.ps1` / `document-check-b2.ps1` 是本机一次性文档检查助手，**不在 38 文件候选中**。后继报告将 B1 助手称为 “shipped” 不准确。B1 助手会重写同名快照，且使用固定文件清单，不能在变更后的副本直接复跑来充当新证据。本次保留它的原记录，另建 B2 记录并以只读散列核对历史；不把这些助手交付成模板运行层。
+`document-check-b1.ps1` / `document-check-b2.ps1`, produced during the exercise, are one-off local document-check helpers and are **not in the 38-file candidate**. The follow-up report's description of the B1 helper as "shipped" is inaccurate. The B1 helper overwrites the snapshot of the same name and uses a fixed file list, so it cannot simply be rerun on the changed copy to serve as new evidence. This round keeps its original record, creates a separate B2 record, and checks the history with read-only hashes; these helpers are not delivered as a template runtime layer.
 
-接手若无法访问上述本机工件，应按本计划的固定输入重新制作副本并记录新结果，不能假称恢复了原始证据。制作交接见[开发日志](../../logs/2026-10-14-skeleton-p1-p3.md)。
+If whoever takes over cannot access the local artifacts above, rebuild the copies from this plan's fixed inputs and record new results; do not pretend the original evidence was recovered. See the [development log](../../logs/2026-10-14-skeleton-p1-p3.md) for the maker handoff.
 
-### 后续 App 与冲突观察
+### Later App and conflict observations
 
-本机测试项目由 38 文件候选建立独立 Git 仓库，无远端，初始 checkpoint 为 `7e478845fc64ceb0b66ba5b655771c543728d0eb`。注册后只在 App 管理的 worktree 中操作，未修改原项目配置或测试项目主 checkout。
+The local test project is a standalone Git repository built from the 38-file candidate, with no remote; its initial checkpoint is `7e478845fc64ceb0b66ba5b655771c543728d0eb`. After registration, all work happened only in App-managed worktrees; neither the original project configuration nor the test project's main checkout was modified.
 
-[P3 reviewer entry](ghapp://sessions/40a224f5-795a-4877-af01-159b9070254e) 通过 App API 选择工作模式；启动事件包含 `subagent.selected`，这里是角色选择记录，不是创建 task 子代理。原始事件第 70、244 行的 `skill.invoked` 分别为 `verify-change`、`record-handoff`，`source=project`，路径均指向该 worktree 的 `.github\skills`。起止 Git 状态只有分支行，实际无文件改动。两个 selected-agent 事件的 `tools` 均为 `["*"]`，不能称强制只读。
+[P3 reviewer entry](ghapp://sessions/40a224f5-795a-4877-af01-159b9070254e) selected its working mode through the App API; its launch events include `subagent.selected`, which here records a role selection, not the creation of a task subagent. The `skill.invoked` events on lines 70 and 244 of the raw events are `verify-change` and `record-handoff` respectively, with `source=project` and paths pointing to that worktree's `.github/skills`. The Git status at start and end shows only the branch line, with no actual file changes. The `tools` of both selected-agent events are `["*"]`, so this cannot be called enforced read-only.
 
-[P3 app cold start](ghapp://sessions/712829a4-a056-4e78-a55a-b5e39d717c50) 已在 checkpoint `29eacba44f7d63f0a930ed23963feabac7fb86b0` 完成固定设置、文档检查、日志与本地提交，仅改五个文档/证据文件，其余 36 个原文件不变。它实际原生调用 onboarding、实施、验证、交接四个方法；父会话对不可变 Git 对象与工具事件的 11 项只读核对通过。App 新会话不等于整个共享 App 被重启。
+[P3 app cold start](ghapp://sessions/712829a4-a056-4e78-a55a-b5e39d717c50) completed the fixed setup, document checks, log, and a local commit at checkpoint `29eacba44f7d63f0a930ed23963feabac7fb86b0`, changing only five document/evidence files and leaving the other 36 original files unchanged. It actually invoked four methods natively: onboarding, implementation, verification, and handoff; the parent session's 11 read-only checks of immutable Git objects and tool events passed. A new App session does not mean the whole shared App was restarted.
 
-在该会话完成并空闲后，父会话只在其 worktree 准备部分变更 checkpoint `59aebcda25ff671cf19a0d7177d1ade6c777ccc4`：历史 B1 作为历史素材保留，RULE-002 已变为 3，下游旧边界和 VT 缺口待核对；没有复跑旧 helper。它不是本次额度更新“已完成”的结果。
+After that session finished and went idle, the parent session prepared a partial-change checkpoint `59aebcda25ff671cf19a0d7177d1ade6c777ccc4` in that session's worktree only: the historical B1 is kept as historical material, RULE-002 has changed to 3, and the old downstream boundaries and VT gaps are awaiting checks; the old helper was not rerun. It is not a "completed" result of this quota update.
 
-[P3 planner entry](ghapp://sessions/fcf7e330-6f15-47f1-954a-4349967cf605) 只读应用需求/规格方法，正确指出旧边界、缺 SR-001-AC-02、索引不符及 B1 历史来源；无写入或新计划。[P3 git resumption](ghapp://sessions/9d65e97e-92ed-442d-b257-ed238dea848d) 从 source 接手，形成 `312c3f8a067170f3d3621d41fd936282c6781255`：只改日志索引并新增交接，52 个其他原文件保留，工作树/暂存区干净。父会话 12 项只读核对通过。行为与规格修正尚未执行，未把接手或日志检查通过当成额度验证。
+[P3 planner entry](ghapp://sessions/fcf7e330-6f15-47f1-954a-4349967cf605) applied the requirements/specification methods read-only and correctly identified the old boundaries, the missing SR-001-AC-02, the index mismatch, and the B1 historical source; it made no writes and no new plan. [P3 git resumption](ghapp://sessions/9d65e97e-92ed-442d-b257-ed238dea848d) took over from the source and produced `312c3f8a067170f3d3621d41fd936282c6781255`: it changed only the log index and added a handoff, kept the 52 other original files, and left the working tree/index clean. The parent session's 12 read-only checks passed. Behavior and specification fixes have not been carried out yet, and passing the takeover or log checks is not treated as quota verification.
 
-四个真实会话的原生事件合并核对，六个项目方法均有 `source=project`、本 worktree 路径及成功 tool completion；三个自定义角色都有实际 selected-agent 事件，工具选择均为 `["*"]`。因此证实的是此环境中的 API 选择、方法加载与有限使用，不是 GUI、任意自然触发、自动路径匹配或强制权限。逐入口范围见[接入说明](../agent-support.md#template-observations)。
+Checking the native events of the four real sessions together, each of the six project methods has `source=project`, a path in its own worktree, and a successful tool completion; each of the three custom roles has an actual selected-agent event, all with tool selection `["*"]`. What is confirmed, therefore, is API selection, method loading, and limited use in this environment, not the GUI, arbitrary natural triggering, automatic path matching, or enforced permissions. See the [integration notes](../agent-support.md#template-observations) for the per-entry-point scope.
 
-T08 另在七文件既有内容夹具中实际应用 onboarding：README 事实、AGENTS 的真值位置/编号、Copilot 入口、Markdown 范围规则及 `logs` 忽略策略分别与候选冲突。停止受影响的合入，不并列追加矛盾规则，前后 SHA-256 清单确认全部原文保留。未来迁移选择由维护者决定，不属于该预检的成功声明。
+For T08, onboarding was also actually applied to a seven-file fixture of existing content: the README facts, AGENTS's source-of-truth locations/numbering, the Copilot entry points, Markdown scope rules, and the `logs` ignore policy each conflicted with the candidate. The affected merge was stopped, contradictory rules were not appended side by side, and before/after SHA-256 lists confirm that all original text was kept. Future migration choices are up to the maintainers and are not part of this preflight's success claim.
 
-新增本机证据包括宿主版本、四份 `app-*-events.json`、`app-native-audit.json`、onboarding/resumption 两份不可变 checkpoint 核对、各自观察摘要及 T08 冲突/散列记录。版本来自工具进程 ancestry 和文件元数据，不是 About；事件与人工摘录分开，其中“人工摘录/核对”是 Agent 的文件操作，不是 T17 人工参与。上面的会话链接仅用于当前 App 历史访问，不是跨机器的公共证据。全部原始素材仅在制作会话或本机测试仓库，不随候选分发。
+New local evidence includes the host version, four `app-*-events.json` files, `app-native-audit.json`, the two immutable-checkpoint checks for onboarding/resumption, their respective observation summaries, and the T08 conflict/hash records. The versions come from the tool process ancestry and file metadata, not the About screen; events are kept separate from manual excerpts, and these "manual excerpts/checks" are Agent file operations, not T17 human participation. The session links above serve only for access through the current App history and are not public cross-machine evidence. All raw material lives only in the maker session or the local test repository and is not distributed with the candidate.
 
-### P3 剩余退出条件
+### Remaining P3 exit criteria
 
-T03 的自动路径匹配/非匹配、GUI 与可选 prompt 原生入口仍需额外观察；现有 trace 只证明列表、加载与明确读取，不补写这些结果。T17 按用户本轮选择保留未验证。后续分别填写[客户端记录](../agent-support.md#client-records)，使用同一固定输入和真实人/App 操作；不以 API 选择或 Agent 模拟代替。已观察项与未测项不能合成“全支持”。
+T03's automatic path matching/non-matching, GUI, and native entry points for optional prompts still need additional observation; the existing traces prove only listing, loading, and explicit reading, and these results are not backfilled. T17 stays unverified per the user's choice this round. Later, fill in the [client records](../agent-support.md#client-records) separately, using the same fixed input and real human/App operation; neither API selection nor Agent simulation substitutes for them. Observed items and untested items cannot be combined into "fully supported".
 
-发布前仍需责任人确认许可证、位置、可见性、版本、维护者、权限及审阅安排。当前研究仓库不得直接整仓分发，也未改为 GitHub template；P3 尚未整体通过。
+Before release, the accountable owner still needs to confirm the license, location, visibility, version, maintainers, permissions, and review arrangements. The current research repository must not be distributed wholesale and has not been turned into a GitHub template; P3 has not passed as a whole.
 
-## 6. 后续按实际需要扩展
+## 6. Later expansion based on actual need
 
-更多 Agent 的薄入口、技术栈专项规则、接口/数据/运维文档模板，以及更深的 DDD 建模内容，都以真实使用需求为前提。已有目录命名不要求填满全部领域工件，也不要为兼容性预先复制多套正文。
+Thin entry points for more Agents, tech-stack-specific rules, interface/data/operations document templates, and deeper DDD modeling content all require a real usage need first. The existing directory names do not require filling in every domain artifact, and multiple copies of the text should not be made in advance for compatibility.
 
-项目需要 CI、开发容器或检查脚本时，复用该技术栈与平台的原生机制。不把这些需求重新扩展成 skeleton 运行时、自动发布引擎或跨项目管理平台。
+When a project needs CI, a dev container, or check scripts, reuse the native mechanisms of that tech stack and platform. Do not expand these needs back into a skeleton runtime, an automatic release engine, or a cross-project management platform.
 
-## 7. 六仓功能对齐增强（已开始）
+## 7. Six-repo functional alignment enhancement (started)
 
-2026-10-19 Task12 已冻结精确逐文件 owner manifest，完成候选复制/校验、隔离导入与资源闭包及原 T01/T05/T07–T16 适用本地路径回归；完整 fix-wave 独立限定复核已确认 3 Important 与 1 Minor/后续 provenance finding 均已处理，无新增问题。新的 fix2 committed-source 验证 receipt 与当前提交 provenance 一致（132文件、41 exclusions、0 findings，dirty scope空）。最低版本 retained+new 最终为857/857；848/856历史运行与 malformed fix1 provenance 旧报告保留原样。证据与 `not-run` 关卡见[制作侧验收记录](../../verification/ddd-alignment.md)和[Task12 交接](../../logs/2026-10-19-task12-candidate.md)；不继承旧38文件候选、App/人/应用/平台/发布结果，不关闭整体 parity。
+On 2026-10-19, Task12 froze the exact per-file owner manifest and completed candidate copy/validation, isolated import and resource closure, and the applicable local-path regression of the original T01/T05/T07–T16; the complete independent scoped re-review of the fix wave confirmed that the 3 Important findings and the 1 Minor/follow-up provenance finding have all been addressed, with no new issues. The new fix2 committed-source verification receipt matches the current commit's provenance (132 files, 41 exclusions, 0 findings, empty dirty scope). The final minimum-version retained+new result is 857/857; the historical 848/856 runs and the old report with malformed fix1 provenance are kept as they were. See the [maker-side acceptance record](../../verification/ddd-alignment.md) and the [Task12 handoff](../../logs/2026-10-19-task12-candidate.md) for evidence and `not-run` gates; this does not inherit the old 38-file candidate or the App/human/application/platform/release results, and it does not close overall parity.
 
-2026-10-14 用户要求为六个 `ddd-*` 仓库的功能对齐生成增强计划，并确认保留单仓/技术栈中立、按功能等价而非旧格式兼容。2026-10-15 进一步确认脚本基本统一为 Python：本地、hooks 与 CI 复用同一逻辑，取消必需的 PowerShell 包装层；保留原生 CI YAML 和必要的薄启动适配，不自研 CLI/执行器。
+On 2026-10-14 the user asked for an enhancement plan for functional alignment with the six `ddd-*` repositories and confirmed keeping the single-repo model and tech-stack neutrality, with functional equivalence rather than compatibility with the old formats. On 2026-10-15 the user further confirmed that scripts are essentially unified on Python: local runs, hooks, and CI reuse the same logic, and the required PowerShell wrapper layer is dropped; native CI YAML and the necessary thin launch adapters are kept, with no custom CLI/executor.
 
-2026-10-19 用户将当前优先目标明确为 ready-to-use 本地脚手架，不把真实应用展示演练作为当前 readiness 前置。按精确 manifest 复制与隔离验证候选，不等同于发布授权或六仓 full parity；Task13 live/人/App/client/platform 与 Task14 全矩阵等价结论仍分列为未完成关卡。
+On 2026-10-19 the user made a ready-to-use local scaffold the current priority and does not treat a real-application showcase exercise as a prerequisite for current readiness. Copying the candidate by the exact manifest and verifying it in isolation is not equivalent to release authorization or full six-repo parity; the Task13 live/human/App/client/platform conclusions and the Task14 full-matrix equivalence conclusion remain listed separately as unfinished gates.
 
-当前 manifest 下已产生新的本地 candidate：132 文件、来源 HEAD `ee46390`、dirty scope 独立记录、132/132 再验证、0 findings；`test_distribution.py` 40/40、无跳过/失败/错误。隔离 Flagsmith POC 的 `poc/` 已列入 manifest 排除，候选不会带入演练副本。详细收据见[Task13/ready-scope 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)；artifact 及测试 raw report 仅在本会话 session-local evidence，未作为跨机器证据。
+A new local candidate has been produced under the current manifest: 132 files, source HEAD `ee46390`, dirty scope recorded separately, 132/132 re-verified, 0 findings; `test_distribution.py` 40/40 with no skips/failures/errors. The isolated Flagsmith POC's `poc/` is listed in the manifest exclusions, so the candidate does not carry the exercise copy. See the [Task13/ready-scope handoff](../../logs/2026-10-19-task13-flagsmith-poc.md) for the detailed receipts; the artifact and the raw test report exist only as session-local evidence of this session and are not used as cross-machine evidence.
 
-2026-10-19 按模板蓝图核对历史 P1/P2 38 个路径，主工作树 38/38 已有；在用户提供的 POC 根目录建立 sibling `agent-native-scaffold/` 完整 132 文件 enhanced-manifest 副本，与 `flagsmith/` 分离。此副本不是旧 38 文件路径集逐项原样复刻：`docs/agent-support.md` 含历史客户端观察，仍由 manifest 安全排除。工作树内候选曾造成根级 artifact checker 将嵌套表单识为正式工件，因此已迁到工作树外并清理工作树内重复副本；最终 sibling copy verify 132/132、0 findings，根级 artifact checker 恢复 `empty`，记录见[Task13 handoff](../../logs/2026-10-19-task13-flagsmith-poc.md)。
+On 2026-10-19 the 38 historical P1/P2 paths were checked against the template blueprint, and all 38/38 exist in the main working tree; a complete 132-file enhanced-manifest copy, the sibling `agent-native-scaffold/`, was created in the POC root directory provided by the user, separate from `flagsmith/`. This copy is not an item-by-item verbatim replica of the old 38-file path set: `docs/agent-support.md` contains historical client observations and remains safely excluded by the manifest. A candidate inside the working tree once caused the root-level artifact checker to recognize nested forms as formal artifacts, so it was moved outside the working tree and the duplicate copy inside the working tree was cleaned up; the final sibling copy verify is 132/132 with 0 findings, and the root-level artifact checker is back to `empty`; see the [Task13 handoff](../../logs/2026-10-19-task13-flagsmith-poc.md) for the record.
 
-用户随后要求先 commit 当前变更、再开始执行，README 排版已提交为 `1a6f594`。任务 1 的[六仓能力矩阵](../research/ddd-capability-matrix.md)已完成源码盘点：六个完整 commit、252 entries、195 blobs；现有能力、路线提案、实例占位和未验证外部依赖分别登记。
+The user then asked to commit the current changes first and only then start execution; the README formatting was committed as `1a6f594`. Task 1's [six-repo capability matrix](../research/ddd-capability-matrix.md) has completed the source inventory: six full commits, 252 entries, 195 blobs; existing capabilities, roadmap proposals, instance placeholders, and unverified external dependencies are registered separately.
 
-源码确认原计划遗漏的功能后，用户选择完整纳入，[增强规格](../design/ddd-functional-alignment.md)与[计划](2026-10-14-ddd-functional-alignment.md)增加 ENH/任务 15–18 并补齐原有任务范围；媒体/PDF/平台依赖与执行仍单独授权。任务 1–11、Task15、Task16 离线范围、Task17 本地导出、Task18 本地账本及 Task12 候选的限定本地实现/复核均已完成，无遗留 scoped review finding，但不代表真实资格或批准。Task16 音频仍 not-run，ENH-16 未关闭；Task17 PDF/PPTX 与实际二进制格式 gates 未执行，ENH-17/full parity open；Task18 provider/billing/真实 usage 与 ENH-18 整体结论仍 open。Task12 fix-wave review 已关闭候选报告覆盖、reparse TOCTOU、hardlink、过期计划状态和 provenance 参数顺序 issues；新候选 provenance 精确绑定 cda3cfd，132文件逐字节匹配，41 exclusions、0 findings。候选不等于发布/full parity。Task13 已按用户选择的 Flagsmith/OpenFeature 技术 POC 建立 `poc/flagsmith` 隔离副本；只复制固定提交 `beade3c` 的 86 个跟踪文件，未复制 `.git`、忽略依赖/密钥配置或源仓新增的未跟踪设计文件。隔离副本锁定 restore 后，POC unit/build/controlled-browser 为 19/19、成功、10/10；静态结构/链接检查的一项既有中文文档失败保持记录。该 POC 不是接入业务系统的应用，live Flagsmith、代码生成/维护、人/App/client/platform gates 尚未完成；详见[Task13 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。Task14 逐行矩阵收口仍未完成；不得越过适用外部门禁做整体等价结论。原 P3 入口/人工观察不升级；不更改远端门禁或执行外部 fan-out。
+After the source code confirmed the features the original plan had missed, the user chose to include them all; the [enhancement specification](../design/ddd-functional-alignment.md) and the [plan](2026-10-14-ddd-functional-alignment.md) added ENH/Tasks 15–18 and completed the scope of the existing tasks; media/PDF/platform dependencies and execution still require separate authorization. The scoped local implementation/review of Tasks 1–11, Task15, the Task16 offline scope, Task17 local export, the Task18 local ledger, and the Task12 candidate is complete, with no outstanding scoped review findings, but this does not mean real qualification or approval. Task16 audio is still not-run and ENH-16 is not closed; Task17 PDF/PPTX and the actual binary-format gates have not been run, and ENH-17/full parity are open; Task18 provider/billing/real usage and the overall ENH-18 conclusion remain open. The Task12 fix-wave review closed the candidate-report overlap, reparse TOCTOU, hardlink, stale plan status, and provenance argument order issues; the new candidate's provenance is bound exactly to cda3cfd, with 132 files matching byte for byte, 41 exclusions, and 0 findings. A candidate is not a release or full parity. Task13 created the isolated copy `poc/flagsmith` for the Flagsmith/OpenFeature technical POC the user chose; it copied only the 86 tracked files of pinned commit `beade3c`, without copying `.git`, ignored dependency/secret configuration, or untracked design files newly added in the source repository. After a locked restore in the isolated copy, the POC unit/build/controlled-browser results are 19/19, success, and 10/10; one pre-existing failure of the static structure/link check on a Chinese-language document remains on record. This POC is not an application integrated with a business system; live Flagsmith, code generation/maintenance, and the human/App/client/platform gates are not yet complete; see the [Task13 handoff](../../logs/2026-10-19-task13-flagsmith-poc.md) for details. Closing out the Task14 row-by-row matrix is still not done; no overall equivalence conclusion may bypass the applicable external gates. The original P3 entry-point/human observations are not upgraded; remote gates are not changed and no external fan-out is performed.
 
-目前完成的范围还包括可选来源清单、九视图、覆盖和影响候选，不是整个增强通过。Task7/8 的审阅修正已关闭；报告和模型仍只引用原始来源。Task9 演练不补未知风险或决定、不改写 VT。Task10 的原生启动、环境和报告边界结果分别保留，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)；没有真实项目安装，托管 CI、POSIX 原生启动和 required checks 仍为 not-run。原 P3、应用/代码生成与发布关卡保留，历史记录不改写。
+The scope completed so far also includes the optional source manifest, the nine views, and the coverage and impact candidates; this is not a pass of the entire enhancement. The Task7/8 review fixes are closed; reports and models still only reference the original sources. The Task9 exercise does not fill in unknown risks or decisions and does not rewrite VTs. The Task10 results for native launch, environment, and report boundaries are kept separately; see the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task10-review). There is no real project installation, and hosted CI, POSIX native launch, and required checks remain not-run. The original P3, application/code-generation, and release gates remain, and historical records are not rewritten.
 
-2026-10-16 的 Task8 独立 review 提出三个 Important；[第 1 轮窄修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix1) 完成 RED/GREEN 和 395 方法全量验证后，限定复审关闭原三项并指出新兼容性问题。它不升级业务/审批或完整增强结论。
+The independent Task8 review on 2026-10-16 raised three Important findings; after the [round 1 narrow fix](../../logs/2026-10-15-ddd-alignment.md#task8-fix1) completed RED/GREEN and full verification of 395 test methods, the scoped re-review closed the original three and pointed out a new compatibility issue. This does not upgrade the business/approval or complete-enhancement conclusions.
 
-新 T8-F1-N1 经[第 2 轮局部修正](../../logs/2026-10-15-ddd-alignment.md#task8-fix2) 和[限定复审](../../logs/2026-10-15-ddd-alignment.md#task8-review)关闭；合法业务 tree 的导出/检查往返恢复，实际领域源保护保留。旧 395 全套和不同对象的局部结果各自保留，不改标为一次新运行。
+The new T8-F1-N1 was closed through the [round 2 local fix](../../logs/2026-10-15-ddd-alignment.md#task8-fix2) and the [scoped re-review](../../logs/2026-10-15-ddd-alignment.md#task8-review); the export/check round trip for valid business trees is restored, and the protection of actual domain sources is kept. The old full 395 suite and the partial results for different objects are each kept and are not relabeled as one new run.
 
-Task16 独立审阅在 `9942e70` 提出三个 Important 与一个 Minor；本轮
-[fix1](2026-10-14-ddd-functional-alignment.md#task16-fix1) 仅修正源单元限定语、
-共享 Markdown context、计数/位置关系和 gridless 表格宽度，已完成范围复审。
-旧 688 与本轮新的局部/最低版本结果分开保留；实际音频/ENH-16 未整体关闭，
-限定复审在 `97d35aa` 确认原四项发现均已处理，无新的相关发现；
-入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task16-review)。
-Task17 本地格式与 fix1 已完成限定复审，原两项发现均已处理、无新发现；见[复审记录](../../logs/2026-10-18-task17-resume.md#task17-fix1-review)。PDF/PPTX 仍为 `unavailable` / `not-run`。
-不以音频拒绝合同冒充真实服务结果、不以本地格式关闭 ENH-17/full parity 或越过 Task18/候选交付而解锁 Task12。
+The independent Task16 review at `9942e70` raised three Important findings and one Minor; this round's
+[fix1](2026-10-14-ddd-functional-alignment.md#task16-fix1) corrected only the source-unit qualifier,
+the shared Markdown context, count/position relationships, and gridless table width, and its scoped re-review is complete.
+The old 688 results and this round's new partial/minimum-version results are kept separately; actual audio/ENH-16 is not closed as a whole;
+the scoped re-review at `97d35aa` confirmed that all four original findings were addressed, with no new related findings;
+see the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task16-review) for the entry point.
+Task17's local formats and fix1 have completed scoped re-review; both original findings were addressed, with no new findings; see the [re-review record](../../logs/2026-10-18-task17-resume.md#task17-fix1-review). PDF/PPTX remain `unavailable` / `not-run`.
+The audio rejection contract is not passed off as a real service result, local formats do not close ENH-17/full parity, and Task12 is not unlocked by bypassing Task18/candidate delivery.
 
-2026-10-19 Task18 已实现显式本地 CSV 交互账本与分组用量摘要，新增 17 项测试和最终 Python 3.11.15 保留+新增回归 804/804 执行、0 跳过/失败/错误。当前仅本地范围实现，等待独立限定审阅；没有读取真实用户会话、账单、供应商价格或生产数据。Windows 固定本地盘 byte-range lock 的实际单机多进程行为有测试；网络/跨主机/同步目录耐久性不在支持声明内。Task12 仍需 Task18 审阅与候选交付，ENH-18 真实 provider/billing 与 overall parity 保持 open；入口见[Task18 交接](../../logs/2026-10-19-task18-resume.md)。
+On 2026-10-19, Task18 implemented an explicit local CSV interaction ledger and a grouped usage summary, adding 17 tests; the final Python 3.11.15 retained+new regression ran 804/804 with 0 skips/failures/errors. The implementation is currently local-scope only and awaits independent scoped review; no real user sessions, bills, provider prices, or production data were read. The actual single-machine multi-process behavior of the byte-range lock on Windows fixed local disks is tested; durability on network, cross-host, or synced directories is outside the support claim. Task12 still needs the Task18 review and candidate delivery; ENH-18 real provider/billing and overall parity remain open; see the [Task18 handoff](../../logs/2026-10-19-task18-resume.md) for the entry point.
 
-2026-10-19 Task18 fix1/round1 依审阅的三个 Important 更新：无输出摘要现在是无 sidecar 文件副作用的稳定两次字节/身份快照；追加和新摘要输出均须 caller 显式 `--attest-local-storage`/`attest_local_storage=True`；摘要输出按 pinned Windows directory handle 进行 `NtCreateFile` relative exclusive create，写后复查父目录、源和新文件 identity。新增 11 项回归，Task18 定向套件 28/28、0 跳过/失败/错误；fix1 的最终 retained+new Python 3.11 套件仍待执行，之后再提交并等待 scoped re-review。Attestation 是调用者声明而不是存储供应商/OS 证明；真实用量/费用与 Task12、ENH-18/parity 仍 open。
+On 2026-10-19, Task18 fix1/round1 made updates for the three Important review findings: a summary without output is now a stable two-pass byte/identity snapshot with no sidecar file side effects; both appends and new summary outputs require the caller to pass `--attest-local-storage`/`attest_local_storage=True` explicitly; summary output performs an `NtCreateFile` relative exclusive create through a pinned Windows directory handle and, after writing, rechecks the identity of the parent directory, the source, and the new file. 11 new regression tests were added, and the Task18 targeted suite passed 28/28 with 0 skips/failures/errors; the final retained+new Python 3.11 suite for fix1 is still pending, after which the change will be committed and await scoped re-review. Attestation is a caller declaration, not proof from a storage provider/OS; real usage/cost, Task12, and ENH-18/parity remain open.
 
-2026-10-19 fix1 最终 Python 3.11.15 minimum retained+new 回归 815/815、0 跳过/失败/错误，退出 0；`inputs_unchanged=true`。实现待本地 coauthor commit 和独立 scoped re-review；Task12 未解锁，真实 provider/billing/usage 及 overall parity 仍 open。
+On 2026-10-19 the final fix1 Python 3.11.15 minimum retained+new regression ran 815/815 with 0 skips/failures/errors and exit code 0; `inputs_unchanged=true`. The implementation awaits a local coauthor commit and independent scoped re-review; Task12 is not unlocked, and real provider/billing/usage and overall parity remain open.
 
-2026-10-19 Task18 fix1 最终最低版本保留+新增 Python 3.11.15 回归为 815/815 执行、0 跳过/失败/错误，退出 0，输入未变；全部 Task18 定向为 28/28。修正目前本地提交待执行、随后等待独立 scoped re-review；不解锁 Task12。fix1 原始 RED/GREEN 及最终收据见本机 Task18 fix1 报告/evidence；该结果不表示 provider/billing/真实 usage 或 overall parity 已验证。
+On 2026-10-19 the final minimum-version retained+new Python 3.11.15 regression for Task18 fix1 ran 815/815 with 0 skips/failures/errors and exit code 0, with inputs unchanged; all Task18 targeted tests are 28/28. The fix's local commit is still pending, followed by independent scoped re-review; Task12 is not unlocked. The raw fix1 RED/GREEN and final receipts are in the local Task18 fix1 report/evidence; this result does not mean provider/billing/real usage or overall parity has been verified.
 
-2026-10-19 Task18 fix2/round2 处理新 Important：native `FILE_CREATE` 后先从原生 file handle 缓存稳定 identity，再包装 CRT descriptor/执行首个 `fstat`；所有创建后的失败都保留并报告 recovery identity，不删除输出。两个 injected post-create failure tests 已通过，Task18 targeted 30/30；fix2 的 retained+new Python 3.11 full suite 待最后一次运行。reviewer 的 Minor（移除 `summarize_usage(lock_timeout=...)` kwarg）根据本地 `rg` 未发现调用者，按用户指示记为 deferred，不扩大 fix2。Task12 仍等待 scoped re-review/候选。
+On 2026-10-19, Task18 fix2/round2 addressed the new Important finding: after the native `FILE_CREATE`, a stable identity is first cached from the native file handle, and only then is the CRT descriptor wrapped and the first `fstat` run; every post-create failure keeps and reports the recovery identity and does not delete the output. The two injected post-create failure tests passed, and Task18 targeted is 30/30; the retained+new Python 3.11 full suite for fix2 awaits its final run. The reviewer's Minor (remove the `summarize_usage(lock_timeout=...)` kwarg) is recorded as deferred per the user's instruction, since a local `rg` found no callers, and fix2 is not expanded. Task12 still awaits scoped re-review/the candidate.
 
-2026-10-19 Task18 fix2 最终最低版本 retained+new Python 3.11.15 回归为 817/817 执行、0 跳过/失败/错误，退出 0，`inputs_unchanged=true`；Task18 targeted 30/30。新 API 的 Minor 参数建议保持 deferred；修正待本地提交与 independent scoped re-review，Task12 未解锁。
+On 2026-10-19 the final minimum-version retained+new Python 3.11.15 regression for Task18 fix2 ran 817/817 with 0 skips/failures/errors and exit code 0, `inputs_unchanged=true`; Task18 targeted is 30/30. The Minor parameter suggestion for the new API stays deferred; the fix awaits a local commit and independent scoped re-review, and Task12 is not unlocked.
 
-2026-10-19 Task18 fix2 已由独立限定复审确认 post-native-create recovery identity Important 已处理，未发现新 breakage；Task18 本地实现/审阅范围现关闭。中间两测试收据 `green-create-failure-report-02.json` 存在 JSON summary 与 raw output 不一致（exit 1/raw `KeyError`），不算通过；最终只采用后续 Task18 targeted 30/30 与 minimum 817/817 收据，原始文件保留。Minor `summarize_usage(lock_timeout=...)` 参数建议因无仓内调用且 API 未发布而 deferred，列待最终整体审阅。Task12 本地前置现齐备，下一步开始候选交付；候选与后续人工/应用/平台门禁仍分别验收。
+On 2026-10-19 an independent scoped re-review confirmed that Task18 fix2 addressed the post-native-create recovery identity Important finding, with no new breakage found; the Task18 local implementation/review scope is now closed. The intermediate two-test receipt `green-create-failure-report-02.json` has an inconsistency between its JSON summary and raw output (exit 1/raw `KeyError`) and does not count as a pass; only the later Task18 targeted 30/30 and minimum 817/817 receipts are used as final, and the raw file is kept. The Minor `summarize_usage(lock_timeout=...)` parameter suggestion is deferred because there are no in-repo calls and the API is unreleased, and it is listed for the final overall review. The local prerequisites for Task12 are now all in place, and the next step is to start candidate delivery; the candidate and the later human/application/platform gates are still accepted separately.

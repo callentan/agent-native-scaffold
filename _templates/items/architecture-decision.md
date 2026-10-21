@@ -7,61 +7,61 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# ADR-NNN：待填写
+# ADR-NNN: TBD
 
-> 可选决策表单，不代表已经作出决定。先读[ADR 指引](../../architecture/README.md#decisions)与[元数据约定](../../domain-model/README.md#artifact-metadata)，有真实决策需要时才创建 `architecture\decisions\ADR-NNN-<slug>.md` 及其目录。项目/上下文明确后替换全部占位并删除本提示；落点比表单多一层，须重新核对相对链接。
+> Optional decision form; it does not mean a decision has been made. Read the [ADR guide](../../architecture/README.md#decisions) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first; create `architecture/decisions/ADR-NNN-<slug>.md` and its directory only when a real decision is needed. Once the project/context is clear, replace all placeholders and delete this notice; the location is one level deeper than this form, so recheck the relative links.
 
 <a id="context"></a>
-## 背景与依据
+## Context and basis
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 日期、提出者 | 待填写 |
-| 决策问题与范围 | 待填写 |
-| 来源阅读导航与决策理由 | 待填写：实际 REQ/SR、ABB、QAS、来件 ADR 或任务原文及基线 |
-| 业务上下文、事实归属与边界约束 | 待填写：规则或来源链接 |
-| 需要决策的原因与未知事实 | 待填写 |
+| Date and proposer | TBD |
+| Decision question and scope | TBD |
+| Source reading navigation and decision rationale | TBD: original text and baselines of the actual REQ/SR, ABB, QAS, incoming ADR, or task |
+| Business context, fact ownership, and boundary constraints | TBD: links to rules or sources |
+| Why a decision is needed, and unknown facts | TBD |
 
-声明关系归 frontmatter 的 `upstream`，内容状态与确认记录也只在 frontmatter 维护。来件原文或实际决定缺失时记录缺口，不把文件标题、Accepted 字样或本地提案当成授权决定。
+Declared relationships belong in the frontmatter `upstream`, and content state and confirmation records are also maintained only in the frontmatter. When the incoming original text or the actual decision is missing, record the gap; do not treat a file title, the word Accepted, or a local proposal as an authorized decision.
 
 <a id="options"></a>
-## 备选方案与取舍
+## Options and trade-offs
 
-| 方案 | 收益、代价与风险 | 对业务边界和结构的影响 | 支持或反对的依据 |
+| Option | Benefits, costs, and risks | Impact on business boundaries and structure | Basis for or against |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待填写 |
-| 待填写：其他实际备选方案 | 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD | TBD |
+| TBD: other actual alternatives | TBD | TBD | TBD |
 
 <a id="decision"></a>
-## 决定与影响
+## Decision and impact
 
-- 拟议选择及理由：待填写。
-- 决定的适用范围、生效条件与阅读导航：待填写；只有真实决定存在时才在 frontmatter 填确认人、依据与被确认基线。
-- 接受的代价、限制及需要调整的工件：待填写。
-- 受影响的上下文、消费者、接口与验证：待填写；通知仅为草稿，实际发送另行授权。
-- 被取代/取代本决定的记录链接：待填写；没有则说明。
+- Proposed choice and rationale: TBD.
+- Scope of the decision, effective conditions, and reading navigation: TBD; fill in the confirmer, basis, and confirmed baseline in the frontmatter only when a real decision exists.
+- Accepted costs, limitations, and artifacts that need adjustment: TBD.
+- Affected contexts, consumers, interfaces, and verification: TBD; notifications are drafts only, and actually sending them requires separate authorization.
+- Links to records superseded by or superseding this decision: TBD; if none, say so.
 
-没有确认依据时保持 `draft`，不能由表单或 Agent 自审生成“已接受”。源变化时保留旧决定及其适用基线，另列重审需要，不自动发布到外部 wiki 或改写来源。
+Without a confirmation basis, keep `draft`; the form or an Agent self-review cannot produce "accepted". When the source changes, keep the old decision and its applicable baseline and list the need for re-review separately; do not automatically publish to an external wiki or rewrite sources.
 
 <a id="verification-needs"></a>
-## 验证需要（按需）
+## Verification needs (as needed)
 
-如已有约束所有者，直接引用其稳定 ID 与锚点；仅当约束确实由本 ADR 定义时使用下列块，不复制一套要求。
+If a constraint already has an owner, reference its stable ID and anchor directly; use the block below only when the constraint is genuinely defined by this ADR, and do not copy a set of requirements.
 
 <a id="adr-nnn-vc-01"></a>
-### ADR-NNN-VC-01：待填写
+### ADR-NNN-VC-01: TBD
 
-- 需核对的决定或约束及来源：待填写。
-- 判定标准、适当验证层次与前提：待填写。
-- 受影响的原有验证、缺口和待复核项：待填写。
+- Decision or constraint to check, and its source: TBD.
+- Pass criterion, appropriate verification layer, and preconditions: TBD.
+- Affected existing verification, gaps, and items pending re-review: TBD.
 
-VT 保存验证目标及实际记录入口，此处不维护执行结果。
+The VT holds the verification targets and entry points to actual records; run results are not maintained here.
 
 <a id="history"></a>
-## 决策历史
+## Decision history
 
-| 日期与基线 | 提案、接受或取代的变化 | 决定者、依据与前后记录链接 |
+| Date and baseline | Change: proposed, accepted, or superseded | Decision maker, basis, and links to previous/next records |
 |---|---|---|
-| 待填写 | 尚未决定 | 待填写 |
+| TBD | Not decided yet | TBD |
 
-后续决定追加记录并链接前后关系，不抹去旧决定的背景、理由或当时结果。普通进度写开发日志。
+Append later decisions as new records linked to the previous/next ones; do not erase the context, rationale, or results of old decisions as they stood at the time. Record ordinary progress in the development log.

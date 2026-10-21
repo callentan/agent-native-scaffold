@@ -347,7 +347,7 @@ def _message_policy(payload, path, root, snapshot):
     if managed:
         from check_artifacts import _PLACEHOLDER
         declared = re.findall(r"(?im)^reviewed-by:[ \t]*(.*)$", text)
-        placeholders = {"reviewer", "name", "none", "n/a", "unknown", "pending", "not-run", "待确认"}
+        placeholders = {"reviewer", "name", "none", "n/a", "unknown", "pending", "not-run", "tbd", "to be confirmed"}
         invalid = any(
             len(value.strip()) < 2 or value.strip().casefold() in placeholders
             or _PLACEHOLDER.search(value) or re.search(r"<(?:name|reviewer)>", value, re.I)

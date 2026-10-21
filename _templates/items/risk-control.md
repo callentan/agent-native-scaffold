@@ -5,47 +5,47 @@ kind: risk-control
 scope: PROJECT/CTX-NNN
 contentState: draft
 ---
-# RC-NNN：待填写风险控制引用
+# RC-NNN: TBD risk control reference
 
-> 可选外部风险资料引用，不是风险分析或接受权限。先读[治理边界](../../docs/governance.md#intended-use)与[来源字段约定](../../docs/governance.md#source-views)。按需复制到 `domain-model\RC-NNN-<slug>.md`，替换占位并修正链接后删除本提示。只加真实上游关系，不为导出补造要求、VT 或风险等级。
+> Optional reference to external risk material; not a risk analysis or an acceptance authority. Read the [governance boundaries](../../docs/governance.md#intended-use) and the [source field conventions](../../docs/governance.md#source-views) first. Copy it to `domain-model/RC-NNN-<slug>.md` as needed, replace the placeholders, fix the links, and then delete this notice. Add only real upstream relationships; do not fabricate requirements, VTs, or risk levels for an export.
 
 <a id="analysis"></a>
-## 外部风险分析来源
+## External risk analysis source
 
-| 分析信息 | 内容 |
+| Analysis information | Content |
 |---|---|
-| 外部分析原文、章节与基线 | 未提供：需实际来源，不复制外部分析全文 |
-| 可访问性、核对日期及限制 | 未提供：不可读时保留定位线索和具体缺口 |
-| 分析所有者及适用责任依据 | 未提供：本仓不成为外部风险权威 |
-| 控制前风险 | 未提供：只引用外部已给结论及位置，不计算或预填等级 |
+| External analysis text, section, and baseline | Not provided: an actual source is required; do not copy the full external analysis |
+| Accessibility, check date, and limitations | Not provided: if unreadable, keep the location clues and the specific gap |
+| Analysis owner and applicable basis of responsibility | Not provided: this repository does not become the authority on external risk |
+| Pre-mitigation risk | Not provided: only cite a conclusion already given externally and its location; do not calculate or prefill a level |
 
 <a id="control"></a>
-## 控制与落实依据
+## Control and implementation basis
 
-| 控制信息 | 内容 |
+| Control information | Content |
 |---|---|
-| 控制原文、适用范围与基线 | 未提供：需实际控制来源 |
-| 控制所有者及落实责任 | 未提供：需有来源的责任安排 |
-| 要求、设计与测试的阅读入口 | 待填写实际 REQ/SR、设计、VT/原始报告；不另抄关系或结果表 |
-| 已知落实限制与证据缺口 | 待填写；缺测试不等于已有效控制 |
+| Control text, scope of application, and baseline | Not provided: an actual control source is required |
+| Control owner and implementation responsibility | Not provided: a sourced responsibility arrangement is required |
+| Reading entry points for requirements, design, and tests | TBD: actual REQ/SR, design, VT/raw report; do not copy relationship or result tables |
+| Known implementation limitations and evidence gaps | TBD; missing tests do not mean the control is already effective |
 
 <a id="residual"></a>
-## 残余风险与实际决定引用
+## Residual risk and actual decision reference
 
-| 决定信息 | 内容 |
+| Decision information | Content |
 |---|---|
-| 残余风险 | 未提供：只引用外部原结论，不推算分值或风险接受 |
-| 接受/拒绝决定原文、日期与基线 | 未提供：缺批准不能用表单字段替代 |
-| 具名决定者及责任/权限来源 | 未提供：Reviewed-by 字符串不能认证 |
-| 决定的适用对象、范围与限制 | 未提供：不外推其他用途或版本 |
+| Residual risk | Not provided: only cite the original external conclusion; do not estimate a score or infer risk acceptance |
+| Acceptance/rejection decision text, date, and baseline | Not provided: a form field cannot substitute for a missing approval |
+| Named decision maker and source of responsibility/authority | Not provided: a Reviewed-by string cannot authenticate anyone |
+| Objects, scope, and limitations the decision applies to | Not provided: do not extrapolate to other uses or versions |
 
-来源不可用或决定缺失时保持未知并停止受影响的接受/合规声明；不填默认严重度、残余风险分值或法律符合性。contentState 及本记录的 confirmation 仍只归 frontmatter，不是外部风险已被接受。
+When the source is unavailable or the decision is missing, keep it unknown and stop the affected acceptance/compliance statements; do not fill in a default severity, a residual risk score, or legal compliance. contentState and this record's confirmation still belong only in the frontmatter, and they do not mean the external risk has been accepted.
 
 <a id="follow-up"></a>
-## 残留缺口与重新核对
+## Remaining gaps and recheck
 
-- 缺失/不可读来源、受阻判断与需谁补充什么：待填写。
-- 用途、要求、控制或对象基线变化及需复核的原工件：待填写。
-- 保留的旧来源/决定/VT 入口、下一步及其授权前提：待填写。
+- Missing/unreadable sources, blocked judgments, and who must supply what: TBD.
+- Changes to the use, requirements, controls, or object baselines, and the original artifacts to re-review: TBD.
+- Preserved entry points to old sources/decisions/VTs, next steps, and their authorization prerequisites: TBD.
 
-模型只引用来源和基线；字段不全保持 partial，可选来源不可读保持 unverified。不能为完整导出造数值、反向关系或决定，也不覆盖外部来源和历史结果。
+The model only references sources and baselines; with incomplete fields keep `partial`, and with an unreadable optional source keep `unverified`. Do not fabricate values, reverse relationships, or decisions for a complete export, and do not overwrite external sources or historical results.

@@ -1,12 +1,12 @@
 ---
-description: 对给定规则、要求或基线变化提出有来源的语义影响与待复核项。
+description: Propose source-backed semantic impact and items pending re-review for a given rule, requirement, or baseline change.
 ---
 
-# 评估变更影响
+# Assess change impact
 
-当前输入（由用户填写）：
-- 变更来源、实际工件/位置、旧新基线与确认状态：待填写。
-- 完整交付范围、已知依赖/消费者、原验收与实际结果入口：待填写。
-- 希望得到的影响提案及授权：待填写；默认只读，执行或写入需另明确范围。
+Current input (filled in by the user):
+- Change source, actual artifacts/locations, old and new baselines, and confirmation status: TBD.
+- Full delivery scope, known dependencies/consumers, original acceptance criteria, and entry points to actual results: TBD.
+- Desired impact proposal and authorization: TBD; read-only by default, and running or writing needs a separately stated scope.
 
-完整读取 [verify-change 的语义影响检查](../skills/verify-change/SKILL.md#impact)，模式、覆盖核对与停止条件以该文件为准。
+Read [the semantic impact check in verify-change](../skills/verify-change/SKILL.md#impact) in full; that file is authoritative for modes, coverage checks, and stop conditions.

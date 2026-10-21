@@ -24,8 +24,8 @@ _KEY = r"(?:[A-Za-z0-9][A-Za-z0-9._-]*/){2}[A-Za-z0-9][A-Za-z0-9._-]*"
 _ACCEPTANCE = re.compile(_KEY + r"#[A-Za-z][A-Za-z0-9._:-]*")
 _TASK = re.compile(_KEY)
 _LAYERS = {
-    "业务验收": "business", "软件行为": "software",
-    "适用的设计验证": "design", "独立维护或文档检查": "maintenance",
+    "Business acceptance": "business", "Software behavior": "software",
+    "Applicable design verification": "design", "Standalone maintenance or document check": "maintenance",
 }
 _OWNER_LAYERS = {
     **dict.fromkeys(("stakeholder-requirement", "use-case", "invariant",
@@ -37,13 +37,17 @@ _OWNER_LAYERS = {
     **dict.fromkeys(("development-log", "backlog-item", "user-story",
                      "tool-qualification", "review-record"), "maintenance"),
 }
-_VT_FIELDS = ("本目标预期与独立判定标准", "对应方法/步骤或实际测试标识",
-              "前提、禁止副作用及未决事项")
-_TS_FIELDS = ("本目标前提与输入", "本目标动作、观察与独立判定标准",
-              "对应步骤或实际测试标识", "来源导航、未决条件与禁止副作用")
+_VT_FIELDS = ("Expected outcome and independent pass criterion for this target",
+              "Corresponding method/steps or actual test identifier",
+              "Preconditions, forbidden side effects, and open items")
+_TS_FIELDS = ("Preconditions and inputs for this target",
+              "Actions, observations, and independent pass criterion for this target",
+              "Corresponding steps or actual test identifier",
+              "Source navigation, open conditions, and forbidden side effects")
 _GENERIC = re.compile(
-    r"(?:all\s+(?:tests?\s+)?pass(?:ed)?|全部通过|验证全部|满足要求|符合要求|"
-    r"见需求|同上|pass|not-run|未执行|待确认|未配置|n/?a|无|不适用)[。.!！\s]*", re.I,
+    r"(?:all\s+(?:tests?\s+)?pass(?:ed)?|verify\s+all|(?:meets?|conforms?\s+to)\s+(?:the\s+)?requirements?|"
+    r"as\s+required|see\s+(?:the\s+)?requirements?|same\s+as\s+above|pass|not[-\s]run|"
+    r"to\s+be\s+confirmed|not\s+configured|n/?a|none|not\s+applicable)[.!\s]*", re.I,
 )
 
 
@@ -80,12 +84,12 @@ def _table_values(lines: Iterable[tuple[int, str]], field: str) -> list[tuple[in
 
 def _layer(artifact: Artifact) -> tuple[str | None, int]:
     if artifact.kind == "verification-test":
-        values = _table_values(section_lines(artifact, "plan"), "验证层次")
+        values = _table_values(section_lines(artifact, "plan"), "Verification layer")
         layer = _LAYERS.get(values[0][1]) if len(values) == 1 else None
     elif artifact.kind == "validation-scenario":
-        values = _table_values(section_lines(artifact, "basis"), "业务范围与场景类型")
+        values = _table_values(section_lines(artifact, "basis"), "Business scope and scenario type")
         valid = len(values) == 1 and re.match(
-            r"^(?:上下文内|跨上下文|REQ 业务验收|QAS)(?:$|[：:，,；; ])", values[0][1],
+            r"^(?:Within context|Cross-context|REQ business acceptance|QAS)(?:$|[:,; ])", values[0][1],
         )
         layer = "business" if valid and not _PLACEHOLDER.search(values[0][1]) else None
     else:
@@ -104,7 +108,7 @@ def _criterion(artifact: Artifact, anchor: str) -> tuple[bool, tuple[str, ...]]:
     values = []
     if artifact.kind == "validation-scenario":
         for field in _TS_FIELDS:
-            matches = [re.match(r"^\s*[-*] " + re.escape(field) + r"[：:]\s*(.+)$", line)
+            matches = [re.match(r"^\s*[-*] " + re.escape(field) + r":\s*(.+)$", line)
                        for _, line in lines]
             entries = [match[1] for match in matches if match]
             if len(entries) != 1 or not _meaningful(entries[0]):

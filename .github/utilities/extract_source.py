@@ -30,6 +30,8 @@ MAX_DOCX_RATIO = 100
 MAX_XML_DEPTH = 32
 MAX_XML_NODES = 10_000
 TIMESTAMP = re.compile(r"[0-9]{2}:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}")
+# Source documents are user-supplied and may be Chinese, so the labels and cue
+# words below intentionally include Chinese equivalents of the English terms.
 _LABEL = re.compile(r"^(rule|capability|use[ -]case|term|规则|能力|用例|术语)\s*[:：]", re.I)
 _LABEL_KINDS = {"rule": "rule", "规则": "rule", "capability": "capability", "能力": "capability",
                 "use case": "use-case", "use-case": "use-case", "用例": "use-case",
@@ -140,6 +142,7 @@ def _classify(text: str) -> tuple[str, str, list[str], str]:
         nature = "observed"
         reason = "Explicit source label; the classification records a statement, not business confirmation."
     else:
+        # Chinese cue words mirror the English ones for user-supplied Chinese sources.
         kind = ("rule" if re.search(r"(?<![\w-])(must|shall|never|required|cannot)(?![\w-])|必须|不得|禁止", text, re.I)
                 else "capability" if re.search(r"\b(can|allows|supports)\b|能够|支持", text, re.I)
                 else "statement")

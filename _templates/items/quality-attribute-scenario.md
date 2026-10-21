@@ -7,58 +7,58 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# QAS-NNN：待填写质量属性场景
+# QAS-NNN: TBD quality attribute scenario
 
-> 可选空表单，不是已承诺的 SLA。先读[质量属性输入](../../stakeholder-requirements/README.md#quality-inputs)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `stakeholder-requirements\QAS-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和验收锚点，按落点修正相对链接，保留已有内容后删除本提示。
+> Optional blank form; not a committed SLA. Read the [quality attribute inputs](../../stakeholder-requirements/README.md#quality-inputs) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `stakeholder-requirements/QAS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, the title, and the acceptance anchors, adjust the relative links for the location, keep existing content, and then delete this notice.
 
 <a id="basis"></a>
-## 来源与价值
+## Source and value
 
-- 质量关注点、业务价值及提出者：待填写。
-- 已知事实及来源定位、日期或版本：待填写。
-- 推导候选及推导依据：待填写；经验值不是本项目的要求。
-- 未决问题及需要谁确认：待填写。
+- Quality concern, business value, and who raised it: TBD.
+- Known facts and source locations, dates, or versions: TBD.
+- Derived candidates and their derivation basis: TBD; rules of thumb are not this project's requirements.
+- Open questions and who must confirm them: TBD.
 
-实际 REQ、UC、规则等上游关系归 frontmatter；这里解释质量诉求与业务范围的联系。
+Actual upstream relationships such as REQ, UC, and rules belong in the frontmatter; here, explain how the quality need relates to the business scope.
 
 <a id="scenario"></a>
-## 六要素
+## Six elements
 
-| 要素 | 内容与来源 |
+| Element | Content and source |
 |---|---|
-| 刺激源：谁或什么发起 | 待填写 |
-| 刺激：发生什么 | 待填写 |
-| 环境：在哪些运行或业务条件下 | 待填写 |
-| 对象：哪个业务过程或受影响对象 | 待填写；不预选组件 |
-| 响应：应观察到什么 | 待填写 |
-| 响应度量：可测标准、单位与适用范围 | 未提供；保持缺口，不补性能数字 |
+| Source of stimulus: who or what initiates it | TBD |
+| Stimulus: what happens | TBD |
+| Environment: under which operational or business conditions | TBD |
+| Object: which business process or affected object | TBD; do not preselect components |
+| Response: what should be observed | TBD |
+| Response measure: measurable criterion, unit, and scope | Not provided; keep the gap and do not add performance numbers |
 
 <a id="measurement"></a>
-## 测量依据与限制
+## Measurement basis and limitations
 
-| 度量信息 | 内容 |
+| Measure information | Content |
 |---|---|
-| 标准的提出者、来源与被确认基线 | 未提供 |
-| 观察点、采样/统计口径或其他判定方式 | 未提供；须由真实目标确定 |
-| 对象、负载、时间窗口及排除条件 | 未提供；不从常用配置推断 |
-| 可用测量方法、工具与环境 | 未配置 |
-| 无法测量或存在冲突的部分 | 待填写 |
+| Who proposed the criterion, its source, and the confirmed baseline | Not provided |
+| Observation points, sampling/statistical definitions, or other judgment methods | Not provided; must be determined by the real target |
+| Object, load, time window, and exclusion conditions | Not provided; do not infer from common configurations |
+| Available measurement methods, tools, and environment | Not configured |
+| Parts that cannot be measured or that conflict | TBD |
 
 <a id="acceptance"></a>
-## 质量判据
+## Quality criteria
 
 <a id="qas-nnn-ac-01"></a>
-### QAS-NNN-AC-01：响应判定
+### QAS-NNN-AC-01: Response judgment
 
-- 给定刺激与环境时要观察的响应：待填写。
-- 独立可测标准及其原始依据：未提供，判据不完整。
-- 当前不能判定的原因与所需输入：缺少经责任人确认的度量与方法。
+- Response to observe for the given stimulus and environment: TBD.
+- Independent measurable criterion and its original basis: Not provided; the criterion is incomplete.
+- Why it cannot be judged now and the inputs needed: a measure and method confirmed by the accountable owner are missing.
 
-缺度量时保留 `draft` 和具体问题，不能把“表现良好”当成可执行判据或宣称通过。场景/VT 只引用本项，不在此保存执行结果。
+While the measure is missing, keep `draft` and the specific questions; do not treat "performs well" as an executable criterion or claim a pass. Scenarios/VTs only reference this item; run results are not stored here.
 
 <a id="questions"></a>
-## 未决与变更
+## Open items and changes
 
-- 需谁确定的指标、约束或测量方法；必要时链接 BL：待填写。
-- 旧新要求基线及 UC、设计、场景/VT 的影响：待填写。
-- 没有来源的性能保证、交付保证或监管分类：不填写为事实。
+- Metrics, constraints, or measurement methods still to be decided, and by whom; link a BL when necessary: TBD.
+- Old and new requirement baselines and the impact on UCs, design, and scenarios/VTs: TBD.
+- Performance guarantees, delivery guarantees, or regulatory classifications without a source: do not record them as facts.

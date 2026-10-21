@@ -1,12 +1,12 @@
 ---
-description: 从任务和交接记录恢复输入齐备的下一步。
+description: Resume, from the task and handoff records, the next step whose inputs are complete.
 ---
 
-# 继续工作
+# Resume work
 
-当前输入（由用户填写）：
-- 当前任务与目标、最近相关日志路径：待填写。
-- 已知基线、验收/VT、结果入口与不可访问资料：待填写。
-- 本次会话标识、范围或授权的变化：待填写。
+Current input (filled in by the user):
+- Current task and goal, and paths to the most recent relevant logs: TBD.
+- Known baselines, acceptance/VT, result entry points, and inaccessible materials: TBD.
+- This session's identifier and any changes in scope or authorization: TBD.
 
-先读 [AGENTS](../../AGENTS.md)，按 [record-handoff 的接手顺序](../skills/record-handoff/SKILL.md#resume)核对现状，再从 [README 活动导航](../../README.md#activities)读取下一步对应方法。日志或提示词不授权重放外部操作。
+Read [AGENTS](../../AGENTS.md) first, check the current state according to [the take-over order in record-handoff](../skills/record-handoff/SKILL.md#resume), then read the method for the next step from the [README activity navigation](../../README.md#activities). Logs and prompts do not authorize replaying external operations.

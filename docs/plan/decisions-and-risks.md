@@ -1,140 +1,141 @@
-# 已确认方向、待定细节与能力边界
+# Confirmed Direction, Pending Details, and Capability Boundaries
 
-**更新：2026-10-14。P0 已落实为 P1/P2，P3 本地文档演练及真实 App 核心接入、方法/角色与 Git 接手已记录；其余入口、人工及发布确认仍待完成。实际范围以[验收记录](roadmap.md#actual-acceptance)为准。**
+**Updated: 2026-10-14. P0 has been realized as P1/P2; the P3 local document exercise, core integration in the real App, methods/roles, and Git takeover have been recorded; the remaining entry-point, human, and release confirmations are still outstanding. The [acceptance record](roadmap.md#actual-acceptance) is authoritative for the actual scope.**
 
-## 1. 已确认方向（2026-10-13）
+## 1. Confirmed direction (2026-10-13)
 
-用户已明确：已有 repo 都只是参考，最终构建我们自己的研发 skeleton；交付形态是一套 repo 模板及 Agent 能力文件，不需要自研 CLI；目录命名仍参考 DDD 及这些 repo 的例子。
+The user has made clear that the existing repos are only references and that the goal is to build our own development skeleton; the deliverable is a repo template plus Agent capability files, with no custom CLI; directory naming still follows DDD and the examples in those repos.
 
-本轮进一步确认：首测客户端选择 **GitHub Copilot App**；交付的是已经定义好骨架的 repo，用户自行在 `src\` 内创建任意类型的项目；首版只验收骨架、Agent 入口、文档流程与交接，不要求创建或接入实际业务项目，也不安排临时应用项目演练。
+This round further confirmed: the first client to test is **GitHub Copilot App**; the deliverable is a repo with a predefined skeleton, and users create projects of any type inside `src/` themselves; the first release accepts only the skeleton, Agent entry points, document workflow, and handoff. It does not require creating or integrating a real business project, and no throwaway application-project exercise is planned.
 
-按用户随后提出的目标及补强要求，首版进一步明确：**DDD 负责业务模型与边界，V-model 负责需求到验证的追溯，prompts/templates 配合共享 skills 让人和 Agent 按统一流程工作。** 这三项进入文件内容和阶段验收要求，不再仅作为参考命名；纯文档演练需覆盖模型、追溯缺口与变更影响，但仍不创建应用。
+Following the goals and reinforcement requirements the user raised afterwards, the first release further specifies: **DDD owns the business model and boundaries, the V-model owns traceability from requirements to verification, and prompts/templates work with shared skills so that humans and Agents follow one workflow.** These three points become requirements for file content and phase acceptance, not merely reference names; the document-only exercise must cover the model, traceability gaps, and change impact, but still creates no application.
 
-因此当前方向是：
+The current direction is therefore:
 
-- 项目侧按领域模型、业务需求、软件要求、User Stories、架构和验证组织，保留开发日志与开发说明。
-- Agent 侧包含通用入口、instructions、custom agents、skills 和 prompts。
-- GitHub Copilot App 是首测使用界面；其他能读取仓库文件的 Agent 通过通用内容接入，原生支持分别记录。
-- `src\` 只预置使用说明，不附带应用代码、依赖清单、锁文件、固定测试目录或技术栈；这些由下游项目决定。
-- 采用参考目录名，但不要求克隆或挂载参考仓库，不依赖它们的源码、访问权限与业务模型。
-- 使用现成 Agent 和项目工具完成开发；模板不拥有执行、隔离、审批或发布能力。
+- The project side is organized by domain model, stakeholder requirements, software requirements, user stories, architecture, and verification, and keeps development logs and a development guide.
+- The Agent side contains a generic entry point, instructions, custom agents, skills, and prompts.
+- GitHub Copilot App is the first interface to test; other Agents that can read repository files integrate through the generic content, and native support is recorded per client.
+- `src/` ships with usage notes only, with no application code, dependency manifest, lock file, fixed test directory, or tech stack; downstream projects decide these.
+- Reference directory names are adopted, but cloning or mounting the reference repositories is not required, and nothing depends on their source code, access permissions, or business models.
+- Development uses existing Agents and project tools; the template itself has no execution, isolation, approval, or release capability.
 
-“任何 Agent 可接入”是文件与流程可复用的目标，不是所有客户端都支持同一种原生配置的事实。具体兼容记录必须区分实测、官方文档依据和未验证。
+"Any Agent can integrate" is a goal of reusable files and workflow, not a fact that every client supports the same native configuration. Specific compatibility records must distinguish results verified in practice, those based on official documentation, and those that are unverified.
 
-当前目录方案见[模板蓝图](../design/repository-blueprint.md)：PRD 的用途由业务需求说明承接，软件规格分到 SR/架构/验证，交付任务放入 US 的实施清单；表单集中在 `_templates`。`logs` 和开发说明是自有补充。沿用名称不等于要求每个小任务完成全套 DDD/V-model 工件，也不改变无 CLI、Copilot 优先的产品形态。
+See the [template blueprint](../design/repository-blueprint.md) for the current directory plan: the purpose of a PRD is carried by the stakeholder requirement documents, software specifications are split across SR/architecture/verification, and delivery tasks go into a US's implementation checklist; forms are gathered in `_templates`. `logs` and the development guide are our own additions. Reusing these names does not mean every small task must produce the full DDD/V-model artifact set, and it does not change the CLI-free, Copilot-first product shape.
 
-## 2. 从上一版移出的设计
+## 2. Designs removed from the previous version
 
-这些内容不再是本项目首版的实现任务，也不是等模板做完就默认继续建设的阶段。
+These items are no longer implementation tasks for this project's first release, nor are they phases to be built by default once the template is done.
 
-| 上一版内容 | 当前处理 |
+| Previous-version item | Current handling |
 |---|---|
-| Python/Typer skeleton CLI、`ans` 命令组 | 删除；通过模板仓库或文件复制开始，使用原生项目命令 |
-| Context Builder、统一工件解析核心 | 改为短入口、相对链接、清晰文档职责和按需读取 |
-| `agent.yaml`、`agent.lock.json` | 不作为必需配置；项目说明、原生依赖清单和模板来源版本各司其职 |
-| SQLite 状态库、执行状态机、自动恢复 | 改为任务与开发日志，下一会话核对 Git 状态后接手 |
-| 自研 verifier、审批服务、受信发布器 | 复用项目测试、现有 CI、客户端权限与平台审阅；不承诺模板自行强制执行 |
-| 自动升级、跨仓库报告同步 | 正常 Git diff 与审阅；有具体协作需求再单独设计 |
-| 方法/assurance/stack 包管理体系 | 先提供必要的文档与规则，不先造可插拔框架 |
+| Python/Typer skeleton CLI, `ans` command group | Removed; start from a template repository or by copying files, and use native project commands |
+| Context Builder, unified artifact-parsing core | Replaced by short entry points, relative links, clear document responsibilities, and on-demand reading |
+| `agent.yaml`, `agent.lock.json` | Not required configuration; project notes, native dependency manifests, and the template source version each serve their own purpose |
+| SQLite state store, execution state machine, automatic recovery | Replaced by tasks and development logs; the next session checks Git state and then takes over |
+| Custom verifier, approval service, trusted publisher | Reuse project tests, existing CI, client permissions, and platform review; no promise that the template enforces anything by itself |
+| Automatic upgrades, cross-repository report sync | Normal Git diff and review; design separately once a concrete collaboration need appears |
+| Method/assurance/stack package-management system | Provide the necessary documentation and rules first; do not build a pluggable framework up front |
 
-保留的经验是事实可定位、任务有范围、验证要真实、记录可接手、规则不重复；不保留为实现这些目标而过度扩展的软件平台。
+The lessons kept are: facts are locatable, tasks are scoped, verification is real, records support takeover, and rules are not duplicated. The software platform that over-extended itself to achieve these goals is not kept.
 
-## 3. P0 决策记录
+## 3. P0 decision record
 
-### 3.1 首版范围基线
+### 3.1 First-release scope baseline
 
-D03、D04 记录用户选择的客户端与交付边界，D10–D12 记录本轮方法与验收补强；D02 的目录及文件数量保持不变。文件职责以[模板蓝图](../design/repository-blueprint.md)为准，验收以[实施计划](roadmap.md)为准，不在多处维护独立清单。
+D03 and D04 record the user's chosen client and delivery boundary; D10–D12 record this round's method and acceptance reinforcements; the directories and file count in D02 stay unchanged. The [template blueprint](../design/repository-blueprint.md) is authoritative for file responsibilities and the [implementation plan](roadmap.md) for acceptance; no separate lists are maintained in multiple places.
 
-| ID | 决策 | P0 结论 | 状态与边界 |
+| ID | Decision | P0 conclusion | Status and boundary |
 |---|---|---|---|
-| D01 | 模板内容与发布 | 下游 repo 根目录采用蓝图布局；只分发为下游编写的骨架文件，不复制本仓库研究资料或 Git 历史 | 内容边界已确定；许可证、发布位置、可见性、版本与维护者在发布前确认 |
-| D02 | 首版文件与能力清单 | 固定蓝图中的资料入口、七类表单、6 个 skills、3 个 agents、5 个可选 prompts，以及 Copilot instructions 和 PR 表单 | 已确定；不增加新角色、生成器、示例应用或技术栈包 |
-| D03 | Copilot 首测使用界面 | GitHub Copilot App；记录实际 App 版本与运行环境，逐项观察入口发现和文件读取 | 有限定的真实 App 核心结果；其余入口未验证，不沿用其他客户端的兼容结论 |
-| D04 | `src` 与首版验收范围 | `src\README.md` 说明如何放入任意项目；首版只验收骨架、入口、文档流程与交接 | 已确定；替代原“选合成项目与技术栈”决策，不预置 `src\tests\`，不要求应用编码演练 |
-| D05 | 正式审阅、CI 和权限 | 首版不预置业务 CI、审批或发布配置；下游按实际项目配置现有平台 | 默认边界已确定；正式发布所需权限与审阅安排由维护者另行确认 |
-| D06 | 其他 Agent 的入口 | 首版只提供 `AGENTS.md` 与显式读取同一套 skills 的路径，不新增客户端专用副本 | 已确定；专用薄入口按后续实测需要再加 |
-| D07 | 外部材料或模板复用 | 首版独立编写通用内容，只借鉴已有命名与方法，不搬运参考源码、模板或品牌 | 已确定；未来复用需另行确认授权与来源 |
-| D08 | 专用领域或监管文档 | 首版不加入专用领域、监管或完整 V-model 文档套件 | 已确定；真实需求出现后由责任人确认，不宣称合规资格 |
-| D09 | 首次设置与编码前置条件 | 浏览和使用骨架不要求选技术栈；正式资料与编码分别检查所需输入 | 已确定；缺失值明确标注，具体规则见下表 |
-| D10 | 轻量 DDD 的最低要求 | 现有领域入口提供术语、概念关系、规则、上下文职责/交互及来源指引；需求可定位其业务依据 | 已确定；不增加表单或 agent，不强制聚合、仓储模式或业务边界与代码目录一一对应 |
-| D11 | V-model 最小追溯 | 区分业务验收与软件验证；按当前交付验收项核对覆盖、悬空引用、变更影响和结果适用性 | 已确定；US 不是必经层级，不新增数据库或重复维护双向事实，不以映射完整冒充验证通过 |
-| D12 | 人机共用方法与语义验收 | README 为人提供同一套 skills/表单入口；P3 用固定文档输入检查模型、追溯、规则变更及接手 | 已确定；不创建应用，人工路径需实际记录，不能以 Agent 模拟或未执行结果冒充已验证 |
+| D01 | Template content and release | Downstream repo roots use the blueprint layout; distribute only the skeleton files written for downstream use, without copying this repository's research material or Git history | Content boundary settled; license, release location, visibility, version, and maintainers are confirmed before release |
+| D02 | First-release file and capability list | Fix the blueprint's project-material entry points, seven form types, 6 skills, 3 agents, 5 optional prompts, plus Copilot instructions and the PR form | Settled; no new roles, generators, sample applications, or tech-stack packs |
+| D03 | First Copilot interface to test | GitHub Copilot App; record the actual App version and runtime environment, and observe entry-point discovery and file reading item by item | Limited core results from the real App exist; the other entry points are unverified, and compatibility conclusions from other clients are not carried over |
+| D04 | `src` and first-release acceptance scope | `src/README.md` explains how to put any project in place; the first release accepts only the skeleton, entry points, document workflow, and handoff | Settled; replaces the original "choose a synthetic project and tech stack" decision; `src/tests/` is not pre-created, and no application coding exercise is required |
+| D05 | Formal review, CI, and permissions | The first release preconfigures no business CI, approval, or release configuration; downstream projects configure their existing platforms for the actual project | Default boundary settled; the permissions and review arrangements needed for a formal release are confirmed separately by the maintainers |
+| D06 | Entry points for other Agents | The first release provides only `AGENTS.md` and a path for explicitly reading the same skills, with no client-specific copies | Settled; dedicated thin entry points are added later only as practical testing shows a need |
+| D07 | Reuse of external material or templates | The first release writes generic content independently, borrowing only existing names and methods, without carrying over reference source code, templates, or branding | Settled; future reuse requires separate confirmation of authorization and source |
+| D08 | Specialized domain or regulatory documents | The first release adds no specialized domain, regulatory, or full V-model document suite | Settled; when a real need arises, the accountable owner confirms it; no compliance qualification is claimed |
+| D09 | First-time setup and coding prerequisites | Browsing and using the skeleton does not require choosing a tech stack; formal project material and coding each check their own required inputs | Settled; missing values are marked explicitly; detailed rules are in the table below |
+| D10 | Minimum requirements for lightweight DDD | The existing domain entry point provides guidance for terms, concept relationships, rules, context responsibilities/interactions, and sources; requirements can locate their business basis | Settled; no new forms or agents; aggregates, repository patterns, or a one-to-one mapping between business boundaries and code directories are not mandated |
+| D11 | Minimal V-model traceability | Distinguish business acceptance from software verification; for the acceptance criteria of the current delivery, check coverage, dangling references, change impact, and result applicability | Settled; US is not a mandatory layer; no new database and no duplicated bidirectional facts; a complete mapping is not passed off as verification passing |
+| D12 | Shared human/Agent method and semantic acceptance | README gives humans the same skills/forms entry points; P3 uses fixed document inputs to check the model, traceability, rule changes, and takeover | Settled; no application is created; the human path must actually be recorded, and Agent simulation or not-run results cannot be passed off as verified |
 
-不再将“要不要自己的 CLI”“选择哪种框架状态数据库”列为待决策项。首版范围如需增减，先更新这份基线与蓝图，不在实现时隐式扩张。
+"Should we have our own CLI?" and "Which framework state database should we choose?" are no longer listed as pending decisions. If the first-release scope needs to grow or shrink, update this baseline and the blueprint first; do not expand it implicitly during implementation.
 
-### 3.2 制作与分发边界
+<a id="distribution-boundary"></a>
+### 3.2 Maker-side and distribution boundary
 
-- P1/P2 在本仓库制作骨架文件，目标布局直接对应下游 repo 根目录，不要求安装包、生成器或额外运行层。
-- 发布候选按蓝图中的具体文件逐项复制到干净目录；资料目录初始只含填写说明，`src\` 只含 README。不能整目录复制当前 `docs\`、`.github\` 或 `logs\`。
-- 本仓库的 `docs\research\`、`docs\design\`、`docs\plan\`、制作过程日志、演练产物及 `.git` 历史均不进入下游；下游文件不能反向链接这些未分发材料。蓝图中的 README 和开发说明指 P1/P2 为下游编写的版本，不是当前设计文档的原样副本。
-- 当前研究仓库不直接改为公开模板。只有内容与授权审查完成、发布事项得到确认后，才按获准方式发布；本轮不创建远端仓库、修改可见性、设置模板标记或选择许可证。
+- P1/P2 build the skeleton files in this repository; the target layout maps directly to a downstream repo root and requires no installer package, generator, or extra runtime layer.
+- The release candidate is built by copying the specific files listed in the blueprint, one by one, into a clean directory; project-material directories initially contain only filling instructions, and `src/` contains only a README. Do not copy the current `docs/`, `.github/`, or `logs/` as whole directories.
+- This repository's `docs/research/`, `docs/design/`, `docs/plan/`, maker-process logs, exercise outputs, and `.git` history never go downstream; downstream files must not link back to this undistributed material. The README and development guide in the blueprint mean the versions P1/P2 write for downstream use, not verbatim copies of the current design documents.
+- The current research repository is not turned directly into a public template. Release happens only in an authorized way, after the content and authorization review is complete and the release items are confirmed; this round does not create a remote repository, change visibility, set the template flag, or choose a license.
 
-### 3.3 首次设置需要哪些输入
+### 3.3 Inputs needed for first-time setup
 
-| 使用阶段 | 必需输入或检查 | 可保留为未决的内容 | 记录位置与停止条件 |
+| Usage stage | Required inputs or checks | Content that may stay open | Where to record and when to stop |
 |---|---|---|---|
-| 浏览与复制骨架 | 能读取文件；向已有 repo 合入时先检查目录、Git 状态与已有规则 | 项目名称、业务目标、技术栈和命令均可尚未填写 | README 显示未设置状态；只浏览或合入骨架不因未选技术栈而阻塞 |
-| 填写正式项目资料 | 用户提供项目名称、目标、使用者、当前范围及已知约束 | 非当前范围的功能、架构和发布细节；缺失事实标记为待确认 | 目标与范围放业务需求入口，术语放领域入口；影响当前需求的缺项先澄清，不编造 |
-| 开始一项任务 | 明确的用户请求、US 或 issue，修改范围与可观察完成条件 | 与本任务无关的其他工件，不要求补全整条追溯链 | 任务引用已有依据；未获确认的需求保持草案，不自动写成批准 |
-| 在 `src\` 中创建或修改项目 | 用户选定项目类型/技术栈；确认目标子目录、现有工程约定、环境与依赖，以及实际安装、构建、运行、测试方式 | 不适用的步骤可注明原因；缺失命令不能伪装成空成功脚本 | 在 `docs\development.md` 按子项目记录相对路径、工作目录和命令；没有这些输入时只记录缺项，不自动选栈或生成应用 |
-| 验证编码变更 | 验收依据、实际命令与可用环境；按真实工具执行并记录结果 | 无法执行的检查明确写 `not-run` 和原因，不当成通过 | 结果归验证记录，日志只引用；无应用的骨架不声称构建或测试成功 |
-| 推送、发布或变更权限 | 对应操作的用户授权；正式发布时另需确认内容、许可证、可见性、版本与维护者 | 尚未确认的发布事项不阻塞本地制作或已授权的开发协作，但不得执行依赖它们的发布操作 | 使用现有平台机制，不从模板存在或 Agent 自述推导授权 |
+| Browsing and copying the skeleton | Files can be read; when merging into an existing repo, first check directories, Git state, and existing rules | Project name, business goals, tech stack, and commands may all remain unfilled | README shows the not-yet-set-up state; merely browsing or merging the skeleton is not blocked by an unselected tech stack |
+| Filling in formal project material | The user provides the project name, goals, users, current scope, and known constraints | Features, architecture, and release details outside the current scope; missing facts are marked to be confirmed | Goals and scope go in the stakeholder requirements entry point, terms in the domain entry point; gaps that affect current requirements are clarified first, never invented |
+| Starting a task | A clear user request, US, or issue, with a change scope and observable completion criteria | Other artifacts unrelated to this task; completing the whole traceability chain is not required | The task references existing basis; unconfirmed requirements stay draft and are not automatically recorded as approved |
+| Creating or changing a project in `src/` | The user has chosen the project type/tech stack; confirm the target subdirectory, existing project conventions, environment and dependencies, and the actual install, build, run, and test methods | Inapplicable steps may be annotated with a reason; missing commands must not be disguised as empty scripts that succeed | Record the relative path, working directory, and commands per subproject in `docs/development.md`; without these inputs, record only the gaps and do not choose a stack or generate an application automatically |
+| Verifying a code change | Acceptance basis, actual commands, and an available environment; run with the real tools and record the results | Checks that cannot be run are explicitly marked `not-run` with a reason and are not treated as passing | Results belong in verification records, and logs only reference them; a skeleton without an application does not claim build or test success |
+| Pushing, releasing, or changing permissions | User authorization for that operation; a formal release also requires confirming content, license, visibility, version, and maintainers | Unconfirmed release items do not block local building or authorized development collaboration, but release operations that depend on them must not be performed | Use existing platform mechanisms; do not infer authorization from the template's existence or an Agent's own claims |
 
-模板中的填写提示不是下游项目事实。首次设置不自动运行 `npm init`、`dotnet new` 等项目初始化命令；只有用户决定创建具体项目后，才按所选技术栈的原生方式处理。
+Filling hints in the template are not downstream project facts. First-time setup does not automatically run project-initialization commands such as `npm init` or `dotnet new`; only after the user decides to create a specific project is it handled the native way for the chosen tech stack.
 
-### 3.4 P0 退出与后续决策
+### 3.4 P0 exit and follow-up decisions
 
-P0 的文件职责、首测客户端、`src` 边界、输入要求和材料处理方式均已确定，并补强了轻量 DDD、最小追溯与人机共用方法。P1 按这些内容要求制作骨架，P2 连接方法，P3 执行纯文档语义演练；P0 完成不代表模板已经存在或任何场景已通过。
+P0 has settled file responsibilities, the first client to test, the `src` boundary, input requirements, and how materials are handled, and has reinforced lightweight DDD, minimal traceability, and the shared human/Agent method. P1 builds the skeleton to these content requirements, P2 connects the methods, and P3 runs the document-only semantic exercise; completing P0 does not mean the template exists or that any scenario has passed.
 
-D01 中的许可证、发布位置、可见性、版本和维护者，以及 D05 中正式发布所需的权限与审阅安排，留到 P3 发布前确认。它们不阻塞本地制作骨架，但未确认前不得对外分发或发布；其他客户端支持也不得提前标为已验证。
+The license, release location, visibility, version, and maintainers in D01, and the permissions and review arrangements needed for a formal release in D05, are left to be confirmed before the P3 release. They do not block building the skeleton locally, but nothing may be distributed externally or released until they are confirmed; support for other clients must not be marked as verified in advance either.
 
-## 4. 风险与应对
+## 4. Risks and responses
 
-| 风险 | 具体表现 | 应对 |
+| Risk | Concrete symptom | Response |
 |---|---|---|
-| 只有目录，没有使用方法 | 新项目仍需要从头问怎样开始 | 模板含填写提示、启动清单和配套 skills，用骨架文档任务演练 |
-| 为了演练绑定技术栈 | 首版夹带示例应用、固定测试目录或安装命令 | `src` 只留说明；骨架验收与下游应用验证分开 |
-| 文档负担过重 | 每个小修都要求新建 PRD、spec、ADR 和日志 | 按任务选择必要工件，复用现有依据 |
-| DDD 只剩术语和目录 | 无法说明概念关系、规则归属和上下文职责 | 在现有领域入口与需求 skill 中规定最低填写要求，用文档场景核对边界 |
-| 有链接却无追溯闭环 | 漏掉无 VT 的需求、悬空目标，或把旧结果套到新需求 | 从验收项清单检查覆盖，反查 VT 目标，按基线处理变更影响；不把覆盖等同通过 |
-| 人工与 Agent 流程分叉 | 人只能读表单，Agent 另有一套隐含步骤 | README 与 AGENTS 指向同一套 skills，分别记录实际人工与 App 路径 |
-| 规则重复或冲突 | AGENTS、instructions、agent 和 prompt 各存一份流程 | 方法正文保留在 skill，项目事实只在项目文档，入口采用引用 |
-| 目录改名但职责未调整 | 同一规格存在于多个目录，或维护任务被强写成 User Story | 明确 REQ/SR/US/ABB/VT 的落点，入口与 skills 使用同一映射；维护任务可沿用 issue/PR |
-| 假兼容 | 文件存在就声称所有 Agent 都会加载 | 区分通用阅读和原生发现，记录客户端与版本，实际验证 |
-| 假安全 | 写了禁止越权就声称有沙箱、审批和预算控制 | 依靠宿主与平台实际配置，明确模板的能力边界 |
-| 假完成 | 日志写了通过，但没有真实结果或对应版本 | 记录实际命令、结果和报告；未执行就标明未执行 |
-| 日志过期或泄露 | 新会话盲信旧进度，或入库完整聊天和敏感输出 | 接手先核对 Git；日志只留必要摘要，不保存密钥和私有运行数据 |
-| 合入破坏原项目 | 模板覆盖已有 instructions、文档或源码 | 先对比再合入，冲突时保留内容并报告 |
-| 参考资料误分发 | 内部研究摘要被复制成公共业务模板 | 发布前分离并审查，仅分发自有或授权内容 |
-| 再次偏向平台建设 | 为每个工作约定增加解析器、服务和配置 | 优先普通文件与原生工具，新增程序必须有明确使用需求 |
+| Directories only, no usage method | A new project still has to ask from scratch how to get started | The template includes filling hints, a startup checklist, and matching skills, exercised with skeleton document tasks |
+| Binding a tech stack for the sake of exercises | The first release sneaks in a sample application, fixed test directory, or install commands | `src` keeps only notes; skeleton acceptance is separate from downstream application verification |
+| Excessive documentation burden | Every small fix requires a new PRD, spec, ADR, and log | Choose only the artifacts each task needs and reuse existing basis |
+| DDD reduced to terms and directories | Concept relationships, rule ownership, and context responsibilities cannot be explained | Set minimum filling requirements in the existing domain entry point and the requirements skill, and check boundaries with document scenarios |
+| Links without closed-loop traceability | Requirements without a VT, dangling targets, or old results applied to new requirements go unnoticed | Check coverage from the acceptance-criteria list, trace VT targets back, and handle change impact by baseline; do not equate coverage with passing |
+| Human and Agent workflows diverge | Humans can only read forms while Agents follow a separate set of implicit steps | README and AGENTS point to the same skills; record the actual human and App paths separately |
+| Duplicated or conflicting rules | AGENTS, instructions, agents, and prompts each hold their own copy of the workflow | Method text stays in skills, project facts only in project documents, and entry points use references |
+| Directories renamed but responsibilities not adjusted | The same specification lives in several directories, or maintenance tasks are forced into user stories | Define clear locations for REQ/SR/US/ABB/VT and use the same mapping in entry points and skills; maintenance tasks can keep using issues/PRs |
+| False compatibility | Claiming every Agent loads the files just because they exist | Distinguish generic reading from native discovery, record the client and version, and verify in practice |
+| False security | Claiming sandboxing, approval, and budget control because "no overreach" is written down | Rely on the actual host and platform configuration, and state the template's capability boundary clearly |
+| False completion | The log says passed, but there is no real result or matching version | Record actual commands, results, and reports; mark anything not run as not run |
+| Stale or leaking logs | A new session blindly trusts old progress, or full chats and sensitive output are committed | Check Git first when taking over; logs keep only the necessary summary and never store keys or private runtime data |
+| Merge breaks the original project | The template overwrites existing instructions, documents, or source code | Compare before merging; on conflict, keep the existing content and report it |
+| Reference material distributed by mistake | Internal research summaries are copied into a public business template | Separate and review before release; distribute only our own or authorized content |
+| Drifting back to platform building | Adding parsers, services, and configuration for every working convention | Prefer plain files and native tools; any new program needs a clear usage need |
 
-## 5. 当前工作范围
+## 5. Current work scope
 
-P1 已制作资料入口和七类表单，P2 已连接六个 skills、三个 agents、五个可选 prompts 及 instructions；`src` 仍只有说明。P3 已在排除研究资料的副本中进行建模、追溯、独立故障、规则变更及通用代理接手演练，正式模板中没有留下演练业务事实或检查助手。
+P1 has built the project-material entry points and seven form types; P2 has connected six skills, three agents, five optional prompts, and the instructions; `src` still contains only notes. P3 has run the modeling, traceability, independent-fault, rule-change, and generic-agent takeover exercises in a copy that excludes research material; no exercise business facts or check helpers were left in the formal template.
 
-P3 尚未整体完成。本轮已授权独立本机 Git 测试项目，四个真实 App 会话完成新接入、六项项目方法加载、三个 API 工作模式及 Git 接手；冲突合入预检保留全部原文。自动路径匹配、GUI/可选 prompt、人工对照及发布确认仍未验证，其中人工路径按用户选择留待后续。没有选择业务技术栈、创建应用、实测所有客户端或宣布发布，范围与证据限制见[实施计划](roadmap.md#actual-acceptance)。
+P3 is not complete as a whole. This round authorized a standalone local Git test project; four real App sessions completed fresh onboarding, loading of six project methods, three API working modes, and Git takeover; the conflicting-merge preflight kept all original text. Automatic path matching, GUI/optional prompts, the human comparison, and release confirmation remain unverified; the human path is deferred to later at the user's choice. No business tech stack was chosen, no application was created, not every client was tested, and no release was announced; see the [implementation plan](roadmap.md#actual-acceptance) for scope and evidence limitations.
 
-原有研究事实和来源保留；关于自研执行器的推导不再作为产品要求。Copilot 文件约定的官方依据在[接入说明](../agent-support.md#official-sources)中登记，仍与实际客户端观察分开。命名采用记录不是重新核验参考仓库的证据，本地演练也不能推导原生入口已通过。
+The original research facts and sources are kept; the reasoning about a custom executor is no longer a product requirement. The official basis for Copilot file conventions is registered in the [integration notes](../agent-support.md#official-sources) and still kept separate from actual client observations. Records of naming adoption are not evidence that the reference repositories were re-verified, and local exercises do not imply that native entry points have passed.
 
-没有修改参考仓库、建立新远端仓库、调整可见性或模板标记，也没有开启自动合并、部署或其他权限。
+No reference repository was modified, no new remote repository was created, visibility and the template flag were not changed, and no auto-merge, deployment, or other permissions were enabled.
 
-## 6. 六仓功能增强的规划决定（2026-10-14）
+## 6. Planning decisions for the six-repo functional enhancement (2026-10-14)
 
-用户要求为前述功能差距生成计划，并选择：
+The user asked for a plan covering the functional gaps described above and chose to:
 
-- 按功能等价对齐六个 `ddd-*` 的现有能力，保留单仓和下游技术栈中立，不要求原格式直接兼容。
-- 维护工具使用项目内 Python 脚本；2026-10-15 用户进一步确认脚本基本统一为 Python，取代此前的必需 PowerShell Windows 包装入口。不恢复自研 CLI、执行器或业务应用。
+- Align with the existing capabilities of the six `ddd-*` repositories by functional equivalence, keeping the single-repo model and downstream tech-stack neutrality, without requiring direct compatibility with the original formats.
+- Implement maintenance tools as in-project Python scripts; on 2026-10-15 the user further confirmed that scripts are essentially unified on Python, replacing the previously required PowerShell Windows wrapper entry points. No custom CLI, executor, or business application is reinstated.
 
-具体方案和验收以[增强规格](../design/ddd-functional-alignment.md)为依据。2026-10-15 用户授权开始执行后，完整六仓盘点发现原计划遗漏，用户确认全部纳入，[增强计划](2026-10-14-ddd-functional-alignment.md)扩为 18 个有依赖的任务。来源盘点完成不表示新表单、结构化视图、工具或流水线已经实现。
+The [enhancement specification](../design/ddd-functional-alignment.md) is the basis for the concrete design and acceptance. After the user authorized execution on 2026-10-15, a full inventory of the six repositories found items missing from the original plan; the user confirmed including all of them, and the [enhancement plan](2026-10-14-ddd-functional-alignment.md) grew to 18 tasks with dependencies. A completed source inventory does not mean the new forms, structured views, tools, or pipelines have been implemented.
 
-功能盘点只读固定来源，不能复制内部源码或把上游路线图计入现有能力。工具采用 Python 不决定业务工程语言；应用验收、hook 安装、CI 门禁、传播/PR 和发布仍分别确认范围及权限。原 P3 的人工对照、路径/GUI/prompt 观察和发布缺项不从此次规划推导通过。
+The capability inventory reads only pinned sources; it must not copy internal source code or count upstream roadmap items as existing capabilities. Choosing Python for the tools does not determine the language of business projects; application acceptance, hook installation, CI gates, propagation/PRs, and release still each need their scope and permissions confirmed separately. The original P3 human comparison, path/GUI/prompt observations, and release gaps are not inferred to pass from this planning.
 
-本地、hook 和 CI 的可重复逻辑复用同一 Python 实现；CI YAML 继续承担宿主原生声明，不另写 PowerShell 校验/更新逻辑，也不要求 PowerShell 7 才能使用工具。仅宿主确需时保留薄启动适配；方法与判断仍在共享 skills，不因此变成自研执行流程。此实现策略不证明每个计划脚本都是上游现有能力，来源对齐和新增自动化在任务 1 分别核对。
+Repeatable logic for local runs, hooks, and CI reuses the same Python implementation; CI YAML still carries the host-native declarations, no separate PowerShell validation/update logic is written, and PowerShell 7 is not required to use the tools. A thin launch adapter is kept only where a host genuinely needs one; methods and judgment remain in the shared skills, so this does not become a custom execution flow. This implementation strategy does not prove that every planned script is an existing upstream capability; source alignment and new automation are checked separately in Task 1.
 
-### 6.1 执行期范围基线（2026-10-15）
+### 6.1 Execution-phase scope baseline (2026-10-15)
 
-完整来源和逐文件分类见[能力矩阵](../research/ddd-capability-matrix.md)。已确认新增承接 QAS/战术模型、SEQ/Gherkin/SWAS、词汇/发布接口演化、可选领域源接入、文档/转录/音频适配、图/PDF/演示导出和交互记账。来源确有 PowerShell 子模块安装器及更多 Python utilities，不能沿用只凭旧摘要作出的简化判断。
+See the [capability matrix](../research/ddd-capability-matrix.md) for the full sources and per-file classification. Confirmed additions cover QAS/tactical models, SEQ/Gherkin/SWAS, glossary/Published Interface evolution, optional domain-source integration, document/transcript/audio adapters, diagram/PDF/presentation export, and interaction accounting. The sources do contain a PowerShell submodule installer and more Python utilities, so the simplified judgment based only on old summaries cannot be carried over.
 
-D02/D08/D10/D11 的“七表单、六方法、无结构化工具”仍是原首版交付边界，不再限制已获授权的增强文件清单。增强采用九个共享方法，允许有明确用途的数据契约、Python 工具及可选战术/监管资料，不强迫轻量项目使用所有工件。原三角色、单仓、无应用默认值和非自主批准边界不变。
+The "seven forms, six methods, no structured tools" of D02/D08/D10/D11 remain the original first-release delivery boundary but no longer limit the authorized enhancement file list. The enhancement uses nine shared methods and allows data contracts, Python tools, and optional tactical/regulatory material that have a clear purpose, without forcing lightweight projects to use every artifact. The original three roles, single repo, no-application default, and non-autonomous approval boundary are unchanged.
 
-原仓只读模型却要求写回/推送、baseline/demo fallback、安装器隐含 commit 等矛盾不作为必须复制的功能：改为来源固定、失败显式、只读视图与分离授权。新工具的来源、目标任务和验收需分别回源，不将我们的新增自动化称为上游现成能力。音频/PDF/外部平台的依赖、数据发送和执行另行授权，不因“完整纳入”自动运行服务或修改远端。
+Contradictions in the original repositories, such as a read-only model that still requires write-back/push, baseline/demo fallbacks, and installers that commit implicitly, are not features that must be copied; they are replaced by pinned sources, explicit failures, read-only views, and separate authorization. The source, target task, and acceptance of each new tool are traced back to their sources separately, and our new automation is not called an existing upstream capability. Dependencies, data transmission, and execution for audio/PDF/external platforms require separate authorization; "full inclusion" does not automatically run services or modify remotes.

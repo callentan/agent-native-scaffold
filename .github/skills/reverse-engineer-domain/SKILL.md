@@ -3,59 +3,59 @@ name: reverse-engineer-domain
 description: Use when domain knowledge is implicit in existing documents, code, supplied excerpts or authorized external records, or those sources conflict with stated business rules.
 ---
 
-# 从现有来源提取领域候选
+# Extract domain candidates from existing sources
 
-提取的是有依据的候选认识，不是业务批准。读到实现或记录的状态，只能证明其中存在相应表述，不能据此宣称实际运行、规则正确或专家已确认。
+What you extract is grounded candidate knowledge, not business approval. A status read from an implementation or a record proves only that the corresponding statement exists there; it cannot support a claim that anything actually ran, that a rule is correct, or that an expert has confirmed it.
 
-## 输入
+## Inputs
 
-- 本次提取问题、领域/上下文范围、允许读取的实际文档、代码、明确片段或已授权外部记录；希望得到的候选及允许写入的位置。
-- 来源种类、身份、版本/日期或对象基线，以及已有模型、规则、工件/BL 和实际事实所有者；未知项明确列出。
-- 读写与执行授权分别核对。读取实现不授权执行它，外部引用不授权连接服务、发送材料、更新来源或获取额外记录。
+- The extraction question, the domain/context scope, and the actual documents, code, explicit excerpts, or authorized external records you are allowed to read; the desired candidates and the locations you are allowed to write.
+- Source kind, identity, version/date or object baseline, plus the existing model, rules, artifacts/BLs, and the actual fact owners; list unknowns explicitly.
+- Check read, write, and execution authorization separately. Reading an implementation does not authorize running it; an external reference does not authorize connecting to services, sending materials, updating sources, or retrieving additional records.
 
 <a id="extract"></a>
-## 提取与对照
+## Extraction and comparison
 
-1. 先核对本次可读来源、范围和版本，列实际读取与不可读部分，不沿链接扩大访问。文件使用真实路径、行/章节与版本；外部记录保留系统/项目、对象类型、实际 ID、修订及片段定位中已提供的部分。
-2. 对提供的摘录，使用本次输入文件/消息中的实际章节或片段标识。原文件、原行号或外部 ID 未提供就记未知，不要求虚构原文件才能记笔记，也不把摘录当前位置冒充原始位置。
-3. 将业务语言、关系、规则、职责/交换及可能的用例拆成可回查的候选，按下表保留证据与推导。不是把类名、端点或字段列表直接改称领域模型；没有来源的演员、度量、状态转换或错误/并发政策保持未知。
-4. 对照已有模型和不同来源，保留冲突双方及适用版本。实现常量与专家陈述不一致时，请实际规则所有者确认适用范围和取舍；两者都不因存在而自动获得批准。不选一个值掩盖冲突、不修改源代码，也不执行实现来替代业务决定。
+1. First check this session's readable sources, scope, and versions, and list what was actually read and what was unreadable; do not expand access by following links. For files, use actual paths, lines/sections, and versions; for external records, keep whichever of system/project, object type, actual ID, revision, and excerpt location were provided.
+2. For supplied excerpts, use the actual section or excerpt identifiers in this session's input file/message. If the original file, original line numbers, or external ID were not provided, record them as unknown; do not require a fictitious original file before taking notes, and do not pass off the excerpt's current location as its original location.
+3. Break business language, relationships, rules, responsibilities/exchanges, and possible use cases into traceable candidates, keeping evidence and derivation as described in the table below. Do not simply relabel class names, endpoints, or field lists as a domain model; actors, measures, state transitions, or error/concurrency policies without a source stay unknown.
+4. Compare against the existing model and across sources, keeping both sides of any conflict and their applicable versions. When an implementation constant disagrees with an expert statement, ask the actual rule owner to confirm the applicable scope and the trade-off; neither one is approved merely because it exists. Do not pick one value to hide the conflict, do not modify source code, and do not run the implementation in place of a business decision.
 
 <a id="candidates"></a>
-## 候选记录
+## Candidate records
 
-每项在获准笔记或草稿的来源/未决栏保留以下信息，不建立第二份确认或结果库：
+For each item, keep the following information in the source/open-items section of an authorized note or draft; do not build a second store of confirmations or results:
 
-| 信息 | 填写依据 |
+| Information | What to record |
 |---|---|
-| 候选内容与种类 | 实际观察到的术语、关系、规则陈述、职责或可解释的模型候选 |
-| 来源种类、身份与定位 | 文档/实现/专家片段/外部工作项；真实文件/行/版本、对象 ID 或提供片段章节，缺项明确未知 |
-| 原始依据 | 必要的短引文或观察及上下文；保留限定语，不收集完整敏感资料 |
-| 认识类别与理由 | `observed`：来源直接表达；`inferred`：根据已列依据推导；`uncertain`：依据不足、冲突或含义待定。类别不是校准概率或批准状态 |
-| 冲突与确认需要 | 相反来源及其版本、还缺什么、实际需谁确认；没有具名责任人就请求补充，不扮演专家 |
-| 影响与去向 | 已知工件完整身份/原文位置、受阻决定、可独立继续的内容及已有 BL；未提供目标 ID 不发明引用 |
+| Candidate content and kind | Actually observed terms, relationships, rule statements, responsibilities, or explainable model candidates |
+| Source kind, identity, and location | Document/implementation/expert excerpt/external work item; the actual file/line/version, object ID, or section of a supplied excerpt; mark anything missing explicitly as unknown |
+| Original basis | Necessary short quotations or observations with their context; keep qualifiers, and do not collect complete sensitive material |
+| Knowledge category and rationale | `observed`: stated directly by the source; `inferred`: derived from the listed basis; `uncertain`: insufficient or conflicting basis, or the meaning is still undetermined. The category is not a calibrated probability or an approval status |
+| Conflicts and confirmation needs | Contrary sources and their versions, what is still missing, and who actually needs to confirm; when there is no named accountable owner, ask for one; do not role-play the expert |
+| Impact and destination | Full identity/source location of known artifacts, blocked decisions, content that can continue independently, and existing BLs; do not invent references when no target ID was provided |
 
-可以分别记录直接观察到的两条冲突陈述，并把拟议业务结论列为 `uncertain`；不能把“代码写了什么”与“业务应当如何”合并成一条 confirmed 事实。业务规则先于派生 INV，技术或战术选择不由提取自动决定。
+You may record two directly observed conflicting statements separately and list the proposed business conclusion as `uncertain`; you must not merge "what the code says" and "what the business should do" into a single confirmed fact. Business rules come before derived INVs, and extraction does not automatically decide technical or tactical choices.
 
-## 获准拟稿时
+## When authorized to draft
 
-先读[领域指引与实际表单](../../../domain-model/README.md#optional-forms)，按需要选 SD/CTX/CAP/UC/INV、PI、QAS 或 [BL](../../../_templates/items/backlog-item.md)。按[元数据契约](../../../domain-model/README.md#artifact-metadata)保留 draft 与关系单一归属；scope/ID 未明确时先返回或保存获准普通笔记，不为通过 parser 编造项目身份，也不批量迁移旧资料。
+First read the [domain guide and the actual forms](../../../domain-model/README.md#optional-forms), and choose SD/CTX/CAP/UC/INV, PI, QAS, or [BL](../../../_templates/items/backlog-item.md) as needed. Following the [metadata contract](../../../domain-model/README.md#artifact-metadata), keep the draft state and single ownership of each relationship. When the scope/ID is not explicit, first return or save an authorized plain note; do not invent a project identity just to pass the parser, and do not bulk-migrate old materials.
 
-规则仍由原领域文件拥有；候选写清来源解释，不复制另一套规则。只能写获准目标，不覆盖来源或把候选改成 confirmed。未知政策、指标、演员、战术/技术和并发选择进入具体问题；缺来源阻塞依赖它的确认，不阻塞有来源的独立草稿。业务澄清与决定回到 [define-requirements 的访谈](../define-requirements/SKILL.md#interview)。
+Rules remain owned by their original domain file; candidates state their source interpretation clearly without copying a second set of rules. Write only to authorized targets; do not overwrite sources or change candidates to confirmed. Unknown policies, metrics, actors, tactical/technical choices, and concurrency choices become specific questions; a missing source blocks the confirmations that depend on it, but not independent drafts that do have sources. Business clarification and decisions go back to the [define-requirements interview](../define-requirements/SKILL.md#interview).
 
-## 产出与完成
+## Outputs and completion
 
-默认返回候选、差异和问题；保存文件须有明确授权及输出位置。正式草稿沿[领域落点](../../../domain-model/README.md#strategic-forms)进入 `domain-model\` 或已有所属目录；QAS/REQ 归 `stakeholder-requirements\`，场景/VT 归 `verification\`，不将正式内容留在 `_templates`，不将提取报告当确认或执行记录。
+By default, return candidates, differences, and questions; saving files requires explicit authorization and an output location. Formal drafts follow the [domain locations](../../../domain-model/README.md#strategic-forms) into `domain-model/` or the existing owning directory; QAS/REQ go to `stakeholder-requirements/`, and scenarios/VTs to `verification/`. Do not leave formal content in `_templates`, and do not treat an extraction report as a confirmation or a run record.
 
-结束时列实际读过的文件/片段及版本、候选范围、冲突、未读部分、需谁补什么和实际写入位置。按 [verify-change](../verify-change/SKILL.md#domain-review)核对本次候选的来源与影响，只有该有限提取有可回查证据时才报告完成；不是完整领域模型或业务验收完成。
+At the end, list the files/excerpts actually read and their versions, the candidate scope, conflicts, unread parts, who must supply what, and the actual write locations. Check the sources and impact of this session's candidates with [verify-change](../verify-change/SKILL.md#domain-review), and report completion only when this limited extraction has traceable evidence; this does not mean the domain model or business acceptance is complete.
 
-本方法仍负责阅读与判断，不提供自动代码/schema 适配或外部记录连接器。
-已获本地源读取授权时，可选用[来源候选与透明评分](../../../docs/source-extraction.md)读取
-Markdown/plain text、明确 JSONL 转录和有界 stdlib DOCX；按该契约保留实际 bytes 身份、
-位置、重复/相反来源与 uncertainty。分数不是概率、确认或优先规则，候选仍按上文回源/澄清。
-音频入口目前只返回授权/缺项/适配器不可用错误，不代表已经转录。遇到不支持的布局/格式，
-保留明确限制并请求已授权可读片段，不安装依赖、联网转换或假称已经解析。
+This method remains responsible for reading and judgment; it provides no automatic code/schema adapters or external-record connectors.
+When read access to local sources is authorized, you may optionally use [source candidates and transparent scoring](../../../docs/source-extraction.md) to read
+Markdown/plain text, explicit JSONL transcripts, and bounded stdlib DOCX; as that contract requires, keep the actual byte identity,
+locations, duplicate/contrary sources, and uncertainty. Scores are not probabilities, confirmations, or precedence rules; candidates still go back to the source or to clarification as described above.
+The audio entry point currently returns only authorization, missing-input, or adapter-unavailable errors; this does not mean anything was transcribed. For unsupported layouts/formats,
+keep an explicit limitation and request authorized readable excerpts; do not install dependencies, convert over the network, or falsely claim the material was parsed.
 
-## 停止条件
+## Stop conditions
 
-必要来源不可读、版本/身份不足、确认冲突、目标文件有未解决改动或授权不足时，停止受影响的提取、写入或确认，保留可定位候选和精确缺口。确认应由实际责任人针对明确基线作出；不以交付期限、自动评分或源状态替代决定，不启动后续实施。
+When necessary sources are unreadable, version/identity information is insufficient, confirmations conflict, target files have unresolved changes, or authorization is insufficient, stop the affected extraction, writing, or confirmation, and keep locatable candidates and exact gaps. Confirmation must be made by the actual accountable owner against an explicit baseline; do not substitute delivery deadlines, automatic scores, or source status for a decision, and do not start follow-on implementation.

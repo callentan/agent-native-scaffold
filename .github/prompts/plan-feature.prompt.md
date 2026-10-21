@@ -1,13 +1,13 @@
 ---
-description: 根据已有事实或维护请求细化功能与验证计划。
+description: Refine a feature and its verification plan from existing facts or a maintenance request.
 ---
 
-# 细化功能
+# Refine a feature
 
-当前输入（由用户填写）：
-- 目标、用户、范围与非目标：待填写。
-- 实际模型/REQ 的路径、版本与确认来源，或独立维护任务依据；需提取的现有资料/片段：待填写。
-- 当前验收、基线、未决问题与希望交付的规格范围：待填写。
-- 允许读写的范围与授权；ADR/Intended Use 仅在已提供且适用时列出：待填写。
+Current input (filled in by the user):
+- Goal, users, scope, and non-goals: TBD.
+- Paths, versions, and confirmation sources of the actual model/REQ, or the basis of a standalone maintenance task; existing materials/excerpts to extract: TBD.
+- Current acceptance, baselines, open questions, and the specification scope to deliver: TBD.
+- Permitted read/write scope and authorization; list ADR/Intended Use only when provided and applicable: TBD.
 
-先读 [AGENTS](../../AGENTS.md)。来源待提取用 [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md)，业务含义待澄清用 [define-requirements](../skills/define-requirements/SKILL.md)，已有依据的规格与验证计划用 [specify-feature](../skills/specify-feature/SKILL.md)。完整读取本次适用方法；正文与停止条件以该文件为准，不在此另建流程。
+Read [AGENTS](../../AGENTS.md) first. Use [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md) when sources still need extraction, [define-requirements](../skills/define-requirements/SKILL.md) when business meaning needs clarification, and [specify-feature](../skills/specify-feature/SKILL.md) for specifications and verification plans that already have a basis. Read the applicable method in full; that file is authoritative for the method and its stop conditions, and no separate process is defined here.

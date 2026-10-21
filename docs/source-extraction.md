@@ -1,221 +1,221 @@
-# 本地来源候选与透明评分
+# Local source candidates and transparent scoring
 
-这些可选工具读取本次明确选择的本地文件，返回候选，不写正式领域事实。
-使用者先核对读取授权；可读文件不等于获准处理真实私有文档或发送资料。
-[逆向方法](../.github/skills/reverse-engineer-domain/SKILL.md)仍负责回源、
-比较相反陈述、请求澄清和后续获准拟稿。评分不能确认业务规则、认证说话者或批准候选。
+These optional tools read local files explicitly selected for this run and return candidates; they do not write formal domain facts.
+Users check read authorization first; a readable file does not mean permission to process real private documents or send material.
+The [reverse-engineering method](../.github/skills/reverse-engineer-domain/SKILL.md) remains responsible for returning to the sources,
+comparing contradictory statements, requesting clarification, and any later authorized drafting. Scoring cannot confirm business rules, authenticate speakers, or approve candidates.
 
-工具使用[已有维护环境](development.md#maintenance-tools)，不要求新的媒体包。
-[可选 media 清单](../.github/utilities/requirements-media.txt)目前只有说明，
-没有选定 DOCX 包、音频服务、模型或 SDK；不要据此安装猜测的依赖。
+The tools use the [existing maintenance environment](development.md#maintenance-tools) and require no new media packages.
+The [optional media manifest](../.github/utilities/requirements-media.txt) currently contains only notes;
+no DOCX package, audio service, model, or SDK has been selected, so do not install guessed dependencies based on it.
 
 <a id="interfaces"></a>
-## API 与来源身份
+## API and source identity
 
-从 `.github\utilities\` 导入以下窄接口；它们不扫描仓库、不执行正文或跟随链接：
+Import the following narrow interfaces from `.github/utilities/`; they do not scan the repository, execute content, or follow links:
 
 ```python
 extract_candidates(source: str | os.PathLike[str], kind: str) -> dict
 score_candidates(items: list[dict]) -> list[dict]
 ```
 
-`source` 必须是明确的绝对本地普通文件路径。拒绝 URL、UNC、歧义的 drive-relative
-路径和 alternate stream；路径按宿主正常方式解析链接（如 macOS `/tmp`），不是 OS sandbox，
-也不保证抵御其他进程的恶意并发替换。来源身份是**本次实际读取的字节**，不是推断的 Git commit 或正式工件身份。
-API 不写文件或改变 cwd。
+`source` must be an explicit absolute path to a local regular file. URLs, UNC paths, ambiguous drive-relative
+paths, and alternate streams are rejected; paths resolve links the host's normal way (for example macOS `/tmp`); this is not an OS sandbox,
+and it does not guarantee protection against malicious concurrent replacement by other processes. The source identity is **the bytes actually read in this run**, not an inferred Git commit or formal artifact identity.
+The API does not write files or change the cwd.
 
-提取返回一个 envelope，其中 `candidates` 是候选列表；保留 envelope 是为了让空输入也有
-真实读取身份。固定字段如下，不属于正式 artifact schema，也不增加任何正式 kind：
+Extraction returns an envelope whose `candidates` field is the candidate list; the envelope is kept so that even empty input has a
+real read identity. Its fixed fields are listed below; they do not belong to the formal artifact schema and add no formal kind:
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `status` | `extracted` 或 `empty`，不是业务通过/批准 |
-| `source` | `path`：实际绝对本地路径；`kind`：明确的格式选择；`baseline`：`sha256:` 加原始字节的 64 位小写十六进制摘要；`byte_count`：实际读取字节数 |
-| `unit_count` | 文本/Markdown/转录的原始物理行数，按 Python `str.splitlines()`；DOCX 为支持布局中全部段落数，含空段和单元格段落 |
-| `candidate_count` | 实际列表长度，不是验收数量 |
-| `candidates` | 按原始文件顺序保留候选，不按文本去重或重排时间 |
+| `status` | `extracted` or `empty`; not a business pass/approval |
+| `source` | `path`: the actual absolute local path; `kind`: the explicit format choice; `baseline`: `sha256:` followed by the 64-character lowercase hexadecimal digest of the raw bytes; `byte_count`: the actual number of bytes read |
+| `unit_count` | For text/Markdown/transcripts, the number of raw physical lines per Python `str.splitlines()`; for DOCX, the number of all paragraphs in the supported layout, including empty paragraphs and cell paragraphs |
+| `candidate_count` | The actual list length, not an acceptance count |
+| `candidates` | Candidates kept in original file order; not deduplicated by text or reordered by time |
 
-每个候选具有以下固定字段：
+Each candidate has the following fixed fields:
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `candidate_id` | `candidate-0001` 起的本次局部序号；不同来源可重号，不能当成 REQ/RULE 或 canonical ID |
-| `kind` | `rule`、`capability`、`use-case`、`term` 或 `statement` 的候选类型 |
-| `nature` | `observed`：显式标签；`inferred`：未标注文字的词法分类；`uncertain`：提案/待定措辞。均不表示事实已确认 |
-| `text` | 所选来源单元的**完整**规范化文字，不能只选子串或丢限定语；具体规范化见下文 |
-| `fragment` | 原始行/转录 JSON 行或 DOCX 段落文字；不冒充缺失的原始访谈或 XML 行号 |
-| `source`、`location` | 同一实际字节身份及下述 1-based 格式坐标 |
-| `uncertainty` | 保留检测到的提案词及理由；直接表述没有这些词时为空，不代表与其他来源一致 |
-| `extraction_reason` | 显式标签或词法推断的分类依据 |
-| `clarification` | 请求实际所有者确认范围、核对相反来源；不制造具名批准人或决定编号 |
-| `markdown_context` | 新提取的 Markdown 候选附带 `{"in_comment": false}` 或 `true`，表示该原始行进入扫描器前是否已在 HTML 注释中；不是额外可见正文或认证结果。其他格式不允许此字段 |
+| `candidate_id` | A local sequence number for this run starting at `candidate-0001`; different sources may reuse numbers, so it must not be treated as a REQ/RULE or canonical ID |
+| `kind` | The candidate type: `rule`, `capability`, `use-case`, `term`, or `statement` |
+| `nature` | `observed`: explicit label; `inferred`: lexical classification of unlabeled text; `uncertain`: proposal/tentative wording. None of them means the fact is confirmed |
+| `text` | The **complete** normalized text of the selected source unit; it must not select only a substring or drop qualifiers; normalization is specified below |
+| `fragment` | The raw line, raw transcript JSON line, or DOCX paragraph text; it does not pose as a missing raw interview or XML line number |
+| `source`, `location` | The same actual byte identity, and the 1-based format coordinates described below |
+| `uncertainty` | The detected proposal words and the reason; empty when a direct statement contains none of these words, which does not mean it agrees with other sources |
+| `extraction_reason` | The classification basis: explicit label or lexical inference |
+| `clarification` | Asks the actual owner to confirm the scope and check contradictory sources; does not invent a named approver or decision number |
+| `markdown_context` | Newly extracted Markdown candidates carry `{"in_comment": false}` or `true`, indicating whether the raw line was already inside an HTML comment before entering the scanner; it is not extra visible content or an authentication result. Other formats do not allow this field |
 
-支持的显式标签为 `Rule:`、`Capability:`、`Use case:` / `Use-case:`、
-`Term:` 以及 `规则：`、`能力：`、`用例：`、`术语：`。英文大小写不敏感。
-未标注文字仅按 `must/shall/never/required/cannot/必须/不得/禁止` 推断 rule，
-按 `can/allows/supports/能够/支持` 推断 capability，其余为 statement。
-这不是完整自然语言识别器，不能证明必要性或领域类型正确。
-`maybe/should/proposed/perhaps/unconfirmed/待确认/可能/建议` 保留为 uncertainty，
-覆盖普通的 observed/inferred 分类。相反来源可能都没有提案词，仍必须保留双方并由方法比较；
-工具不自动检测全部业务矛盾、不选优先规则，也没有 supersedes/confirmed 状态。
+Supported explicit labels are `Rule:`, `Capability:`, `Use case:` / `Use-case:`, and
+`Term:`, plus the recognized non-English (Chinese) input labels `规则：` (Rule), `能力：` (Capability), `用例：` (Use case), and `术语：` (Term). English matching is case-insensitive.
+Unlabeled text is inferred as a rule only from `must/shall/never/required/cannot` or the Chinese input cue words `必须` (must), `不得` (must not), and `禁止` (prohibited),
+and as a capability only from `can/allows/supports` or `能够` (can) and `支持` (supports); everything else is a statement.
+This is not a complete natural-language recognizer and cannot prove necessity or that the domain type is correct.
+`maybe/should/proposed/perhaps/unconfirmed` and the Chinese input cue words `待确认` (to be confirmed), `可能` (maybe), and `建议` (suggest) are kept as uncertainty,
+overriding the ordinary observed/inferred classification. Contradictory sources may both lack proposal words; both must still be kept and compared by the method;
+the tool does not automatically detect all business contradictions or choose a prevailing rule, and has no supersedes/confirmed status.
 
 <a id="formats"></a>
-## 本地格式与精确定位
+## Local formats and exact locations
 
-| `kind` / 扩展名 | 读取与候选单元 | `location` |
+| `kind` / extension | Reading and candidate unit | `location` |
 |---|---|---|
-| `text` / `.txt` | UTF-8，每个非空行一个候选，命令样文本只是文字 | `line`、`paragraph` |
-| `markdown` / `.md` | UTF-8，复用已有 Markdown 行扫描器跳过代码/注释、ATX 标题；可见非空行成为候选，不另解析 frontmatter 或正式身份 | `line`、`paragraph` |
-| `transcript` / `.txt` | 以下严格 JSON Lines，每个非空行一个完整 turn | `line`、`turn`、`speaker`、`timestamp` |
-| `docx` / `.docx` | 以下有界 OOXML 子集，一个非空段落一个候选，包括表格单元格 | `part`、`block`、`paragraph`；单元格再有 `table`、`row`、`cell`、`cell_paragraph` |
+| `text` / `.txt` | UTF-8; one candidate per non-empty line; command-like text is just text | `line`, `paragraph` |
+| `markdown` / `.md` | UTF-8; reuses the existing Markdown line scanner to skip code/comments and ATX headings; visible non-empty lines become candidates; frontmatter and formal identity are not parsed separately | `line`, `paragraph` |
+| `transcript` / `.txt` | Strict JSON Lines as defined below; each non-empty line is one complete turn | `line`, `turn`, `speaker`, `timestamp` |
+| `docx` / `.docx` | The bounded OOXML subset defined below; one candidate per non-empty paragraph, including table cells | `part`, `block`, `paragraph`; cells also have `table`, `row`, `cell`, `cell_paragraph` |
 
-UTF-8 可有 BOM，支持 Unicode、空格路径与 CRLF。字节摘要保留 BOM/换行原貌；
-`fragment` 的文本行不含行终止符。文本 paragraph 是**过滤前**以空白行分隔的连续非空
-原始行组，所以 Markdown 标题、注释和围栏所在组仍计数，不伪装成渲染器语义段落。
-Markdown 的 `text` 可去掉 HTML 注释，`fragment` 仍保留原始行，评分使用同一状态机和
-明确的行前注释 context 核对完整可见单元。工具不是完整 Markdown renderer，
-不自动把表格、标题或 frontmatter 转成正式工件。
+UTF-8 may have a BOM; Unicode, paths with spaces, and CRLF are supported. The byte digest keeps the BOM/line endings as they are;
+text lines in `fragment` exclude the line terminator. A text paragraph is a group of consecutive non-empty raw lines separated by blank lines **before filtering**,
+so groups containing Markdown headings, comments, and fences still count; they do not pretend to be renderer-semantic paragraphs.
+Markdown `text` may strip HTML comments while `fragment` keeps the raw line; scoring uses the same state machine and the
+explicit pre-line comment context to check the complete visible unit. The tool is not a complete Markdown renderer
+and does not automatically turn tables, headings, or frontmatter into formal artifacts.
 
-### 完整源单元规范化与 Markdown context
+### Complete source-unit normalization and Markdown context
 
-- plain text、DOCX：仅对整个 `fragment` 做首尾 `strip()`；不截短、折叠内部空白、
-  改大小写、标点或删除限制性后缀。DOCX 的 paragraph 可含 tab/换行，仍是一个完整单元。
-- transcript：严格解析整个原始 JSON 行，取完整 `text.strip()`；同时核对 supplied
-  speaker/time，不取其中任意子串。
-- Markdown：同一共享扫描器读取整个原始行，沿注释/代码/围栏规则得到完整可见行，
-  排除标题、代码和空可见行后，仅做首尾 `strip()`。提取时保留全文件实际
-  `markdown_context.in_comment`，评分时以该声明状态进入**同一**扫描器，
-  不为独立 fragment 再写一套 Markdown parser，也不接受 caller 提供的 duplicated visible text。
+- plain text, DOCX: only a leading/trailing `strip()` of the whole `fragment`; no truncation, collapsing of internal whitespace,
+  or changes to case or punctuation, and no removal of restrictive suffixes. A DOCX paragraph may contain tabs/line breaks and is still one complete unit.
+- transcript: strictly parse the whole raw JSON line and take the complete `text.strip()`; also check the supplied
+  speaker/time, and never take an arbitrary substring of it.
+- Markdown: the same shared scanner reads the whole raw line and applies the comment/code/fence rules to get the complete visible line;
+  after excluding headings, code, and empty visible lines, only a leading/trailing `strip()` is applied. Extraction keeps the actual whole-file
+  `markdown_context.in_comment`; scoring enters the **same** scanner in that declared state,
+  without writing a second Markdown parser for standalone fragments and without accepting caller-supplied duplicated visible text.
 
-例如原始两行 `<!--` 与 `    --> Rule: Members <!--x--> must keep receipts.`，
-第二行保留原始 fragment、原始 line/group 和 `{"in_comment": true}`；
-完整 text 为 `Rule: Members  must keep receipts.`。不会因独立 fragment 的四空格
-误判为代码，也不能删除其可见的 Maybe 或限制性后缀来提高分数。
+For example, given the two raw lines `<!--` and `    --> Rule: Members <!--x--> must keep receipts.`,
+the second line keeps its raw fragment, raw line/group, and `{"in_comment": true}`;
+its complete text is `Rule: Members  must keep receipts.`. The four leading spaces of the standalone fragment
+are not mistaken for code, and a visible Maybe or restrictive suffix cannot be removed to raise the score.
 
-`markdown_context` 只允许一个真正的 bool `in_comment`，不允许可见文字 override、
-未知 key 或 bool 的数字替身；行 1 不可能从前一行继承注释。兼容没有此字段的旧
-Markdown 候选时，声明的默认入口是非注释状态，不能猜测遗漏的上下文。
-该状态是有限的**来源上下文声明**，不是从原文件重新认证的事实。
-工具不打开原件、认证原 hash、说话者或未提供的前缀；它只证明所给 fragment/context/
-完整 text/分类内部一致。不能把这一限制宣传成真实性或批准保证。
+`markdown_context` allows only a single genuine bool `in_comment`; visible-text overrides,
+unknown keys, and numeric stand-ins for bools are not allowed; line 1 cannot inherit a comment from a previous line. For compatibility with older
+Markdown candidates that lack this field, the declared default entry state is non-comment; omitted context cannot be guessed.
+This state is a limited **source-context declaration**, not a fact re-authenticated from the original file.
+The tool does not open the original or authenticate the original hash, the speaker, or unsupplied prefixes; it only proves that the given fragment/context/
+complete text/classification are internally consistent. Do not advertise this limitation as a guarantee of authenticity or approval.
 
-`kind`、`nature` 和全部 `uncertainty` 标记必须与完整规范化单元重新分类的结果一致，
-包括标记的次序与重复。不允许用截短 text、删掉 Maybe/should/待确认，或手工覆盖
-nature/标记来伪装另一个候选。所有者另作的业务判断仍回共享方法记录，不修改工具观察
-来代替澄清；原始片段与坐标不被规范化重写。
+`kind`, `nature`, and all `uncertainty` markers must match the result of reclassifying the complete normalized unit,
+including the order and repetition of markers. Truncating text, removing Maybe/should/`待确认`, or manually overriding
+nature/markers to disguise a different candidate is not allowed. Separate business judgments by the owner are still recorded through the shared method, and the tool's observations are not modified
+in place of clarification; raw fragments and coordinates are not rewritten by normalization.
 
-### 明确转录格式
+### Explicit transcript format
 
-每个非空物理行必须是 JSON object，恰好具有三个非空字符串字段，无重复/额外 key：
+Each non-empty physical line must be a JSON object with exactly three non-empty string fields and no duplicate/extra keys:
 
 ```json
 {"speaker":"A","timestamp":"00:00:02.125","text":"Rule: Members must keep receipts."}
 {"speaker":"B","timestamp":"00:00:01.000","text":"Maybe that policy should change."}
 ```
 
-时间戳固定为 `HH:MM:SS.mmm`（两位小时，分/秒 00–59，三位毫秒）。
-保留输入顺序、说话者和时间字符串；不认证姓名、校验真实时钟或推断先后关系。
-`text` 是 JSON 解码后的文字，`fragment` 是原始 JSON 行，转义不改变 source baseline。
-空行不增加 turn；非法 JSON、非有限数、缺字段、空 text、非法 Unicode/control 字符
-或任意坏 turn 都让整次读取失败，不返回前半段“成功”。
+Timestamps are fixed as `HH:MM:SS.mmm` (two-digit hours, minutes/seconds 00–59, three-digit milliseconds).
+Input order, speakers, and time strings are preserved; names are not authenticated, real clock times are not validated, and chronological order is not inferred.
+`text` is the JSON-decoded text and `fragment` is the raw JSON line; escaping does not change the source baseline.
+Blank lines add no turn; invalid JSON, non-finite numbers, missing fields, empty text, invalid Unicode/control characters,
+or any bad turn fails the entire read, and no first-half "success" is returned.
 
-### 有界 stdlib DOCX
+### Bounded stdlib DOCX
 
-实现使用已选 Python 标准库 `zipfile` 与 XML，不调用转换器或新增 parser 包。
-实际读取 DOCX ZIP 容器，不把改后缀的文本当成文档。
-当前只接受三个必需 OPC 部件：
-`[Content_Types].xml`、`_rels/.rels`、`word/document.xml`，
-可另有空的 `word/`、`_rels/` 目录项。content type 必须是非宏 DOCX document；
-根 relationship 必须是固定的内部 main-document 关系，只校验，不跟随它读取其他位置。
+The implementation uses the already selected Python standard library `zipfile` and XML; it calls no converter and adds no parser package.
+It actually reads the DOCX ZIP container and does not treat renamed text files as documents.
+Currently only three required OPC parts are accepted:
+`[Content_Types].xml`, `_rels/.rels`, and `word/document.xml`,
+plus optional empty `word/` and `_rels/` directory entries. The content type must be a macro-free DOCX document;
+the root relationship must be the fixed internal main-document relationship, which is only validated and never followed to read another location.
 
-支持 transitional WordprocessingML 的 `document/body`、普通 `p/r/t`、
-run 中 `tab/br/cr`、末尾空 `sectPr`，以及矩形 `tbl/tr/tc` 表格。
-表格可有空 `tblPr`、简单 `tblGrid/gridCol` 和仅含 `tcW` 的 `tcPr`。
-有 grid 时以 grid 列数核对所有行；没有 grid 时以首行实际单元格数核对所有行，
-后续变宽或变窄均明确拒绝，不能当成矩形子集已支持。
-保留 run 连接顺序、XML 解码文字、tab 和换行，不补空格、页面或音频时间。
-`block` 是 body 中的位置；`paragraph` 按文档顺序计所有段落；
-`cell_paragraph` 是该格内的段落位置，其他坐标按文档/表格内顺序计数。
-坐标不是页码或 XML 行号，来源 baseline 仍是整个实际 ZIP 的字节摘要。
+Supported: transitional WordprocessingML `document/body`, plain `p/r/t`,
+`tab/br/cr` within runs, a trailing empty `sectPr`, and rectangular `tbl/tr/tc` tables.
+Tables may have an empty `tblPr`, a simple `tblGrid/gridCol`, and a `tcPr` containing only `tcW`.
+With a grid, all rows are checked against the grid's column count; without a grid, all rows are checked against the first row's actual cell count;
+any later row that is wider or narrower is explicitly rejected and must not be treated as a supported rectangular subset.
+Run concatenation order, XML-decoded text, tabs, and line breaks are preserved; no spaces, pages, or audio times are added.
+`block` is the position within the body; `paragraph` counts all paragraphs in document order;
+`cell_paragraph` is the paragraph position within that cell; other coordinates count in document/table order.
+Coordinates are not page numbers or XML line numbers, and the source baseline is still the byte digest of the entire actual ZIP.
 
-**不支持的布局明确拒绝，不返回部分成功：** 额外部件（含常见 styles/settings、
-properties、headers/footers、脚注、图片、宏、附加 relationships）、
-Strict OOXML、非 UTF-8 XML、合并/嵌套表格、样式属性、字段、超链接、修订、
-内容控件、嵌入对象与其他正文布局。普通办公文档可能包含这些内容，不能据窄适配器
-宣称任意 DOCX 已完整提取；需另行决定所需格式扩展和输入授权。
+**Unsupported layouts are explicitly rejected, with no partial success:** extra parts (including common styles/settings,
+properties, headers/footers, footnotes, images, macros, and additional relationships),
+Strict OOXML, non-UTF-8 XML, merged/nested tables, style properties, fields, hyperlinks, revisions,
+content controls, embedded objects, and other body layouts. Ordinary office documents may contain these, so this narrow adapter does not
+justify claiming that arbitrary DOCX files are fully extracted; the needed format extensions and input authorization must be decided separately.
 
-不会解包到磁盘、解析外部实体、访问 relationship 目标或执行文档内容。
-拒绝 ZIP traversal/绝对路径/backslash/NUL/重名/类型别名、加密 ZIP、DTD/entity
-声明、损坏 XML/CRC、缺必需部件及不支持的压缩/布局。XML 注释等非正文不作为业务候选；
-它们仍在整个输入字节身份内。
+Nothing is unpacked to disk, external entities are not resolved, relationship targets are not accessed, and document content is not executed.
+ZIP traversal/absolute paths/backslashes/NUL/duplicate names/type aliases, encrypted ZIPs, DTD/entity
+declarations, corrupt XML/CRC, missing required parts, and unsupported compression/layouts are rejected. Non-body content such as XML comments does not become a business candidate;
+it still falls within the identity of the entire input bytes.
 
-| 资源边界 | 固定限制 |
+| Resource boundary | Fixed limit |
 |---|---|
-| 单个来源或 CLI scoring JSON | 4 MiB 原始输入；超限失败，不截断成功 |
-| 文本/Markdown/转录行数 | 10,000（含空/排除行），在候选扩展前检查 |
-| 单次评分 | 10,000 个候选；API 与 CLI 均拒绝更大集合 |
-| ZIP entries | 64，含目录项 |
-| 单个 ZIP part / 全部解压 bytes | 1 MiB / 8 MiB |
-| ZIP 展开比 | 每个 part 不大于 `100 × max(compressed_size, 1)` |
-| 每个 XML part | 深度不大于 32，元素数不大于 10,000，解析时检查 |
+| Single source or CLI scoring JSON | 4 MiB of raw input; exceeding it fails, never truncating to a success |
+| Text/Markdown/transcript lines | 10,000 (including empty/excluded lines), checked before candidate expansion |
+| Single scoring run | 10,000 candidates; both the API and the CLI reject larger sets |
+| ZIP entries | 64, including directory entries |
+| Single ZIP part / total uncompressed bytes | 1 MiB / 8 MiB |
+| ZIP expansion ratio | Each part at most `100 × max(compressed_size, 1)` |
+| Each XML part | Depth at most 32 and at most 10,000 elements, checked during parsing |
 
 <a id="scoring"></a>
-## 透明评分
+## Transparent scoring
 
-`score_candidates` 接受未评分候选的具体 list，先校验整个输入的完整来源身份、位置、
-完整规范化单元与 kind/nature/uncertainty 的一致性，全部有效后才计算分数。
-无来源、非法枚举、负数、bool 冒充计数、非法 Unicode、缺位置或未知字段是错误，
-不会偷偷记 0。空来源可有 empty envelope，但不能提供非空候选。
-来源路径须是无 `.` / `..`、alternate stream 的绝对本地声明。
+`score_candidates` accepts a concrete list of unscored candidates. Across the whole input, it first validates the complete source identity, location,
+complete normalized unit, and kind/nature/uncertainty consistency, and computes scores only after everything is valid.
+Missing sources, invalid enums, negative numbers, bools posing as counts, invalid Unicode, missing locations, or unknown fields are errors;
+they are never silently scored as 0. An empty source may have an empty envelope but cannot supply non-empty candidates.
+Source paths must be absolute local declarations without `.` / `..` segments or alternate streams.
 
-评分返回深复制的候选，追加 `score`，不改变输入、不去重、不开原始来源重算，
-也不认证 source hash 或说话者；外部提供的 provenance 只作形状/一致性核对。
-跨源矛盾或重复没有自动加分，全部保留其出处。
+Scoring returns deep-copied candidates with an added `score`; it does not change the input, deduplicate, or reopen the raw source to recompute,
+and does not authenticate the source hash or speakers; externally supplied provenance is checked only for shape/consistency.
+Cross-source contradictions or duplicates earn no automatic bonus, and all are kept with their provenance.
 
-### 单元、计数与位置的一致性
+### Consistency of units, counts, and locations
 
-scoring CLI 读取 envelope 时，在产生任何 score 或创建输出前检查：
+When the scoring CLI reads an envelope, it checks the following before producing any score or creating output:
 
-| 格式或关系 | 可以从输入本身核对的约束 |
+| Format or relation | Constraints that can be checked from the input itself |
 |---|---|
-| 通用 envelope | `candidate_count` 等于 list 长度且不大于 `unit_count`；status/count/source 声明一致，计数是真正非负整数。候选位置不得超出对应的声明单元总数 |
-| text / Markdown | `line <= unit_count`，paragraph 是连续非空**原始**行组，故 `2 × paragraph - 1 <= line`。物理行数不大于给定 text bytes；不把 group 数当成行数 |
-| 完整 text envelope | source lines 唯一递增，第一非空 group 为 1；相邻 candidate 行同组，行号之间的空行 gap 恰使 group 增加 1 |
-| Markdown envelope | source lines 唯一递增，group 不倒退，跨 group 至少有相应空行分隔。标题/代码/注释可使候选跳过原始 groups，不强制第一可见 group 为 1 |
-| transcript envelope | line 唯一递增且有总数边界；turn 必须从 1 连续到 candidate_count，且 turn 不大于原 line。空行不产生 turn，timestamp 不按大小重排 |
-| DOCX envelope | `paragraph <= unit_count`，全局 paragraph 唯一递增、body block 不倒退；普通 block 只有一个 paragraph，table index 与已知 body blocks 相容 |
-| DOCX 相关坐标 | block 不大于全局 paragraph、table 不大于 block；row/cell/cell_paragraph 必须能容纳在已给的全局 paragraph 之前。已知矩形最小宽度、同格 local/global paragraph 偏移、可知的相邻 block 起点和末尾空单元格段落不能互相矛盾 |
+| Generic envelope | `candidate_count` equals the list length and is not greater than `unit_count`; the status/count/source declarations are consistent, and counts are genuine non-negative integers. Candidate positions must not exceed the corresponding declared unit total |
+| text / Markdown | `line <= unit_count`; a paragraph is a group of consecutive non-empty **raw** lines, so `2 × paragraph - 1 <= line`. The physical line count must not exceed the given text byte count; the group count is not taken as the line count |
+| Complete text envelope | Source lines are unique and increasing, and the first non-empty group is 1; adjacent candidate lines are in the same group, and a blank-line gap between line numbers increases the group by exactly 1 |
+| Markdown envelope | Source lines are unique and increasing, groups never go backwards, and moving to another group requires at least a corresponding blank-line separation. Headings/code/comments may make candidates skip raw groups, so the first visible group is not forced to be 1 |
+| transcript envelope | Lines are unique, increasing, and bounded by the total; turns must run consecutively from 1 to candidate_count, and a turn is not greater than its original line. Blank lines produce no turn, and timestamps are not reordered by value |
+| DOCX envelope | `paragraph <= unit_count`; global paragraphs are unique and increasing, and body blocks never go backwards; an ordinary block has only one paragraph, and table indices are compatible with the known body blocks |
+| DOCX related coordinates | block is not greater than the global paragraph, and table is not greater than block; row/cell/cell_paragraph must fit before the given global paragraph. The known minimum rectangle width, the local/global paragraph offsets within the same cell, the knowable starts of adjacent blocks, and trailing empty cell paragraphs must not contradict each other |
 
-空行、空 DOCX paragraph/cell 都是真实单元，所以 `candidate_count` 可以小于
-`unit_count`，最后一个候选也不必占最后单元；不把 missing candidates 自动补出来。
-表格位置检查只使用已给坐标能确定的最小行宽/偏移，不声称知道未提供的全部空格或 OOXML。
+Blank lines and empty DOCX paragraphs/cells are real units, so `candidate_count` may be smaller than
+`unit_count`, and the last candidate need not occupy the last unit; missing candidates are not filled in automatically.
+Table position checks use only the minimum row width/offsets determinable from the given coordinates and do not claim to know all unsupplied empty cells or OOXML.
 
-**裸 list API 没有 envelope 总数或完整读取声明。** 只核对单记录可知的关系
-（例如 group/line、turn/line、DOCX block/table/paragraph 的必需下限与首 block 约束），
-不臆造 unit_count，不将 partial/repeated/跨来源集合强制排序、去重或当成完整原文件。
-这不是重新打开来源核实位置；不可能从声明自行认证原始字节的真实性。
-任一不一致都让整个调用以既有 typed input error 失败，不返回已评分前缀，
-也不会由 CLI 写出部分“成功”报告。
+**The bare list API has no envelope totals or complete-read declaration.** It checks only the relationships knowable from a single record
+(for example the required lower bounds of group/line, turn/line, and DOCX block/table/paragraph, and the first-block constraint);
+it does not invent a unit_count and does not force partial/repeated/cross-source sets to be sorted, deduplicated, or treated as a complete original file.
+This does not reopen the source to verify positions; the authenticity of the raw bytes cannot be established from the declarations themselves.
+Any inconsistency fails the entire call with the existing typed input error; no scored prefix is returned,
+and the CLI does not write a partial "success" report.
 
-| factor | 分值与公开理由 |
+| factor | Points and public rationale |
 |---|---|
-| `evidence` | 30：完整规范化单元及分类与所给 fragment/context 一致；不是独立来源真实性证明 |
-| `locator` | 25：该格式必需的正整数坐标及提供的 speaker/time 完整 |
-| `completeness` | 显式类型标签 15，加 stripped text 至少 16 字符 10；不是业务语义完整性 |
-| `uncertainty` | observed 20、inferred 10、uncertain 0 |
+| `evidence` | 30: the complete normalized unit and classification are consistent with the given fragment/context; not proof of independent source authenticity |
+| `locator` | 25: the format's required positive-integer coordinates and any supplied speaker/time are complete |
+| `completeness` | 15 for an explicit type label, plus 10 for stripped text of at least 16 characters; not business-semantic completeness |
+| `uncertainty` | observed 20, inferred 10, uncertain 0 |
 
-总分为四项之和，整数 0–100；`score.scale`、逐项 `factors[].value/reason`、
-`meaning` 全部返回。显式标签的长直接陈述可得 100，长 uncertain 陈述为 80，
-无标签的长 inferred 陈述为 75；相反的两条陈述也可能同分。
-这是证据质量的确定性启发式，**不是校准概率、模型置信度、业务决策或自动接受阈值**。
-高分不消除冲突、未知上下文或责任人确认关卡。
+The total is the sum of the four factors, an integer from 0 to 100; `score.scale`, the per-factor `factors[].value/reason`, and
+`meaning` are all returned. A long direct statement with an explicit label can score 100, a long uncertain statement 80,
+and a long unlabeled inferred statement 75; two contradictory statements may also receive the same score.
+This is a deterministic heuristic of evidence quality, **not a calibrated probability, model confidence, business decision, or automatic acceptance threshold**.
+A high score does not remove conflicts, unknown context, or the accountable-owner confirmation gate.
 
 <a id="cli"></a>
-## CLI、输出与错误
+## CLI, output, and errors
 
-以下命令 cwd 为选择的资料仓库根；路径示例必须替换为本次实际文件。
-API 只读；CLI 默认只输出 UTF-8 JSON。`--root` 必填，约束 CLI 输入及新输出范围，
-相对路径均相对该 root，不自动读工作区其他文件。
+The cwd for the following commands is the root of the selected documentation repository; the path examples must be replaced with the actual files for this run.
+The API is read-only; by default the CLI only outputs UTF-8 JSON. `--root` is required and bounds the CLI inputs and the scope of new outputs;
+relative paths are all relative to that root, and no other workspace files are read automatically.
 
 ```text
 .venv\Scripts\python.exe -B -X utf8 .github\utilities\extract_source.py --root . --source "sources\notes.md" --kind markdown
@@ -223,31 +223,31 @@ API 只读；CLI 默认只输出 UTF-8 JSON。`--root` 必填，约束 CLI 输�
 .venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "reports\notes-candidates.json" --output "reports\notes-scored.json"
 ```
 
-scoring CLI 可读完整提取 envelope（保留 source 和读取计数），或明确合并的候选 JSON list
-（保留各自来源）；不会自动搜索或合并来源。JSON 同样拒绝重复 key/非有限数。
-保存须显式指定不存在的 `.json`，父目录已存在且解析后位于 root 内，
-不占用声明来源或输入；exclusive create，无覆盖、无 mkdir、无自动修复。
-拒绝已有文件/源/目录、越界、stream 路径及缺父目录。I/O 部分失败不保证回滚；
-保留明确错误和可能的本次部分输出，不能据此覆盖 owner 内容重试。
+The scoring CLI can read a complete extraction envelope (keeping the source and read counts) or an explicitly merged candidate JSON list
+(keeping each candidate's own source); it never searches for or merges sources automatically. Its JSON parsing likewise rejects duplicate keys/non-finite numbers.
+Saving requires an explicitly specified, non-existent `.json` whose parent directory already exists and which resolves inside the root
+without taking over a declared source or input; exclusive create, no overwrite, no mkdir, no auto-repair.
+Existing files/sources/directories, out-of-bounds paths, stream paths, and missing parent directories are rejected. Partial I/O failures are not guaranteed to roll back;
+the explicit error and any partial output from this run are kept, and this must not be used as grounds to overwrite owner content and retry.
 
-| 结果 / code | 含义与退出 |
+| Result / code | Meaning and exit |
 |---|---|
-| `extracted` / `empty` 或合法 scoring list | 退出 0，仅本次离线处理完成；空输入保留真实身份，不是业务通过 |
-| `FILE_NOT_FOUND` / `FILE_READ_ERROR` / `INVALID_PATH` / `OUTSIDE_ROOT` | 本地读取/路径错误，退出 2 |
-| `INVALID_ENCODING` / `INVALID_SOURCE_FORMAT` / `INVALID_TRANSCRIPT` | 输入格式/编码错误，退出 2，不返回假空成功 |
-| `INVALID_DOCX` / `INVALID_DOCX_XML` / `UNSUPPORTED_DOCX` / `UNSAFE_DOCX` / `SOURCE_ENCRYPTED` | 实际容器、布局或安全边界拒绝，退出 2 |
-| `SOURCE_LIMIT_EXCEEDED` / `CANDIDATE_LIMIT_EXCEEDED` | 超过公开资源界限，退出 2 |
-| `INVALID_CANDIDATE` / `INVALID_CANDIDATE_KIND` / `INVALID_CANDIDATE_LOCATION` / `INVALID_SOURCE_IDENTITY` | 评分输入不成立，退出 2 |
-| `REPORT_CONFLICT` / `REPORT_WRITE_ERROR` | 输出冲突/写入失败，退出 2；保留原输入 |
-| `SOURCE_ADAPTER_UNAVAILABLE` | 没有当前支持的格式/适配器，含 compound/encrypted Office 容器和音频适配器，退出 2 |
+| `extracted` / `empty` or a valid scoring list | Exit 0; only this offline processing completed; empty input keeps its real identity and is not a business pass |
+| `FILE_NOT_FOUND` / `FILE_READ_ERROR` / `INVALID_PATH` / `OUTSIDE_ROOT` | Local read/path error; exit 2 |
+| `INVALID_ENCODING` / `INVALID_SOURCE_FORMAT` / `INVALID_TRANSCRIPT` | Input format/encoding error; exit 2, with no fake empty success |
+| `INVALID_DOCX` / `INVALID_DOCX_XML` / `UNSUPPORTED_DOCX` / `UNSAFE_DOCX` / `SOURCE_ENCRYPTED` | Rejected by the actual container, layout, or security boundary; exit 2 |
+| `SOURCE_LIMIT_EXCEEDED` / `CANDIDATE_LIMIT_EXCEEDED` | A public resource limit was exceeded; exit 2 |
+| `INVALID_CANDIDATE` / `INVALID_CANDIDATE_KIND` / `INVALID_CANDIDATE_LOCATION` / `INVALID_SOURCE_IDENTITY` | Invalid scoring input; exit 2 |
+| `REPORT_CONFLICT` / `REPORT_WRITE_ERROR` | Output conflict/write failure; exit 2; the original input is kept |
+| `SOURCE_ADAPTER_UNAVAILABLE` | No currently supported format/adapter, including compound/encrypted Office containers and the audio adapter; exit 2 |
 
-API 抛已有 `ArtifactInputError`，保留 `code/path/line/message` 和底层异常链。
-CLI 错误 stdout 为 `{"status":"input-error","error":{...}}`；
-参数语法错误由 argparse 向 stderr 报错并退出 2。没有将候选判为接受/拒绝的退出 1。
-未知 kind 不从扩展名猜测；read/parse 失败不降为 empty。
+The API raises the existing `ArtifactInputError`, keeping `code/path/line/message` and the underlying exception chain.
+CLI errors go to stdout as `{"status":"input-error","error":{...}}`;
+argument syntax errors are reported by argparse on stderr with exit 2. There is no exit 1 that judges candidates as accepted/rejected.
+Unknown kinds are not guessed from the extension, and read/parse failures are not downgraded to empty.
 
 <a id="audio"></a>
-## 音频关卡：仅有诚实拒绝入口
+## Audio gate: only an honest refusal entry point
 
 ```python
 transcribe_audio(
@@ -256,15 +256,15 @@ transcribe_audio(
 ) -> NoReturn
 ```
 
-当前没有选定或批准任何音频服务、模型、SDK、适配器或数据发送范围。
-`transcribe_audio.py --source <本次明确输入>` 的 CLI 与 API 均不读取音频/密钥、
-不发现环境 provider、不安装包、不发送数据、不写输出、不返回假空 transcript：
+No audio service, model, SDK, adapter, or data-sending scope is currently selected or approved.
+For `transcribe_audio.py --source <explicit input for this run>`, neither the CLI nor the API reads audio/secrets,
+discovers environment providers, installs packages, sends data, writes output, or returns a fake empty transcript:
 
-- 未独立授权：`AUDIO_AUTHORIZATION_REQUIRED`，列缺失输入。
-- 声明 authorized 但缺 service/model/data_scope/operation/output：`AUDIO_INPUT_REQUIRED`。
-- 所有未来字段都提供，operation 为 `transcribe`：仍为 `SOURCE_ADAPTER_UNAVAILABLE`。
-  传入服务名或 `--authorized` **不能**选择、安装或启用一个适配器。
+- Without separate authorization: `AUDIO_AUTHORIZATION_REQUIRED`, listing the missing inputs.
+- Declared as authorized but missing service/model/data_scope/operation/output: `AUDIO_INPUT_REQUIRED`.
+- All future fields supplied and operation is `transcribe`: still `SOURCE_ADAPTER_UNAVAILABLE`.
+  Passing a service name or `--authorized` **cannot** select, install, or enable an adapter.
 
-未来真实调用须另有明确输入/服务/模型/固定 SDK 版本、操作、允许的数据范围/发送目标、
-准确新输出和授权，再实施具体适配器及真实失败传播。当前未验证任何转录服务成功或失败；
-本地拒绝合同不替代实际音频验收，也不关闭相关增强条件。
+A future real call additionally requires explicit input/service/model/pinned SDK version, operation, allowed data scope/destination,
+an exact new output, and authorization, before a concrete adapter and real failure propagation are implemented. No transcription service success or failure has been verified;
+the local refusal contract does not replace actual audio acceptance and does not close the related enhancement conditions.

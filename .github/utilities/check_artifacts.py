@@ -106,13 +106,14 @@ class Inventory:
     base_raw_files: tuple[tuple[str, bytes], ...]
 
 
+# A full-width colon may follow the ID in non-English titles.
 _FORMAL_NAME = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?=[-.\s:：]|$)")
 _METADATA_MARKER = re.compile(
     r"""(?:^|[{,])[ \t]*["']?(?:schemaVersion|id|kind|scope|contentState|upstream|targets|confirmation)["']?(?=[: \t]|$)"""
 )
 _HEADING = re.compile(r" {0,3}(#{1,6})(?:[ \t]+(.*)|$)")
 _PLACEHOLDER = re.compile(
-    r"待填写|(?<![A-Za-z0-9])(?:(?i:NNN)|TODO|TBD|PROJECT)(?![A-Za-z0-9])"
+    r"(?<![A-Za-z0-9])(?:(?i:NNN)|TODO|TBD|PROJECT)(?![A-Za-z0-9])"
     r"|(?i:<(?:slug|project|context|id)>)|\{\{[^{}\n]+\}\}",
 )
 _DESTINATION = r"""(?:<[^>\n]*>|(?:\\.|[^\s()\\]|\([^()\n]*\))+)"""

@@ -1,34 +1,34 @@
-# 软件要求
+# Software requirements
 
-SR 记录软件应怎样表现，包括边界、错误、接口约定和软件验收。它不是产品目标说明，也不是实施任务清单；上游依据是实际 REQ/UC/INV、相关 CAP/QAS 或明确维护请求。派生活动使用 [specify-feature](../.github/skills/specify-feature/SKILL.md#derive-requirements)，不是强制工件流水线。
+An SR records how the software should behave, including boundaries, errors, interface agreements, and software acceptance. It is neither a statement of product goals nor an implementation task list; its upstream basis is the actual REQ/UC/INV, the related CAP/QAS, or an explicit maintenance request. The derivation activity uses [specify-feature](../.github/skills/specify-feature/SKILL.md#derive-requirements); it is not a mandatory artifact pipeline.
 
 <a id="sr-writing"></a>
-## 从依据到软件验收
+## From basis to software acceptance
 
-1. 读取[业务需求](../stakeholder-requirements/README.md)、[实际领域资料](../domain-model/README.md#optional-forms)或明确任务，核对范围、完整验收身份、原文与基线。UC 提供路径，INV 必须有源规则，CAP/上下文提供职责，QAS 提供有来源的质量判据；这些是适用输入，不要求每次补齐全部工件。
-2. 需要独立规格时复制 [SR 表单](../_templates/items/software-requirement.md)，放入 `software-requirements\SR-NNN-<slug>.md`。按[元数据约定](../domain-model/README.md#artifact-metadata)在项目/上下文明确后填写 scope、身份及上游，初始为 draft。纯维护可沿用现有任务，不强建 REQ、SR 或 US，也不自动迁移旧资料。
-3. 写清正常/允许、边界、拒绝、错误与禁止副作用的可观察行为；不把条件不满足与执行错误混为一谈。缺来源、未确认的 INV 或歧义只能产生候选/问题，不成为强制要求。协议、并发、资格失效和指标未定时分别记录缺口，不补技术默认值。
-4. 对每项软件验收分配完整 ID 和固定 ASCII 锚点，例如 `SR-NNN-AC-01` 与 `sr-nnn-ac-01`。规则正文仍引用其来源，只补软件层可观察的判定条件，不在多处复制规则。
-5. 在实施前按[覆盖检查](../verification/README.md#coverage-check)为验收项寻找或规划软件行为型 VT。边界或错误场景未覆盖时保留缺口，不能用一项正常路径检查代表全部行为。
+1. Read the [stakeholder requirements](../stakeholder-requirements/README.md), the [actual domain materials](../domain-model/README.md#optional-forms), or the explicit task, and check the scope, full acceptance identities, original text, and baselines. UCs provide paths, an INV must have a source rule, CAPs/contexts provide responsibilities, and QASs provide sourced quality criteria; these are inputs where applicable, and you are not required to complete every artifact each time.
+2. When a standalone specification is needed, copy the [SR form](../_templates/items/software-requirement.md) and save it as `software-requirements/SR-NNN-<slug>.md`. Following the [metadata conventions](../domain-model/README.md#artifact-metadata), fill in scope, identity, and upstream once the project/context is clear; the initial state is draft. Pure maintenance can keep using the existing task; do not force the creation of a REQ, SR, or US, and do not migrate old materials automatically.
+3. Write down the observable behavior for normal/permitted cases, boundaries, rejections, errors, and forbidden side effects; do not conflate an unmet condition with an execution error. A missing source, an unconfirmed INV, or an ambiguity can only produce candidates/questions, never mandatory requirements. When protocols, concurrency, eligibility expiry, or metrics are undecided, record each gap separately and do not fill in technical defaults.
+4. Assign each software acceptance criterion a full ID and a fixed ASCII anchor, for example `SR-NNN-AC-01` and `sr-nnn-ac-01`. Rule text is still referenced from its source; add only the judgment conditions observable at the software level, and do not copy the rule into several places.
+5. Before implementation, find or plan software behavior VTs for the acceptance criteria according to the [coverage check](../verification/README.md#coverage-check). When boundary or error scenarios are not covered, keep the gap; a single normal-path check cannot stand in for all behavior.
 
 <a id="traceability"></a>
-## 引用与变更
+## References and changes
 
-新 SR 的 `upstream` 独占声明关系，使用来源的完整 `scope/id#anchor`；正文说明推导理由、来源原文/基线的阅读导航，不再维护第二张映射或内容状态表。仅写无所属工件的 `AC-01` 不足以定位。旧轻量来源与独立请求没有元数据时保留普通链接，身份缺失明确列出，不发明编号以便解析。
+In a new SR, `upstream` alone declares the relationships, using the full `scope/id#anchor` of each source; the body explains the derivation rationale and provides reading navigation to the source text/baseline, without maintaining a second mapping or content state table. `AC-01` alone, without its owning artifact, is not enough to locate a criterion. Old lightweight sources and standalone requests without metadata keep ordinary links; list missing identities explicitly and do not invent numbers just to make parsing work.
 
-VT 直接引用 SR 验收项，不要求经过 US。查询某个 REQ 的下游时搜索 SR 的上游字段；查询某个 SR 的验证时搜索 VT 的目标字段，不再手工维护两套相反关系。
+A VT references SR acceptance criteria directly, without going through a US. To find a REQ's downstream items, search the upstream fields of SRs; to find an SR's verification, search the target fields of VTs. Do not hand-maintain two sets of opposite relationships.
 
-需求确认、软件实施和实际运行分别取证。表单完整、schema-valid 或上游写着 Approved 都不证明责任人确认；形成可实施要求前核对实际决定及适用基线。没有来源身份时可在获准笔记中整理已知行为，但不能宣称正式追溯完整。
+Requirement confirmation, software implementation, and actual runs each need their own evidence. A complete form, schema validity, or an upstream marked Approved does not prove confirmation by the accountable owner; before forming an implementable requirement, check the actual decision and the applicable baseline. Without source identities, you can organize known behavior in authorized notes, but you cannot claim that formal traceability is complete.
 
-适用的[用途/风险引用](../docs/governance.md#intended-use)仍由原所有者维护，SR 只细化有依据的软件行为。缺外部分析、接受决定或控制验证证据时列相关缺口，不在 SR 造风险分值或用[审阅记录](../_templates/items/review-record.md)代替原 VT。工具用途/配置变化按[重新评价指引](../docs/ai-tooling.md#requalification)保留旧证据并复核当前适用性。
+Applicable [intended use/risk references](../docs/governance.md#intended-use) are still maintained by their original owners; an SR only refines software behavior that has a basis. When external analysis, an acceptance decision, or control verification evidence is missing, list the related gaps; do not invent risk scores in the SR or use a [review record](../_templates/items/review-record.md) in place of the original VT. When a tool's purpose/configuration changes, keep the old evidence and re-review current applicability according to the [re-evaluation guide](../docs/ai-tooling.md#requalification).
 
 ```markdown
 [SR-NNN-AC-01](SR-NNN-<slug>.md#sr-nnn-ac-01)
 ```
 
-以上 ID 和链接只是占位语法。真实编号与锚点在工件创建时分配，改名同步修正链接，撤销验收保留依据且不复用 ID。语义变化按[影响检查](../verification/README.md#change-impact)处理，不因为链接仍可打开就沿用旧结果。
+The ID and link above are placeholder syntax only. Real numbers and anchors are assigned when the artifact is created; when renaming, fix the links at the same time; a withdrawn acceptance criterion keeps its basis, and its ID is not reused. Handle semantic changes with the [impact check](../verification/README.md#change-impact); do not keep using old results just because the links still open.
 
 <a id="requirements"></a>
-## 正式要求入口
+## Formal requirement entry points
 
-当前尚无正式 SR。按需添加文件链接；业务验收仍归 REQ，软件验收归 SR，结果从 VT 和原始记录读取。
+There are no formal SRs yet. Add file links as needed; business acceptance still belongs to REQs and software acceptance to SRs, and results are read from VTs and raw records.

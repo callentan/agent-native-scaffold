@@ -1,66 +1,66 @@
-# 开发日志：待填写任务与会话
+# Development log: TBD task and session
 
-> 空白交接表单，不是已发生的会话记录。先读[日志指引](../../logs/README.md)，按需复制到 `logs\YYYY-MM-DD-<task>-<session>.md`。复制后删除本提示、替换占位与必要锚点，并核对相对链接。不保存完整聊天或敏感输出。
+> Blank handoff form; not a record of a session that has happened. Read the [log guide](../../logs/README.md) first, then copy it to `logs/YYYY-MM-DD-<task>-<session>.md` as needed. After copying, delete this notice, replace the placeholders and any necessary anchors, and check the relative links. Do not store full chats or sensitive output.
 
 <a id="session"></a>
-## 会话、任务与 Git 状态
+## Session, task, and Git state
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 日期与会话标识 | 待填写 |
-| 记录者或所用工具 | 待填写必要信息 |
-| 任务来源、实际链接与目标 | 待填写；维护请求可直接作为依据 |
-| 当前范围、非目标及完成条件来源 | 待填写 |
-| 分支与起始基线 | 待检查、填写 |
-| 当前对象基线与已提交改动 | 待检查、填写 commit 或可定位修订 |
-| 原有未提交改动范围 | 待检查；不能预填干净 |
-| 本次新增的未提交范围与暂存情况 | 待检查、填写 |
+| Date and session identifier | TBD |
+| Recorder or tool used | TBD: necessary information only |
+| Task source, actual link, and goal | TBD; a maintenance request can serve directly as the basis |
+| Current scope, non-goals, and source of completion conditions | TBD |
+| Branch and starting baseline | TBD after checking |
+| Current object baseline and committed changes | TBD after checking: commit or locatable revision |
+| Scope of pre-existing uncommitted changes | TBD after checking; do not prefill as clean |
+| Newly added uncommitted scope and index (staging) state | TBD after checking |
 
 <a id="task-basis"></a>
-## 可选：尚无持久来源的维护请求
+## Optional: maintenance request without a durable source
 
-已有任务或验收来源时只引用并删除本节，不复制要求。确需在本记录保留请求时，填写必要摘要、日期与确认依据，给完成条件分配所属任务的稳定 ID；占位编号不是已确认条件。
+When a task or acceptance source already exists, only reference it and delete this section; do not copy the requirements. When the request really must be kept in this record, fill in the necessary summary, date, and confirmation basis, and give the completion conditions stable IDs owned by the task; a placeholder number is not a confirmed condition.
 
-- 请求来源与必要摘要：待填写。
-- 目标、范围与确认依据：待填写。
+- Request source and necessary summary: TBD.
+- Goal, scope, and confirmation basis: TBD.
 
 <a id="task-nnn-ac-01"></a>
-### TASK-NNN-AC-01：待填写完成条件
+### TASK-NNN-AC-01: TBD completion condition
 
-- 可观察的完成条件及来源：待填写。
-- 未决输入与限制：待填写。
+- Observable completion condition and its source: TBD.
+- Open inputs and limitations: TBD.
 
 <a id="changes"></a>
-## 本次变化
+## Changes in this session
 
-- 实际修改的文件或工件及链接：待填写。
-- 重要判断、依据和范围变化：待填写。
-- 尚未完成的修改或无法保留的状态：待填写。
+- Files or artifacts actually changed, with links: TBD.
+- Important judgments, their basis, and scope changes: TBD.
+- Unfinished changes or state that cannot be preserved: TBD.
 
 <a id="verification"></a>
-## 实际结果入口
+## Actual result entry points
 
-这里只引用结果，不另建验收状态表。业务/软件行为、设计和独立文档检查分别标明层次；结果、实际命令与判定回源读取。没有运行记录就说明未执行，不造链接。
+Only reference results here; do not build a separate acceptance status table. Label the layer separately for business/software behavior, design, and standalone document checks; read results, actual commands, and judgments from their sources. If there is no run record, state that it was not run; do not invent links.
 
-| 检查与层次 | 实际记录链接（VT 运行块、原始报告或检查记录） | 对象与需求/VT 基线入口 | 可访问性与限制 |
+| Check and layer | Actual record link (VT run block, raw report, or check record) | Entry point to the object and requirement/VT baselines | Accessibility and limitations |
 |---|---|---|---|
-| 待填写 | 未执行，暂无记录 | 待填写 | 待填写 |
+| TBD | Not run; no record yet | TBD | TBD |
 
-只有本机可访问的报告说明限制与接手所需动作，不记录个人绝对路径，不把本地临时报告描述为跨机器证据。
+For reports accessible only on this machine, state the limitation and the actions needed to take over; do not record personal absolute paths, and do not describe a local temporary report as cross-machine evidence.
 
 <a id="follow-up"></a>
-## 缺口、影响与待重查事项
+## Gaps, impact, and items to recheck
 
-| 受影响工件或任务链接 | 缺口/变化及其依据 | 待复核或未执行的动作与原因 |
+| Affected artifact or task link | Gap/change and its basis | Actions pending re-review or not run, and why |
 |---|---|---|
-| 待填写 | 待填写 | 待填写；未执行动作标明 `not-run` |
+| TBD | TBD | TBD; mark actions not run as `not-run` |
 
-保留原结果和原基线；本表只记录影响与待办，当前结果适用性回到原结果的复核记录查看。
+Keep the original results and original baselines; this table only records impact and pending work. For the current applicability of a result, see the review records of the original result.
 
 <a id="handoff"></a>
-## 阻塞与下一步
+## Blockers and next steps
 
-- 阻塞、未决事实及需谁提供的输入：待填写。
-- 下一步及其前置条件：待填写。
-- 接手时需重新核验的 Git 状态、工件或外部状态：待填写。
-- 不可访问的资料、未保存编辑或其他限制：待填写。
+- Blockers, open facts, and inputs needed from whom: TBD.
+- Next steps and their prerequisites: TBD.
+- Git state, artifacts, or external state to re-verify when taking over: TBD.
+- Inaccessible material, unsaved edits, or other limitations: TBD.

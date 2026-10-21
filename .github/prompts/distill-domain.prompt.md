@@ -1,12 +1,12 @@
 ---
-description: 在模型含义、边界或实际使用出现歧义和漂移线索时锤炼领域认识。
+description: Crunch domain knowledge when model meaning, boundaries, or actual usage show signs of ambiguity or drift.
 ---
 
-# 锤炼领域模型
+# Distill the domain model
 
-当前输入（由用户填写）：
-- 模型路径、上下文与版本，实际陈述或使用线索：待填写。
-- 语言、关系、规则或边界上的疑点及已知决定：待填写。
-- 期望发现/候选与允许写入的范围：待填写；未授权则只返回提案。
+Current input (filled in by the user):
+- Model path, context, and version, plus actual statements or usage signals: TBD.
+- Doubts about language, relationships, rules, or boundaries, and known decisions: TBD.
+- Expected findings/candidates and the permitted write scope: TBD; without authorization, return proposals only.
 
-完整读取 [define-requirements 的知识锤炼与模型漂移](../skills/define-requirements/SKILL.md#distill)，方法正文与停止条件以该文件为准。
+Read [knowledge crunching and model drift in define-requirements](../skills/define-requirements/SKILL.md#distill) in full; that file is authoritative for the method and its stop conditions.

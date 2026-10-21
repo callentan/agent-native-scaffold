@@ -61,8 +61,8 @@ class ArtifactCheckTests(unittest.TestCase):
     def test_clean_reports_exact_owners_and_raw_bom_crlf_bytes_without_writes(self) -> None:
         # Break caught: treating a real selection as empty, or hashing decoded text.
         first = write_metadata(
-            self.root, metadata(), '# REQ-001：范围\n<a id="req-001-ac-01"></a>\n'
-            '### REQ-001-AC-01：可观察条件\n',
+            self.root, metadata(), '# REQ-001: Scope\n<a id="req-001-ac-01"></a>\n'
+            '### REQ-001-AC-01: Observable condition\n',
             "需求 空格/REQ-001.md", newline="\r\n", bom=True,
         )
         write_artifact(self.root, id="SR-001", kind="software-requirement")
@@ -289,10 +289,13 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual(before, path.read_bytes())
 
     def test_formal_h1_with_colon_does_not_hide_removed_metadata(self) -> None:
-        (self.root / "ordinary.md").write_text("# REQ-001：Actual owner\n", encoding="utf-8")
-        report = run_check(self.root)
-        self.assertEqual("input-error", report.status)
-        self.finding(report, "MISSING_FRONTMATTER")
+        # Non-English titles may use a full-width colon after the ID.
+        for title in ("# REQ-001: Actual owner\n", "# REQ-001\uff1aActual owner\n"):
+            with self.subTest(title=title):
+                (self.root / "ordinary.md").write_text(title, encoding="utf-8")
+                report = run_check(self.root)
+                self.assertEqual("input-error", report.status)
+                self.finding(report, "MISSING_FRONTMATTER")
 
     def test_bad_metadata_uses_existing_parser_error_codes_and_lines(self) -> None:
         good = write_artifact(self.root).read_text(encoding="utf-8")
@@ -337,7 +340,7 @@ class ArtifactCheckTests(unittest.TestCase):
         for data, body, line, target in (
             (metadata(id="REQ-NNN"), "# Requirement\n", 3, "REQ-NNN"),
             (metadata(scope="PROJECT/CTX-NNN"), "# Requirement\n", 5, "PROJECT/CTX-NNN"),
-            (metadata(), "# Requirement\n- 判据：待填写实际条件。\n", 9, "待填写"),
+            (metadata(), "# Requirement\n- Criterion: TBD (actual condition).\n", 9, "TBD"),
             (metadata(), "# Requirement\n| Threshold | TBD |\n", 9, "TBD"),
             (metadata(), "# Requirement\nTODO\n", 9, "TODO"),
             (metadata(), "# Requirement\n<slug>\n", 9, "<slug>"),
@@ -353,8 +356,9 @@ class ArtifactCheckTests(unittest.TestCase):
     def test_unknown_business_facts_are_retained_not_invented_or_blanket_rejected(self) -> None:
         path = write_metadata(
             self.root, metadata(),
-            "# Requirement\n并发规则未决，需业务责任人提供来源；本稿不作假设。\n"
-            "确认日期待确认；当前执行为 not-run，没有应用。\n",
+            "# Requirement\nThe concurrency rule is open; the accountable business owner must provide "
+            "a source, and this draft makes no assumption.\n"
+            "The confirmation date is to be confirmed; the current run is not-run and there is no application.\n",
         )
         before = path.read_bytes()
         self.assertEqual("clean", run_check(self.root).status)
@@ -370,7 +374,7 @@ class ArtifactCheckTests(unittest.TestCase):
             "# Requirement\n`TODO [literal](missing.md)` and ``REQ-NNN``.\n"
             "```markdown\n# REQ-NNN\n[absent](missing.md)\n"
             '<a id="req-001-ac-99"></a>\n### REQ-001-AC-99\n```\n'
-            "~~~~\n待填写\n~~~~\n"
+            "~~~~\nTBD\n~~~~\n"
             "<!-- TBD [also absent](other.md)\n# Hidden\n-->\n"
             "    [indented code](unreadable.md)\n",
         )
@@ -587,7 +591,7 @@ class ArtifactCheckTests(unittest.TestCase):
             ".github/instructions/example.instructions.md", ".github/agents/example.agent.md",
         ):
             write_artifact(self.root, relative_path=path)
-        (self.root / "README.md").write_text("# Guide\n待填写\n", encoding="utf-8")
+        (self.root / "README.md").write_text("# Guide\nTBD\n", encoding="utf-8")
         (self.root / "source.py").write_text("# REQ-001 / TODO\n", encoding="utf-8")
         report = run_check(self.root)
         self.assertEqual("empty", report.status)

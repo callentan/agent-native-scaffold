@@ -1,8 +1,8 @@
-# 实施摘要的空白输出表单；不是另一个执行输入/结果账本。
-# 字段契约：../../.github/contracts/README.md#implementation-report
-# 收集接口：../../.github/utilities/README.md#implementation-report
-# 正式报告应从明确 Git 对象和现有 VT 运行只读重建，不手工复制状态。
-# 所有占位都待真实输入替换；本表单不表示配置有效、执行发生或验收通过。
+# Blank output form for the implementation summary; not another run input/result ledger.
+# Field contract: ../../.github/contracts/README.md#implementation-report
+# Collection interface: ../../.github/utilities/README.md#implementation-report
+# A formal report should be rebuilt read-only from an explicit Git object and existing VT runs; do not copy statuses by hand.
+# Every placeholder must be replaced with real input; this form does not mean the configuration is valid, a run happened, or acceptance passed.
 schemaVersion: 1
 scope: "PROJECT/CTX-NNN"
 object:
@@ -20,10 +20,10 @@ entries:
     execution:
       status: not-run
       evidenceRefs: []
-      reason: "尚未选择和核对属于本目标的 VT 运行记录。"
+      reason: "No VT run record belonging to this target has been selected and checked yet."
     applicability:
       state: unverified
-      reason: "尚无独立、匹配运行/目标/基线的适用性复核记录。"
-# scope、完整验收库存、BC/领域来源、代码/测试位置及证据均须回源。
-# 无证据的真实目标仍需保留；不是仅复制上面的一项或已有成功目标。
-# 报告无 root execution/views；九视图归 model，实际结果归原 VT/报告。
+      reason: "No independent applicability review record matching the run, target, and baseline exists yet."
+# scope, the complete acceptance inventory, BC/domain sources, code/test locations, and evidence must all be traced back to their sources.
+# Real targets without evidence must still be kept; do not copy only the single entry above or targets that already succeeded.
+# The report has no root execution/views; the nine views belong to the model, and actual results belong to the original VT/report.

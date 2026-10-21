@@ -1,12 +1,12 @@
 ---
-description: 只读核对领域工件、完整验收范围及实际证据的缺口。
+description: Check domain artifacts, the full acceptance scope, and gaps in actual evidence read-only.
 ---
 
-# 审阅领域工件
+# Review domain artifacts
 
-当前输入（由用户填写）：
-- 工件路径、范围、验收来源与基线：待填写。
-- 已知疑点、开放问题和实际决定/执行证据：待填写。
-- 期望审阅重点与输出范围：待填写；默认只读，不执行检查命令或写文件。
+Current input (filled in by the user):
+- Artifact paths, scope, acceptance sources, and baselines: TBD.
+- Known doubts, open questions, and actual decision/run evidence: TBD.
+- Desired review focus and output scope: TBD; read-only by default, without running check commands or writing files.
 
-完整读取 [verify-change 的领域工件审阅](../skills/verify-change/SKILL.md#domain-review)，模式、发现字段与停止条件以该文件为准。
+Read [domain artifact review in verify-change](../skills/verify-change/SKILL.md#domain-review) in full; that file is authoritative for modes, finding fields, and stop conditions.

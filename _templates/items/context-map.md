@@ -7,45 +7,45 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# CM-NNN：待填写上下文关系图说明
+# CM-NNN: TBD context map notes
 
-> 可选关系说明，不要求绘图或拆服务。先读[定向交换](../../domain-model/README.md#exchanges)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\CM-NNN-<slug>.md`；确认本记录归属的 `PROJECT/CTX-NNN`，替换 ID、标题和锚点，修正相对链接，保留已有关系后删除本提示。
+> Optional relationship description; it requires neither a diagram nor splitting services. First read the [directed exchanges](../../domain-model/README.md#exchanges) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CM-NNN-<slug>.md` only when needed; confirm the `PROJECT/CTX-NNN` this record belongs to, replace the ID, title, and anchors, fix relative links, keep any existing relationships, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与认识边界
+## Sources and knowledge boundaries
 
-- 已知上下文、事实所有权及来源定位、日期或版本：待填写。
-- 推导候选及推导依据：待填写。
-- 未决问题及需要谁确认：待填写。
+- Known contexts and fact ownership with source location, date, or version: TBD.
+- Derived candidates and the basis for deriving them: TBD.
+- Open questions and who needs to confirm them: TBD.
 
-参与工件的上游声明归 frontmatter；下面保存方向、词义和责任，不是另一张机器关系表。
+Upstream declarations of the participating artifacts belong in the frontmatter; the sections below record direction, term meaning, and responsibility, and are not a second machine-readable relationship table.
 
 <a id="relations"></a>
-## 定向关系
+## Directed relationships
 
-每个方向分别记录；不能用一条无方向的连线推导双向读写。
+Record each direction separately; do not infer two-way reads and writes from an undirected line.
 
-| 提供方 → 使用方 | 信息或能力及事实所有者 | 关系类型及选择依据 | 消费边界与依赖 |
+| Provider → consumer | Information or capability and fact owner | Relationship type and the basis for choosing it | Consumption boundary and dependencies |
 |---|---|---|---|
-| 待填写 | 待填写 | 未决定 | 待填写 |
+| TBD | TBD | Not decided | TBD |
 
-关系类型可以是有依据的合作、供需关系，也可以尚未决定。ACL、开放主机服务、共享内核或各行其道等模式仅在确有需要且有来源时选择，不由本表强制。
+The relationship type can be an evidence-based Partnership or Customer-Supplier relationship, or it can remain undecided. Choose patterns such as ACL, Open Host Service, Shared Kernel, or Separate Ways only when there is a real need and a source; this table does not mandate them.
 
 <a id="translation"></a>
-## 翻译与协作约定
+## Translation and collaboration agreements
 
-| 协作信息 | 内容 |
+| Collaboration information | Content |
 |---|---|
-| 两端术语差异与翻译责任 | 待填写；不能默认词义一致 |
-| 允许依赖与明确禁止的跨边界修改 | 待填写 |
-| Published Interface / 伙伴说明的导航 | 未提供；存在时链接原所有者 |
-| 版本与兼容约定的来源 | 未提供 |
-| 时效、失败与中断时的业务边界 | 未提供，不默认重试或降级 |
-| 共同维护内容的所有者与批准边界（若适用） | 未决定；不默认共享内核 |
+| Term differences between the two sides and translation responsibility | TBD; do not assume terms mean the same thing |
+| Allowed dependencies and explicitly forbidden cross-boundary changes | TBD |
+| Navigation to the Published Interface / partner description | Not provided; if one exists, link to the original owner |
+| Source of version and compatibility agreements | Not provided |
+| Business boundaries for timeliness, failure, and interruption | Not provided; do not assume retry or degradation |
+| Owner and approval boundary for jointly maintained content (if applicable) | Not decided; do not assume a Shared Kernel |
 
 <a id="questions"></a>
-## 变化与缺口
+## Changes and gaps
 
-- 未明确的方向、归属、模式或翻译及其影响：待填写。
-- 需谁提供什么，相关 BL：待填写。
-- 关系变更的旧新基线及消费者影响：待填写；通知与跨仓修改仍须独立授权。
+- Unclear direction, ownership, pattern, or translation, and their impact: TBD.
+- Who needs to supply what, and related BLs: TBD.
+- Old and new baselines of relationship changes and impact on consumers: TBD; notifications and cross-repository changes still require separate authorization.

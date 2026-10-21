@@ -1,8 +1,8 @@
-# 可选数据表单，不是应用 manifest 或可执行命令。
-# 指引：../../architecture/README.md#bc-configuration
-# 契约：../../.github/contracts/bc-config.schema.json
-# 可选本地预检与明确操作：../../docs/domain-sources.md
-# 复制到获准项目根的 bc-config.yaml 后逐项填写；所有占位均不是已确认事实。
+# Optional data form; not an application manifest or an executable command.
+# Guide: ../../architecture/README.md#bc-configuration
+# Contract: ../../.github/contracts/bc-config.schema.json
+# Optional local preflight and explicit operations: ../../docs/domain-sources.md
+# Copy to bc-config.yaml in the authorized project root, then fill in each item; no placeholder is a confirmed fact.
 schemaVersion: 1
 projectId: "PROJECT-TODO"
 boundedContexts:
@@ -14,11 +14,11 @@ domainSources:
     path: "<repo-relative-source-path>"
     baseline: "<full-fixed-git-object-or-sha256-digest>"
     readOnly: true
-# 当前指向空白开发登记；路径可读不表示应用/命令已配置。
+# Currently points to the blank development registration; a readable path does not mean the application/commands are configured.
 developmentRegistration: docs/development.md#project-registration
-# root 与 path 分开核对；git 源只填实际完整 Git 对象，不填 HEAD/分支/缩写。
-# local 源可用实际 sha256:摘要；无领域源时须明确依据后使用空列表。
-# readOnly 是资料性质，不授予写入权限。不得加入命令、凭据或复制应用配置。
-# 填表不触发 clone/update/submodule/commit；路径/来源/基线未核实就停止依赖它的动作。
-# register 只维护明确的既有 BC 来源列表，不覆盖非空领域目录。
-# submodule materialization 与登记分开；本地目标/index 均需另行同意，不请求网络或隐含提交。
+# Check root and path separately; for a git source, enter only an actual full Git object, not HEAD, a branch, or an abbreviation.
+# A local source may use an actual sha256:<digest>; with no domain source, use an empty list only with an explicit basis.
+# readOnly describes the nature of the material; it does not grant write permission. Do not add commands or credentials, or copy application configuration.
+# Filling in the form does not trigger clone/update/submodule/commit; if the path/source/baseline is unverified, stop actions that depend on it.
+# register only maintains the explicit list of existing BC sources and does not overwrite non-empty domain directories.
+# Submodule materialization is separate from registration; the local target and the index each need separate consent; it makes no network requests and implies no commit.

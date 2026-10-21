@@ -1,12 +1,12 @@
 ---
-description: 从已确认项目输入开始接入资料。
+description: Start onboarding project materials from confirmed project inputs.
 ---
 
-# 接入项目
+# Onboard a project
 
-当前输入（由用户填写）：
-- 目标、范围与完成条件：待填写。
-- 项目名称、阶段、已知资料及确认来源：待填写。
-- 已有资料/规则位置、需保留内容与授权边界：待填写。
+Current input (filled in by the user):
+- Goal, scope, and completion criteria: TBD.
+- Project name, phase, known materials, and confirmation sources: TBD.
+- Locations of existing materials/rules, content to keep, and authorization boundaries: TBD.
 
-先显式读取 [AGENTS](../../AGENTS.md)，再完整读取并应用 [project-onboarding](../skills/project-onboarding/SKILL.md)。未提供的输入保持未决；本入口不授权创建应用。
+Explicitly read [AGENTS](../../AGENTS.md) first, then read [project-onboarding](../skills/project-onboarding/SKILL.md) in full and apply it. Inputs that are not provided remain open; this entry point does not authorize creating an application.
