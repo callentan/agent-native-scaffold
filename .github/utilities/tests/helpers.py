@@ -251,13 +251,13 @@ def seed_implementation_fixture(root: Path) -> str:
     (root / "bc-config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     (root / "source code").mkdir()
     (root / "native tests").mkdir()
-    (root / "source code/借用.txt").write_text(
+    (root / "source code/заем€.txt").write_text(
         "# TEXT LOCATORS ONLY; not an application.\n"
         f"# implements: {targets[2]} symbol=record\nrecord(): owned text location\n"
         f"// implements: {targets[3]} symbol=reject\nreject(): owned text location\n",
         encoding="utf-8", newline="\n",
     )
-    (root / "native tests/验证.txt").write_text(
+    (root / "native tests/проверка€.txt").write_text(
         "# TEXT LOCATORS ONLY; not discovered or executed by any runner.\n"
         f"# verifies: {targets[2]} testId=test_record\ntest_record(): owned text location\n"
         f"// verifies: {targets[3]} testId=test_no_write\ntest_no_write(): owned text location\n",

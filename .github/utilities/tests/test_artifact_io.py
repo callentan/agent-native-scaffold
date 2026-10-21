@@ -39,16 +39,16 @@ class ArtifactIOTests(unittest.TestCase):
 
     def test_read_retains_identity_source_body_and_absolute_location(self) -> None:
         body = '# REQ-001: Local source\n\n<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Criterion\n'
-        path = write_metadata(self.root, metadata(), body, "资料 with spaces/REQ-001.md")
+        path = write_metadata(self.root, metadata(), body, "данные € with spaces/REQ-001.md")
         original = path.read_bytes()
         before = Path.cwd()
-        artifact = parse_artifact(Path("资料 with spaces/REQ-001.md"), self.root)
+        artifact = parse_artifact(Path("данные € with spaces/REQ-001.md"), self.root)
         self.assertEqual(artifact.key, "sample/CTX-001/REQ-001")
         self.assertEqual(artifact.id, "REQ-001")
         self.assertEqual(artifact.scope, "sample/CTX-001")
         self.assertEqual(artifact.content_state, "draft")
         self.assertEqual(artifact.path, path.resolve())
-        self.assertEqual(artifact.relative_path, "资料 with spaces/REQ-001.md")
+        self.assertEqual(artifact.relative_path, "данные € with spaces/REQ-001.md")
         self.assertEqual(artifact.location.path, path.resolve())
         self.assertEqual(artifact.location.line, 1)
         self.assertEqual(artifact.body_start_line, 8)
@@ -65,8 +65,7 @@ class ArtifactIOTests(unittest.TestCase):
             "# REQ-001: Owner\n"
             "Referenced REQ-998-AC-01 and [REQ-999-AC-01](elsewhere.md#req-999-ac-01).\n\n"
             '<a id="req-001-ac-01"></a>\n'
-            # Non-English titles may use a full-width colon after the ID.
-            "### REQ-001-AC-01\uff1aFirst\n\n"
+            "### REQ-001-AC-01: First\n\n"
             "```markdown\n"
             '<a id="req-001-ac-88"></a>\n'
             "### REQ-001-AC-88: not an item\n"
@@ -228,13 +227,13 @@ class ArtifactIOTests(unittest.TestCase):
         for newline in ("\n", "\r\n"):
             for bom in (False, True):
                 with self.subTest(newline=repr(newline), bom=bom):
-                    # A multi-byte (CJK) title proves decoding keeps non-ASCII text intact.
+                    # A multi-byte non-ASCII title proves decoding keeps non-ASCII text intact.
                     path = write_metadata(
-                        self.root, metadata(), "# REQ-001：中文\n",
+                        self.root, metadata(), "# REQ-001: данные Ω €\n",
                         newline=newline, bom=bom,
                     )
                     artifact = parse_artifact(path, self.root)
-                    self.assertEqual(artifact.body, f"# REQ-001：中文{newline}")
+                    self.assertEqual(artifact.body, f"# REQ-001: данные Ω €{newline}")
                     self.assertEqual(artifact.source, path.read_bytes().decode("utf-8-sig"))
                     self.assertEqual(artifact.body_start_line, 8)
 

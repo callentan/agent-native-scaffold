@@ -37,7 +37,7 @@ class ArtifactCheckTests(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "正式资料 Ω with spaces"
+        self.root = self.workspace / "данные € Ω with spaces"
         self.root.mkdir()
 
     def finding(self, report, code: str):
@@ -63,7 +63,7 @@ class ArtifactCheckTests(unittest.TestCase):
         first = write_metadata(
             self.root, metadata(), '# REQ-001: Scope\n<a id="req-001-ac-01"></a>\n'
             '### REQ-001-AC-01: Observable condition\n',
-            "需求 空格/REQ-001.md", newline="\r\n", bom=True,
+            "требование €/REQ-001.md", newline="\r\n", bom=True,
         )
         write_artifact(self.root, id="SR-001", kind="software-requirement")
         original = source_bytes(self.root)
@@ -75,10 +75,10 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual((), report.findings)
         self.assertEqual(
             [("SR-001.md", "sample/CTX-001/SR-001"),
-             ("需求 空格/REQ-001.md", "sample/CTX-001/REQ-001")],
+             ("требование €/REQ-001.md", "sample/CTX-001/REQ-001")],
             [(item.path, item.owner) for item in report.baseline.files if item.role == "formal"],
         )
-        record = next(item for item in report.baseline.files if item.path == "需求 空格/REQ-001.md")
+        record = next(item for item in report.baseline.files if item.path == "требование €/REQ-001.md")
         self.assertEqual(hashlib.sha256(first.read_bytes()).hexdigest(), record.sha256)
         self.assertEqual(len(first.read_bytes()), record.size)
         self.assertEqual("working-tree", report.baseline.target)
@@ -289,13 +289,10 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual(before, path.read_bytes())
 
     def test_formal_h1_with_colon_does_not_hide_removed_metadata(self) -> None:
-        # Non-English titles may use a full-width colon after the ID.
-        for title in ("# REQ-001: Actual owner\n", "# REQ-001\uff1aActual owner\n"):
-            with self.subTest(title=title):
-                (self.root / "ordinary.md").write_text(title, encoding="utf-8")
-                report = run_check(self.root)
-                self.assertEqual("input-error", report.status)
-                self.finding(report, "MISSING_FRONTMATTER")
+        (self.root / "ordinary.md").write_text("# REQ-001: Actual owner\n", encoding="utf-8")
+        report = run_check(self.root)
+        self.assertEqual("input-error", report.status)
+        self.finding(report, "MISSING_FRONTMATTER")
 
     def test_bad_metadata_uses_existing_parser_error_codes_and_lines(self) -> None:
         good = write_artifact(self.root).read_text(encoding="utf-8")
@@ -413,19 +410,19 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual("#absent", item.target)
 
     def test_links_use_explicit_and_heading_anchors_with_spaces_and_unicode(self) -> None:
-        guide = self.root / "指南 space.md"
+        guide = self.root / "справка€ space.md"
         guide.write_text(
-            '# Guide\n<a id="exact"></a>\n## 章节 One\n## Repeated\n## Repeated\n',
+            '# Guide\n<a id="exact"></a>\n## раздел One\n## Repeated\n## Repeated\n',
             encoding="utf-8",
         )
         write_metadata(self.root, metadata(),
-                       '# Requirement\n[one](<指南 space.md#exact>)\n'
-                       '[two](指南%20space.md#章节-one "title")\n'
-                       '[three](指南%20space.md#repeated-1)\n')
+                       '# Requirement\n[one](<справка€ space.md#exact>)\n'
+                       '[two](справка€%20space.md#раздел-one "title")\n'
+                       '[three](справка€%20space.md#repeated-1)\n')
         report = run_check(self.root)
         self.assertEqual("clean", report.status)
         self.assertEqual(1, report.checked_count)
-        record = next(item for item in report.baseline.files if item.path == "指南 space.md")
+        record = next(item for item in report.baseline.files if item.path == "справка€ space.md")
         self.assertEqual(hashlib.sha256(guide.read_bytes()).hexdigest(), record.sha256)
 
     def test_fragment_inside_code_or_comment_does_not_resolve(self) -> None:
@@ -824,7 +821,7 @@ class ArtifactCheckTests(unittest.TestCase):
     def test_cli_creates_only_explicit_new_json_report(self) -> None:
         write_artifact(self.root)
         before = source_bytes(self.root)
-        output = self.workspace / "报告 new.json"
+        output = self.workspace / "отчет € new.json"
         result = self.cli("--report", str(output))
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertTrue(output.is_file(), "Explicit report was not created")

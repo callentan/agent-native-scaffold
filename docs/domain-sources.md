@@ -40,7 +40,7 @@ change operating system permissions.
   and point to a real development registration file/anchor. This tool does not initialize the project configuration.
 - The source `root` is an explicit directory relative to this project root; `../existing-domain-source`
   can select an authorized independent local source. `path` is interpreted only relative to this source root.
-  Spaces, non-ASCII (for example CJK) characters, and a lone `.` are allowed; variables are not expanded,
+  Spaces, non-ASCII characters, and a lone `.` are allowed; variables are not expanded,
   and repeated directories are not trimmed. The source root is resolved in the host's normal way, and an
   ancestor path through a symlink/junction is equivalent to its actual location; `..` is first normalized
   literally so that Windows/Linux/macOS reach the same location. Paths that escape the project or source

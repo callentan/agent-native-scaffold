@@ -70,7 +70,7 @@ class RenderingTests(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "导出 sources with spaces"
+        self.root = self.workspace / "экспорт € sources with spaces"
         self.root.mkdir()
 
     def tool(self, name):
@@ -130,7 +130,7 @@ class RenderingTests(unittest.TestCase):
             body += ('<a id="deployment"></a>\n## Supplied deployment\n'
                      'Only the supplied offline workstation is in this source.\n')
         spec = self.artifact("SWAS-001", "architecture-specification", body,
-                             path="architecture/规格 空格.md")
+                             path="architecture/спецификация €.md")
         sources = [self.pointer(spec)]
         selections = {"requirements": [{"path": "software/SR-001.md",
                                         "baseline": baseline(self.root / "software/SR-001.md")}]}
@@ -383,7 +383,7 @@ class RenderingTests(unittest.TestCase):
         self.assertTrue(any("deployment" in gap for gap in result["gaps"]))
         self.assertTrue(any("risk" in gap for gap in result["gaps"]))
         self.assertIn("Owned business", "".join(document.text))
-        self.assertIn("architecture/规格 空格.md", "".join(document.text))
+        self.assertIn("architecture/спецификация €.md", "".join(document.text))
         self.assertNotIn("Kubernetes", result["content"])
         self.assertNotIn("risk accepted", result["content"].lower())
         self.assertNotIn("safetyClass: A", result["content"])
@@ -619,7 +619,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_svg_long_unicode_content_is_not_truncated_or_zero_height(self):
         inputs = self.architecture(sequence=None)
-        text = "来源甲 & candidate boundary " * 70 + "FINAL-SOURCE-TOKEN"
+        text = "источник € & candidate boundary " * 70 + "FINAL-SOURCE-TOKEN"
         source = self.artifact("SWAS-002", "architecture-specification",
                               '# SWAS-002 Long candidate\n<a id="long"></a>\n## Supplied long content\n' + text + "\n")
         inputs["sources"] = [self.pointer(source)]
@@ -642,7 +642,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_new_unicode_space_output_matches_actual_format_and_stdout(self):
         self.graph()
-        output = self.workspace / "新 导出.svg"
+        output = self.workspace / "новое € экспорт.svg"
         result = self.cli("render_traceability", "--format", "svg", "--output", str(output))
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.svg(output.read_text(encoding="utf-8"))
@@ -883,7 +883,7 @@ class RenderingTests(unittest.TestCase):
         result = self.render("render_architecture", inputs)
         self.assertIn(exact, result["content"])
         self.assertEqual(before, source_bytes(self.root))
-        source = self.root / "architecture/规格 空格.md"
+        source = self.root / "architecture/спецификация €.md"
         source.write_bytes(source.read_bytes() + b"\nChanged candidate content.\n")
         self.assert_error("BASE_MISMATCH", lambda: self.render("render_architecture", inputs))
 
@@ -1065,7 +1065,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_xml_illegal_source_text_is_error_not_invalid_document_success(self):
         inputs = self.architecture(sequence=None)
-        source = self.root / "architecture/规格 空格.md"
+        source = self.root / "architecture/спецификация €.md"
         source.write_bytes(source.read_bytes() + b"\nInvalid XML scalar: \x01\n")
         inputs["sources"] = [self.pointer(source)]
         for name in ("render_architecture", "render_presentation"):

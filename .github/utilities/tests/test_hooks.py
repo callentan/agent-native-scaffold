@@ -36,7 +36,7 @@ class HookFixture(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="task10-hooks-")
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name).resolve()
-        self.root = self.workspace / "项目 with spaces"
+        self.root = self.workspace / "проект € with spaces"
         self.root.mkdir()
         self.receipts = []
         self.addCleanup(self.save_receipts)
@@ -455,8 +455,8 @@ class NativeHookTests(HookFixture):
 
     def test_hook03_hook09_native_commit_uses_selected_python_spaces_unicode_and_index(self):
         self.install()
-        path = self.stage_artifact(name="stakeholder-requirements/条目 space/REQ-001.md")
-        blob = self.git("rev-parse", ":stakeholder-requirements/条目 space/REQ-001.md").strip()
+        path = self.stage_artifact(name="stakeholder-requirements/запись € space/REQ-001.md")
+        blob = self.git("rev-parse", ":stakeholder-requirements/запись € space/REQ-001.md").strip()
         expected_tree = self.git("write-tree").strip()
         native_env = dict(self.env)
         native_env.pop("PYTHONDONTWRITEBYTECODE", None)
@@ -589,9 +589,9 @@ class NativeHookTests(HookFixture):
                 self.assertEqual(1, report["exit_code"])
                 self.assertFalse(report["policy"]["authenticated"])
                 self.assertEqual(self.parent, self.git("rev-parse", "HEAD").strip())
-        result = self.native_commit("Managed\n\nreviewed-by: 测试 Reviewer")
+        result = self.native_commit("Managed\n\nreviewed-by: Олег € Reviewer")
         self.assertEqual(0, result.returncode, self.receipts[-1])
-        self.assertEqual("Managed\n\nreviewed-by: 测试 Reviewer",
+        self.assertEqual("Managed\n\nreviewed-by: Олег € Reviewer",
                          self.git("log", "-1", "--format=%B").strip())
 
     def test_hook11_unmanaged_change_needs_no_review_line_but_deleted_companion_does(self):
@@ -613,7 +613,7 @@ class NativeHookTests(HookFixture):
                          self.native_reports(result)[0]["policy"]["managed_paths"])
 
     def test_hook09_launcher_quotes_shell_metacharacters_as_path_bytes(self):
-        changed = self.workspace / "本地 ' $; & repo"
+        changed = self.workspace / "локально € ' $; & repo"
         self.root.rename(changed)
         self.root = changed
         self.install()
@@ -645,7 +645,7 @@ class NativeHookTests(HookFixture):
 class IndexValidationTests(HookFixture):
     def test_i1_optional_message_after_root_and_before_root_have_the_same_contract(self):
         self.stage_artifact()
-        message = self.workspace / "提交 message.txt"
+        message = self.workspace / "коммит € message.txt"
         message.write_text("Controlled review text" + REVIEW, encoding="utf-8")
         before = self.state()
         results = []
@@ -800,7 +800,7 @@ class StartupReportTests(HookFixture):
 
     def setUp(self):
         super().setUp()
-        self.message = self.workspace / "提交 message.txt"
+        self.message = self.workspace / "коммит € message.txt"
         self.message_bytes = b"Controlled message\n\nReviewed-by: Fixture Reviewer\n"
         self.message.write_bytes(self.message_bytes)
 

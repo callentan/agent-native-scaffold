@@ -106,8 +106,7 @@ class Inventory:
     base_raw_files: tuple[tuple[str, bytes], ...]
 
 
-# A full-width colon may follow the ID in non-English titles.
-_FORMAL_NAME = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?=[-.\s:：]|$)")
+_FORMAL_NAME = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?=[-.\s:]|$)")
 _METADATA_MARKER = re.compile(
     r"""(?:^|[{,])[ \t]*["']?(?:schemaVersion|id|kind|scope|contentState|upstream|targets|confirmation)["']?(?=[: \t]|$)"""
 )

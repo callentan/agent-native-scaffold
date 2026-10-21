@@ -107,7 +107,7 @@ The `changes/conflicts/preserved/sources` of `UpdatePlan` are all immutable tupl
 | Business file present only locally | preserve / `LOCAL_ONLY` |
 | Absent in base and both sides add the same content; deleted on both sides | preserve / `SAME_ADDITION`, `BOTH_DELETED` |
 | Base root missing/unreadable, or a provided version is wrong | input error, not a file deletion |
-| Binary content, BOM, line endings, paths with non-ASCII (for example CJK) characters or spaces | decided on raw bytes with deterministic paths/order; no text normalization |
+| Binary content, BOM, line endings, paths with non-ASCII characters or spaces | decided on raw bytes with deterministic paths/order; no text normalization |
 | Links/out-of-bounds paths/caches/fixtures; source drift or output conflicts | explicit errors or the exclusions above; sources are not written and history is not overwritten |
 
 <a id="registration"></a>

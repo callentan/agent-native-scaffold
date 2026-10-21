@@ -119,7 +119,7 @@ parse_artifacts(
 ) -> tuple[Artifact, ...]
 ```
 
-A relative `path` is resolved against the explicit `root`; the root must be an actual directory, and each input must be a readable regular file inside the resolved root. Escaping the root after resolving a symlink/junction fails; a missing file, wrong type, garbled text, or failed read is not an empty artifact. UTF-8 with or without BOM, LF/CRLF, and paths containing non-ASCII (for example CJK) characters and spaces are all covered by real-file tests. There is no guarantee against another process maliciously replacing a path between the check and the open; this is not an operating-system sandbox.
+A relative `path` is resolved against the explicit `root`; the root must be an actual directory, and each input must be a readable regular file inside the resolved root. Escaping the root after resolving a symlink/junction fails; a missing file, wrong type, garbled text, or failed read is not an empty artifact. UTF-8 with or without BOM, LF/CRLF, and paths containing non-ASCII characters and spaces are all covered by real-file tests. There is no guarantee against another process maliciously replacing a path between the check and the open; this is not an operating-system sandbox.
 
 `parse_artifacts` processes only the explicitly given collection and keeps the input order; for a duplicate scope/id it reports both the second and the first location. The same ID in different scopes is valid. An empty collection returns an empty tuple but still validates the root; this does not mean business coverage is complete. Parsing a single file never scans other files for deduplication.
 

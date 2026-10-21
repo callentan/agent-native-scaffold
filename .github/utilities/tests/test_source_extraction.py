@@ -79,7 +79,7 @@ class SourceFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "source 输入 with spaces"
+        self.root = self.workspace / "source ввод € with spaces"
         self.root.mkdir()
 
     def tool(self, name="extract_source"):
@@ -208,13 +208,13 @@ class TextExtractionTests(SourceFixture):
                 self.assertEqual("INVALID_PATH", caught.exception.code)
 
     def test_extract_04_transcript_preserves_supplied_speaker_time_turn_and_literal(self):
-        raw = ('{"speaker":"李 A","timestamp":"00:00:02.125","text":"Rule: Borrow at most two items."}\r\n'
+        raw = ('{"speaker":"Олег € A","timestamp":"00:00:02.125","text":"Rule: Borrow at most two items."}\r\n'
                '\r\n{"speaker":"B","timestamp":"00:00:01.000","text":"Maybe three instead."}\r\n')
         path = self.write(("\ufeff" + raw).encode("utf-8"), "meeting.txt")
         report = self.extract(path, "transcript")
         self.assertEqual(3, report["unit_count"])
         first, second = report["candidates"]
-        self.assertEqual({"line": 1, "turn": 1, "speaker": "李 A", "timestamp": "00:00:02.125"},
+        self.assertEqual({"line": 1, "turn": 1, "speaker": "Олег € A", "timestamp": "00:00:02.125"},
                          first["location"])
         self.assertEqual({"line": 3, "turn": 2, "speaker": "B", "timestamp": "00:00:01.000"},
                          second["location"])
@@ -266,7 +266,7 @@ class TextExtractionTests(SourceFixture):
 
     def test_extract_07_explicit_uncertainty_is_preserved_not_probabilistic(self):
         items = self.extract(self.write("Rule: Maybe members should borrow three items.\n"
-                                       "规则：额度待确认。\n"
+                                       "Rule: The loan limit is unconfirmed.\n"
                                        "Capability: Export is proposed.\n"))["candidates"]
         self.assertEqual(["uncertain"] * 3, [i["nature"] for i in items])
         self.assertEqual(["rule", "rule", "capability"], [i["kind"] for i in items])
@@ -275,12 +275,12 @@ class TextExtractionTests(SourceFixture):
             self.assertNotIn("confidence", item)
 
     def test_extract_16_bom_crlf_unicode_spaces_and_executable_text_are_literal(self):
-        raw = ('\ufeff规则：必须保留来源。\r\n\r\n'
+        raw = ('\ufeffRule: Источник данных € must be kept.\r\n\r\n'
                '$(New-Item NEVER-CREATE); python -c "raise SystemExit(7)"\r\n').encode("utf-8")
-        path = self.write(raw, "来源 unicode 空格.txt")
+        path = self.write(raw, "источник unicode € пробел.txt")
         before = source_bytes(self.root)
         items = self.extract(path)["candidates"]
-        self.assertEqual("规则：必须保留来源。", items[0]["fragment"])
+        self.assertEqual("Rule: Источник данных € must be kept.", items[0]["fragment"])
         self.assertEqual({"line": 3, "paragraph": 2}, items[1]["location"])
         self.assertEqual("statement", items[1]["kind"])
         self.assertEqual(sha(raw), items[0]["source"]["baseline"])
@@ -509,7 +509,7 @@ class DocxExtractionTests(SourceFixture):
 
 class SourceCliTests(SourceFixture):
     def test_extract_15_default_stdout_is_read_only_with_actual_selected_root(self):
-        path = self.write("Rule: Keep the input file.\n", "a spaced 来源.txt")
+        path = self.write("Rule: Keep the input file.\n", "a spaced источник €.txt")
         before = source_bytes(self.workspace)
         result = self.cli("extract_source", "--root", str(self.root),
                           "--source", path.name, "--kind", "text")

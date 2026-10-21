@@ -35,7 +35,7 @@ class TraceFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "交付 inputs with spaces"
+        self.root = self.workspace / "поставка € inputs with spaces"
         self.root.mkdir()
         self.delivery = write_delivery_fixture(self.root)
 

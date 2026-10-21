@@ -39,7 +39,7 @@ class ImplementationFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "实施 object with spaces"
+        self.root = self.workspace / "реализация € object with spaces"
         self.object = seed_implementation_fixture(self.root)
         self.scope = "sample/CTX-001"
 
@@ -82,7 +82,7 @@ class ImplementationFixture(unittest.TestCase):
         criteria = ("record", "no-write") if vt == "VT-002" else ("allow", "reject")
         owner = "SR-001" if vt == "VT-002" else "REQ-001"
         statuses = statuses or {criteria[0]: "pass", criteria[1]: "not-run"}
-        raw_path = self.root / f"reports/原始 {vt}-{number}.txt"
+        raw_path = self.root / f"reports/сырые € {vt}-{number}.txt"
         raw_path.parent.mkdir(exist_ok=True)
         raw_path.write_text(
             "SYNTHETIC TEST INPUT ONLY, not an actual application execution receipt.\n"
@@ -167,9 +167,9 @@ class ImplementationReportTests(ImplementationFixture):
         (self.root / "Approved-test_record-pass.txt").write_text("Approved; pass", encoding="utf-8")
         report = self.collect(["verification/VT-002.md"])
         entries = self.entries(report)
-        self.assertEqual([{"path": "source code/借用.txt", "baseline": self.object, "symbol": "record"}],
+        self.assertEqual([{"path": "source code/заем€.txt", "baseline": self.object, "symbol": "record"}],
                          entries[DELIVERY[2]]["codeRefs"])
-        self.assertEqual([{"path": "native tests/验证.txt", "baseline": self.object, "testId": "test_record"}],
+        self.assertEqual([{"path": "native tests/проверка€.txt", "baseline": self.object, "testId": "test_record"}],
                          entries[DELIVERY[2]]["testRefs"])
         self.assertEqual([], entries[DELIVERY[0]]["testRefs"])
         self.assertEqual(["not-run"] * 4, [item["execution"]["status"] for item in report["entries"]])
@@ -320,13 +320,13 @@ class ImplementationReportTests(ImplementationFixture):
 
     def test_exact_object_not_current_code_config_index_or_head(self):
         original = self.object
-        code = self.root / "source code/借用.txt"
+        code = self.root / "source code/заем€.txt"
         code.write_text("Current file has no markers", encoding="utf-8")
         self.config(lambda data: data.update(projectId="not-selected"))
         git(self.root, "add", "--", ".")
         git(self.root, "commit", "--quiet", "-m", "Different current object")
-        (self.root / "native tests/验证.txt").write_text("Uncommitted test drift", encoding="utf-8")
-        git(self.root, "add", "--", "native tests/验证.txt")
+        (self.root / "native tests/проверка€.txt").write_text("Uncommitted test drift", encoding="utf-8")
+        git(self.root, "add", "--", "native tests/проверка€.txt")
         before = source_bytes(self.root)
         report = self.collect()
         self.assertEqual(original, report["object"]["baseline"])
@@ -369,13 +369,13 @@ class ImplementationReportTests(ImplementationFixture):
         self.error("SCOPE_MISMATCH", ["foreign/verification/VT-002.md"])
 
     def test_marker_requires_real_named_location_and_exact_test_id(self):
-        code = self.root / "native tests/验证.txt"
+        code = self.root / "native tests/проверка€.txt"
         code.write_text(code.read_text(encoding="utf-8").replace("test_record():", "another_test():"), encoding="utf-8")
         self.commit()
         self.error("INVALID_MARKER")
 
     def test_declared_test_id_without_matching_source_location_is_input_error(self):
-        (self.root / "native tests/验证.txt").unlink()
+        (self.root / "native tests/проверка€.txt").unlink()
         self.commit()
         self.error("MISSING_TEST_REFERENCE")
 
@@ -403,7 +403,7 @@ class ImplementationReportTests(ImplementationFixture):
             self.tool().build_report(empty, sha, [])
 
     def test_separate_local_domain_git_bytes_index_and_config_unchanged_success_and_error(self):
-        domain = self.workspace / "领域 readonly"
+        domain = self.workspace / "домен € readonly"
         seed_git_repo(domain)
         (domain / "model").mkdir()
         (domain / "model/rule.txt").write_bytes(b"Owned domain rule, fixed version.\n")
@@ -411,13 +411,13 @@ class ImplementationReportTests(ImplementationFixture):
         git(domain, "commit", "--quiet", "-m", "Fixed local domain source")
         baseline = git(domain, "rev-parse", "HEAD")
         self.config(lambda data: data.update(domainSources=[{
-            "id": "external-local-domain", "kind": "git", "root": "../领域 readonly",
+            "id": "external-local-domain", "kind": "git", "root": "../домен € readonly",
             "path": "model", "baseline": baseline, "readOnly": True,
         }]))
         self.commit()
         before = source_bytes(self.workspace)
         report = self.collect()
-        self.assertEqual([{"root": "../领域 readonly", "path": "model", "baseline": baseline}], report["domainSources"])
+        self.assertEqual([{"root": "../домен € readonly", "path": "model", "baseline": baseline}], report["domainSources"])
         self.assertEqual(before, source_bytes(self.workspace))
         (domain / "model/rule.txt").write_bytes(b"Changed local rule, must not repair.\n")
         before_error = source_bytes(self.workspace)
@@ -469,7 +469,7 @@ class ImplementationReportTests(ImplementationFixture):
         self.assertEqual(4, len(json.loads(result.stdout)["entries"]))
         self.assertEqual(before, source_bytes(self.root))
         selector, _ = self.run_record(statuses={"record": "fail"}, counts="exit=1; discovered=1; executed=1; skipped=0")
-        output = self.root / "报告 summary.json"
+        output = self.root / "отчет € summary.json"
         before = source_bytes(self.root)
         result = self.cli("--evidence", selector, "--output", str(output))
         self.assertEqual(1, result.returncode, result.stderr + result.stdout)
@@ -617,7 +617,7 @@ class Task8BoundaryTests(ImplementationFixture):
 
     def test_replace_refs_and_filter_settings_cannot_change_the_exact_object_or_run(self):
         selected = self.object
-        (self.root / "source code/借用.txt").write_text("Other object's content", encoding="utf-8")
+        (self.root / "source code/заем€.txt").write_text("Other object's content", encoding="utf-8")
         replacement = self.commit()
         git(self.root, "replace", selected, replacement)
         marker = self.root / "filter-was-executed.txt"
@@ -709,7 +709,7 @@ class EvidenceSelectionTests(ImplementationFixture):
 
     def test_i2_one_test_covering_independent_criteria_is_counted_once(self):
         self.replace_in_vt("testId: test_no_write", "testId: test_record")
-        (self.root / "native tests/验证.txt").write_text(
+        (self.root / "native tests/проверка€.txt").write_text(
             "# Self-owned TEXT locator; no native test is executed.\n"
             f"# verifies: {DELIVERY[2]} testId=test_record\n"
             f"# verifies: {DELIVERY[3]} testId=test_record\n"
@@ -833,7 +833,7 @@ class EvidenceSelectionTests(ImplementationFixture):
         path = self.root / "verification/VT-002.md"
         raw = path.read_bytes().replace(
             b'<a id="runs"></a>',
-            ("Known plan note\uff1a" + "\u2028" * 3 + '\n<a id="runs"></a>').encode("utf-8"),
+            ("Known plan note → €" + "\u2028" * 3 + '\n<a id="runs"></a>').encode("utf-8"),
         )
         path.write_bytes(b"\xef\xbb\xbf" + raw.replace(b"\n", b"\r\n"))
         self.commit()

@@ -47,7 +47,7 @@ class UpdateFixture(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
         self.base, self.local, self.candidate = (
-            self.workspace / name for name in ("old base", "owner 本地", "new candidate")
+            self.workspace / name for name in ("old base", "owner локально €", "new candidate")
         )
         for root in (self.base, self.local, self.candidate):
             root.mkdir()
@@ -213,7 +213,7 @@ class ThreeWayTests(UpdateFixture):
 
     def test_update_14_raw_binary_bom_newline_unicode_and_stable_order(self):
         cases = [
-            ("资料/中文 路径.md", b"line\n", b"line\r\n", b"line\n", "LOCAL_MODIFIED"),
+            ("данные/текст € путь.md", b"line\n", b"line\r\n", b"line\n", "LOCAL_MODIFIED"),
             ("z.bin", b"\x00\xff\x01", b"\x00\xff\x01", b"\x00\xfe\x01", "CANDIDATE_MODIFIED"),
             ("BOM.md", b"text", b"\xef\xbb\xbftext", b"text", "LOCAL_MODIFIED"),
             ("a.txt", b"old", b"old", b"new", "CANDIDATE_MODIFIED"),
@@ -224,7 +224,7 @@ class ThreeWayTests(UpdateFixture):
         self.assertTrue(hasattr(first, "to_dict"), "The plan needs a deterministic JSON contract")
         self.assertEqual(first.to_dict(), second.to_dict())
         self.assertEqual(["a.txt", "z.bin"], [item.path for item in first.changes])
-        self.assertEqual(["BOM.md", "资料/中文 路径.md"], [item.path for item in first.preserved])
+        self.assertEqual(["BOM.md", "данные/текст € путь.md"], [item.path for item in first.preserved])
         actual = {item.path: item for item in (*first.changes, *first.preserved)}
         for path, old, owner, new, reason in cases:
             self.assert_item(actual[path], "preserve" if reason == "LOCAL_MODIFIED" else "modify",
@@ -355,7 +355,7 @@ class SingleCliTests(UpdateFixture):
     def test_update_16_explicit_new_output_is_separate_and_never_replaces_history(self):
         self.triplet("rules.md", b"old", b"owner", b"new")
         before = self.snapshot()
-        output = self.workspace / "提案 with spaces.json"
+        output = self.workspace / "предложение € with spaces.json"
         run = self.cli("--output", output)
         self.assertEqual(1, run.returncode, run.stderr + run.stdout)
         self.assertEqual(json.loads(run.stdout), json.loads(output.read_bytes()))
@@ -557,7 +557,7 @@ class VersionScopeTests(UpdateFixture):
 class BatchProposalTests(UpdateFixture):
     def setUp(self):
         super().setUp()
-        self.source_file = "scenarios/接收 场景.feature"
+        self.source_file = "scenarios/прием сцена €.feature"
         self.target_file = "verification/incoming.feature"
         self.old = b"Feature: decision\n  Scenario: accept old\n"
         self.new = b"Feature: decision\n  Scenario: accept candidate\n"
@@ -579,7 +579,7 @@ class BatchProposalTests(UpdateFixture):
                 "local": {"root": root.name, "version": content_version(root, (self.target_file,))},
                 "files": [{"source": self.source_file, "path": self.target_file}],
             })
-        self.registration = self.workspace / "targets 选择.yaml"
+        self.registration = self.workspace / "targets выбор €.yaml"
         self.data = {
             "schemaVersion": 1,
             "source": {
@@ -1053,7 +1053,7 @@ class PathAndReservationTests(UpdateFixture):
         run, payload = self.batch_cli(path, "clean")
         self.assertEqual(0, run.returncode, run.stdout + run.stderr)
         plan = payload["targets"][0]["plan"]
-        self.assertEqual(["../old base", "../owner 本地", "../new candidate"],
+        self.assertEqual(["../old base", "../owner локально €", "../new candidate"],
                          [source["root"] for source in plan["sources"]])
         self.assertEqual(commits, [source["version"] for source in plan["sources"]])
         self.assertEqual(before, source_bytes(self.workspace), "Local Git reads must not change owner or metadata bytes")

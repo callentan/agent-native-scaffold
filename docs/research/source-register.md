@@ -77,7 +77,7 @@ The body text of every entry was read in this round. All access dates are 2026-1
 
 | ID | Source | Content used in this round |
 |---|---|---|
-| P1 | OpenAI: [Harness engineering](https://openai.com/index/harness-engineering/); the text actually read in the browser was the [official Chinese-language version](https://openai.com/zh-Hans-CN/index/harness-engineering/) | Published 2026-02-11; short entry point, repository knowledge, observable environment, mechanical architecture constraints, long-term maintenance |
+| P1 | OpenAI: [Harness engineering](https://openai.com/index/harness-engineering/); the text actually read in the browser was the [official localized version](https://openai.com/zh-Hans-CN/index/harness-engineering/) | Published 2026-02-11; short entry point, repository knowledge, observable environment, mechanical architecture constraints, long-term maintenance |
 | P2 | Anthropic: [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Split between initialization and incremental execution, progress handoff, feature list, end-to-end verification |
 | P3 | Anthropic: [Claude Code best practices](https://code.claude.com/docs/en/best-practices) | Explicit verifiable outcomes, planning after exploration, on-demand context, permission isolation |
 | P4 | GitHub: [Spec Kit](https://github.com/github/spec-kit) | Specification, plan, tasks, implementation, and convergence; the current README also distinguishes separate entry points for bug fixing and idea assessment |

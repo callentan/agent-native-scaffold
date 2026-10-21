@@ -43,7 +43,7 @@ class SourceManifestContractTests(unittest.TestCase):
         baseline = "sha256:" + hashlib.sha256(b"known local source\n").hexdigest()
         return {"schemaVersion": 1, "scopes": {
             "sample/CTX-001": {"sequences": [{"path": "sources/sequence.yaml", "baseline": baseline}]},
-            "sample/CTX-002": {"quality": [{"path": "质量 空格/QAS-001.md", "baseline": baseline}]},
+            "sample/CTX-002": {"quality": [{"path": "качество €/QAS-001.md", "baseline": baseline}]},
         }}
 
     def test_accepts_explicit_multiple_scopes_and_reference_only_entries(self):
@@ -131,7 +131,7 @@ class ModelFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "模型 sources with spaces"
+        self.root = self.workspace / "модель € sources with spaces"
         self.root.mkdir()
         write_delivery_fixture(self.root)
         self.scope = "sample/CTX-001"
@@ -1423,7 +1423,7 @@ class Task8BridgeTests(ModelFixture):
 
     def test_unreadable_or_drifted_original_run_report_removes_only_optional_bridge(self):
         _, path, _, _, selection = self.implementation_source(executed=True)
-        raw_report = self.root / "reports/原始 VT-002-1.txt"
+        raw_report = self.root / "reports/сырые € VT-002-1.txt"
         raw_report.write_bytes(raw_report.read_bytes() + b"unrecorded drift")
         before = source_bytes(self.root)
         model = self.export()
@@ -1454,7 +1454,7 @@ class Task8BridgeTests(ModelFixture):
     def test_final_report_domain_declarations_protect_output_even_when_optional_validation_fails(self):
         from collect_implementation_report import build_report
         seed_implementation_fixture(self.root)
-        domain = self.workspace / "领域 read-only"
+        domain = self.workspace / "домен € read-only"
         seed_git_repo(domain)
         (domain / "model").mkdir()
         (domain / "model/rule.txt").write_bytes(b"Explicit local domain input.\n")
@@ -1462,7 +1462,7 @@ class Task8BridgeTests(ModelFixture):
         git(domain, "commit", "--quiet", "-m", "Fixed local domain")
         baseline = git(domain, "rev-parse", "HEAD")
         config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
-        config["domainSources"] = [{"id": "external-domain", "kind": "git", "root": "../领域 read-only",
+        config["domainSources"] = [{"id": "external-domain", "kind": "git", "root": "../домен € read-only",
                                     "path": "model", "baseline": baseline, "readOnly": True}]
         write_yaml(self.root / "bc-config.yaml", config)
         git(self.root, "add", "--", ".")
@@ -1491,14 +1491,14 @@ class DomainReservationTests(ModelFixture):
     def domain_report(self):
         from collect_implementation_report import build_report
         seed_implementation_fixture(self.root)
-        domain = self.workspace / "fix1 领域"
+        domain = self.workspace / "fix1 домен €"
         seed_git_repo(domain)
         (domain / "model").mkdir()
         (domain / "model/rule.txt").write_bytes(b"Fixed source input, never an output location.\n")
         git(domain, "add", "--", ".")
         git(domain, "commit", "--quiet", "-m", "Fix1 fixed local domain input")
         config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
-        config["domainSources"] = [{"id": "fixed-domain", "kind": "git", "root": "../fix1 领域",
+        config["domainSources"] = [{"id": "fixed-domain", "kind": "git", "root": "../fix1 домен €",
                                     "path": "model", "baseline": git(domain, "rev-parse", "HEAD"), "readOnly": True}]
         write_yaml(self.root / "bc-config.yaml", config)
         git(self.root, "add", "--", ".")
@@ -1546,10 +1546,10 @@ class DomainReservationTests(ModelFixture):
     def test_i1_incomplete_or_unresolvable_locations_block_even_unrelated_output(self):
         _, report, path = self.domain_report()
         declarations = (
-            {"root": "../fix1 领域"}, {"path": "model"}, {},
-            {"root": None, "path": "model"}, {"root": "../fix1 领域", "path": None},
+            {"root": "../fix1 домен €"}, {"path": "model"}, {},
+            {"root": None, "path": "model"}, {"root": "../fix1 домен €", "path": None},
             {"root": "https://example.invalid/domain", "path": "model"},
-            {"root": "../fix1 领域", "path": "../outside"},
+            {"root": "../fix1 домен €", "path": "../outside"},
         )
         for declaration in declarations:
             with self.subTest(declaration=declaration):
@@ -1563,7 +1563,7 @@ class DomainReservationTests(ModelFixture):
 
     def test_i1_malformed_domain_declaration_container_cannot_authorize_output(self):
         _, report, path = self.domain_report()
-        for declarations in (None, "unresolved source", [None], {"root": "../fix1 领域", "path": "model"}):
+        for declarations in (None, "unresolved source", [None], {"root": "../fix1 домен €", "path": "model"}):
             with self.subTest(declarations=declarations):
                 changed = copy.deepcopy(report)
                 changed["domainSources"] = declarations
@@ -1629,13 +1629,13 @@ class ImplementationTreeTests(ModelFixture):
     def test_valid_tree_root_mapping_and_path_list_export_and_check_round_trip(self):
         self.assert_tree_round_trip(
             {"root": {"label": "quality"}, "path": ["response-time"]},
-            self.workspace / "safe 模型 export.yaml",
+            self.workspace / "safe модель € export.yaml",
         )
 
     def test_business_root_path_labels_do_not_reserve_phantom_source_directories(self):
         self.assert_tree_round_trip(
             {"root": "quality", "path": "response-time"},
-            self.root / "quality/response-time/safe 模型 export.yaml",
+            self.root / "quality/response-time/safe модель € export.yaml",
         )
 
 

@@ -201,8 +201,8 @@ class CandidateScoringTests(unittest.TestCase):
             self.root / "transcript.txt",
             source={"path": str(self.root / "transcript.txt"), "kind": "transcript",
                     "baseline": "sha256:" + "2" * 64, "byte_count": 200},
-            text="Rule: 成员 must keep receipts.",
-            fragment='{"speaker":"A","timestamp":"00:00:01.000","text":"Rule: \\u6210\\u5458 must keep receipts."}',
+            text="Rule: члены € must keep receipts.",
+            fragment='{"speaker":"A","timestamp":"00:00:01.000","text":"Rule: \\u0447\\u043b\\u0435\\u043d\\u044b \\u20ac must keep receipts."}',
             location={"line": 1, "turn": 1, "speaker": "A", "timestamp": "00:00:01.000"},
         )
         self.assertEqual(100, self.score([item])[0]["score"]["value"])

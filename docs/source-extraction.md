@@ -51,11 +51,11 @@ Each candidate has the following fixed fields:
 | `markdown_context` | Newly extracted Markdown candidates carry `{"in_comment": false}` or `true`, indicating whether the raw line was already inside an HTML comment before entering the scanner; it is not extra visible content or an authentication result. Other formats do not allow this field |
 
 Supported explicit labels are `Rule:`, `Capability:`, `Use case:` / `Use-case:`, and
-`Term:`, plus the recognized non-English (Chinese) input labels `规则：` (Rule), `能力：` (Capability), `用例：` (Use case), and `术语：` (Term). English matching is case-insensitive.
-Unlabeled text is inferred as a rule only from `must/shall/never/required/cannot` or the Chinese input cue words `必须` (must), `不得` (must not), and `禁止` (prohibited),
-and as a capability only from `can/allows/supports` or `能够` (can) and `支持` (supports); everything else is a statement.
+`Term:`; matching is case-insensitive.
+Unlabeled text is inferred as a rule only from `must/shall/never/required/cannot`,
+and as a capability only from `can/allows/supports`; everything else is a statement.
 This is not a complete natural-language recognizer and cannot prove necessity or that the domain type is correct.
-`maybe/should/proposed/perhaps/unconfirmed` and the Chinese input cue words `待确认` (to be confirmed), `可能` (maybe), and `建议` (suggest) are kept as uncertainty,
+`maybe/should/proposed/perhaps/unconfirmed` are kept as uncertainty markers,
 overriding the ordinary observed/inferred classification. Contradictory sources may both lack proposal words; both must still be kept and compared by the method;
 the tool does not automatically detect all business contradictions or choose a prevailing rule, and has no supersedes/confirmed status.
 
@@ -100,7 +100,7 @@ The tool does not open the original or authenticate the original hash, the speak
 complete text/classification are internally consistent. Do not advertise this limitation as a guarantee of authenticity or approval.
 
 `kind`, `nature`, and all `uncertainty` markers must match the result of reclassifying the complete normalized unit,
-including the order and repetition of markers. Truncating text, removing Maybe/should/`待确认`, or manually overriding
+including the order and repetition of markers. Truncating text, removing `maybe`/`should`/`unconfirmed`, or manually overriding
 nature/markers to disguise a different candidate is not allowed. Separate business judgments by the owner are still recorded through the shared method, and the tool's observations are not modified
 in place of clarification; raw fragments and coordinates are not rewritten by normalization.
 
