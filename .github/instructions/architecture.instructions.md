@@ -2,13 +2,37 @@
 applyTo: "architecture/**/*.md,src/**,app/**,apps/**,lib/**,packages/**,services/**"
 ---
 
-# 有来源的架构边界
+# Source-backed architecture boundaries
 
-这些是有限的初始路径模式，不规定项目位置或代码分层。实际代码位于其他目录或客户端没有加载时，修改者仍须显式读本规则；按真实项目调整匹配范围，不为匹配而搬代码。
+Apply these rules when changing architecture documents or code. They tie architecture constraints to what the project actually adopts and to actual sources.
 
-- 先读实际任务、领域责任、SR、适用 ABB/ADR/QAS 与[开发登记](../../docs/development.md#project-registration)。只约束本项目确实采用的架构，不默认四层、服务拆分、语言、云平台、容器或专用端点。
-- 已采用分层/端口适配架构时，领域规则和业务控制逻辑依赖向内，不让基础设施细节反向决定领域含义。只有明确的 composition root/启动装配位置可以引用具体适配器来组装依赖；装配不拥有业务规则。
-- 上述例外不适用于所有控制器：边界入口不能借装配名义绕开用例/领域约束或直接实施未经约定的业务状态写入。项目已有的只读投影等例外须有实际范围/决定依据，不推导通用数据库访问许可。
-- 按来源区分事实所有者与消费者、逻辑依赖和运行消息方向。存在明确的异步集成/事件消费契约时保持其边界；概念上下文交换不足以推出服务调用、传输、重试或交付保证。
-- 依赖版本、接口兼容、失败/并发、运行/部署与可观测性约束须有实际来源；未知则提出需确认事项，不补常见 SLA/基础设施。真实取舍回 [ADR](../../architecture/README.md#decisions)，领域源不自动写回。
-- 对真实差异逐项记录路径/位置、约束来源与理由。已配置的依赖检查/原生测试只能证明其实际检查范围；语义、装配边界和取舍仍需审阅，规则文件本身没有执行或批准能力。
+## Scope of these rules
+
+- The `applyTo` patterns are a limited initial set. They do not prescribe project locations or code layering.
+- When actual code lives in other directories, or the client does not load this file, whoever makes the change must still read these rules explicitly.
+- Adjust the match patterns to the real project. Do not move code just to make it match.
+
+## Read first
+
+- First read the actual task, domain responsibilities, SR, applicable ABB/ADR/QAS, and the [development registration](../../docs/development.md#project-registration).
+- Constrain only the architecture this project actually adopts. Do not assume four layers, service decomposition, a language, a cloud platform, containers, or dedicated endpoints by default.
+
+## Dependency direction and wiring
+
+- Where a layered or ports-and-adapters architecture is already adopted, make domain rules and business control logic depend inward. Do not let infrastructure details dictate domain meaning in reverse.
+- In that architecture, only an explicit composition root or startup wiring location may reference concrete adapters to assemble dependencies. The wiring does not own business rules.
+- This wiring exception does not extend to every controller. A boundary entry point must not use wiring as a pretext to bypass use-case or domain constraints, or to write business state directly without an agreed contract.
+- An existing project exception, such as a read-only projection, needs an actual scope or decision basis. Do not infer a general permission to access the database from it.
+
+## Integration and runtime constraints
+
+- Use sources to distinguish fact owners from consumers, and logical dependencies from runtime message direction.
+- Where an explicit asynchronous integration or event-consumption contract exists, keep its boundary. A conceptual exchange between contexts is not enough to infer service calls, transport, retries, or delivery guarantees.
+- Constraints on dependency versions, interface compatibility, failure/concurrency, runtime/deployment, and observability need an actual source. When one is unknown, raise an item to be confirmed; do not fill in common SLAs or infrastructure.
+- Take real trade-offs back to an [ADR](../../architecture/README.md#decisions). Do not write back to domain sources automatically.
+
+## Deviations and evidence
+
+- Record each real deviation with its path/location, the source of the constraint, and the rationale.
+- A configured dependency check or native test proves only what it actually checks. Semantics, wiring boundaries, and trade-offs still need review.
+- This rule file can neither run nor approve anything.

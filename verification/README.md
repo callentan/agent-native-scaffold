@@ -1,125 +1,125 @@
-# 验证、覆盖与结果入口
+# Verification, coverage, and results entry point
 
-这里保存验证计划、目标引用、缺口和实际执行记录的入口，不存测试代码。需要验证工件时使用 [VT 表单](../_templates/items/verification-test.md)，放入 `verification\VT-NNN-<slug>.md`。当前尚无正式验收项或 VT，空表不表示覆盖完整或已经通过。
+This directory holds verification plans, target references, gaps, and entry points to actual run records; it does not hold test code. When a verification artifact is needed, use the [VT form](../_templates/items/verification-test.md) and save it as `verification/VT-NNN-<slug>.md`. There are no formal acceptance criteria or VTs yet; an empty table does not mean that coverage is complete or that anything has passed.
 
 <a id="layers"></a>
-## 先区分验证层次
+## Distinguish verification layers first
 
-| 层次 | 验证什么 | 目标引用示意（均为占位） |
+| Layer | What it verifies | Target reference example (all placeholders) |
 |---|---|---|
-| 业务验收 | 使用者的业务目标、规则及业务可观察结果 | `REQ-NNN-AC-01`，指向 REQ 中的稳定锚点 |
-| 软件行为 | 规定的软件行为、边界、错误和副作用 | `SR-NNN-AC-01`，指向 SR 中的稳定锚点 |
-| 适用的设计验证 | 有来源的结构、协作或设计约束 | 如 `ABB-NNN-VC-01`，指向约束所有者 |
-| 独立维护或文档检查 | 当前请求或 issue 的明确完成条件 | 如 `TASK-NNN-AC-01`，指向实际任务来源的固定小节或记录 |
+| Business acceptance | Users' business goals, rules, and business-observable outcomes | `REQ-NNN-AC-01`, pointing to the stable anchor in the REQ |
+| Software behavior | Specified software behavior, boundaries, errors, and side effects | `SR-NNN-AC-01`, pointing to the stable anchor in the SR |
+| Applicable design verification | Sourced structural, collaboration, or design constraints | For example `ABB-NNN-VC-01`, pointing to the constraint owner |
+| Standalone maintenance or document check | Explicit completion conditions of the current request or issue | For example `TASK-NNN-AC-01`, pointing to a fixed subsection or record in the actual task source |
 
-软件检查通过不能自动推出业务验收通过。文档检查只说明文档的结构或内容在所查范围内符合约定，不能算业务或软件行为执行。一个 VT 可以覆盖同层的多个目标，也可有多个 VT 覆盖一项目标，但每个目标都要有独立判据；不同层次宜分别建 VT。
+A passing software check does not automatically imply that business acceptance has passed. A document check only shows that the structure or content of documents conforms to the conventions within the checked scope; it does not count as executing business or software behavior. One VT can cover several targets in the same layer, and several VTs can cover one target, but every target needs its own standalone criterion; different layers should preferably get separate VTs.
 
 <a id="domain-scenarios"></a>
-## 可选领域场景与目标声明
+## Optional domain scenarios and target declarations
 
-[业务场景表单 TS](../_templates/items/validation-scenario.md)落在 `verification\TS-NNN-<slug>.md`，可规划上下文内、跨上下文、REQ 业务验收或 QAS 场景；不是应用测试代码。独立业务判据可由 UC、REQ、INV 或 QAS 拥有，场景引用其具体 AC 锚点，规则仍引用领域原文。没有足够来源的场景只留草稿/问题，不生成确定行为。
+The [validation scenario form (TS)](../_templates/items/validation-scenario.md) goes in `verification/TS-NNN-<slug>.md` and can plan within-context, cross-context, REQ business acceptance, or QAS scenarios; it is not application test code. A standalone business criterion can be owned by a UC, REQ, INV, or QAS; the scenario references its specific AC anchor, and rules are still referenced in the original domain text. A scenario without sufficient sources stays a draft/question and does not produce definite behavior.
 
-新 TS 与 [VT 表单](../_templates/items/verification-test.md)采用[现有元数据契约](../.github/contracts/README.md)：
+New TS and [VT forms](../_templates/items/verification-test.md) adopt the [existing metadata contract](../.github/contracts/README.md):
 
-- frontmatter 独占身份、scope、内容状态、`upstream` 与 `targets`；正文保存逐项判定方法、计划、实际结果和当前适用性。旧 VT 不自动迁移或改号；阅读旧资料不要求安装 parser。
-- 每条目标给出完整 `scope/id#anchor` 和当前文件的 `criterionAnchor`；可选 `testId` 只填真实测试标识。目标不是泛化文件标题，也不能只写 `AC-01`。
-- 每个目标有独立正文判据块和显式锚点。增加目标时同步增加块，说明前提、步骤/观察点、预期、禁止副作用和未决条件。正文可放源条目导航，不再手工维护另一张目标映射或总通过状态。
-- 核对目标文件、owner、scope 与 AC/VC 锚点是否确实匹配。parser 只核对本地判据锚点；获准执行时可用[覆盖工具](../.github/utilities/README.md#traceability)反查完整库存。它只建立分层/独立判据的结构下限，不证明语义充分。不同上下文同号时必须按完整身份查找。
+- The frontmatter exclusively holds identity, scope, content state, `upstream`, and `targets`; the body holds the per-target judgment method, plan, actual results, and current applicability. Old VTs are not migrated or renumbered automatically; reading old materials does not require installing the parser.
+- Each target gives the full `scope/id#anchor` and the current file's `criterionAnchor`; the optional `testId` takes only a real test identifier. A target is not a generic file title, and `AC-01` alone is not enough.
+- Each target has its own criterion block in the body with an explicit anchor. When adding a target, add a block at the same time that states the preconditions, steps/observation points, expected outcome, forbidden side effects, and open conditions. The body may include navigation to source items, but do not hand-maintain another target mapping or an overall pass status.
+- Check that the target file, owner, scope, and AC/VC anchor actually match. The parser checks only local criterion anchors; when execution is authorized, you can use the [coverage tool](../.github/utilities/README.md#traceability) to cross-check against the full inventory. It establishes only a structural lower bound for layered/standalone criteria and does not prove semantic sufficiency. When different contexts use the same number, look items up by their full identity.
 
-下面仅示意 `targets` 中的一条记录；替换全部占位，并在当前正文创建 `criterion-01` 的实际锚点后才能采用：
+The following only illustrates one entry in `targets`; adopt it only after replacing all placeholders and creating the actual `criterion-01` anchor in the current body:
 
 ```yaml
 - target: PROJECT/CTX-NNN/UC-NNN#uc-nnn-ac-01
   criterionAnchor: criterion-01
 ```
 
-场景 Markdown 保存来源、判据和步骤观察点。已有 `.feature` 时链接其唯一 Gherkin 正文和基线，不复制第二份；只有拟议路径时用普通文字标明“拟议、未创建”，不造失效文件链接或暗示已有 runner。没有应用/runner 的业务场景保持 `not-run`，QAS 缺测量标准也不能写成已验证。
+Scenario Markdown holds sources, criteria, and step observation points. When a `.feature` file exists, link to its single Gherkin text and baseline instead of copying it; when there is only a proposed path, mark it in plain text as "proposed, not created", without creating a broken file link or implying that a runner exists. A business scenario without an application/runner stays `not-run`, and a QAS that lacks a measurement criterion cannot be recorded as verified.
 
-实际执行选择 TS 或 VT 的一处记录作为所有者；若由 VT 持有，TS 只链接其运行块，不重复一份结果。每个目标独立记录执行结果、具体未执行原因及原始基线；当前适用性另记，不能把文档使用或 schema/parser 检查填成业务执行。
+For actual runs, choose one record, in either the TS or the VT, as the owner; if the VT holds it, the TS only links to its run block and does not duplicate the result. Record the run result, the specific reason for not running, and the original baseline separately for each target; record current applicability separately, and never record document use or a schema/parser check as business execution.
 
 <a id="feature-companion"></a>
-## Gherkin companion 与 BC 验证计划
+## Gherkin companion and BC verification plan
 
-计划活动见 [specify-feature / plan-verification](../.github/skills/specify-feature/SKILL.md#plan-verification)。从实际 UC/INV/REQ/QAS、SR 或设计判据出发，不要求先造 US/ABB；需要的输入齐备后，VT 和架构设计可独立开展。
+For the planning activity, see [specify-feature / plan-verification](../.github/skills/specify-feature/SKILL.md#plan-verification). Start from the actual UC/INV/REQ/QAS, SR, or design criteria; there is no need to create a US/ABB first. Once the required inputs are complete, VTs and architecture design can proceed independently.
 
-行为适合 Gherkin 时使用[空白 feature](../_templates/items/verification-test.feature)，与所属 VT 同名、同目录。保留来源已知的正常、拒绝/负例、边界与错误路径；没有来源的参与者、响应指标、失败政策和安全关键标签不能预填。非行为 QAS 或缺度量只留规格/缺口，不强造可执行场景。
+When behavior suits Gherkin, use the [blank feature](../_templates/items/verification-test.feature), with the same name and directory as its owning VT. Keep the normal, rejection/negative, boundary, and error paths known from sources; do not prefill actors, response metrics, failure policies, or safety-critical tags that have no source. For a non-behavioral QAS or a missing measure, keep only the specification/gap and do not force an executable scenario.
 
-- `.feature` 是 Given/When/Then 场景正文的唯一所有者。Markdown 持有目标元数据、独立判据、文件及基线导航、前提和证据，不复制第二份 Gherkin。
-- `targets[].testId` 只定位实际存在的场景/原生测试，`criterionAnchor` 对应当前 Markdown 的独立判据。文件/场景名是文本定位；runner 尚未配置时不能当作可执行选择器或声称已自动化。
-- 增加场景先核对原验收和完整覆盖，所有目标逐项判断。运行时同时记录 `.feature`、步骤实现、对象、要求及 VT 的实际基线；不让 companion 与计划分别漂移。
-- 文件存在、Approved 标签或测试文件名都不是通过/认证。没有应用、步骤实现、runner、授权命令/cwd 或报告时，行为验证保持 `not-run` 并列确切缺项。实际做了文本/语法/映射核对就只报告那一层，不称 Gherkin 执行成功。
+- The `.feature` file is the sole owner of the Given/When/Then scenario text. The Markdown holds target metadata, standalone criteria, file and baseline navigation, preconditions, and evidence, and does not keep a second copy of the Gherkin.
+- `targets[].testId` only locates a scenario/native test that actually exists, and `criterionAnchor` corresponds to a standalone criterion in the current Markdown. File/scenario names are textual locators; while no runner is configured, they cannot be treated as executable selectors or used to claim automation.
+- Before adding a scenario, check the original acceptance criteria and the full coverage, judging every target individually. When running, record the actual baselines of the `.feature` file, step implementations, object, requirements, and VT together; do not let the companion and the plan drift apart.
+- The presence of a file, an Approved tag, or a test file name is neither a pass nor a certification. Without an application, step implementations, a runner, an authorized command/cwd, or a report, behavior verification stays `not-run` and the exact missing items are listed. If you actually performed a text/syntax/mapping check, report only that layer; do not claim that the Gherkin ran successfully.
 
 <a id="coverage-check"></a>
-## 从全部验收项开始核对
+## Start checking from all acceptance criteria
 
-1. **先确定范围与基线。** 读取本次任务、范围内 REQ、SR、必要的 UC/INV/QAS 与设计及独立维护完成条件，记录范围依据和各工件版本。还没有持久任务来源的维护请求，可在现有任务或[日志的任务依据栏](../logs/README.md#task-basis)保留必要摘要与固定标识，不必制造业务需求。
-2. **先盘点验收，再找 VT。** 列出全部范围内验收项的所属工件、完整 ID 和原文链接，包括尚无 VT 的项。不能从已有 VT 的列表倒推需求清单；US 的实施勾选也不替代原始验收。
-3. **逐项找覆盖。** 搜索 VT 的目标字段，核对层次、具体目标、逐项目标预期、方法及前提是否足够。缺 VT、缺判据、漏边界或待确认项都记录为缺口，不把文件存在当成已覆盖。
-4. **反查每个 VT 目标。** 读取现有 VT，逐个确认目标文件和锚点存在、ID 包含所有者且一致、引用的是正确层次与具体条目，而非同号的另一项或泛化标题。范围外目标另行说明，悬空和错误引用不能默默忽略。
-5. **核对关系来源。** SR 维护其上游依据，VT/业务场景维护各自目标验收引用；采用元数据的工件以 frontmatter 为关系来源，正文判据经 `criterionAnchor` 定位。反向查找通过搜索这些字段完成，不在关系两端手工保存两份相反映射。
-6. **记录缺口与核对基线。** 在下方索引保留来源链接及差异。不能删除真实验收项、补造事实或擅自缩小范围来消除缺口；确需延期、撤销或排除时保留依据和责任人的确认。
+1. **Determine the scope and baselines first.** Read the current task, the in-scope REQs and SRs, the necessary UC/INV/QAS and design, and the standalone maintenance completion conditions; record the scope basis and the version of each artifact. For a maintenance request that has no persistent task source yet, keep the necessary summary and fixed identifiers in the existing task or in the [task basis section of the log](../logs/README.md#task-basis); there is no need to invent a stakeholder requirement.
+2. **Inventory acceptance criteria first, then look for VTs.** List the owning artifact, full ID, and original-text link of every in-scope acceptance criterion, including those without a VT yet. Do not derive the requirement list backwards from the list of existing VTs; implementation checkboxes in a US do not replace the original acceptance criteria either.
+3. **Find coverage item by item.** Search the target fields of VTs and check whether the layer, the specific target, the per-target expected outcome, the method, and the preconditions are sufficient. Record a missing VT, a missing criterion, an omitted boundary, or an item to be confirmed as a gap; the existence of a file does not mean coverage.
+4. **Cross-check every VT target.** Read the existing VTs and confirm one by one that the target file and anchor exist, that the ID includes its owner and is consistent, and that the reference points to the correct layer and specific item rather than to another item with the same number or a generic title. Note out-of-scope targets separately; dangling and incorrect references must not be silently ignored.
+5. **Check the source of relationships.** An SR maintains its upstream basis, and VTs/validation scenarios maintain their own target acceptance references; for artifacts that adopt metadata, the frontmatter is the source of relationships, and body criteria are located via `criterionAnchor`. Reverse lookups are done by searching these fields; do not hand-maintain two opposite mappings at both ends of a relationship.
+6. **Record gaps and the checked baselines.** Keep source links and discrepancies in the index below. Do not delete real acceptance criteria, fabricate facts, or narrow the scope on your own to eliminate gaps; when deferral, withdrawal, or exclusion is genuinely needed, keep the basis and the accountable owner's confirmation.
 
-执行授权覆盖维护工具时，使用 `check_traceability.trace_report(root, delivery_ids)` 或[实际 CLI](../.github/utilities/README.md#traceability)。`delivery_ids` 必须来自上述完整盘点，含无 VT 的验收；空/非法/重复/未知选择是输入错误，不缩小成已知部分。报告保留 owner、源行、target 和实际字节基线；计数是正式文件数量，不是业务通过数。VT 层次仍归 `plan` 表格，TS 归 `basis` 场景类型，不新增元数据层次字段。
+When your execution authorization covers the maintenance tools, use `check_traceability.trace_report(root, delivery_ids)` or the [actual CLI](../.github/utilities/README.md#traceability). `delivery_ids` must come from the complete inventory above, including acceptance criteria without a VT; an empty, invalid, duplicate, or unknown selection is an input error and is not narrowed down to the known part. The report keeps the owner, source line, target, and actual byte baseline; counts are numbers of formal files, not numbers of business passes. The VT layer still belongs in the `plan` table, and the TS layer in the scenario type under `basis`; no metadata layer field is added.
 
 <a id="coverage-index"></a>
-## 验收来源索引（待盘点）
+## Acceptance source index (to be inventoried)
 
-这是导航与差异记录，不是另一份需求、映射或结果数据库。验收正文以所有者为准，VT 目标关系以 VT 为准；索引中的 VT 链接只是本次核对找到的来源，后续必须重新核对。
+This is a navigation and discrepancy record, not another requirements, mapping, or results database. The acceptance text is authoritative in its owner, and VT target relationships are authoritative in the VT; VT links in the index are only the sources found in this check and must be rechecked later.
 
-| 核对上下文 | 内容 |
+| Check context | Content |
 |---|---|
-| 任务、交付范围与排除依据 | 待填写 |
-| 核对日期与记录者 | 待填写 |
-| 对象基线（commit、分支及未提交范围） | 待填写 |
-| REQ/SR、设计或任务依据基线 | 待填写 |
-| VT 基线与本次检索范围 | 待填写 |
+| Task, delivery scope, and basis for exclusions | TBD |
+| Check date and recorder | TBD |
+| Object baseline (commit, branch, and uncommitted scope) | TBD |
+| REQ/SR, design, or task basis baseline | TBD |
+| VT baseline and search scope of this check | TBD |
 
-逐项登记盘点出的验收项；无 VT 的项也必须保留一行。
+Register each inventoried acceptance criterion individually; criteria without a VT must also keep a row.
 
-| 所属工件与完整验收 ID 的原文链接 | 找到的 VT 来源链接（没有则注明） | 缺口、引用差异或待核对事项 |
+| Original-text link to the owning artifact and full acceptance ID | VT source links found (state if none) | Gaps, reference discrepancies, or items to check |
 |---|---|---|
-| 待盘点，尚无正式条目 | 待核对 | 待填写；不能据此宣称覆盖完整 |
+| To be inventoried; no formal entries yet | To be checked | TBD; do not use this to claim complete coverage |
 
-不要加入一份验收正文或 `pass`／`fail` 状态表。**追溯完整、实际执行、执行成功是三个不同结论**，分别需要对应依据。
+Do not add a copy of the acceptance text or a `pass`/`fail` status table. **Complete traceability, actual execution, and successful execution are three different conclusions**, each requiring its own basis.
 
 <a id="execution"></a>
-## 执行记录与适用性
+## Run records and applicability
 
-执行前确定目标及逐项判据，记录计划对象基线、需求或任务基线和 VT 计划基线。命令型检查只使用已确认的真实工具、环境和工作目录；应用命令以[开发说明](../docs/development.md#project-registration)和实际项目为依据，未配置就不执行。
+Before running, determine the targets and per-target criteria, and record the planned object baseline, the requirement or task baseline, and the VT plan baseline. Command-based checks use only confirmed real tools, environments, and working directories; application commands are based on the [development guide](../docs/development.md#project-registration) and the actual project, and are not run while they are not configured.
 
-独立文档检查不要求存在应用，但仍须确认工具来源、实际工作目录、检查对象与判据，按[文档检查说明](../docs/development.md#document-checks)记录。人工检查要写明操作和观察，不编造 shell 命令。
+A standalone document check does not require an application, but you must still confirm the tool source, actual working directory, checked object, and criteria, and record them according to the [document check notes](../docs/development.md#document-checks). For manual checks, write down the actions and observations; do not invent shell commands.
 
-实际执行记录至少包含：时间、实际对象与未提交范围、当时的需求及 VT 基线、环境、工作目录、实际命令或人工步骤、原始报告定位、逐项目标观察和结果。适用时记录退出码、发现/执行/跳过数量；零发现、全跳过或未执行不能写为目标已验证。
+An actual run record contains at least: the time, the actual object and uncommitted scope, the requirement and VT baselines at the time, the environment, the working directory, the actual command or manual steps, the raw report location, and per-target observations and results. When applicable, record the exit code and the discovered/executed/skipped counts; zero discovered, all skipped, or not run cannot be recorded as the target being verified.
 
-- 每个目标默认 `not-run`，写明未执行的具体原因；实际执行后才能依据判据记录 `pass` 或 `fail`，跳过项写 `skipped` 和原因。
-- **实际结果与当前适用性分开。** 某次结果绑定当时的对象、需求和 VT；当前适用性另记为“待复核／适用／不适用”及依据。适用不等于成功，不适用也不抹去历史执行。
-- 新检查追加新记录和新基线，不覆盖旧运行。复核适用性也保留日期与理由，不能把旧成功改成当前成功或历史失败。
-- 没有应用时，应用构建和测试对当前文档任务不适用；已经规划的业务或软件行为 VT 仍是 `not-run`，不能用文档检查替代。
-- 原始报告应有真实、可访问的来源。仅本机可用的报告明确标注访问限制；不要写入个人绝对路径、凭据或敏感原始输出，也不声称它是跨机器证据。
+- Every target defaults to `not-run`, with the specific reason it was not run; only after an actual run can `pass` or `fail` be recorded according to the criterion, and skipped items are recorded as `skipped` with a reason.
+- **Keep actual results separate from current applicability.** A result is bound to the object, requirements, and VT at the time; current applicability is recorded separately as `unverified` / `applicable` / `not-applicable` together with its basis. `applicable` does not mean success, and `not-applicable` does not erase the historical run.
+- A new check appends a new record and a new baseline; it does not overwrite old runs. Re-reviewing applicability also keeps the date and rationale; an old success cannot be turned into a current success or into a historical failure.
+- When there is no application, application builds and tests are not applicable to the current documentation task; already planned business or software behavior VTs remain `not-run` and cannot be replaced by document checks.
+- A raw report should have a real, accessible source. Clearly mark the access limitations of a report that is available only on the local machine; do not record personal absolute paths, credentials, or sensitive raw output, and do not claim that it is cross-machine evidence.
 
 <a id="implementation-summary"></a>
-## 复用现有运行生成引用摘要
+## Generate a reference summary from existing runs
 
-获准收集时按[实施报告接口](../.github/utilities/README.md#implementation-report)选择确切测试对象和实际 VT 文件/owned run 锚点；[字段与有限语法](../.github/contracts/README.md#implementation-report)复用上述表单的基线、运行信息、逐判据结果及独立适用性栏，不另建 JSON/YAML 执行输入账本。多运行须明确选择，不能选最新或拼接不同运行字段。
+When collection is authorized, select the exact test object and the actual VT file/owned run anchors through the [implementation report interface](../.github/utilities/README.md#implementation-report); the [fields and limited syntax](../.github/contracts/README.md#implementation-report) reuse the baselines, run information, per-criterion results, and separate applicability columns of the forms above, without a separate JSON/YAML execution-input ledger. When there are several runs, select one explicitly; do not pick the latest or splice together fields from different runs.
 
-收集器先保留选定 BC 的全部 owner 验收，再逐目标读取记录；无证据仍为 not-run、空 evidenceRefs 和理由。每个 pass/fail 需对应观察、可读的原始报告和核实的对象/要求/VT 基线；零发现、全跳过、测试名、Approved 或视图 available 都不提供执行。人工记录说明真实步骤，不补造自动/人工数量。
+The collector first keeps all owner acceptance criteria of the selected BC, then reads the records target by target; a target without evidence remains not-run, with empty evidenceRefs and a reason. Each pass/fail requires a corresponding observation, a readable raw report, and verified object/requirement/VT baselines; zero discovered, all skipped, a test name, Approved, or a view being available does not constitute execution. Manual records describe the real steps; do not fabricate automated/manual counts.
 
-这是**源结果的引用摘要**，不是收集器重跑了业务测试，也不认证记录者或批准。实际结果和当前适用性仍回 VT/原始报告；报告只是可重建输出，可显式被 model 引用，不将结果所有权移给模型、日志或覆盖索引。
+This is a **reference summary of source results**; it does not mean that the collector reran business tests, and it certifies neither the recorder nor an approval. Actual results and current applicability are still read from the VT/raw reports; the report is only a reproducible output that the model may reference explicitly, and it does not transfer ownership of results to the model, logs, or the coverage index.
 
 <a id="optional-reviews"></a>
-## 可选审阅与工具使用记录
+## Optional review and tool usage records
 
-需要独立保存时才采用[审阅表单](../_templates/items/review-record.md)或[工具资格与使用表单](../_templates/items/tool-qualification.md)，分别落在 `verification\REVIEW-NNN-<slug>.md`、`verification\TQ-NNN-<slug>.md`，已有项目位置不变。按[治理字段归属](../docs/governance.md#ownership)区分判据、发现、原始执行证据和具名决定；工具范围/版本/配置及重新评价见[工具说明](../docs/ai-tooling.md)。
+Adopt the [review form](../_templates/items/review-record.md) or the [tool qualification and usage form](../_templates/items/tool-qualification.md) only when a standalone record is needed; they go in `verification/REVIEW-NNN-<slug>.md` and `verification/TQ-NNN-<slug>.md` respectively, and existing project locations stay unchanged. Use the [governance field ownership](../docs/governance.md#ownership) to distinguish criteria, findings, raw execution evidence, and named decisions; for tool scope/version/configuration and re-evaluation, see the [tooling notes](../docs/ai-tooling.md).
 
-审阅仍使用 [verify-change](../.github/skills/verify-change/SKILL.md#domain-review)，默认只读；只有本次授权允许保存时才写记录。发现缺测试、冲突证据或失败判据就引用原所有者并列跟进，不能改写 VT 结果、悄悄缩小覆盖或以表单完整称通过。合成决定只演示字段/导航，声明的 confirmation 不认证实际人员或权限；Agent 自审不是人工参与验收。
+Reviews still use [verify-change](../.github/skills/verify-change/SKILL.md#domain-review) and are read-only by default; write a record only when the current authorization allows saving it. When you find missing tests, conflicting evidence, or failed criteria, reference the original owner and list follow-ups; do not rewrite VT results, quietly narrow coverage, or claim a pass because a form is complete. Synthetic decisions only demonstrate fields/navigation, and a declared confirmation does not certify an actual person or permission; agent self-review is not human participation in acceptance.
 
 <a id="change-impact"></a>
-## 领域规则、边界或要求改变时
+## When domain rules, boundaries, or requirements change
 
-1. 记录改变的规则/上下文/验收 ID、来源、旧新基线及确认状态。影响行为但尚不明确的业务意图先澄清。
-2. 沿引用并结合语义检查依赖的 UC、INV、REQ、QAS、SR、ABB/ADR、SEQ/SWAS、场景/VT 及 companion 和任务，列出受影响与待复核项；边界/接口变化还要核对 CAP、context map、Published Interface、伙伴及已采用的战术资料。**即使引用文件没有复制数值规则，仍可能受影响**；仅链接有效不能证明语义未变。
-3. 更新确实受影响的行为边界、验收场景、设计约束、VT 预期及索引缺口。不要无故改动未受影响规则；判断无影响要有依据。
-4. 保留旧结果及原基线，把其对当前内容的适用性标为待复核。按新基线重新执行相关检查并追加结果；对象或环境不具备时保留 `not-run` 与原因。
-5. 在[交接记录](../logs/README.md#handoff)中指明变化、缺口、待复核与未执行项。文档一致性复查和业务/软件行为执行始终分开。
+1. Record the changed rule/context/acceptance IDs, the source, the old and new baselines, and the confirmation status. First clarify any business intent that affects behavior but is still unclear.
+2. Follow the references, combined with a semantic review, to check the dependent UC, INV, REQ, QAS, SR, ABB/ADR, SEQ/SWAS, scenarios/VTs, companions, and tasks, and list the affected items and the items pending re-review; for boundary/interface changes, also check CAPs, context maps, Published Interfaces, partners, and any tactical materials in use. **A referencing file can be affected even if it did not copy the numeric rule**; valid links alone do not prove that the semantics are unchanged.
+3. Update the behavior boundaries, acceptance scenarios, design constraints, VT expectations, and index gaps that are actually affected. Do not change unaffected rules without reason; a judgment of no impact needs a basis.
+4. Keep old results and their original baselines, and mark their applicability to the current content as `unverified`. Rerun the relevant checks against the new baseline and append the results; when the object or environment is not available, keep `not-run` with the reason.
+5. In the [handoff record](../logs/README.md#handoff), state the changes, gaps, items pending re-review, and items not run. Always keep document consistency re-checks separate from business/software behavior execution.
 
-获准执行时，[影响工具](../.github/utilities/README.md#impact-candidates)的 `impact_report(root, base_sha, task_ids=())` 可从明确完整 commit 与当前文件派生候选。它沿旧新 canonical upstream/targets 追踪，保留删除/移除引用的链和实际理由，不因数值只在规则里而忽略消费者。普通轻量链接、隐含业务含义、严重度和旧结果适用性仍由上述方法核对；工具不执行检查、不修改规则或历史结果。
+When execution is authorized, `impact_report(root, base_sha, task_ids=())` in the [impact tool](../.github/utilities/README.md#impact-candidates) can derive candidates from an explicit full commit and the current files. It traces the old and new canonical upstream/targets, keeps the chains and actual reasons for deleted/removed references, and does not ignore consumers just because a value appears only in the rule. Ordinary lightweight links, implicit business meaning, severity, and the applicability of old results are still checked with the method above; the tool does not run checks or modify rules or historical results.

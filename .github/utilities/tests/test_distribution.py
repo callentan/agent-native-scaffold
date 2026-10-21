@@ -663,7 +663,7 @@ class DistributionTests(unittest.TestCase):
 
     def add_swas(self, root: Path) -> Path:
         body = (
-            "# SWAS-001：参数化导出演示输入\n\n"
+            "# SWAS-001: Parameterized export demo input\n\n"
             '<a id="basis"></a>\n## Selected basis\n\n'
             "A source-owned local document fixture; not an approval.\n\n"
             '<a id="business"></a>\n## Owned business\n\n'
@@ -805,9 +805,9 @@ class DistributionTests(unittest.TestCase):
         candidate, _ = self.copied_candidate("registration-boundary")
         readme = (candidate / "README.md").read_text(encoding="utf-8")
         development = (candidate / "docs/development.md").read_text(encoding="utf-8")
-        self.assertIn("待填写", readme)
-        self.assertIn("未配置", development)
-        self.assertIn("技术栈", development)
+        self.assertIn("TBD", readme)
+        self.assertIn("not configured", development)
+        self.assertIn("tech stack", development)
         source_files = sorted(path.relative_to(candidate / "src").as_posix()
                               for path in (candidate / "src").rglob("*") if path.is_file())
         self.assertEqual(["README.md"], source_files)
@@ -1071,7 +1071,7 @@ class DistributionTests(unittest.TestCase):
                 "criterionAnchor": "extra",
             }]),
             "# VT-003 fixture\n<a id=\"plan\"></a>\n## Plan\n\n"
-            "| 验证层次 | 业务验收 |\n\n"
+            "| Verification layer | Business acceptance |\n\n"
             + criterion_block("extra", "No target record is created.",
                               "Compare the local fixture inventory.",
                               "No application execution."),
@@ -1312,16 +1312,17 @@ class DistributionTests(unittest.TestCase):
         readme = exercise / "README.md"
         before_candidate = (candidate / "README.md").read_bytes()
         text = readme.read_text(encoding="utf-8")
-        self.assertIn("| 项目名称 | 待填写 |", text)
-        self.assertIn("| 当前工作范围摘要 | 待填写，尚未确认 |", text)
-        text = text.replace("| 项目名称 | 待填写 |", "| 项目名称 | 骨架文档演练 |", 1)
+        self.assertIn("| Project name | TBD |", text)
+        self.assertIn("| Current work scope summary | TBD; not yet confirmed |", text)
+        text = text.replace("| Project name | TBD |", "| Project name | Skeleton document exercise |", 1)
         text = text.replace(
-            "| 当前工作范围摘要 | 待填写，尚未确认 |",
-            "| 当前工作范围摘要 | 只维护资料，不创建应用 |", 1,
+            "| Current work scope summary | TBD; not yet confirmed |",
+            "| Current work scope summary | Maintain documentation only; do not create an application |", 1,
         )
         readme.write_text(text, encoding="utf-8", newline="\n")
-        self.assertIn("骨架文档演练", readme.read_text(encoding="utf-8"))
-        self.assertIn("只维护资料，不创建应用", readme.read_text(encoding="utf-8"))
+        self.assertIn("Skeleton document exercise", readme.read_text(encoding="utf-8"))
+        self.assertIn("Maintain documentation only; do not create an application",
+                      readme.read_text(encoding="utf-8"))
         self.assertIn("project-registration", (exercise / "src/README.md").read_text(encoding="utf-8"))
         self.assertEqual(before_candidate, (candidate / "README.md").read_bytes())
         self.assertFalse((exercise / "src" / "app.py").exists())
@@ -1330,7 +1331,7 @@ class DistributionTests(unittest.TestCase):
     def test_dist_17_original_t07_t11_t12_boundaries_remain_visible(self):
         candidate, _ = self.copied_candidate("original-boundaries")
         development = (candidate / "docs/development.md").read_text(encoding="utf-8")
-        self.assertIn("业务应用仍未配置", development)
+        self.assertIn("The business application is still not configured", development)
         self.assertTrue((candidate / ".github/skills/verify-change/SKILL.md").is_file())
         self.assertEqual(["README.md"], sorted(path.name for path in (candidate / "src").iterdir()))
         self.assertFalse((candidate / "docs/research").exists())
@@ -1343,13 +1344,18 @@ class DistributionTests(unittest.TestCase):
         fixture.mkdir()
         write_delivery_fixture(fixture)
         body = (
-            "# DM-001：固定文档演练素材\n\n"
-            "概念：成员、物品、借用记录；每条借用记录关联一名成员与一件物品；未归还记录计为在借。\n\n"
-            "成员资格上下文提供资格有效性，不管理借还或额度。借用上下文依据资格结果管理借还与在借额度，不修改成员资格。\n\n"
-            '<a id="rule-001"></a>\n## RULE-001：初始额度\n\n'
-            "借用时须有有效资格，每名成员最多有 2 件在借物品。资格有效且已有 1 件时可借第 2 件；"
-            "已有 2 件时拒绝新增且不改变现有记录。\n\n"
-            "资格失效后既有借用的处理、并发一致性仍未定义。\n"
+            "# DM-001: Fixed document exercise material\n\n"
+            "Concepts: member, item, loan record; each loan record links one member and one item; "
+            "an unreturned record counts as on loan.\n\n"
+            "The membership context provides eligibility validity and does not manage borrowing, returns, "
+            "or allowances. The borrowing context manages borrowing, returns, and the on-loan allowance "
+            "based on the eligibility result and does not modify membership eligibility.\n\n"
+            '<a id="rule-001"></a>\n## RULE-001: Initial allowance\n\n'
+            "Borrowing requires valid eligibility, and each member may have at most 2 items on loan. "
+            "With valid eligibility and 1 item on loan, a member may borrow a 2nd item; "
+            "with 2 items on loan, a new loan is rejected and existing records are unchanged.\n\n"
+            "Handling of existing loans after eligibility expires and concurrency consistency "
+            "remain undefined.\n"
         )
         write_metadata(fixture, metadata(id="DM-001", kind="domain-model"), body, "domain-model/DM-001.md")
         before = (fixture / "domain-model/DM-001.md").read_bytes()
@@ -1357,10 +1363,12 @@ class DistributionTests(unittest.TestCase):
         self.assertTrue((candidate / "_templates/items/bounded-context.md").is_file())
         facts = before.decode("utf-8")
         for statement in (
-            "成员、物品、借用记录", "未归还记录计为在借",
-            "成员资格上下文提供资格有效性", "借用上下文依据资格结果",
-            "已有 1 件时可借第 2 件", "已有 2 件时拒绝新增",
-            "资格失效后既有借用的处理、并发一致性仍未定义",
+            "member, item, loan record", "an unreturned record counts as on loan",
+            "The membership context provides eligibility validity",
+            "The borrowing context manages borrowing, returns, and the on-loan allowance "
+            "based on the eligibility result",
+            "1 item on loan, a member may borrow a 2nd item", "with 2 items on loan, a new loan is rejected",
+            "Handling of existing loans after eligibility expires and concurrency consistency remain undefined",
         ):
             self.assertIn(statement, facts)
         checked = self.candidate_cli(candidate, "check_artifacts", "--root", str(fixture))
@@ -1401,25 +1409,30 @@ class DistributionTests(unittest.TestCase):
                 ("Allowance limit: 2", "Allowance limit: 3"),
             ],
             "stakeholder-requirements/REQ-001.md": [
-                ("有效会员在源规则额度内能完成借用。",
-                 "资格有效且已有 2 件在借时可借第 3 件；已有 3 件时拒绝且保留所有记录。"),
-                ("超出源规则额度时不得形成新的业务借用。",
-                 "已有 3 件在借时拒绝新增且不改变现有记录。"),
+                ("A valid member can complete a loan within the source rule allowance.",
+                 "With valid eligibility and 2 items on loan, a member may borrow a 3rd item; "
+                 "with 3 items on loan, the request is rejected and all records are kept."),
+                ("Beyond the source rule allowance, no new business loan may be created.",
+                 "With 3 items on loan, a new loan is rejected and existing records are unchanged."),
             ],
             "software-requirements/SR-001.md": [
-                ("在源规则允许范围内提交后新增一条借用记录。",
-                 "在借 2 件时提交可新增第 3 条借用记录；在借 3 件时拒绝且不改变记录。"),
-                ("超出额度提交时返回拒绝且借用记录不变。",
-                 "已有 3 件在借时返回拒绝且借用记录不变。"),
+                ("A submission within the source rule allowance adds one loan record.",
+                 "With 2 items on loan, a submission may add a 3rd loan record; "
+                 "with 3 items on loan, it is rejected and records are unchanged."),
+                ("A submission over the allowance returns a rejection and leaves loan records unchanged.",
+                 "With 3 items on loan, a submission returns a rejection and leaves loan records unchanged."),
             ],
             "verification/VT-001.md": [
-                ("额度内会员取得一次新的借用。", "有效会员在借 2 件后可取得第 3 件借用。"),
-                ("超额度会员没有形成新的借用。", "已有 3 件在借时没有形成新的借用。"),
+                ("A member within the allowance obtains one new loan.",
+                 "A valid member with 2 items on loan can obtain a 3rd loan."),
+                ("A member over the allowance does not obtain a new loan.",
+                 "With 3 items on loan, no new loan is created."),
             ],
             "verification/VT-002.md": [
-                ("有效请求新增一条关联会员的记录。", "在借 2 件时新增第 3 条关联会员的记录。"),
-                ("超额请求返回拒绝且前后记录完全相同。",
-                 "在借 3 件时返回拒绝且前后记录完全相同。"),
+                ("A valid request adds one record linked to the member.",
+                 "With 2 items on loan, a 3rd record linked to the member is added."),
+                ("An over-allowance request returns a rejection and the records before and after are identical.",
+                 "With 3 items on loan, a rejection is returned and the records before and after are identical."),
             ],
         }
         for relative, replacements in changes.items():

@@ -5,60 +5,60 @@ kind: intended-use
 scope: PROJECT/CTX-NNN
 contentState: draft
 ---
-# IU-NNN：待填写用途范围
+# IU-NNN: TBD scope of use
 
-> 可选用途资料，不预置产品或临床声明。先读[用途与风险边界](../../docs/governance.md#intended-use)。按需复制到 `domain-model\IU-NNN-<slug>.md`，替换占位与相对链接后删除本提示。已有用途修订仍需原文/基线；新表不能替代不可读的现行文件。正式身份、状态和真实上游只归 frontmatter。
+> Optional Intended Use material; it presets no product or clinical claims. Read the [use and risk boundaries](../../docs/governance.md#intended-use) first. Copy it to `domain-model/IU-NNN-<slug>.md` as needed, replace the placeholders and relative links, and then delete this notice. Revising an existing Intended Use still requires the original text/baseline; a new form cannot replace an unreadable current document. Formal identity, status, and real upstream relationships belong only in the frontmatter.
 
 <a id="basis"></a>
-## 来源与责任
+## Source and responsibility
 
-| 来源信息 | 内容 |
+| Source information | Content |
 |---|---|
-| 实际用途来源、章节与固定基线 | 未提供：只整理已知来源，不创造现行声明 |
-| 事实所有者及责任依据 | 未提供：需要实际责任人 |
-| 当前任务、拟稿/修订范围与授权 | 待填写 |
-| 来源可访问性与未决输入 | 待填写；不可读与不存在分别说明 |
+| Actual Intended Use source, section, and pinned baseline | Not provided: only organize known sources; do not create current claims |
+| Fact owner and basis of responsibility | Not provided: an actual accountable owner is required |
+| Current task, drafting/revision scope, and authorization | TBD |
+| Source accessibility and open inputs | TBD; describe unreadable and nonexistent sources separately |
 
 <a id="use"></a>
-## 目的、使用者与环境
+## Purpose, users, and environment
 
-| 用途信息 | 内容 |
+| Use information | Content |
 |---|---|
-| 目的与预期解决的问题 | 待填写 |
-| 预期使用者及必要条件 | 待填写；不默认某个专业角色 |
-| 使用环境与运行边界 | 未提供：需来源确认 |
-| 范围内的用途与对象 | 待填写 |
-| 明确排除的用途与已知误用边界 | 未提供：不把空白当无限范围 |
-| 必要约束及其来源 | 未提供：不默认临床、安全或监管分类 |
+| Purpose and the problem it is expected to solve | TBD |
+| Intended users and necessary conditions | TBD; do not assume a particular professional role |
+| Use environment and operating boundaries | Not provided: needs source confirmation |
+| In-scope uses and objects | TBD |
+| Explicitly excluded uses and known misuse boundaries | Not provided: do not treat a blank as unlimited scope |
+| Necessary constraints and their sources | Not provided: do not assume a clinical, safety, or regulatory classification |
 
-仅在实际来源涉及相应事项时引用患者、临床、安全或监管要求；不由表单、工具输出或常识补充产品声明、分类或 RA 批准。
+Cite patient, clinical, safety, or regulatory requirements only when an actual source covers them; do not add product claims, classifications, or RA approval from the form, tool output, or common knowledge.
 
 <a id="change"></a>
-## 候选变更与现行来源的区别
+## Candidate changes versus the current source
 
-| 变更信息 | 内容 |
+| Change information | Content |
 |---|---|
-| 现行内容的章节/基线入口 | 未提供：没有现行决定就写明 |
-| 拟议章节变化、理由与提出来源 | 待填写；没有变更时说明本次只是来源整理 |
-| 已知差异与尚不能确定的含义 | 待填写 |
+| Section/baseline entry point of the current content | Not provided: if there is no current decision, say so |
+| Proposed section changes, rationale, and who proposed them | TBD; if there is no change, state that this is only source organization |
+| Known differences and implications not yet determinable | TBD |
 
 <a id="decision"></a>
-## 实际用途决定与边界
+## Actual Intended Use decision and boundaries
 
-| 决定信息 | 内容 |
+| Decision information | Content |
 |---|---|
-| 决定原文、日期与被决定基线 | 未提供：提案不是采纳 |
-| 具名决定者及适用责任/政策依据 | 未提供：需要实际负责用途的决定 |
-| 被接受/拒绝的范围与限制 | 未提供：不确认新用途或下游承诺 |
-| 升级条件及实际责任入口 | 未提供：未知政策须由责任人确定，不自动分级 |
+| Original decision text, date, and decided baseline | Not provided: a proposal is not an adoption |
+| Named decision maker and applicable responsibility/policy basis | Not provided: a decision by whoever is actually responsible for the Intended Use is required |
+| Accepted/rejected scope and limitations | Not provided: do not confirm new uses or downstream commitments |
+| Escalation conditions and actual responsibility entry point | Not provided: unknown policies must be determined by the accountable owner; do not classify automatically |
 
-本记录的确认声明按现有契约留在 frontmatter；它不替代原用途决定。未知负责政策、环境或约束时保留 draft 和受影响确认的停点。
+This record's confirmation statement stays in the frontmatter per the existing contract; it does not replace the original Intended Use decision. When the responsibility policy, environment, or constraints are unknown, keep `draft` and the stop point for the affected confirmation.
 
 <a id="impact"></a>
-## 影响、问题与后续
+## Impact, questions, and follow-up
 
-| 受影响的原工件/章节入口 | 差异或未知项及影响理由 | 需谁补什么、被阻塞动作与后续验证 |
+| Entry point to the affected original artifact/section | Difference or unknown, and impact rationale | Who must supply what, blocked actions, and follow-up verification |
 |---|---|---|
-| 待填写实际上下文、REQ/QAS/SR、设计/接口、风险或验证入口 | 待填写；只列相关对象，不创造下游链 | 待填写；未执行不写通过 |
+| TBD: entry points to the actual context, REQ/QAS/SR, design/interface, risk, or verification | TBD; list only related objects; do not invent a downstream chain | TBD; if not run, do not write passed |
 
-保留现行用途与旧证据基线，候选变化先交实际责任人决定。风险分析和接受由其原所有者负责；没有适用责任规则时停止受影响的确认，仍可保留已知部分与明确问题。
+Keep the current Intended Use and the old evidence baselines; candidate changes go to the actual accountable owner for a decision first. Risk analysis and acceptance are the responsibility of their original owners; when no applicable responsibility rule exists, stop the affected confirmation, while the known parts and explicit questions may still be kept.

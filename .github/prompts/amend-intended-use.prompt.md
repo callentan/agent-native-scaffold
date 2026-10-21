@@ -1,12 +1,22 @@
 ---
-description: 在已提供现有 Intended Use 时分析章节修订、范围影响与需升级的决定。
+description: Analyze section amendments, scope impact, and decisions that need escalation for a provided existing Intended Use.
 ---
 
-# 修订 Intended Use
+# Amend Intended Use
 
-当前输入（由用户填写）：
-- 现有完整文件、版本/基线、事实所有者与目标章节：待填写。
-- 拟议内容、理由及实际提供且适用的治理/风险依据：待填写。
-- 期望差异/影响提案、允许修改的范围与授权：待填写；无原文不生成替代用途事实。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [define-requirements 的可选 Intended Use 修订](../skills/define-requirements/SKILL.md#intended-use)，方法正文与停止条件以该文件为准。
+- Existing complete Intended Use file and its version/baseline: TBD
+- Fact owner: TBD
+- Target sections: TBD
+- Proposed content and rationale: TBD
+- Governance/risk basis actually provided and applicable: TBD
+- Expected difference/impact proposal: TBD
+- Permitted modification scope and authorization: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [define-requirements](../skills/define-requirements/SKILL.md) in full, then apply its [optional Intended Use amendment](../skills/define-requirements/SKILL.md#intended-use) section.
+3. Without the original text, do not generate substitute intended-use facts.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

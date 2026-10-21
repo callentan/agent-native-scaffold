@@ -1,74 +1,239 @@
 ---
 name: specify-feature
-description: Use when a feature or maintenance task has a basis but its software acceptance, delivery slice, architecture constraints, sequence or verification plan is not yet precise.
+description: Use when a feature or maintenance task has a basis but its software acceptance, delivery slice, architecture constraints, sequence, architecture specification, or verification plan is not yet precise. Not for unclear business rules or insufficient sources (use define-requirements), or for maintaining or generating code (use implement-task or generate-code).
 ---
 
-# 细化行为与验证计划
+# Specify behavior and the verification plan
 
-实施前先确定要观察什么、由哪一层验收、怎样逐项判定。规格、必要设计与验证计划可以先完成，执行结果不能预填；各活动不是自动角色流水线。
+Before implementation, decide what to observe, which layer accepts it, and how each item is judged. You may complete specifications, necessary design, and the verification plan first, but **never prefill run results**. The activities below are not an automatic role pipeline.
 
-## 输入
+## Choose the activity
 
-- 本次任务、范围、非目标、完成条件与读写授权；实际模型、REQ/UC/INV/CAP/QAS，或可定位的独立维护请求。
-- 当前全部验收、相关 SR/US/ABB/ADR/VT、接口或序列及各自基线；只读取本任务适用且真实提供的资料。
-- [开发说明](../../../docs/development.md)中的真实配置或未配置状态；采用 [BC 配置](../../../architecture/README.md#bc-configuration)时另核对身份、源根/路径、固定对象、只读性质与登记引用。配置不授予执行权。
+Complete the common steps first. Then choose only the activities this task needs:
 
-## 先选择活动
+- [Derive software requirements](#derive-requirements): turn REQ/UC/INV/CAP/QAS sources into software requirements (SR).
+- [Optional delivery slice](#delivery-slice): organize delivery into a user story (US), only when delivery needs organizing.
+- [Necessary architecture and decisions](#design-architecture): record an independent structural constraint (ABB) or a real trade-off (ADR).
+- [Pre-implementation verification plan](#plan-verification): plan how each in-scope acceptance item is verified (VT).
+- [Sequence description](#sequence-diagram): describe one scenario's interaction paths (SEQ).
+- [Compile the architecture specification](#build-architecture-spec): compile the source views into a Markdown architecture specification (SWAS).
 
-先读原文并区分实际确认、候选与未知；来源不足时回 [define-requirements](../define-requirements/SKILL.md)，不把 Approved 标签、实现常量或 draft INV 当成强制事实。明确本次是分析、拟稿还是获准修订，检查所有拟写文件及已有内容，冲突停写。
+The activities do not form a mandatory chain:
 
-按任务选择下面的小节；SR/VT 不必经过 US，ABB 与 VT 可在各自必要输入齐备后独立开展。小维护可沿用任务完成条件，不建完整工件链。采用元数据时按[现有契约](../../../domain-model/README.md#artifact-metadata)填写，来源关系/内容声明归 frontmatter，正文写含义、阅读导航与判据，旧轻量资料不自动迁移。
+- A US is optional. SR and VT need not go through a US.
+- ABB and VT can each proceed independently once their own necessary inputs are complete.
+- Small maintenance may reuse the task's completion conditions without building a full artifact chain.
+
+## Inputs
+
+- Required:
+  - The task: scope, non-goals, completion conditions, and read/write authorization.
+  - The basis: the actual model and REQ/UC/INV/CAP/QAS, or a locatable independent maintenance request.
+  - All current acceptance criteria, with their baselines.
+  - The actual configuration, or not-configured state, in the [development guide](../../../docs/development.md).
+- When applicable:
+  - Related SR/US/ABB/ADR/VT, interfaces, or sequences, with their respective baselines.
+  - An adopted [BC configuration](../../../architecture/README.md#bc-configuration): check its identity, source roots/paths, pinned objects, read-only nature, and registration references.
+
+Read only materials that apply to this task and were actually provided. Configuration does not grant execution rights.
+
+## Common steps
+
+1. Read the source text first. Distinguish what is actually confirmed, what is a candidate, and what is unknown.
+2. When sources are insufficient, go back to [define-requirements](../define-requirements/SKILL.md).
+   - Do not treat an Approved label, an implementation constant, or a draft INV as a binding fact.
+3. State whether this session is analysis, drafting, or an authorized revision.
+4. Check every file you will write and its existing content. On conflict, stop writing.
+5. When metadata is adopted, fill it in according to the [existing contract](../../../domain-model/README.md#artifact-metadata):
+   - Put source relationships and content declarations in frontmatter.
+   - In the body, state meaning, reading navigation, and criteria.
+   - Do not migrate old lightweight materials automatically.
+6. Run the chosen activities. Each one follows the same pattern: purpose, inputs, actions, output, and stop points.
 
 <a id="derive-requirements"></a>
-## 派生软件要求
+## Derive software requirements
 
-1. 从实际 REQ 验收、UC 路径、源规则/INV、CAP/上下文职责及适用 QAS 逐项确定软件要表达的行为。记录源位置、确认依据与固定基线；缺源或歧义阻塞相应要求确认，已知部分可保留草稿/问题。缺身份时先用获准笔记，不发明 canonical 引用。
-2. 按[SR 指引](../../../software-requirements/README.md#sr-writing)填写 [SR](../../../_templates/items/software-requirement.md#basis)，新稿始终为 draft。`upstream` 声明可定位来源，正文说明细化理由；分别写正常/允许、边界、拒绝、错误与禁止副作用。缺接口、资格失效、并发或指标政策时列具体问题，不替业务作决定。
-3. 每项软件验收用完整 owner ID 和稳定锚点；只写软件层可观察标准，规则仍回原文。核对既有 SR，避免重号、重复要求或无声覆盖；来源变更先走 [语义影响](../verify-change/SKILL.md#impact)，再规划下面的分层 VT。
+Purpose: determine, item by item, the behavior the software must express, and record it as SRs with software-layer acceptance criteria.
+
+Inputs: the actual REQ acceptance criteria, UC paths, source rules/INVs, CAP/context responsibilities, and applicable QAS; existing SRs.
+
+Actions:
+
+1. From those inputs, determine item by item the behavior the software must express.
+2. Record each item's source locations, confirmation basis, and pinned baselines.
+3. When identity is missing, use an authorized note first. Do not invent canonical references.
+4. Fill in the [SR form](../../../_templates/items/software-requirement.md#basis) following the [SR guide](../../../software-requirements/README.md#sr-writing). New drafts are always `draft`.
+5. Declare locatable sources in `upstream`. Explain the refinement rationale in the body.
+6. Write normal/allowed, boundary, rejection, error, and forbidden side-effect cases separately.
+7. When an interface, eligibility-lapse, concurrency, or metric policy is missing, list specific questions. Do not make decisions on behalf of the business.
+8. Give every software acceptance criterion a full owner ID and a stable anchor.
+   - Write only criteria observable at the software layer.
+   - Leave the rules in their source text.
+9. Check existing SRs to avoid duplicate numbers, duplicate requirements, or silent overrides.
+10. For source changes, go through [semantic impact](../verify-change/SKILL.md#impact) first. Then plan the layered VTs in [Pre-implementation verification plan](#plan-verification).
+
+Output: SRs with source locations, baselines, and anchored software acceptance criteria, plus specific questions for missing policies.
+
+Stop points:
+
+- A missing source or an ambiguity blocks confirmation of the corresponding requirement. Keep the known parts as drafts or questions.
 
 <a id="delivery-slice"></a>
-## 可选交付切片
+## Optional delivery slice
 
-需要组织交付时才使用 [US](../../../_templates/items/user-story.md)与[交付指引](../../../user-stories/README.md#delivery)。基于 SR 的正式切片先核实 SR 及适用 UC/INV 的确认依据；未确认来源只留下候选拆分与阻塞，不产出可实施承诺。按实际角色/价值、路径与约束说明范围、修改位置、依赖和清单，不造角色、不按固定技术层分故事，也不复制第二份 AC。
+Purpose: organize delivery into a US only when delivery needs to be organized.
 
-任务进度归 US 正文，内容声明归 frontmatter，执行归 VT。没有独立交付需要时跳过建 US，不影响可直接规划的 SR、设计或 VT；独立维护任务仍沿其原依据。
+Inputs: the slice's basis, such as SRs with their confirmation basis and the applicable UC/INV; the actual roles/value, paths, and constraints.
+
+Actions:
+
+1. Decide whether there is an independent delivery need.
+   - If there is none, skip creating a US. Skipping does not affect SRs, design, or VTs that can be planned directly.
+   - Independent maintenance tasks still follow their original basis.
+2. Otherwise, use the [US form](../../../_templates/items/user-story.md) and the [delivery guide](../../../user-stories/README.md#delivery).
+3. For a formal slice based on SRs, first verify the confirmation basis of the SRs and the applicable UC/INV.
+4. Describe the scope, change locations, dependencies, and checklist from the actual roles/value, paths, and constraints.
+   - Do not invent roles.
+   - Do not split stories by fixed technical layers.
+   - Do not copy a second set of acceptance criteria.
+5. Put task progress in the US body and content declarations in frontmatter. Runs belong in the VT.
+
+Output: a US, only when delivery needs organizing, in the location given in the delivery guide.
+
+Stop points:
+
+- When sources are unconfirmed, keep only candidate splits and blockers. Do not make implementable commitments.
 
 <a id="design-architecture"></a>
-## 必要架构与决策
+## Necessary architecture and decisions
 
-1. 读取实际 SR、CAP/上下文、接口、适用 QAS/ADR 和已有设计，显式读[架构规则](../../instructions/architecture.instructions.md)。有独立结构约束才写 [ABB](../../../_templates/items/architecture-building-block.md)；真实取舍才写 [ADR](../../../_templates/items/architecture-decision.md)，不要求先有 US。
-2. 按[架构指引](../../../architecture/README.md#building-blocks)说明拥有/消费事实、职责、依赖和协作方向；选型、接口/依赖版本、运行/部署、观测与质量均须有源。未决定 ADR、draft QAS、未知版本或边界只支持候选与缺口，不预设四层目录或平台。
-3. 将领域依赖与合法 composition root 装配分开；装配不成为控制器绕开领域规则的通行证。真实设计约束有独立 VC/锚点或引用原所有者，由 VT 规划适当判据。来件 ADR 交给 [incoming-adr](../define-requirements/SKILL.md#incoming-adr)，决定和通知不自动生效。
+Purpose: record design only for an independent structural constraint or a real trade-off. Neither an ABB nor an ADR requires a US first.
+
+Inputs: the actual SRs, CAP/contexts, interfaces, applicable QAS/ADRs, and existing design; the [architecture rules](../../instructions/architecture.instructions.md).
+
+Actions:
+
+1. Read the inputs. Read the architecture rules explicitly.
+2. Write an [ABB](../../../_templates/items/architecture-building-block.md) only for an independent structural constraint. Write an [ADR](../../../_templates/items/architecture-decision.md) only for a real trade-off.
+3. Following the [architecture guide](../../../architecture/README.md#building-blocks), describe owned/consumed facts, responsibilities, dependencies, and collaboration direction.
+4. Give a source for every technology choice, interface/dependency version, and runtime/deployment, observability, or quality statement.
+   - Do not presuppose a four-layer directory structure or a platform.
+5. Keep domain dependencies separate from legitimate composition-root wiring. Wiring is not a pass for controllers to bypass domain rules.
+6. Give each real design constraint its own VC/anchor, or reference its original owner. Plan suitable criteria for it in the VT.
+7. Hand incoming ADRs to [incoming-adr](../define-requirements/SKILL.md#incoming-adr). Decisions and notifications do not take effect automatically.
+
+Output: ABBs or ADRs, only when warranted, in the locations given in the architecture guide.
+
+Stop points:
+
+- Undecided ADRs, draft QAS, and unknown versions or boundaries support only candidates and gaps.
 
 <a id="plan-verification"></a>
-## 实施前验证计划
+## Pre-implementation verification plan
 
-1. 按[全量验收盘点](../../../verification/README.md#coverage-check)先列所有范围内 REQ、UC/INV/QAS、SR、必要设计和维护完成条件的所有者、完整 ID、原文与基线，包括**没有 VT 的项**。缺源/身份先留精确缺口，不用已有 VT 倒推或缩小范围。
-2. 按[验证层次](../../../verification/README.md#layers)分别规划业务、软件、适用设计或文档检查，使用 [VT](../../../_templates/items/verification-test.md#plan)。每条 `targets` 声明实际 `scope/id#anchor` 和本地 `criterionAnchor`；正文逐项保存独立判据、观察方式、前提/禁止副作用与未决项，不再抄目标关系表。反查源 owner、锚点与层次，不能一句“全部通过”覆盖多个目标。
-3. 需要 Gherkin 时按[companion 指引](../../../verification/README.md#feature-companion)使用 [feature](../../../_templates/items/verification-test.feature)；它独占场景正文，VT 保存真实文件/基线导航和逐项判据。只用已知正常/负例和度量，安全标签须有具名来源。不存在步骤实现/runner 时只有文本计划，不称自动化完成。
-4. 记录对象、要求/任务与 VT 计划基线，核实实际环境、方法、命令/cwd 与报告位置。缺项目、命令或报告时逐目标为 `not-run` 并说明缺项，不造测试标识。业务验收不是软件结果的汇总，文档检查也不能填进行为运行。
-5. 在[验证索引](../../../verification/README.md#coverage-index)登记导航、核对基线与缺口，不另建结果表。实施与执行前按 [verify-change](../verify-change/SKILL.md#coverage)核对完整覆盖及语义影响；只有实际证据支持时才由原记录作结论。
+Purpose: before implementation, decide for every in-scope acceptance item which layer verifies it, how it is judged, and against which baselines.
+
+Inputs: every in-scope REQ, UC/INV/QAS, SR, necessary design item, and maintenance completion condition; the actual environment, method, command/cwd, and report location.
+
+Actions:
+
+1. First, following the [full acceptance inventory](../../../verification/README.md#coverage-check), list the owner, full ID, source text, and baseline of every in-scope item, **including items without a VT**.
+2. Following the [verification layers](../../../verification/README.md#layers), plan business, software, applicable design, or document checks separately, using a [VT](../../../_templates/items/verification-test.md#plan).
+3. In each `targets` entry, declare the actual `scope/id#anchor` and a local `criterionAnchor`.
+4. In the VT body, keep per item the independent criterion, observation method, preconditions/forbidden side effects, and open items.
+   - Do not also copy a target-relationship table.
+5. Trace each item back to its source owner, anchor, and layer. A single "all passed" cannot cover multiple targets.
+6. When Gherkin is needed, use the [feature file](../../../_templates/items/verification-test.feature) following the [companion guide](../../../verification/README.md#feature-companion).
+   - The feature file exclusively holds the scenario text. The VT keeps navigation to the actual file/baseline and the per-item criteria.
+   - Use only known normal/negative cases and measures. Safety tags need a named source.
+   - Without step implementations or a runner, the feature file is only a text plan. Do not call it automated.
+7. Record the object, requirement/task, and VT plan baselines.
+8. Verify the actual environment, method, command/cwd, and report location.
+9. Keep layers apart:
+   - Business acceptance is not an aggregate of software results.
+   - Never enter document checks as behavioral runs.
+10. Register navigation, checked baselines, and gaps in the [verification index](../../../verification/README.md#coverage-index). Do not build a separate result table.
+11. Before implementation and runs, check complete coverage and semantic impact with [verify-change](../verify-change/SKILL.md#coverage).
+
+Output: VTs (and feature companions when needed) with per-target criteria, baselines, and gaps, registered in the verification index.
+
+Stop points:
+
+- When a source or identity is missing, record an exact gap first. Do not work backward from existing VTs or narrow the scope.
+- When the project, command, or report is missing, mark each affected target `not-run` and state the gap. Do not invent test identifiers.
+- Draw conclusions in the original record only when actual evidence supports them.
 
 <a id="sequence-diagram"></a>
-## 时序说明
+## Sequence description
 
-读取本场景的实际 UC、ABB、规则、参与者及事件/接口契约与版本，使用 [SEQ](../../../_templates/items/sequence-diagram.md)。逐路径说明提供/生产方 → 使用/消费方、消息含义与成功/拒绝/错误的已知预期；缺 ABB 参与者映射或契约时标局部说明和缺口，必要时暂不作图。
+Purpose: describe one scenario's interaction paths using only what the sources support.
 
-已有来源明确异步集成/事件消费才采用对应异步边界；只有上下文概念交换时不发明同步调用、broker、重试/超时/幂等/顺序或交付保证。Mermaid 只表达可回源部分，不是运行测试。已确认图的修订先核对授权、旧新基线和验证影响，不覆盖原证据。
+Inputs: this scenario's actual UC, ABBs, rules, participants, and event/interface contracts with their versions.
+
+Actions:
+
+1. Read the inputs. Use a [SEQ](../../../_templates/items/sequence-diagram.md).
+2. For each path, describe the direction from provider/producer to user/consumer, the message meaning, and the known expectations for success, rejection, and error.
+3. Adopt an asynchronous boundary only when existing sources explicitly state asynchronous integration or event consumption.
+4. When there is only a conceptual exchange between contexts, do not invent synchronous calls, brokers, retries/timeouts/idempotency/ordering, or delivery guarantees.
+5. In Mermaid, express only the parts traceable to a source. Mermaid is not a runtime test.
+6. Before revising a confirmed diagram, check authorization, the old and new baselines, and the verification impact. Do not overwrite the original evidence.
+
+Output: a SEQ in the location given in its guide.
+
+Stop points:
+
+- When the ABB participant mapping or a contract is missing, mark the description as partial and record the gap. Defer the diagram if necessary.
 
 <a id="build-architecture-spec"></a>
-## 汇编架构规格
+## Compile the architecture specification
 
-按 [SWAS](../../../_templates/items/architecture-specification.md)读取获准范围的业务/逻辑/运行/部署来源；若提供 model/实施摘要，核对源基线并回原文。未提供摘要不假造导出，不修改只读领域源。
+Purpose: compile a Markdown architecture specification that shows how complete each source view is.
 
-保留[九个来源视图](../../../architecture/README.md#architecture-specifications)与原始基线：缺失/不可读/不可核实为 `unverified` 并列具体 gap，部分可读为 `partial`，完整来源才为 `available`。这些只表示来源完整性，不表示风险可接受、批准或发布。必需输入错误仍阻塞；缺 ABB、风险、部署或发布资料不能补基础设施/分类。只产 Markdown 汇编，本方法不提供 PDF/演示 renderer。
+Inputs: the business, logical, runtime, and deployment sources within the authorized scope; a model/implementation summary, if provided.
 
-## 产出与完成
+Actions:
 
-按需创建或修订 SR、VT/companion 和索引；US、ABB/ADR、SEQ/SWAS 沿各自指引落点，正式内容不留在表单里。现有代码维护使用 [implement-task](../implement-task/SKILL.md)，初始生成另用 [generate-code](../generate-code/SKILL.md)，需要各自开发输入及授权。
+1. Following the [SWAS](../../../_templates/items/architecture-specification.md), read the business, logical, runtime, and deployment sources within the authorized scope.
+   - Do not modify read-only domain sources.
+2. If a model/implementation summary is provided, check its source baselines and go back to the source text. When no summary is provided, do not fake an export.
+3. Keep the [nine source views](../../../architecture/README.md#architecture-specifications) and their original baselines. Give each view a state:
+   - `unverified`: the source is missing, unreadable, or unverifiable. List the specific gap.
+   - `partial`: the source is partially readable.
+   - `available`: only when the source is complete.
+4. Treat these states as source completeness only. They do not indicate acceptable risk, approval, or release.
+5. Produce only a Markdown compilation. This method provides no PDF/presentation renderer.
 
-全部范围内验收已盘点、逐项目标与层次明确、实施前的验证计划和缺项可定位，才可交付本次规格/计划；不表示行为验证通过。没有应用时应用检查对文档任务不适用，已规划的业务/软件 VT 仍为 `not-run`。
+Output: a SWAS in Markdown, in the location given in its guide.
 
-## 停止条件
+Stop points:
 
-来源不能确定行为、验收目标无法定位、边界冲突或授权不明时，停止受影响的规格确认/实施，保留已知草稿与精确缺口。不能通过删除范围内验收、强建 US 或把其他层结果挪用过来结束任务。
+- Errors in required inputs still block.
+- Do not fill in missing ABB, risk, deployment, or release materials with infrastructure or classifications.
+
+## Outputs
+
+- Create or revise SRs, VTs and their companions, and the verification index as needed.
+- Put US, ABB/ADR, and SEQ/SWAS in the locations given in their respective guides. Do not leave formal content in the forms.
+- For code work, use [implement-task](../implement-task/SKILL.md) to maintain existing code and [generate-code](../generate-code/SKILL.md) for initial generation. Each needs its own development inputs and authorization.
+
+## Done when
+
+Deliver this specification/plan only when:
+
+- All in-scope acceptance criteria have been inventoried.
+- Each target and its layer are explicit.
+- The pre-implementation verification plan and its gaps are locatable.
+
+Delivery does not mean behavioral verification has passed. Without an application, application checks are not applicable to documentation tasks, and planned business/software VTs remain `not-run`.
+
+## Stop conditions
+
+- Stop the affected specification confirmation or implementation when any of these holds:
+  - Sources cannot determine behavior.
+  - Acceptance targets cannot be located.
+  - Boundaries conflict.
+  - Authorization is unclear.
+- Stop writing when a file to be written conflicts with its existing content.
+- Then keep known drafts and exact gaps.
+- **Do not finish the task by deleting in-scope acceptance criteria, forcing a US, or borrowing results from another layer.**

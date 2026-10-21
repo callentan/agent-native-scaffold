@@ -99,38 +99,38 @@ _ROLE_KINDS = {
 }
 _DIRECT_VALUES = {
     ("stories", "user-story"): (
-        ("task", "status", ("任务进度", "status"), "text"),
+        ("task", "status", ("Task progress", "status"), "text"),
     ),
     ("architecture", "architecture-building-block"): (
-        ("runtime", "language", ("language", "实现语言"), "text"),
-        ("runtime", "framework", ("framework", "框架"), "text"),
+        ("runtime", "language", ("language", "Implementation language"), "text"),
+        ("runtime", "framework", ("framework", "Framework"), "text"),
     ),
     ("sequences", "sequence-diagram"): (
-        ("paths", "hasAsync", ("hasAsync", "异步交互"), "bool"),
-        ("participants", "externalPartners", ("externalPartners", "外部伙伴"), "text"),
+        ("paths", "hasAsync", ("hasAsync", "Asynchronous interaction"), "bool"),
+        ("participants", "externalPartners", ("externalPartners", "External partners"), "text"),
     ),
     ("verification", "verification-test"): (
-        ("runs", "lastRunDate", ("lastRunDate", "日期、执行者与方式"), "text"),
-        ("runs", "result", ("result", "实际结果"), "text"),
-        ("runs", "automatedCount", ("automatedCount", "自动检查数量"), "count"),
-        ("runs", "manualCount", ("manualCount", "人工检查数量"), "count"),
-        ("runs", "notes", ("notes", "报告可访问性与限制"), "text"),
+        ("runs", "lastRunDate", ("lastRunDate", "Date, executor, and mode"), "text"),
+        ("runs", "result", ("result", "Actual result"), "text"),
+        ("runs", "automatedCount", ("automatedCount", "Automated check count"), "count"),
+        ("runs", "manualCount", ("manualCount", "Manual check count"), "count"),
+        ("runs", "notes", ("notes", "Report accessibility and limitations"), "text"),
     ),
     ("quality", "quality-attribute-scenario"): (
-        ("scenario", "stimulusSource", ("stimulusSource", "刺激源：谁或什么发起"), "text"),
-        ("scenario", "stimulus", ("stimulus", "刺激：发生什么"), "text"),
-        ("scenario", "environment", ("environment", "环境：在哪些运行或业务条件下"), "text"),
-        ("scenario", "object", ("object", "对象：哪个业务过程或受影响对象"), "text"),
-        ("scenario", "response", ("response", "响应：应观察到什么"), "text"),
-        ("scenario", "responseMeasure", ("responseMeasure", "响应度量：可测标准、单位与适用范围"), "text"),
+        ("scenario", "stimulusSource", ("stimulusSource", "Source of stimulus: who or what initiates it"), "text"),
+        ("scenario", "stimulus", ("stimulus", "Stimulus: what happens"), "text"),
+        ("scenario", "environment", ("environment", "Environment: under which operational or business conditions"), "text"),
+        ("scenario", "object", ("object", "Object: which business process or affected object"), "text"),
+        ("scenario", "response", ("response", "Response: what should be observed"), "text"),
+        ("scenario", "responseMeasure", ("responseMeasure", "Response measure: measurable criterion, unit, and scope"), "text"),
     ),
     ("governance", "review-record"): (
-        ("decision", "status", ("status", "审阅结论"), "text"),
-        ("decision", "notes", ("notes", "限制与说明"), "text"),
+        ("decision", "status", ("status", "Review conclusion"), "text"),
+        ("decision", "notes", ("notes", "Limitations and notes"), "text"),
     ),
     ("risk", "risk-control"): (
-        ("analysis", "preMitigationLevel", ("preMitigationLevel", "控制前风险"), "text"),
-        ("residual", "residualRiskLevel", ("residualRiskLevel", "残余风险"), "text"),
+        ("analysis", "preMitigationLevel", ("preMitigationLevel", "Pre-mitigation risk"), "text"),
+        ("residual", "residualRiskLevel", ("residualRiskLevel", "Residual risk"), "text"),
     ),
     ("release", "development-log"): tuple(
         ("release", name, (name,), "text")
@@ -525,7 +525,8 @@ def _run_source(source: Artifact, baseline: str) -> tuple[list[dict], list[str]]
         return [], [f"{source.relative_path}#runs: missing owned run block for verificationSummary.{field}"
                     for _, field, _, _ in fields]
     evidence, gaps, complete = [], [], []
-    basis_labels = ("实际对象基线", "当时的需求/设计/任务依据基线", "当时的 VT 基线")
+    basis_labels = ("Actual object baseline", "Requirement/design/task basis baseline at the time",
+                    "VT baseline at the time")
     for anchor in runs:
         lines = section_lines(source, anchor)  # Strict criterion/anchor isolation is unchanged.
         evidence.append({"reference": source.relative_path + "#" + anchor, "baseline": baseline})
@@ -538,23 +539,23 @@ def _run_source(source: Artifact, baseline: str) -> tuple[list[dict], list[str]]
             if kind == "count":
                 # The form's compound count row may explicitly state auto/manual
                 # counts. Overall found/executed totals never imply those splits.
-                stem = "自动" if field == "automatedCount" else "人工"
-                pattern = re.compile(r"(?<![\w])(?:" + field + "|" + stem
-                                     + r"(?:检查)?(?:数量)?)[ \t]*[:=：]?[ \t]*([0-9]+)(?![\w.])")
-                for _, text in _table_values(lines, "退出码、发现/执行/跳过数量（适用时）"):
+                stem = "automated" if field == "automatedCount" else "manual"
+                pattern = re.compile(r"(?<![\w])(?:" + field + "|(?i:" + stem
+                                     + r")(?:[ \t]+(?i:checks?))?(?:[ \t]+(?i:count))?)[ \t]*[:=]?[ \t]*([0-9]+)(?![\w.])")
+                for _, text in _table_values(lines, "Exit code and discovered/executed/skipped counts (when applicable)"):
                     values.extend(pattern.findall(text))
             valid = len(values) == 1 and bool(values[0].strip())
             if valid and kind == "count":
                 valid = bool(re.fullmatch(r"[0-9]+", values[0].strip()))
             elif valid:
-                valid = not re.match(r"^(?:未提供|未配置|未执行|待填写|未知|unknown)(?:$|[：:，,；; ])",
+                valid = not re.match(r"^(?:not provided|not configured|not run|TBD|unknown)(?:$|[:,; ])",
                                      values[0].strip(), re.I)
             if not valid:
                 run_gaps.append(f"{prefix}: missing or ambiguous verificationSummary.{field}")
         for label in basis_labels:
             values = _table_values(lines, label)
             value = values[0][1].strip() if len(values) == 1 else ""
-            if not value or re.match(r"^(?:未提供|未执行|待填写|未知|unknown)(?:$|[：:，,；; ])", value, re.I):
+            if not value or re.match(r"^(?:not provided|not run|TBD|unknown)(?:$|[:,; ])", value, re.I):
                 run_gaps.append(f"{prefix}: missing or ambiguous run basis {label}")
             basis.append(value)
         results, result_gaps = _run_results(source, anchor, lines)
@@ -602,7 +603,7 @@ def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: st
             rows = [row for label in labels for row in _table_values(section_lines(source, anchor), label)]
             value = rows[0][1].strip() if len(rows) == 1 else ""
             valid = (bool(value) and not re.match(
-                r"^(?:未提供|未配置|未执行|待填写|待确定|未知|unknown|unverified)(?:$|[：:，,；; ])", value, re.I))
+                r"^(?:not provided|not configured|not run|TBD|unknown|unverified)(?:$|[:,; ])", value, re.I))
             if kind == "bool":
                 valid = value in ("true", "false")
             elif kind == "count":

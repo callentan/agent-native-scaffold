@@ -1,13 +1,23 @@
 ---
-description: 依据实际来源与缺口汇编 Markdown 架构规格。
+description: Compile a Markdown architecture specification from actual sources and gaps.
 ---
 
-# 汇编架构规格
+# Compile an architecture specification
 
-当前输入（由用户填写）：
-- 目的、范围、非目标与拟写位置：待填写。
-- 实际业务/逻辑/运行/部署来源，REQ/SR、US、ABB/ADR、SEQ、VT/QAS 及可用摘要的基线：待填写。
-- 适用治理、风险、发布资料及不可用/不完整来源：待填写。
-- 原规格、当前差异与读取/拟稿/修订授权：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [specify-feature](../skills/specify-feature/SKILL.md)，使用其[汇编架构规格](../skills/specify-feature/SKILL.md#build-architecture-spec)小节。本入口不认证批准，也不提供 PDF/演示渲染命令。
+- Purpose, scope, and non-goals: TBD
+- Intended location: TBD
+- Actual business/logical/runtime/deployment sources: TBD
+- Baselines of REQ/SR, US, ABB/ADR, SEQ, VT/QAS, and any available summaries: TBD
+- Applicable governance, risk, and release materials: TBD
+- Unavailable or incomplete sources: TBD
+- Original specification and current differences: TBD
+- Authorization to read, draft, or revise: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [architecture specification compilation](../skills/specify-feature/SKILL.md#build-architecture-spec) section.
+3. This prompt does not certify approval and does not provide PDF or presentation rendering commands.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

@@ -7,48 +7,48 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# INV-NNN：待填写业务不变量
+# INV-NNN: TBD business invariant
 
-> 可选空表单，不是由代码反推的规则。先读[规则指引](../../domain-model/README.md#rules)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\INV-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和验收锚点，修正相对链接，保留已有规则后删除本提示。
+> Optional blank form; not a rule reverse-engineered from code. First read the [rules guide](../../domain-model/README.md#rules) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/INV-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, fix relative links, keep any existing rules, and then delete this hint.
 
 <a id="basis"></a>
-## 规则依据与推导边界
+## Rule basis and derivation boundary
 
-- 原始业务 RULE 的定位与基线：待填写；必须先有业务依据，不能引用一个实现默认值代替。
-- 已知事实及其确认依据：待填写。
-- 从 RULE 到本约束的推导说明：待填写；推导本身不获得批准。
-- 未决问题及需要谁确认：待填写。
+- Location and baseline of the original business RULE: TBD; a business basis must exist first, and an implementation default cannot be cited in its place.
+- Known facts and the basis for confirming them: TBD.
+- Explanation of how this constraint is derived from the RULE: TBD; the derivation itself does not gain approval.
+- Open questions and who needs to confirm them: TBD.
 
-可解析规则所有者及其 RULE 锚点在 `upstream` 声明；未元数据化的旧规则保留普通链接，不编造 key。
+Declare the parsable rule owner and its RULE anchor in `upstream`; legacy rules without metadata keep plain links, and do not invent keys for them.
 
 <a id="constraint"></a>
-## 精确约束
+## Exact constraint
 
-| 约束信息 | 内容 |
+| Constraint information | Content |
 |---|---|
-| 适用业务对象与边界 | 待填写 |
-| 必须成立的关系或条件 | 待填写；指向原规则，不另建一套数值政策 |
-| 约束适用的状态与时点 | 待填写 |
-| 可能影响约束的动作 | 待填写 |
-| 违反约束时禁止的结果 | 待填写；未定义处理保留缺口 |
-| 约束的业务理由及来源 | 待填写 |
+| Business objects and boundary it applies to | TBD |
+| Relationship or condition that must hold | TBD; point to the original rule instead of creating a separate numeric policy |
+| States and points in time where the constraint applies | TBD |
+| Actions that may affect the constraint | TBD |
+| Outcomes forbidden when the constraint is violated | TBD; keep undefined handling as a gap |
+| Business rationale and source of the constraint | TBD |
 
-不变量不自动决定聚合根、事务、锁或存储方案。适用时点或并发规则未明确时，不能声称所有状态转换都能保持它。
+An invariant does not automatically decide the aggregate root, transactions, locks, or storage approach. When the points in time where it applies or the concurrency rules are unclear, do not claim that every state transition preserves it.
 
 <a id="acceptance"></a>
-## 约束判据
+## Constraint criteria
 
 <a id="inv-nnn-ac-01"></a>
-### INV-NNN-AC-01：约束保持
+### INV-NNN-AC-01: Constraint is maintained
 
-- 前提、受影响动作与观察时点：待填写。
-- 应保持的业务关系及判定方法：待填写。
-- 边界/违反情形与不得发生的副作用：待填写。
-- 尚不能判断的部分及原因：待填写；这是判据草稿，不是验证通过。
+- Preconditions, affected actions, and observation point: TBD.
+- Business relationship to maintain and how to judge it: TBD.
+- Boundary/violation cases and side effects that must not occur: TBD.
+- Parts that cannot be judged yet and why: TBD; this is a draft criterion, not a passed verification.
 
 <a id="questions"></a>
-## 缺口与演化
+## Gaps and evolution
 
-- 规则缺失、相互冲突或推导未获确认的影响：待填写。
-- 需谁补充什么、相关 BL：待填写。
-- 规则旧新基线及 UC、REQ、SR、场景/VT 的待复核项：待填写；不覆写历史结果。
+- Impact of missing rules, conflicting rules, or unconfirmed derivations: TBD.
+- Who needs to supply what, and related BLs: TBD.
+- Old and new rule baselines, and UC, REQ, SR, and scenario/VT items pending re-review: TBD; do not overwrite historical results.

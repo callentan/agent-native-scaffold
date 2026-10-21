@@ -1,13 +1,21 @@
 ---
-description: 从允许读取的既有资料、实现或明确片段提取待确认的领域候选。
+description: Extract domain candidates to be confirmed from existing materials, implementations, or explicit excerpts that you are permitted to read.
 ---
 
-# 反向提取领域候选
+# Extract domain candidates by reverse engineering
 
-当前输入（由用户填写）：
-- 提取问题、领域/上下文与范围：待填写。
-- 允许读取的文档、代码、片段或外部记录；实际身份、版本及缺失定位：待填写。
-- 已有模型/规则、冲突与事实所有者：待填写。
-- 期望输出与允许写入的位置：待填写；读取实现不授权执行或发送资料。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [reverse-engineer-domain 的提取与对照](../skills/reverse-engineer-domain/SKILL.md#extract)，方法正文、候选字段与停止条件以该文件为准。
+- Extraction question, domain/context, and scope: TBD
+- Documents, code, excerpts, or external records permitted to be read: TBD
+- Their actual identity and versions, and missing locations: TBD
+- Existing models/rules, conflicts, and fact owners: TBD
+- Expected output: TBD
+- Permitted write locations: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md) in full, then apply its [extraction and comparison](../skills/reverse-engineer-domain/SKILL.md#extract) section.
+3. Reading an implementation does not authorize running it or sending materials.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

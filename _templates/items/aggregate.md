@@ -7,48 +7,48 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# AGG-NNN：待填写聚合候选
+# AGG-NNN: TBD aggregate candidate
 
-> 可选战术资料，不预先决定一致性边界。先读[战术资料指引](../../domain-model/README.md#tactical-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\AGG-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留既有设计后删除本提示。
+> Optional tactical record; it does not predetermine a consistency boundary. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/AGG-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing design, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与候选依据
+## Sources and candidate basis
 
-- 已知业务事实、UC、RULE、INV 的定位与基线：待填写。
-- 采用聚合的候选理由及推导限制：待填写；没有边界依据不升格为决定。
-- 未决问题及需要谁确认：待填写。
+- Location and baseline of known business facts, UCs, RULEs, and INVs: TBD.
+- Candidate reasons for using an aggregate and the limits of that derivation: TBD; without a basis for the boundary, do not promote it to a decision.
+- Open questions and who needs to confirm them: TBD.
 
-工件上游声明只在 frontmatter；正文解释约束与边界的关系，不从类结构反推业务规则。
+Upstream declarations for the artifact live only in the frontmatter; the body explains how the constraints relate to the boundary and does not infer business rules from class structure.
 
 <a id="boundary"></a>
-## 责任与一致性边界
+## Responsibility and consistency boundary
 
-| 设计信息 | 内容 |
+| Design information | Content |
 |---|---|
-| 拟承担的业务责任 | 待填写 |
-| 候选根、业务身份及其来源 | 未决定 |
-| 候选内部实体/值对象及纳入理由 | 未决定 |
-| 明确在边界外的事实与所有者 | 待填写 |
-| 需共同保持的 RULE/INV 及适用时点 | 待填写原文导航与理由 |
-| 边界选择尚缺的证据或替代方案 | 待填写 |
+| Business responsibility it is proposed to carry | TBD |
+| Candidate root, business identity, and their source | Not decided |
+| Candidate internal entities/value objects and reasons for including them | Not decided |
+| Facts explicitly outside the boundary and their owners | TBD |
+| RULEs/INVs that must be maintained together and when they apply | TBD: navigation to the source text and rationale |
+| Evidence still missing for the boundary choice, or alternatives | TBD |
 
 <a id="lifecycle"></a>
-## 生命周期与动作
+## Lifecycle and actions
 
-| 已知业务状态或动作 | 前提与应保持的约束 | 禁止副作用或未知政策 | 来源 |
+| Known business state or action | Preconditions and constraints to maintain | Forbidden side effects or unknown policies | Source |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD | TBD |
 
 <a id="collaboration"></a>
-## 边界外协作
+## Collaboration outside the boundary
 
-- 其他所有者、所需事实与协作方向：待填写。
-- 跨边界引用身份及发布事实/事件的候选：未决定。
-- 并发、一致性、失败处理及决定依据：未提供；不默认事务、锁或消息方案。
+- Other owners, required facts, and direction of collaboration: TBD.
+- Candidates for cross-boundary identity references and for published facts/events: Not decided.
+- Concurrency, consistency, failure handling, and the basis for these decisions: Not provided; do not assume a transaction, lock, or messaging solution.
 
 <a id="questions"></a>
-## 未决与影响
+## Open items and impact
 
-- 缺少的边界、身份或规则证据及相关 BL：待填写。
-- 责任人与下一步：待填写。
-- 旧新基线及相关设计、场景/VT 的待复核项：待填写；本表不证明约束已由软件实现。
+- Missing boundary, identity, or rule evidence and related BLs: TBD.
+- Accountable owner and next step: TBD.
+- Old and new baselines, and related design and scenario/VT items pending re-review: TBD; this form does not prove that software implements the constraints.

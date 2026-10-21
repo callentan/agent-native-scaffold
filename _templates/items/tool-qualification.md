@@ -5,62 +5,62 @@ kind: tool-qualification
 scope: PROJECT/CTX-NNN
 contentState: draft
 ---
-# TQ-NNN：待填写工具用途与评价范围
+# TQ-NNN: TBD tool purpose and evaluation scope
 
-> 可选工具记录，标题不代表已 qualified。先读[AI 工具指引](../../docs/ai-tooling.md)与[治理归属](../../docs/governance.md#ownership)。按需复制到 `verification\TQ-NNN-<slug>.md`，替换占位、核对链接后删除本提示。沿现有元数据契约，只为真实依据加 upstream，不把评价/授权状态重复为 contentState。
+> Optional tool record; the title does not mean the tool is qualified. Read the [AI tooling guide](../../docs/ai-tooling.md) and [governance ownership](../../docs/governance.md#ownership) first. Copy it to `verification/TQ-NNN-<slug>.md` as needed, replace the placeholders, check the links, and then delete this notice. Follow the existing metadata contract: add upstream only for real bases, and do not duplicate the evaluation/authorization status as contentState.
 
 <a id="tool"></a>
-## 实际工具与环境
+## Actual tool and environment
 
-| 工具输入 | 内容 |
+| Tool input | Content |
 |---|---|
-| 工具名称、版本与可核对来源 | 待填写；未知服务/模型版本写未知，不猜 |
-| 影响行为的配置、方法/提示版本与定位 | 未提供：需实际配置及基线，不存秘密 |
-| 运行环境与可访问性 | 未提供：需实际宿主/依赖或服务边界 |
-| 使用责任人及责任依据 | 未提供：需明确人员/角色及来源 |
+| Tool name, version, and verifiable source | TBD; write Unknown for unknown service/model versions; do not guess |
+| Behavior-affecting configuration, method/prompt versions, and location | Not provided: actual configuration and baseline required; do not store secrets |
+| Runtime environment and accessibility | Not provided: actual host/dependencies or service boundary required |
+| Accountable user and basis of responsibility | Not provided: an explicit person/role and source required |
 
 <a id="use"></a>
-## 拟议用途与边界
+## Proposed use and boundaries
 
-| 使用信息 | 内容 |
+| Usage information | Content |
 |---|---|
-| 任务、对象与输入来源/基线 | 待填写 |
-| 拟议用途、输入类别与范围 | 待填写；不等于已授权 |
-| 排除用途及禁止副作用 | 待填写 |
-| 所依据的政策/授权入口及未知项 | 未提供：没有适用政策不补组织或法规假设 |
+| Task, object, and input source/baseline | TBD |
+| Proposed use, input categories, and scope | TBD; this does not mean it is authorized |
+| Excluded uses and forbidden side effects | TBD |
+| Entry point to the governing policy/authorization, and unknowns | Not provided: without an applicable policy, do not add organizational or regulatory assumptions |
 
 <a id="evaluation"></a>
-## 实际评价的有限行为
+## Limited behavior actually evaluated
 
-| 评价信息 | 内容 |
+| Evaluation information | Content |
 |---|---|
-| 评价输入定位、基线及代表性限制 | 未提供：合成数据须明确标注 |
-| 独立判据与边界的原文入口 | 未提供：不能只写“工具可用” |
-| 实际步骤、日期、执行者与环境入口 | 未执行：没有实际运行不得补造 |
-| 原始观察、VT/报告及各自基线入口 | 未提供：结果仍归原记录 |
-| 已评价范围、未执行项与局限 | 待填写；数量仅填真实记录，不从文件数估算 |
+| Evaluation input location, baseline, and representativeness limits | Not provided: synthetic data must be clearly labeled |
+| Entry point to the original text of the independent criteria and boundaries | Not provided: do not just write "the tool works" |
+| Actual steps, date, executor, and environment entry point | Not run: without an actual run, do not fabricate one |
+| Raw observations, VT/report, and entry points to their baselines | Not provided: results still belong to the original records |
+| Evaluated scope, items not run, and limitations | TBD; enter counts only from real records; do not estimate them from file counts |
 
 <a id="decision"></a>
-## 实际使用决定
+## Actual usage decision
 
-| 决定信息 | 内容 |
+| Decision information | Content |
 |---|---|
-| 具名决定者、角色与权限依据 | 未提供：工具或 reviewer 名称不是决定者认证 |
-| 决定原文、日期与被决定基线 | 未提供：没有证据不声明授权 |
-| 实际允许/拒绝的用途、对象与范围 | 未提供：不从局部评价推导全局资格 |
-| 使用限制、必要复核与失效条件 | 待填写 |
+| Named decision maker, role, and basis of authority | Not provided: a tool or reviewer name does not authenticate the decision maker |
+| Original decision text, date, and decided baseline | Not provided: without evidence, do not claim authorization |
+| Uses, objects, and scope actually allowed/rejected | Not provided: do not derive global qualification from a partial evaluation |
+| Usage limitations, required re-reviews, and expiry conditions | TBD |
 
-拟议用途、已评价行为、声明的授权和当前适用性分别取证。确认本记录时，confirmation 仅在 frontmatter 声明；schema 有效、模型名称、角色或 trailer 均不能证明组织/法规资格或批准。
+Gather evidence separately for the proposed use, the evaluated behavior, the claimed authorization, and current applicability. When this record is confirmed, declare the confirmation only in the frontmatter; a valid schema, a model name, a role, or a trailer cannot prove organizational/regulatory qualification or approval.
 
 <a id="applicability"></a>
-## 当前适用性与重新评价
+## Current applicability and re-evaluation
 
-| 复核信息 | 内容 |
+| Review information | Content |
 |---|---|
-| 原评价/决定记录与当前输入的比较入口 | 待填写；保留原文件/报告基线 |
-| 版本、配置、环境、用途或对象变化 | 待填写；未知不能默认未变 |
-| 当前适用性、理由与复核日期 | 待复核：没有依据不继承旧资格 |
-| 需追加的评价、决定及责任人 | 待填写 |
-| 未决输入与被阻塞的用途 | 待填写 |
+| Entry point comparing the original evaluation/decision records with current inputs | TBD; keep the original file/report baselines |
+| Changes to version, configuration, environment, use, or object | TBD; unknown must not be assumed unchanged |
+| Current applicability, rationale, and review date | unverified: without a basis, the old qualification is not inherited |
+| Evaluations and decisions to append, and their accountable owners | TBD |
+| Open inputs and blocked uses | TBD |
 
-新检查追加独立记录，不把旧成功改成新成功或历史失败。只保留任务/工具/对象/时间/证据/决定的必要指针，不要求完整聊天、凭据、患者/生产数据或推算用量。
+A new check appends a separate record; do not turn an old success into a new success or into a historical failure. Keep only the necessary pointers to the task/tool/object/time/evidence/decision; do not require full chats, credentials, patient/production data, or estimated usage.

@@ -43,7 +43,7 @@ class SourceManifestContractTests(unittest.TestCase):
         baseline = "sha256:" + hashlib.sha256(b"known local source\n").hexdigest()
         return {"schemaVersion": 1, "scopes": {
             "sample/CTX-001": {"sequences": [{"path": "sources/sequence.yaml", "baseline": baseline}]},
-            "sample/CTX-002": {"quality": [{"path": "质量 空格/QAS-001.md", "baseline": baseline}]},
+            "sample/CTX-002": {"quality": [{"path": "качество €/QAS-001.md", "baseline": baseline}]},
         }}
 
     def test_accepts_explicit_multiple_scopes_and_reference_only_entries(self):
@@ -131,7 +131,7 @@ class ModelFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "模型 sources with spaces"
+        self.root = self.workspace / "модель € sources with spaces"
         self.root.mkdir()
         write_delivery_fixture(self.root)
         self.scope = "sample/CTX-001"
@@ -180,15 +180,15 @@ class ModelFixture(unittest.TestCase):
             ("REL-001", "development-log", "release", []),
             ("CTX-001", "bounded-context", "scope", []),
         ):
-            body = f'# {identifier}：来源记录\n\n<a id="{anchor}"></a>\n'
-            body += ("### QAS-001-AC-01：可测场景\n" if identifier == "QAS-001" else f"## {anchor}\n")
-            body += "原始说明仅在来源中保存，导出不复制本段。\n"
+            body = f'# {identifier}: Source record\n\n<a id="{anchor}"></a>\n'
+            body += ("### QAS-001-AC-01: Measurable scenario\n" if identifier == "QAS-001" else f"## {anchor}\n")
+            body += "The original notes are kept only in the source; the export does not copy this paragraph.\n"
             write_metadata(self.root, metadata(id=identifier, kind=kind, upstream=upstream),
                            body, f"records/{identifier}.md")
         write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
             {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001：质量场景\n<a id="criterion"></a>\n## 观察\n'
-            '在已给定的负载下比较响应与原 QAS 指标。\n', "records/TS-001.md")
+            '# TS-001: Quality scenario\n<a id="criterion"></a>\n## Observation\n'
+            'Compare the response with the original QAS metric under the given load.\n', "records/TS-001.md")
         (self.root / "evidence").mkdir(exist_ok=True)
         for name, anchor in (("governance", "decision"), ("change-control", "change"), ("run", "run")):
             (self.root / f"evidence/{name}.md").write_text(
@@ -666,8 +666,9 @@ class ModelBoundaryTests(ModelFixture):
 
     def test_explicit_direct_sources_are_combined_before_kind_completeness_check(self):
         uc = write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                            '# UC-001：业务路径\n<a id="main"></a>\n## 正常路径\n'
-                            '会员提出借用请求，按原规则办理。\n', "domain-model/UC-001.md")
+                            '# UC-001: Business path\n<a id="main"></a>\n## Normal path\n'
+                            'A member submits a loan request, handled per the original rule.\n',
+                            "domain-model/UC-001.md")
         views = self.select("requirements", self.root / "software-requirements/SR-001.md")
         views["requirements"] += self.select("requirements", uc)["requirements"]
         self.manifest(views)
@@ -678,8 +679,8 @@ class ModelBoundaryTests(ModelFixture):
 
     def test_header_only_direct_source_is_partial_not_available(self):
         source = write_metadata(self.root, metadata(id="GOV-001", kind="review-record"),
-                                '# GOV-001：决定记录\n<a id="decision"></a>\n## 记录\n'
-                                '| 项目 | 内容 |\n|---|---|\n', "records/GOV-001.md")
+                                '# GOV-001: Decision record\n<a id="decision"></a>\n## Record\n'
+                                '| Item | Content |\n|---|---|\n', "records/GOV-001.md")
         self.manifest(self.select("governance", source))
         view = self.export()["views"]["governance"]
         self.assertEqual("partial", view["state"])
@@ -687,30 +688,31 @@ class ModelBoundaryTests(ModelFixture):
 
     def test_sequence_code_elsewhere_cannot_fill_missing_diagram_section(self):
         uc = write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                            '# UC-001：业务路径\n<a id="main"></a>\n## 路径\n实际来源。\n', "domain-model/UC-001.md")
+                            '# UC-001: Business path\n<a id="main"></a>\n## Path\nActual source.\n',
+                            "domain-model/UC-001.md")
         abb = write_metadata(self.root, metadata(id="ABB-001", kind="architecture-building-block"),
-                             '# ABB-001：责任\n' + "".join(
+                             '# ABB-001: Responsibility\n' + "".join(
                                  f'<a id="{anchor}"></a>\n## {anchor}\n'
-                                 '来源已说明本构件的责任和版本边界。\n'
+                                 'The source states the responsibility and version boundary of this building block.\n'
                                  for anchor in ("structure", "interfaces", "runtime")), "records/ABB-001.md")
         seq = write_metadata(self.root, metadata(id="SEQ-001", kind="sequence-diagram",
                              upstream=[self.scope + "/UC-001#main", self.scope + "/ABB-001#structure"]),
-                             '# SEQ-001：路径\n' + "".join(
+                             '# SEQ-001: Path\n' + "".join(
                                  f'<a id="{anchor}"></a>\n## {anchor}\n'
-                                 '本段说明已有参与者、消息及来源的限制。\n'
+                                 'This section states the existing participants, messages, and source limitations.\n'
                                  for anchor in ("basis", "participants", "paths"))
                              + '\n```mermaid\nsequenceDiagram\n  participant Member\n```\n',
                              "records/SEQ-001.md")
         seq.write_text(seq.read_text(encoding="utf-8")
                        .replace("## paths\n", "## paths\n| hasAsync | false |\n")
-                       .replace("## participants\n", "## participants\n| externalPartners | 无外部伙伴 |\n"),
+                       .replace("## participants\n", "## participants\n| externalPartners | No external partners |\n"),
                        encoding="utf-8")
         self.manifest(self.select("sequences", seq))
         view = self.export()["views"]["sequences"]
         self.assertEqual("partial", view["state"])
         self.assertIn("diagram", " ".join(view["gaps"]))
         with seq.open("a", encoding="utf-8") as stream:
-            stream.write('<a id="diagram"></a>\n## 原始图\n```mermaid\n'
+            stream.write('<a id="diagram"></a>\n## Original diagram\n```mermaid\n'
                          'sequenceDiagram\n    participant Member\n    participant Clerk\n'
                          '    Member->>Clerk: Known borrowing request\n```\n')
         self.manifest(self.select("sequences", seq))
@@ -719,8 +721,8 @@ class ModelBoundaryTests(ModelFixture):
     def test_cross_scope_refs_keep_actual_source_path_and_byte_baseline(self):
         sources, paths, selection = self.summary_sources()
         other = write_metadata(self.root, metadata(id="UC-001", kind="use-case", scope="other/CTX-002"),
-                               '# UC-001：外部上下文路径\n<a id="main"></a>\n## 路径\n'
-                               '这个已知来源位于另一个明确 scope。\n', "other/UC-001.md")
+                               '# UC-001: External context path\n<a id="main"></a>\n## Path\n'
+                               'This known source is in another explicit scope.\n', "other/UC-001.md")
         sources["sequences"]["sequenceSummary"]["entries"][0]["ucId"] = "other/CTX-002/UC-001#main"
         write_yaml(paths["sequences"], sources["sequences"])
         selection["sequences"][0]["baseline"] = byte_baseline(paths["sequences"])
@@ -813,9 +815,10 @@ class ModelBoundaryTests(ModelFixture):
 
     def test_direct_release_needs_source_owned_fields_not_just_nonempty_sections(self):
         source = write_metadata(self.root, metadata(id="REL-001", kind="development-log"),
-                                '# REL-001：发布来源\n<a id="release"></a>\n## 发布记录\n'
-                                '这里有一段文字，但不是生命周期和版本字段。\n'
-                                '<a id="change-control"></a>\n## 变更控制\n本段定位本次变化的依据。\n',
+                                '# REL-001: Release source\n<a id="release"></a>\n## Release record\n'
+                                'There is a paragraph here, but it is not the lifecycle and version fields.\n'
+                                '<a id="change-control"></a>\n## Change control\n'
+                                'This section locates the basis for this change.\n',
                                 "records/REL-001.md")
         self.manifest(self.select("release", source))
         view = self.export()["views"]["release"]
@@ -823,7 +826,7 @@ class ModelBoundaryTests(ModelFixture):
         for field in ("lifecycle", "safetyClass", "currentVersion", "lastReleaseDate", "nextPlannedRelease"):
             self.assertIn("releaseStatus." + field, " ".join(view["gaps"]))
         text = source.read_text(encoding="utf-8").replace(
-            "## 发布记录\n", "## 发布记录\n"
+            "## Release record\n", "## Release record\n"
             "| lifecycle | source-declared lifecycle |\n| safetyClass | source-declared class |\n"
             "| currentVersion | source-version |\n| lastReleaseDate | source-date |\n"
             "| nextPlannedRelease | source-next |\n")
@@ -834,19 +837,21 @@ class ModelBoundaryTests(ModelFixture):
     def test_direct_quality_missing_measure_is_partial_even_when_other_fields_are_filled(self):
         qas = write_metadata(self.root, metadata(id="QAS-001", kind="quality-attribute-scenario",
                              upstream=[self.scope + "/REQ-001"]),
-                             '# QAS-001：响应场景\n<a id="scenario"></a>\n## 六要素\n'
-                             '| 刺激源：谁或什么发起 | 源中已命名的用户 |\n'
-                             '| 刺激：发生什么 | 源中明确的提交请求 |\n'
-                             '| 环境：在哪些运行或业务条件下 | 指定的受控环境 |\n'
-                             '| 对象：哪个业务过程或受影响对象 | 借用记录过程 |\n'
-                             '| 响应：应观察到什么 | 返回可观察的结果 |\n'
-                             '<a id="measurement"></a>\n## 测量依据\n'
-                             '原始测量方法在该来源中说明。\n'
-                             '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01：响应\n'
-                             '目标仍由本 QAS 拥有。\n', "records/QAS-001.md")
+                             '# QAS-001: Response scenario\n<a id="scenario"></a>\n## Six elements\n'
+                             '| Source of stimulus: who or what initiates it | A user named in the source |\n'
+                             '| Stimulus: what happens | A submit request stated in the source |\n'
+                             '| Environment: under which operational or business conditions '
+                             '| The specified controlled environment |\n'
+                             '| Object: which business process or affected object | The loan record process |\n'
+                             '| Response: what should be observed | An observable result is returned |\n'
+                             '<a id="measurement"></a>\n## Measurement basis\n'
+                             'The original measurement method is described in this source.\n'
+                             '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01: Response\n'
+                             'The target is still owned by this QAS.\n', "records/QAS-001.md")
         write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
             {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001：测量计划\n<a id="criterion"></a>\n## 独立测量\n比较实际值和源度量。\n',
+            '# TS-001: Measurement plan\n<a id="criterion"></a>\n## Independent measurement\n'
+            'Compare the actual value with the source measure.\n',
             "records/TS-001.md")
         # Fix1 isolates the missing field: QAS AND an actual utility-tree source
         # must exist before field incompleteness can legitimately be partial.
@@ -865,8 +870,9 @@ class ModelBoundaryTests(ModelFixture):
         def replace_body(identifier, kind, anchors, upstream=()):
             return write_metadata(
                 self.root, metadata(id=identifier, kind=kind, upstream=list(upstream)),
-                f"# {identifier}：原始记录\n" + "".join(
-                    f'<a id="{anchor}"></a>\n## {anchor}\n已有一段来源说明，不代替明确的字段。\n'
+                f"# {identifier}: Original record\n" + "".join(
+                    f'<a id="{anchor}"></a>\n## {anchor}\n'
+                    'A source note already exists; it does not replace explicit fields.\n'
                     for anchor in anchors), f"records/{identifier}.md")
         us = replace_body("US-001", "user-story", ("task", "checklist"), (self.scope + "/SR-001",))
         abb = replace_body("ABB-001", "architecture-building-block", ("structure", "interfaces", "runtime"))
@@ -878,7 +884,9 @@ class ModelBoundaryTests(ModelFixture):
         for name in ("VT-001", "VT-002"):
             path = self.root / f"verification/{name}.md"
             path.write_text(path.read_text(encoding="utf-8").replace(
-                "## 逐项目标与判据\n", "## 逐项目标与判据\n下列目标分别有实际来源判据。\n"), encoding="utf-8")
+                "## Per-target criteria\n",
+                "## Per-target criteria\nEach target below has its own actual source criterion.\n"),
+                encoding="utf-8")
         for view, selected, field in (
             ("stories", [us], "storySummary.status"),
             ("architecture", [abb, self.root / "records/ADR-001.md"], "abbSummary.language"),
@@ -902,22 +910,24 @@ class QualityViewTests(ModelFixture):
         qas = write_metadata(
             self.root, metadata(id="QAS-001", kind="quality-attribute-scenario",
                                 upstream=[self.scope + "/REQ-001"]),
-            '# QAS-001：响应场景\n<a id="scenario"></a>\n## 六要素\n'
-            '| 刺激源：谁或什么发起 | 来源明确的有效会员 |\n'
-            '| 刺激：发生什么 | 提交额度内借用请求 |\n'
-            '| 环境：在哪些运行或业务条件下 | 来源明确的受控输入 |\n'
-            '| 对象：哪个业务过程或受影响对象 | 借用记录过程 |\n'
-            '| 响应：应观察到什么 | 返回来源定义的记录 |\n'
-            + ('| 响应度量：可测标准、单位与适用范围 | 按原来源核对本次记录数量 |\n' if measure else '')
-            + '<a id="measurement"></a>\n## 测量依据\n'
-            '由来源拥有的测量方法与限制。\n'
-            '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01：记录响应\n'
-            '独立响应标准由本 QAS 拥有。\n', "records/QAS-001.md")
+            '# QAS-001: Response scenario\n<a id="scenario"></a>\n## Six elements\n'
+            '| Source of stimulus: who or what initiates it | A valid member stated in the source |\n'
+            '| Stimulus: what happens | Submit a within-allowance loan request |\n'
+            '| Environment: under which operational or business conditions | Controlled input stated in the source |\n'
+            '| Object: which business process or affected object | The loan record process |\n'
+            '| Response: what should be observed | Return the record defined by the source |\n'
+            + ('| Response measure: measurable criterion, unit, and scope '
+               '| Check this record count against the original source |\n' if measure else '')
+            + '<a id="measurement"></a>\n## Measurement basis\n'
+            'Source-owned measurement method and limitations.\n'
+            '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01: Record response\n'
+            'The independent response criterion is owned by this QAS.\n', "records/QAS-001.md")
         write_metadata(
             self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
                 {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001：测量计划\n<a id="criterion"></a>\n## 测量\n'
-            '比较响应与 QAS 的源判据，不执行应用。\n', "records/TS-001.md")
+            '# TS-001: Measurement plan\n<a id="criterion"></a>\n## Measurement\n'
+            'Compare the response with the QAS source criterion without running the application.\n',
+            "records/TS-001.md")
         selections = self.select("quality", qas)
         tree_path = self.root / "evidence/utility.yaml"
         if tree:
@@ -1062,19 +1072,24 @@ class DiagramViewTests(ModelFixture):
 
     def sequence_source(self, diagram):
         write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                       '# UC-001：路径\n<a id="main"></a>\n## 路径\n来源明确的业务路径。\n', "records/UC-001.md")
+                       '# UC-001: Path\n<a id="main"></a>\n## Path\nA business path stated in the source.\n',
+                       "records/UC-001.md")
         write_metadata(self.root, metadata(id="ABB-001", kind="architecture-building-block"),
-                       '# ABB-001：构件\n' + "".join(
-                           f'<a id="{anchor}"></a>\n## {anchor}\n来源已说明责任和接口限制。\n'
+                       '# ABB-001: Building block\n' + "".join(
+                           f'<a id="{anchor}"></a>\n## {anchor}\n'
+                           'The source states the responsibility and interface limitations.\n'
                            for anchor in ("structure", "interfaces", "runtime")), "records/ABB-001.md")
         path = write_metadata(
             self.root, metadata(id="SEQ-001", kind="sequence-diagram",
                                 upstream=[self.scope + "/UC-001#main", self.scope + "/ABB-001#structure"]),
-            '# SEQ-001：场景\n<a id="basis"></a>\n## 来源\n保留原场景的范围与条件。\n'
-            '<a id="participants"></a>\n## 参与者\n| externalPartners | 无外部伙伴 |\n'
-            '<a id="paths"></a>\n## 路径\n| hasAsync | false |\n由来源说明本次消息含义。\n'
-            '<a id="diagram"></a>\n## 原始图\n' + diagram
-            + '<a id="verification-needs"></a>\n## 限制\n本测试不执行图或应用。\n',
+            '# SEQ-001: Scenario\n<a id="basis"></a>\n## Source\n'
+            'Keeps the scope and conditions of the original scenario.\n'
+            '<a id="participants"></a>\n## Participants\n| externalPartners | No external partners |\n'
+            '<a id="paths"></a>\n## Paths\n| hasAsync | false |\n'
+            'The source explains the meaning of these messages.\n'
+            '<a id="diagram"></a>\n## Original diagram\n' + diagram
+            + '<a id="verification-needs"></a>\n## Limitations\n'
+            'This test runs neither the diagram nor the application.\n',
             "records/SEQ-001.md")
         self.manifest(self.select("sequences", path))
         return path
@@ -1084,7 +1099,7 @@ class DiagramViewTests(ModelFixture):
             "<!--\n" + self.BLOCK + "-->\n",
             "````text\n" + self.BLOCK + "````\n",
             "~~~text\n" + self.BLOCK + "~~~\n",
-            "这里有一段文字，但没有图代码。\n",
+            "There is a paragraph here, but no diagram code.\n",
             "```mermaid\nsequenceDiagram\n  Member->>Clerk: Known request\n",
         ):
             with self.subTest(diagram=diagram):
@@ -1109,35 +1124,45 @@ class VerificationRunTests(ModelFixture):
         object_baseline = object_baseline or byte_baseline(self.root / "software-requirements/SR-001.md")
         requirements = byte_baseline(self.root / "stakeholder-requirements/REQ-001.md")
         return (
-            f'<a id="vt-002-run-{number:02d}"></a>\n### VT-002-RUN-{number:02d}：合成来源记录\n\n'
-            '| 实际执行信息 | 内容 |\n|---|---|\n'
-            + ('| 日期、执行者与方式 | 2026-10-15，Fixture，原始记录中的人工检查 |\n' if date else '')
-            + f'| 实际对象基线 | {object_baseline} |\n'
-            f'| 当时的需求/设计/任务依据基线 | {requirements} |\n'
-            '| 当时的 VT 基线 | 原计划的具名记录，见原始报告 |\n'
-            '| 实际环境与工具版本 | 已提供的合成来源，不代表真实应用运行 |\n'
-            '| 实际工作目录 | 原记录的受控目录 |\n'
-            '| 实际命令或人工步骤/测试标识 | 原记录逐项比较前后记录；此处只读 |\n'
-            '| 退出码、发现/执行/跳过数量（适用时） | 退出码 0；发现 2；执行 2；跳过 0'
-            + ('；自动检查数量 0；人工检查数量 2' if counts else '') + ' |\n'
-            '| 原始报告与具体位置 | [原始记录](../evidence/run.md#run) |\n'
-            '| 报告可访问性与限制 | 仅合成输入，保留原来源限制，不代表工具执行 |\n\n'
-            '| 判据链接（目标由 frontmatter 定位） | 实际观察及原始报告定位 | 实际结果 | 未执行/跳过原因或失败差异 |\n'
+            f'<a id="vt-002-run-{number:02d}"></a>\n### VT-002-RUN-{number:02d}: Synthetic source record\n\n'
+            '| Actual run information | Content |\n|---|---|\n'
+            + ('| Date, executor, and mode | 2026-10-15, Fixture, manual check in the raw record |\n'
+               if date else '')
+            + f'| Actual object baseline | {object_baseline} |\n'
+            f'| Requirement/design/task basis baseline at the time | {requirements} |\n'
+            '| VT baseline at the time | Named record of the original plan; see the raw report |\n'
+            '| Actual environment and tool versions | Supplied synthetic source; not a real application run |\n'
+            '| Actual working directory | Controlled directory of the original record |\n'
+            '| Actual command or manual steps/test identifier '
+            '| The original record compares records before and after item by item; read-only here |\n'
+            '| Exit code and discovered/executed/skipped counts (when applicable) '
+            '| Exit code 0; discovered 2; executed 2; skipped 0'
+            + ('; automated check count 0; manual check count 2' if counts else '') + ' |\n'
+            '| Raw report and exact location | [Raw record](../evidence/run.md#run) |\n'
+            '| Report accessibility and limitations '
+            '| Synthetic input only; keeps the original source limitations; not a tool run |\n\n'
+            '| Criterion link (target located by frontmatter) | Actual observation and raw report location '
+            '| Actual result | Not-run/skip reason or failure difference |\n'
             '|---|---|---|---|\n'
-            f'| [记录判据](#record) | 原始记录中的允许观察 | {result} | 原记录说明 |\n'
-            f'| [拒绝判据](#no-write) | 原始记录中的拒绝观察 | {result} | 原记录说明 |\n\n'
+            f'| [Record criterion](#record) | Allowed observation in the raw record | {result} '
+            '| Explained in the original record |\n'
+            f'| [Reject criterion](#no-write) | Rejected observation in the raw record | {result} '
+            '| Explained in the original record |\n\n'
         )
 
     def verification_source(self, blocks):
         evidence = self.root / "evidence/run.md"
         evidence.parent.mkdir(exist_ok=True)
-        evidence.write_text('# 原始合成记录\n<a id="run"></a>\n## 记录\n由来源保存逐项观察。\n',
+        evidence.write_text('# Raw synthetic record\n<a id="run"></a>\n## Record\n'
+                            'The source keeps the per-item observations.\n',
                             encoding="utf-8")
         path = self.root / "verification/VT-002.md"
         source = path.read_text(encoding="utf-8").split('<a id="runs">')[0]
-        source = source.replace("## 逐项目标与判据\n", "## 逐项目标与判据\n以下分别保留原有独立判据。\n")
-        path.write_text(source + '<a id="runs"></a>\n## 实际执行记录\n\n' + blocks
-                        + '<a id="applicability"></a>\n## 当前适用性\n保留来源中的限制和待复核事项。\n',
+        source = source.replace("## Per-target criteria\n",
+                                "## Per-target criteria\nThe original independent criteria are kept separately below.\n")
+        path.write_text(source + '<a id="runs"></a>\n## Actual run records\n\n' + blocks
+                        + '<a id="applicability"></a>\n## Current applicability\n'
+                        'Keeps the source limitations and the items pending re-review.\n',
                         encoding="utf-8")
         self.manifest(self.select("verification", path))
         return path
@@ -1153,7 +1178,7 @@ class VerificationRunTests(ModelFixture):
                       view["evidenceRefs"])
         self.assertEqual(before, source_bytes(self.root))
         self.assertNotIn("automatedCount", json.dumps(model))
-        self.assertNotIn("原始记录中的允许观察", json.dumps(model, ensure_ascii=False))
+        self.assertNotIn("Allowed observation in the raw record", json.dumps(model, ensure_ascii=False))
 
     def test_fix1_i4_missing_split_counts_are_not_invented_from_totals_or_rows(self):
         self.verification_source(self.run_block(counts=False))
@@ -1166,7 +1191,8 @@ class VerificationRunTests(ModelFixture):
 
     def test_fix1_i4_missing_result_for_one_criterion_is_a_located_gap(self):
         block = self.run_block().replace(
-            '| [拒绝判据](#no-write) | 原始记录中的拒绝观察 | pass | 原记录说明 |\n', '')
+            '| [Reject criterion](#no-write) | Rejected observation in the raw record | pass '
+            '| Explained in the original record |\n', '')
         self.verification_source(block)
         view = self.export()["views"]["verification"]
         self.assertEqual("partial", view["state"])
@@ -1200,7 +1226,8 @@ class VerificationRunTests(ModelFixture):
                            "baseline": byte_baseline(path)}, view["evidenceRefs"])
 
     def test_fix1_i4_duplicate_criterion_results_remain_ambiguous(self):
-        block = self.run_block().rstrip() + '\n| [拒绝判据](#no-write) | 另一条冲突观察 | fail | 需回源确认 |\n'
+        block = (self.run_block().rstrip() + '\n| [Reject criterion](#no-write) | Another conflicting observation '
+                 '| fail | Needs confirmation from the source |\n')
         self.verification_source(block)
         view = self.export()["views"]["verification"]
         self.assertEqual("partial", view["state"])
@@ -1273,14 +1300,14 @@ class RunOwnershipTests(ModelFixture):
         self.assertNotIn("verification/VT-002.md#vt-002-run-02", refs)
 
     def test_fix2_record_after_a_following_section_cannot_fill_missing_run(self):
-        block = '<a id="later-section"></a>\n## 后续来源\n\n' + self.run_block()
+        block = '<a id="later-section"></a>\n## Later source\n\n' + self.run_block()
         path = self.verification_source(block)
         self.assertEqual((), self.owned(path))
         self.assertEqual("partial", self.readonly_view()["state"])
 
     def test_fix2_unpaired_anchor_does_not_borrow_a_later_heading(self):
-        for interruption in ("该锚点后先是说明，不是运行标题。\n",
-                             "```text\n### VT-002-RUN-01：字面示例\n```\n",
+        for interruption in ("This anchor is followed by prose, not a run heading.\n",
+                             "```text\n### VT-002-RUN-01: literal example\n```\n",
                              '<a id="another-owner-section"></a>\n'):
             with self.subTest(interruption=interruption):
                 block = self.run_block().replace(
@@ -1396,7 +1423,7 @@ class Task8BridgeTests(ModelFixture):
 
     def test_unreadable_or_drifted_original_run_report_removes_only_optional_bridge(self):
         _, path, _, _, selection = self.implementation_source(executed=True)
-        raw_report = self.root / "reports/原始 VT-002-1.txt"
+        raw_report = self.root / "reports/сырые € VT-002-1.txt"
         raw_report.write_bytes(raw_report.read_bytes() + b"unrecorded drift")
         before = source_bytes(self.root)
         model = self.export()
@@ -1427,7 +1454,7 @@ class Task8BridgeTests(ModelFixture):
     def test_final_report_domain_declarations_protect_output_even_when_optional_validation_fails(self):
         from collect_implementation_report import build_report
         seed_implementation_fixture(self.root)
-        domain = self.workspace / "领域 read-only"
+        domain = self.workspace / "домен € read-only"
         seed_git_repo(domain)
         (domain / "model").mkdir()
         (domain / "model/rule.txt").write_bytes(b"Explicit local domain input.\n")
@@ -1435,7 +1462,7 @@ class Task8BridgeTests(ModelFixture):
         git(domain, "commit", "--quiet", "-m", "Fixed local domain")
         baseline = git(domain, "rev-parse", "HEAD")
         config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
-        config["domainSources"] = [{"id": "external-domain", "kind": "git", "root": "../领域 read-only",
+        config["domainSources"] = [{"id": "external-domain", "kind": "git", "root": "../домен € read-only",
                                     "path": "model", "baseline": baseline, "readOnly": True}]
         write_yaml(self.root / "bc-config.yaml", config)
         git(self.root, "add", "--", ".")
@@ -1464,14 +1491,14 @@ class DomainReservationTests(ModelFixture):
     def domain_report(self):
         from collect_implementation_report import build_report
         seed_implementation_fixture(self.root)
-        domain = self.workspace / "fix1 领域"
+        domain = self.workspace / "fix1 домен €"
         seed_git_repo(domain)
         (domain / "model").mkdir()
         (domain / "model/rule.txt").write_bytes(b"Fixed source input, never an output location.\n")
         git(domain, "add", "--", ".")
         git(domain, "commit", "--quiet", "-m", "Fix1 fixed local domain input")
         config = yaml.safe_load((self.root / "bc-config.yaml").read_bytes())
-        config["domainSources"] = [{"id": "fixed-domain", "kind": "git", "root": "../fix1 领域",
+        config["domainSources"] = [{"id": "fixed-domain", "kind": "git", "root": "../fix1 домен €",
                                     "path": "model", "baseline": git(domain, "rev-parse", "HEAD"), "readOnly": True}]
         write_yaml(self.root / "bc-config.yaml", config)
         git(self.root, "add", "--", ".")
@@ -1519,10 +1546,10 @@ class DomainReservationTests(ModelFixture):
     def test_i1_incomplete_or_unresolvable_locations_block_even_unrelated_output(self):
         _, report, path = self.domain_report()
         declarations = (
-            {"root": "../fix1 领域"}, {"path": "model"}, {},
-            {"root": None, "path": "model"}, {"root": "../fix1 领域", "path": None},
+            {"root": "../fix1 домен €"}, {"path": "model"}, {},
+            {"root": None, "path": "model"}, {"root": "../fix1 домен €", "path": None},
             {"root": "https://example.invalid/domain", "path": "model"},
-            {"root": "../fix1 领域", "path": "../outside"},
+            {"root": "../fix1 домен €", "path": "../outside"},
         )
         for declaration in declarations:
             with self.subTest(declaration=declaration):
@@ -1536,7 +1563,7 @@ class DomainReservationTests(ModelFixture):
 
     def test_i1_malformed_domain_declaration_container_cannot_authorize_output(self):
         _, report, path = self.domain_report()
-        for declarations in (None, "unresolved source", [None], {"root": "../fix1 领域", "path": "model"}):
+        for declarations in (None, "unresolved source", [None], {"root": "../fix1 домен €", "path": "model"}):
             with self.subTest(declarations=declarations):
                 changed = copy.deepcopy(report)
                 changed["domainSources"] = declarations
@@ -1602,13 +1629,13 @@ class ImplementationTreeTests(ModelFixture):
     def test_valid_tree_root_mapping_and_path_list_export_and_check_round_trip(self):
         self.assert_tree_round_trip(
             {"root": {"label": "quality"}, "path": ["response-time"]},
-            self.workspace / "safe 模型 export.yaml",
+            self.workspace / "safe модель € export.yaml",
         )
 
     def test_business_root_path_labels_do_not_reserve_phantom_source_directories(self):
         self.assert_tree_round_trip(
             {"root": "quality", "path": "response-time"},
-            self.root / "quality/response-time/safe 模型 export.yaml",
+            self.root / "quality/response-time/safe модель € export.yaml",
         )
 
 

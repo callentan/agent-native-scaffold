@@ -7,40 +7,40 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# FAC-NNN：待填写工厂候选
+# FAC-NNN: TBD factory candidate
 
-> 可选创建职责资料，不要求使用 Factory 模式。先读[战术资料指引](../../domain-model/README.md#tactical-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\FAC-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留已有创建规则后删除本提示。
+> Optional record of a creation responsibility; it does not require the Factory pattern. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/FAC-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing creation rules, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与候选依据
+## Sources and candidate basis
 
-- 已知创建行为及 UC/RULE/INV 来源、版本：待填写。
-- 独立创建职责的候选理由：待填写；简单构造不必另设工厂。
-- 未决问题及需要谁确认：待填写。
+- Known creation behavior with UC/RULE/INV sources and versions: TBD.
+- Candidate reasons for a separate creation responsibility: TBD; simple construction does not need a separate factory.
+- Open questions and who needs to confirm them: TBD.
 
-frontmatter 保存上游；正文解释创建含义，不复制一套业务规则。
+The frontmatter holds the upstream; the body explains what creation means and does not copy a set of business rules.
 
 <a id="creation"></a>
-## 创建责任
+## Creation responsibility
 
-| 设计信息 | 内容 |
+| Design information | Content |
 |---|---|
-| 创建什么及其业务理由 | 待填写 |
-| 所需输入、前提与各事实所有者 | 待填写 |
-| 初始状态与必须保持的约束 | 待填写原文导航 |
-| 身份/值的产生与分配责任 | 未决定 |
-| 成功后可观察的业务结果 | 待填写 |
-| 无法创建时的结果与禁止副作用 | 未提供；不默认部分成功或自动重试 |
+| What is created and the business reason | TBD |
+| Required inputs, preconditions, and the owner of each fact | TBD |
+| Initial state and constraints that must be maintained | TBD: navigation to the source text |
+| Responsibility for generating and assigning identities/values | Not decided |
+| Business result observable after success | TBD |
+| Result and forbidden side effects when creation is not possible | Not provided; do not assume partial success or automatic retry |
 
 <a id="collaboration"></a>
-## 协作者与边界
+## Collaborators and boundaries
 
-- 调用方、所需领域协作者及方向：待填写。
-- 哪些校验属于源规则、哪些仍缺决定：待填写。
-- 创建与后续生命周期、保存、发布的责任区分：待填写；本表不自动授权存储或消息副作用。
+- Callers, required domain collaborators, and direction: TBD.
+- Which validations belong to source rules and which still lack a decision: TBD.
+- Division of responsibility between creation and the subsequent lifecycle, persistence, and publication: TBD; this form does not automatically authorize storage or messaging side effects.
 
 <a id="questions"></a>
-## 未决与演化
+## Open items and evolution
 
-- 缺少的创建/身份/失败规则，相关 BL：待填写。
-- 需谁补充什么、旧新基线与受影响资料：待填写。
+- Missing creation/identity/failure rules and related BLs: TBD.
+- Who needs to supply what, old and new baselines, and affected materials: TBD.

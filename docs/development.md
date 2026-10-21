@@ -1,142 +1,142 @@
-# 开发说明
+# Development guide
 
-**维护工具与业务应用分别登记。** 可选的本地维护工具使用 Python；这不为下游业务应用选择技术栈。业务应用仍未配置，没有应用项目、依赖或运行命令。资料填写和文档维护可以继续；应用构建与测试对当前空白骨架不适用，不代表应用验证通过。若已规划业务或软件行为 VT，它仍保持 `not-run`，并记录缺少对象或环境的原因。
+**The maintenance tools and the business application are registered separately.** The optional local maintenance tools use Python; this does not choose a tech stack for any downstream business application. The business application is still not configured: there is no application project, dependency, or run command. Filling in project materials and maintaining documentation can continue; application builds and tests are not applicable to the current blank skeleton, and that does not mean the application has passed verification. If a business or software behavior VT has been planned, it stays `not-run` and records the missing object or environment as the reason.
 
 <a id="maintenance-tools"></a>
-## 仓库维护工具（不是业务应用）
+## Repository maintenance tools (not a business application)
 
-| 项目信息 | 当前值 |
+| Project information | Current value |
 |---|---|
-| 标识与范围 | `artifact-maintenance`；本地解析、工件/覆盖检查、影响候选、派生引用模型、实施摘要、只读三方/多目标提案、可选来源清单、本地领域源预检/明确接入、文档/转录候选评分、本地关系图/架构/演示导出、显式交互/用量账本和可选 hook/资料 CI 接入，不是业务应用 |
-| 相对位置与原生布局 | 模块在 `.github\utilities\`，JSON Schema 在 `.github\contracts\` |
-| 技术栈 | Python 3.11+；锁定并测试 PyYAML 6.0.2、jsonschema 4.23.0，运行时只要求两者可导入 |
-| 环境 | 调用者选定的 Python 环境（venv、conda 或系统解释器均可），`.venv` 仅为示例名称；不安装全局包，不要求 PowerShell 7，不配置下游应用 |
-| 依赖来源 | [直接依赖 manifest](../.github/utilities/requirements.txt) 与[实际解析的 lock](../.github/utilities/requirements.lock)；原六项版本保留，`referencing` 在 Python `<3.13` 所需的 `typing-extensions` 另按实际元数据/安装结果锁定，3.11 选七项、3.13 选原六项 |
-| 接口与边界 | [模块调用与错误码](../.github/utilities/README.md)、[数据契约与完整示例](../.github/contracts/README.md)、[来源候选与评分](source-extraction.md)、[本地文档导出](document-exports.md)、[最小交互账本](ai-tooling.md#interaction-ledger)；账本不连接供应商/账单服务，不包含实际应用 |
-| 使用前提 | 使用者须核对本地解释器和已安装依赖；维护者回归与执行历史不随候选分发，不是下游运行前提 |
+| Identifier and scope | `artifact-maintenance`: local parsing, artifact/coverage checks, impact candidates, derived reference models, implementation summaries, read-only three-way/multi-target proposals, optional source manifests, local domain-source preflight and explicit onboarding, document/transcript candidate scoring, local relationship-graph/architecture/presentation exports, an explicit interaction/usage ledger, and optional hook/documentation-CI integration; not a business application |
+| Relative location and native layout | Modules are in `.github/utilities/`; JSON Schemas are in `.github/contracts/` |
+| Tech stack | Python 3.11+; PyYAML 6.0.2 and jsonschema 4.23.0 are pinned and tested, and at runtime both only need to be importable |
+| Environment | A Python environment chosen by the caller (venv, conda, or the system interpreter all work); `.venv` is only an example name. No global packages are installed, PowerShell 7 is not required, and no downstream application is configured |
+| Dependency sources | The [direct dependency manifest](../.github/utilities/requirements.txt) and the [actually resolved lock](../.github/utilities/requirements.lock); the original six pinned versions are kept, and `typing-extensions`, which `referencing` needs on Python `<3.13`, is locked separately according to the actual metadata/installation results: seven entries are selected on 3.11 and the original six on 3.13 |
+| Interfaces and boundaries | [Module invocation and error codes](../.github/utilities/README.md), [data contracts and complete examples](../.github/contracts/README.md), [source candidates and scoring](source-extraction.md), [local document exports](document-exports.md), [minimal interaction ledger](ai-tooling.md#interaction-ledger); the ledger does not connect to vendor/billing services and contains no actual application |
+| Usage prerequisites | Users must check their local interpreter and installed dependencies; maintainer regression tests and run history are not distributed with the candidate and are not downstream runtime prerequisites |
 
-脚本面向 Windows、Linux、macOS；平台差异只留在必要的锁和 Git hook 启动适配中。检查服务 DDD 工件结构、引用、验收覆盖和派生结果，不进行固定盘判断、原生目录句柄审计或恶意并发路径替换隔离。输入/输出由参数指定，资源按项目相对位置读取；临时快照和测试夹具由 `tempfile` 分配，不在解释器安装目录写入。
+The scripts target Windows, Linux, and macOS; platform differences are confined to the necessary lock and Git hook launch adapters. The checks serve DDD artifact structure, references, acceptance coverage, and derived results; they do not perform fixed-drive detection, native directory-handle audits, or isolation against malicious concurrent path replacement. Inputs/outputs are specified by arguments, and resources are read by project-relative location; temporary snapshots and test fixtures are allocated by `tempfile`, and nothing is written to the interpreter installation directory.
 
-Git 子进程保留宿主安装 Git 所需的 `GIT_EXEC_PATH`，与系统 PATH 一样由运行环境提供；仍清除继承的仓库、index 和对象位置覆盖。不能为隔离仓库上下文而丢弃 Git 自身的 helper 位置，也不写死 Git 安装目录。
+Git subprocesses keep `GIT_EXEC_PATH`, which the host's Git installation needs; like the system PATH, it is provided by the runtime environment. They still clear inherited overrides of the repository, index, and object locations. Do not drop Git's own helper location to isolate the repository context, and do not hard-code the Git installation directory.
 
-以下命令均以仓库根目录 `.` 为 cwd，Windows 示例使用 `.venv\Scripts\python.exe`；其他宿主或环境位置应替换为实际项目解释器（例如 `.venv/bin/python`），不要照搬示例布局。无需激活环境或修改全局 PATH；脚本不要求环境名称为 `.venv`。
+All commands below use the repository root `.` as the cwd, and the Windows examples use `.venv\Scripts\python.exe`; on other hosts or environment locations, substitute the actual project interpreter (for example `.venv/bin/python`) instead of copying the example layout. There is no need to activate the environment or modify the global PATH; the scripts do not require the environment to be named `.venv`.
 
-| 操作 | 真实命令 | 原始输出位置与限制 |
+| Operation | Actual command | Raw output location and limitations |
 |---|---|---|
-| 初始化本地环境 | `python -m venv .venv` | 当前终端；先核对所用 Python 为 3.11+ |
-| 首次恢复直接依赖 | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.txt` | 当前终端；仅在 manifest 已创建后执行 |
-| 恢复已锁定依赖 | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` | 当前终端；按锁定版本恢复本地环境 |
-| 核对安装版本 | `.venv\Scripts\python.exe -m pip freeze` | 当前终端；与 lock 核对实际版本，不自动更新锁定清单 |
-| 核对环境一致性 | `.venv\Scripts\python.exe -m pip check` | 当前终端；不能用退出 0 代替行为测试 |
-| 工具源码语法 | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` | 当前终端；只检查已分发源码的语法，不替代行为验证 |
-| 正式工件完整检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root .` | JSON stdout；不自动保存报告，empty/退出 0 不代表业务通过 |
-| 精确历史比较 | 上行增加 `--base <已核对的完整 commit ID>` | 验证目标仍是当前文件的完整正式库存，不只检查变更或暂存内容；精确对象不可读退出 2 |
-| 明确保存检查报告 | 检查命令增加 `--report <获准的新 JSON 路径>` | 相对路径以 root 为准；父目录须存在，已有文件一律拒绝，不改写源文件或历史记录 |
-| 完整交付覆盖 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --delivery <完整验收引用>` | 每个交付项重复 `--delivery`；stdout JSON，可选 `--report`；不从 VT 倒推范围，不执行 VT |
-| 规则变化影响候选 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --base <完整 commit>` | 可重复 `--task <实际 scope/id>`；合并旧新依赖，人工判断语义 |
-| 模型只读派生 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\export_model.py --root . --scope <实际 project/context>` | JSON stdout；从可选 `model-sources.yaml` 选择来源，主输入失败退出 2 |
-| 旧模型检查 | 上行增加 `--check <已有 .json/.yaml/.yml>` | 只读重算；来源变化/手改退出 1，输入错误退出 2，不修复源或模型 |
-| 明确创建新模型 | 只读派生命令增加 `--output <获准的新 .json/.yaml/.yml>` | 与 `--check` 互斥；exclusive create、不建父目录，不占用登记来源路径 |
-| 收集实施摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root . --object <完整本地 commit>` | JSON stdout；按实际选择重复 `--evidence <VT相对路径[#运行锚点]>`，多 BC 须加 `--scope`；不执行 VT 命令 |
-| 明确创建新实施报告 | 收集命令增加 `--output <获准的新 .json/.yaml/.yml>` | exclusive create、不建父目录，不覆盖已有文件或占用缺失的声明来源；不自动登记 model 来源 |
-| 三方模板更新提案 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --base <实际旧根> --local <实际本地根> --candidate <实际候选根>` | JSON stdout；可各加 `--base-version/--local-version/--candidate-version` 验证准确版本；缺旧根为错误，不应用 |
-| 明确 BC 的场景提案 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --registration <实际本地登记.yaml> --target <明确ID>` | 每个目标重复 `--target`；只读已存在的本地根，逐目标结果，不 clone/fetch 或复制 model/整仓 |
-| 明确保存更新提案 | 提案命令增加 `--output <获准的新 .json>` | exclusive create、不建父目录；必须在所有登记来源/目标之外，含缺失及未选目标；conflict 退出 1、unavailable/input-error 退出 2，不以保存报告当应用 |
-| 检查实际暂存快照 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\hook_checks.py pre-commit --root .` | JSON stdout；index/blob/tree 身份、全部 owner 验收和显式空覆盖；可加精确 `--base` 与新 `--report`，不自动修复/暂存 |
-| 查看可选 hook 安装提案 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\install_hooks.py --root . --python "<实际项目解释器绝对路径>" --hook pre-commit --hook commit-msg` | 默认无写入；报告目标/冲突及 shared metadata 范围；实际安装另需本次目标授权和 `--apply` |
-| 检查已登记的本地领域源 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\setup_domain_source.py --root . --config bc-config.yaml --source-id <明确ID>` | JSON stdout，默认只读；来源根/相对路径/固定基线来自原 BC 字段；0 ready、1 conflict、2 unavailable |
-| 明确登记一个本地领域源 | 按[准确来源参数](domain-sources.md#cli)先 inspect，再加 `--operation register --apply --owned-target --expect <本次preflight>` | 只维护指定既有 BC 的 domainSources，不复制领域文件、不暂存、不提交；没有项目配置就停止 |
-| 可选本地子模块 | 同一来源参数另选 `--operation submodule --target <准确相对目标>` 先 inspect；应用另加 `--apply --owned-target --index-consent --expect <本次preflight>` | [原生操作](domain-sources.md#submodule)会写 .gitmodules/local config/module metadata/index，独立于 BC 登记；仅明确本地源，无网络/commit/push |
-| 本地文档/转录候选 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\extract_source.py --root . --source "<明确本地源>" --kind <markdown/text/transcript/docx>` | JSON stdout；[精确格式与有界 DOCX](source-extraction.md#formats)，不是 formal artifact；可加 root 内不存在的 `.json` `--output`，不建父目录 |
-| 透明候选评分 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "<明确候选.json>"` | JSON stdout；可加新 `--output`；[公开因素与范围](source-extraction.md#scoring)，不决定接受或覆盖冲突 |
-| 音频不可用检查 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\transcribe_audio.py --source "<明确本地音频路径>"` | 当前退出 2：授权/缺项/适配器不可用；不读音频/环境密钥、不调用服务、不写 transcript；[后续独立关卡](source-extraction.md#audio) |
-| 追加明确提供的交互记录 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<绝对本地 CSV>" --record-id "<id>" --time "<含时区 ISO 8601>" --tool "<名称>" --tool-version "<版本>" --task-ref "<任务引用>" --object-ref "<对象引用>" --object-baseline "<对象基线>" --summary "<简短事实摘要>" --attest-local-storage` | 参数及可选决定/证据/用量字段见[账本契约](../.github/utilities/README.md#interaction-ledger)；只追加既有日志，缺用量为空；必须由调用者确认非网络/非同步本地路径，0 成功/重放、1 输入/ID 冲突、2 路径/attestation/锁/恢复错误 |
-| 读取用量摘要 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<绝对本地 CSV>"` | JSON stdout；API/CLI 默认真正只读，只读取一次，无 lock sidecar/其他文件；单位/币种/工具/版本隔离 |
-| 明确创建新摘要文件 | 同一摘要命令增加 `--output "<绝对的新 .json>" --attest-local-storage` | 父目录须已存在；调用者确认非同步本地路径后使用标准库独占创建，不覆盖已有文件；部分失败保留并报告恢复状态，不要求 Windows 目录句柄 |
-| 本地关系图 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_traceability.py --root . --scope <实际 project/context> --format <json/svg/html>` | 默认实际文本 stdout；源与持久 model 漂移须核对，无数据明确 empty、不造 demo |
-| 本地架构/SEQ 文档 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 每个 source 有对应 baseline；实际源章节/九视图和有限 SEQ 图，不补部署、风险或批准 |
-| 本地参数化演示 | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope <实际 project/context> --format <html/svg> --source "<实际引用>" --baseline <固定对象>` | 选中源章节驱动 slides，不是固定 deck；HTML/SVG 不冒充 PDF/PPTX |
-| 明确创建导出文件 | 上述命令增加 `--output <获准的新同格式文件>` | exclusive create、不建父目录；[隔离/拒绝/退出契约](document-exports.md#cli写入和错误边界)；PDF/PPTX unavailable 不创建文件 |
+| Initialize the local environment | `python -m venv .venv` | Current terminal; first check that the Python used is 3.11+ |
+| Restore direct dependencies for the first time | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.txt` | Current terminal; run only after the manifest has been created |
+| Restore locked dependencies | `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock` | Current terminal; restores the local environment to the locked versions |
+| Check installed versions | `.venv\Scripts\python.exe -m pip freeze` | Current terminal; compare the actual versions with the lock; the lock file is not updated automatically |
+| Check environment consistency | `.venv\Scripts\python.exe -m pip check` | Current terminal; exit 0 cannot replace behavior tests |
+| Tool source syntax | `.venv\Scripts\python.exe -X utf8 -m compileall -q .github\utilities` | Current terminal; checks only the syntax of the distributed source code and does not replace behavior verification |
+| Full formal-artifact check | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_artifacts.py --root .` | JSON stdout; no report is saved automatically; empty/exit 0 does not mean a business pass |
+| Exact historical comparison | Add `--base <verified full commit ID>` to the row above | The verification target is still the complete formal inventory of the current files, not only changed or staged content; exits 2 if the exact object is unreadable |
+| Explicitly save a check report | Add `--report <authorized new JSON path>` to the check command | Relative paths resolve against the root; the parent directory must exist; any existing file is rejected; source files and history records are not rewritten |
+| Complete delivery coverage | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --delivery <full acceptance reference>` | Repeat `--delivery` for each delivery item; JSON on stdout, optional `--report`; scope is not inferred back from VTs, and VTs are not run |
+| Impact candidates for rule changes | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --base <full commit>` | `--task <actual scope/id>` may be repeated; old and new dependencies are merged; semantics are judged manually |
+| Read-only model derivation | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\export_model.py --root . --scope <actual project/context>` | JSON stdout; sources are selected from the optional `model-sources.yaml`; exits 2 if the primary input fails |
+| Check an existing model | Add `--check <existing .json/.yaml/.yml>` to the row above | Read-only recomputation; exits 1 on source changes/manual edits and 2 on input errors; does not repair the sources or the model |
+| Explicitly create a new model | Add `--output <authorized new .json/.yaml/.yml>` to the read-only derivation command | Mutually exclusive with `--check`; exclusive create, no parent directory creation, and the output must not take a registered source path |
+| Collect an implementation summary | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root . --object <full local commit>` | JSON stdout; repeat `--evidence <VT relative path[#run anchor]>` per actual selection; multiple BCs require `--scope`; VT commands are not run |
+| Explicitly create a new implementation report | Add `--output <authorized new .json/.yaml/.yml>` to the collect command | Exclusive create, no parent directory creation; does not overwrite existing files or take over missing declared sources; does not register a model source automatically |
+| Three-way template update proposal | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --base <actual old root> --local <actual local root> --candidate <actual candidate root>` | JSON stdout; `--base-version/--local-version/--candidate-version` may each be added to verify exact versions; a missing old root is an error; nothing is applied |
+| Scenario proposal for explicit BCs | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --registration <actual local registration.yaml> --target <explicit ID>` | Repeat `--target` for each target; reads only existing local roots and returns per-target results; does not clone/fetch or copy the model/whole repository |
+| Explicitly save an update proposal | Add `--output <authorized new .json>` to the proposal command | Exclusive create, no parent directory creation; must lie outside all registered sources/targets, including missing and unselected targets; conflict exits 1, unavailable/input-error exits 2; saving the report does not count as applying it |
+| Check the actual staged snapshot | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\hook_checks.py pre-commit --root .` | JSON stdout; index/blob/tree identity, all owner acceptance criteria, and explicitly empty coverage; an exact `--base` and a new `--report` may be added; nothing is auto-fixed or staged |
+| View the optional hook installation proposal | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\install_hooks.py --root . --python "<absolute path of the actual project interpreter>" --hook pre-commit --hook commit-msg` | No writes by default; reports targets/conflicts and the shared metadata scope; actual installation additionally requires authorization for this specific target and `--apply` |
+| Check a registered local domain source | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\setup_domain_source.py --root . --config bc-config.yaml --source-id <explicit ID>` | JSON stdout, read-only by default; the source root/relative path/fixed baseline come from the original BC fields; 0 ready, 1 conflict, 2 unavailable |
+| Explicitly register one local domain source | With the [exact source arguments](domain-sources.md#cli), inspect first, then add `--operation register --apply --owned-target --expect <this run's preflight>` | Maintains only the domainSources of the specified existing BC; does not copy domain files, stage, or commit; stops if there is no project configuration |
+| Optional local submodule | With the same source arguments, choose `--operation submodule --target <exact relative target>` and inspect first; to apply, also add `--apply --owned-target --index-consent --expect <this run's preflight>` | The [native operation](domain-sources.md#submodule) writes .gitmodules/local config/module metadata/index, independently of BC registration; explicit local sources only; no network/commit/push |
+| Local document/transcript candidates | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\extract_source.py --root . --source "<explicit local source>" --kind <markdown/text/transcript/docx>` | JSON stdout; [exact formats and bounded DOCX](source-extraction.md#formats); not a formal artifact; a non-existent `.json` inside the root may be given as `--output`; no parent directory creation |
+| Transparent candidate scoring | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\score_candidates.py --root . --input "<explicit candidates.json>"` | JSON stdout; a new `--output` may be added; [public factors and ranges](source-extraction.md#scoring); does not decide acceptance or override conflicts |
+| Audio unavailability check | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\transcribe_audio.py --source "<explicit local audio path>"` | Currently exits 2: authorization/missing inputs/adapter unavailable; does not read audio or environment secrets, call services, or write a transcript; [later separate gate](source-extraction.md#audio) |
+| Append an explicitly provided interaction record | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\log_interaction.py --log "<absolute local CSV>" --record-id "<id>" --time "<ISO 8601 with time zone>" --tool "<name>" --tool-version "<version>" --task-ref "<task reference>" --object-ref "<object reference>" --object-baseline "<object baseline>" --summary "<short factual summary>" --attest-local-storage` | For the arguments and the optional decision/evidence/usage fields, see the [ledger contract](../.github/utilities/README.md#interaction-ledger); appends only to an existing log, and missing usage stays empty; the caller must confirm a non-network, non-synced local path; 0 success/replay, 1 input/ID conflict, 2 path/attestation/lock/recovery error |
+| Read a usage summary | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\summarize_usage.py --log "<absolute local CSV>"` | JSON stdout; the API/CLI are truly read-only by default, read once, and create no lock sidecar or other files; units/currencies/tools/versions are kept separate |
+| Explicitly create a new summary file | Add `--output "<absolute new .json>" --attest-local-storage` to the same summary command | The parent directory must already exist; after the caller confirms a non-synced local path, the file is created exclusively with the standard library and no existing file is overwritten; on partial failure, what was created is kept and its recovery state reported; no Windows directory handles are required |
+| Local relationship graph | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_traceability.py --root . --scope <actual project/context> --format <json/svg/html>` | By default, the actual text goes to stdout; drift between the sources and a persisted model must be checked; with no data, the result is explicitly empty, and no demo is fabricated |
+| Local architecture/SEQ document | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope <actual project/context> --format <html/svg> --source "<actual reference>" --baseline <fixed object>` | Each source has a matching baseline; renders the actual source sections/nine views and limited SEQ diagrams; does not add deployment, risk, or approval content |
+| Local parameterized presentation | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope <actual project/context> --format <html/svg> --source "<actual reference>" --baseline <fixed object>` | The selected source sections drive the slides; not a fixed deck; HTML/SVG does not pass itself off as PDF/PPTX |
+| Explicitly create an export file | Add `--output <authorized new file of the same format>` to the commands above | Exclusive create, no parent directory creation; [isolation/rejection/exit contract](document-exports.md#cli); unavailable PDF/PPTX creates no file |
 
-这组命令不执行工件正文、引用命令或应用，也不安装 hooks、CI、媒体或平台包；不依赖已从下游候选排除的维护者测试。各工具的[发现规则、状态/计数、JSON 和基线](../.github/utilities/README.md#artifact-checker)、[覆盖](../.github/utilities/README.md#traceability)、[模型](../.github/utilities/README.md#model-export)、[实施摘要](../.github/utilities/README.md#implementation-report)与[只读更新提案](template-updates.md)分别约束其结果；这些检查/派生/提案 API 不写文件。[来源接入](domain-sources.md)的独立 apply API 另受准确目标、preflight 与授权限制，不因 readOnly 或已有配置获得许可。来源清单只保存[本地引用与固定基线](../.github/contracts/README.md#model-sources)，不是执行 manifest。报告复用现有 VT 的 owned runs，不维护另一份执行输入；收集退出 0 可含 not-run，退出 1 表示收集到 fail，退出 2 是输入/输出错误。模型完整性、结构覆盖、成功收集或干净提案都不等于业务通过或传播完成。尖括号参数由本次实际输入替换。
+These commands do not execute artifact bodies, referenced commands, or applications, and do not install hooks, CI, media, or platform packages; they do not depend on the maintainer tests excluded from the downstream candidate. Each tool's results are governed separately by its [discovery rules, statuses/counts, JSON, and baselines](../.github/utilities/README.md#artifact-checker), [coverage](../.github/utilities/README.md#traceability), [model](../.github/utilities/README.md#model-export), [implementation summary](../.github/utilities/README.md#implementation-report), and [read-only update proposals](template-updates.md); these check/derivation/proposal APIs write no files. The separate apply API of [source onboarding](domain-sources.md) is additionally bound by the exact target, preflight, and authorization, and gains no permission from readOnly or existing configuration. The source manifest stores only [local references and fixed baselines](../.github/contracts/README.md#model-sources); it is not an execution manifest. Reports reuse the owned runs of existing VTs and do not maintain a separate execution input; a collection exit 0 may include not-run, exit 1 means a fail was collected, and exit 2 is an input/output error. Model integrity, structural coverage, a successful collection, or a clean proposal does not equal a business pass or completed propagation. Replace angle-bracket arguments with the actual inputs for this run.
 
-来源接入的 preflight token 绑定实际读取/解析的 bytes，apply 时与 `--expect` 不同就停止；
-新子模块的 index 同意不能撤销 owner 已暂存的 `.gitmodules` 删除。
-[Git 调用环境](domain-sources.md#git-config-boundary)清除继承的仓库覆盖并以所选根为
-discovery 上限，不借用祖先仓库；仓库自身配置按 Git 原生规则生效。网络/真实项目
-接入仍需独立授权，不由资料可读或本地夹具结果授予。
+The source-onboarding preflight token is bound to the bytes actually read/parsed; apply stops if it differs from `--expect`;
+index consent for a new submodule cannot undo an owner's already-staged deletion of `.gitmodules`.
+The [Git invocation environment](domain-sources.md#git-config-boundary) clears inherited repository overrides and uses the selected root as the
+discovery ceiling, without borrowing an ancestor repository; the repository's own configuration takes effect by Git's native rules. Network/real-project
+onboarding still requires separate authorization, which readable materials or local fixture results do not grant.
 
-本地导出复用上述主库存、来源选择、原始基线和 report/model 核对，
-不另建 schema、结果库或执行输入。JSON/SVG/HTML 使用既有 stdlib，
-[rendering 清单](../.github/utilities/requirements-rendering.txt)没有新增依赖。
-PDF/PPTX 的实际引擎、安装、签名/parser、非零页/slide 与源内容/人/App 检查
-保持单独 not-run；未选 renderer 时不探测全局包或静默换格式。
+Local exports reuse the primary inventory, source selection, raw baselines, and report/model checks above,
+without creating a separate schema, result store, or execution input. JSON/SVG/HTML use the existing stdlib,
+and the [rendering manifest](../.github/utilities/requirements-rendering.txt) adds no dependencies.
+The actual PDF/PPTX engine, installation, signature/parser, non-zero pages/slides, and source-content/human/App checks
+remain separately not-run; when no renderer is selected, global packages are not probed and the format is not silently switched.
 
-可选安装、恢复和原生运行边界见[hooks 说明](../.github/hooks/README.md)。
-Windows 薄 launcher 使用 Git 自带 `sh`，只启动准确项目解释器；不要求 PowerShell 7。
-installer 不覆盖 owner hook、不改 `core.hooksPath`，也拒绝默默影响 sibling worktrees。
-每次 hook 启动在读取工件/index 前只确认 Python 3.11+ 且 PyYAML、jsonschema 可导入；
-venv、conda 或系统解释器均可，不要求固定版本或 `pyvenv.cfg`。不满足时明确拒绝，
-不回退到其他解释器。安装 I/O 失败保留完整/部分创建的
-逐路径恢复状态，不自动删除后续 owner 内容；恢复须按 hooks 说明核对所有权。
-下游资料 workflow 只调用分发模块；制作仓回归 workflow/计数 runner 不分发。
-复制 YAML 不建立 required checks；托管运行与服务端配置须另有授权及实际证据。
-模板提案 workflow 也只在制作仓维护者侧手动使用，要求可信 runner 上预先存在的准确本地输入；
-它不是下游运行依赖，不包含目标 checkout/写分支/PR，也未因本地实现而成为已执行的平台能力。
+For optional installation, recovery, and native runtime boundaries, see the [hooks guide](../.github/hooks/README.md).
+The thin Windows launcher uses the `sh` bundled with Git and starts only the exact project interpreter; PowerShell 7 is not required.
+The installer does not overwrite owner hooks or change `core.hooksPath`, and refuses to silently affect sibling worktrees.
+Each hook launch, before reading artifacts/the index, only confirms Python 3.11+ and that PyYAML and jsonschema are importable;
+venv, conda, or the system interpreter all work, and no fixed version or `pyvenv.cfg` is required. If these are not met, it refuses explicitly
+and does not fall back to another interpreter. An installation I/O failure keeps the per-path recovery state of fully/partially
+created files and does not automatically delete later owner content; recovery must verify ownership according to the hooks guide.
+The downstream documentation workflow calls only distributed modules; the maker repository's regression workflow/count runner is not distributed.
+Copying YAML does not establish required checks; hosted runs and server-side configuration need separate authorization and actual evidence.
+The template proposal workflow is likewise used only manually on the maker-repository maintainer side and requires exact local inputs that already exist on a trusted runner;
+it is not a downstream runtime dependency, includes no target checkout/branch writes/PR, and has not become an executed platform capability because of the local implementation.
 
-制作仓回归使用当前解释器执行：
+Maker-repository regression runs with the current interpreter:
 
 ```text
-<project-python> -B -X utf8 .github/utilities/tests/run_tooling_tests.py --start-directory .github/utilities/tests --top-level-directory .github/utilities --report <新报告.json> --raw-output <新原始输出.txt>
+<project-python> -B -X utf8 .github/utilities/tests/run_tooling_tests.py --start-directory .github/utilities/tests --top-level-directory .github/utilities --report <new-report.json> --raw-output <new-raw-output.txt>
 ```
 
-报告父目录须已存在；输出由本次调用指定，不写固定机器目录。`tooling-tests.yml` 在 Windows、Ubuntu、macOS 分别发现并运行测试，保留各平台独立产物；包括所有 CLI 从非仓库 cwd 启动、空格/中文路径和无固定夹具目录的回归。三份 workflow 的运行步骤使用 Python 和 venv 返回的实际解释器，不写死 `bin/python` 或 `Scripts/python.exe`。模板提案仍需预配置的 `self-hosted, template-proposals` runner，但不限定 Linux 标签。矩阵配置不等于各平台已经运行成功，实际结果回到本次报告或 Actions。
+The report's parent directory must already exist; outputs are specified by this invocation, and nothing is written to a fixed machine directory. `tooling-tests.yml` discovers and runs the tests separately on Windows, Ubuntu, and macOS and keeps each platform's artifacts separate; this includes regressions where every CLI starts from a non-repository cwd, paths containing spaces or non-ASCII characters, and no fixed fixture directory. The run steps of all three workflows use the actual interpreter returned by Python and venv, without hard-coding `bin/python` or `Scripts/python.exe`. Template proposals still need a preconfigured `self-hosted, template-proposals` runner, but it is not restricted to a Linux label. A matrix configuration does not mean every platform has run successfully; take actual results from this run's report or from Actions.
 
 <a id="creation-inputs"></a>
-## 何时可以创建项目
+## When a project can be created
 
-只有用户明确选择目标项目、技术栈和位置，授权创建，并提供足够的任务目标、行为依据、约束及有效开发输入后，才使用该项目的原生工具生成或接入工程。先检查目标目录和已有修改，不自动选择语言、安装依赖或创建示例应用。
+Generate or onboard a project with that project's native tools only after the user has explicitly chosen the target project, tech stack, and location, authorized creation, and provided a sufficient task goal, behavior basis, constraints, and valid development inputs. First check the target directory and existing changes; do not choose a language, install dependencies, or create a sample application automatically.
 
-已有项目保留其原路径和原生代码、测试、依赖布局，不强制搬进 `src\`，也不要求建立统一测试目录。新项目可直接放在 `src\`，或放在 `src\<project>\`；两者只是位置选项，不是已经存在的工程。
+Existing projects keep their original paths and native code, test, and dependency layouts; they are not forced into `src/`, and no unified test directory is required. A new project may go directly in `src/` or in `src/<project>/`; both are only location options, not projects that already exist.
 
 <a id="project-registration"></a>
-## 子项目位置与命令登记
+## Subproject location and command registration
 
-本节只登记**下游业务应用**，当前仍未配置；上面的维护工具不是应用子项目。创建或接入真实项目后，按子项目复制下面这一组登记表。每组对应一个项目，多个命令不要混用工作目录。所有本地位置以仓库根目录为基准记录相对路径；执行前在当前工作区解析并确认，不记录个人绝对路径。
+This section registers only the **downstream business application**, which is still not configured; the maintenance tools above are not an application subproject. After a real project has been created or onboarded, copy the following set of registration tables for each subproject. Each set corresponds to one project; do not mix working directories between commands. Record every local location as a path relative to the repository root; resolve and confirm it in the current workspace before running, and do not record personal absolute paths.
 
-| 项目信息 | 当前值 |
+| Project information | Current value |
 |---|---|
-| 子项目名称或标识 | 未配置 |
-| 子项目相对位置 | 未配置 |
-| 原生布局（源码、测试、配置的实际位置） | 未配置 |
-| 技术栈、工具与版本 | 未配置，待用户选择 |
-| 环境前提与依赖来源 | 未配置；不记录凭据 |
-| 任务/用户选择依据及适用范围 | 待填写 |
+| Subproject name or identifier | Not configured |
+| Subproject relative location | Not configured |
+| Native layout (actual locations of source, tests, and configuration) | Not configured |
+| Tech stack, tools, and versions | Not configured; to be selected by the user |
+| Environment prerequisites and dependency sources | Not configured; do not record credentials |
+| Basis for the task/user selection and its scope | TBD |
 
-| 操作 | 真实命令 | 实际工作目录（仓库相对路径） | 原始报告/输出位置 | 适用条件与限制 |
+| Operation | Actual command | Actual working directory (repository-relative path) | Raw report/output location | Applicability conditions and limitations |
 |---|---|---|---|---|
-| 安装依赖 | 未配置 | 未配置 | 未配置 | 暂无项目，不执行 |
-| 构建 | 未配置 | 未配置 | 未配置 | 暂无应用，对当前文档任务不适用 |
-| 运行 | 未配置 | 未配置 | 未配置 | 暂无应用，不执行 |
-| 测试 | 未配置 | 未配置 | 未配置 | 暂无应用；已规划行为 VT 仍为 `not-run` |
+| Install dependencies | Not configured | Not configured | Not configured | No project yet; do not run |
+| Build | Not configured | Not configured | Not configured | No application yet; not applicable to the current documentation task |
+| Run | Not configured | Not configured | Not configured | No application yet; do not run |
+| Test | Not configured | Not configured | Not configured | No application yet; a planned behavior VT stays `not-run` |
 
-这些“未配置”不是可执行命令。不要用空脚本、打印成功或无实际检查的命令占位。填写时依据真实工程确认命令、cwd、报告位置及用途；命令退出为零不等于验收通过。检查范围、发现数、执行数、跳过数和实际结果按[验证指引](../verification/README.md#execution)记录。
+These "Not configured" values are not executable commands. Do not use empty scripts, commands that only print success, or commands without real checks as placeholders. When filling them in, confirm the command, cwd, report location, and purpose against the real project; a zero exit code does not mean acceptance passed. Record the check scope, discovered, executed, and skipped counts, and the actual result according to the [verification guide](../verification/README.md#execution).
 
-报告位置只指向实际输出或获准的报告入口；尚不存在就写待配置。项目工具产生的文件按真实位置补充忽略规则，不能忽略正式需求、验证文档或开发日志。
+A report location points only to actual output or an authorized report entry point; if none exists yet, write "To be configured". Add ignore rules for files produced by project tools according to their real locations; never ignore formal requirements, verification documents, or development logs.
 
 <a id="document-checks"></a>
-## 当前可做的文档检查
+## Documentation checks available now
 
-可用正式工件检查器核对其[限定 Markdown 语法](../.github/utilities/README.md#checker-format)、元数据、ID、占位与本地链接；没有正式工件时明确输出 `empty`。它不是全部文档扫描器或语言 CI，普通 README/guide、覆盖与语义仍须按本次任务核对。尤其不能把文件/锚点有效等同于[验收覆盖和语义影响](../verification/README.md#coverage-check)已核对。
+The formal-artifact checker can check its [restricted Markdown syntax](../.github/utilities/README.md#checker-format), metadata, IDs, placeholders, and local links; when there are no formal artifacts, it explicitly outputs `empty`. It is not a scanner for all documents or a language CI; ordinary READMEs/guides, coverage, and semantics must still be checked for each task. In particular, valid files/anchors must not be equated with having checked [acceptance coverage and semantic impact](../verification/README.md#coverage-check).
 
-若使用已有本地工具检查，应记录实际工具、命令、工作目录、对象基线和原始结果入口；不把作者机器上的外部脚本当作仓库自带能力。人工核对记录所读工件、基线、观察和限制，不伪造命令。文档检查不能替代业务验收或软件行为执行。
+If an existing local tool is used for checks, record the actual tool, command, working directory, object baseline, and the entry point to the raw results; do not treat external scripts on the author's machine as capabilities shipped with the repository. Manual checks record the artifacts read, baselines, observations, and limitations, without fabricating commands. Documentation checks cannot replace business acceptance or software behavior runs.
 
 <a id="troubleshooting"></a>
-## 缺项与排障入口
+## Missing items and troubleshooting
 
-| 缺项或问题 | 已知依据与影响 | 需补充的输入或下一步 |
+| Missing item or problem | Known basis and impact | Inputs to add or next step |
 |---|---|---|
-| 业务应用环境与命令未配置 | 维护工具环境已单列；当前无业务应用，不阻塞文档任务 | 用户决定创建实际项目后补全业务应用登记，不复用工具栈代选应用 |
-| 其他问题 | 待填写 | 待填写 |
+| Business application environment and commands not configured | The maintenance-tool environment is listed separately; there is currently no business application, so documentation tasks are not blocked | After the user decides to create an actual project, complete the business application registration; do not reuse the tool stack to choose the application on the user's behalf |
+| Other issues | TBD | TBD |
 
-命令不可用、输入冲突或环境不满足时报告具体原因，不静默换工具或把未执行写成成功。命令、项目或验收基线改变后重新判断结果适用性，在[日志](../logs/README.md)中保留待复核和未执行项。
+When a command is unavailable, inputs conflict, or the environment requirements are not met, report the specific reason; do not silently switch tools or record a not-run item as a success. After a command, project, or acceptance baseline changes, reassess result applicability, and keep items pending re-review and not-run items in the [log](../logs/README.md).

@@ -7,49 +7,49 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# CTX-NNN：待填写上下文
+# CTX-NNN: TBD context
 
-> 可选空表单，不是服务划分决定。先读[上下文指引](../../domain-model/README.md#contexts)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\CTX-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留原有内容后删除本提示。一个上下文足够时继续使用原 README。
+> Optional blank form; not a service decomposition decision. First read the [context guide](../../domain-model/README.md#contexts) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CTX-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original content, and then delete this hint. When one context is enough, keep using the original README.
 
 <a id="basis"></a>
-## 来源与认识边界
+## Sources and knowledge boundaries
 
-- 已知业务事实及来源定位、日期或版本：待填写。
-- 推导候选及推导依据：待填写。
-- 未决问题及需要谁确认：待填写；上下文不默认对应一个服务或仓库。
+- Known business facts with source location, date, or version: TBD.
+- Derived candidates and the basis for deriving them: TBD.
+- Open questions and who needs to confirm them: TBD; a context does not by default correspond to one service or repository.
 
-可解析上游只在 frontmatter 声明，正文说明来源与当前责任判断。
+Parsable upstream is declared only in the frontmatter; the body explains the sources and the current judgment about responsibilities.
 
 <a id="responsibilities"></a>
-## 职责与不负责事项
+## Responsibilities and exclusions
 
-| 责任信息 | 内容 |
+| Responsibility information | Content |
 |---|---|
-| 负责的业务能力与决定 | 待填写 |
-| 明确不负责的事项 | 待填写 |
-| 业务责任人与权限依据 | 待填写 |
-| 关键术语及在此边界内的含义 | 待填写；与其他上下文不同的含义要说明 |
-| 相关概念、规则与不变量的含义 | 待填写；链接原文，不复制规则 |
+| Business capabilities and decisions it is responsible for | TBD |
+| Matters it is explicitly not responsible for | TBD |
+| Accountable business owner and the basis of their authority | TBD |
+| Key terms and their meaning within this boundary | TBD; explain any meaning that differs from other contexts |
+| Meaning of related concepts, rules, and invariants | TBD; link to the source text instead of copying rules |
 
 <a id="owned-facts"></a>
-## 拥有并维护的事实
+## Facts owned and maintained
 
-| 事实及业务含义 | 可改变它的业务动作 | 约束与来源 | 未决的生命周期问题 |
+| Fact and business meaning | Business actions that can change it | Constraints and source | Open lifecycle questions |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD | TBD |
 
 <a id="consumed-facts"></a>
-## 使用但不拥有的事实
+## Facts used but not owned
 
-| 提供方 → 本上下文 | 所用信息及含义 | 事实所有者 | 使用条件、时效和失败约定的来源 |
+| Provider → this context | Information used and its meaning | Fact owner | Source of the conditions of use, timeliness, and failure agreements |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待确认；消费信息不授予修改权 |
+| TBD | TBD | TBD | To be confirmed; consuming information does not grant the right to modify it |
 
-对外提供的信息在[定向交换](../../domain-model/README.md#exchanges)或实际 context map 中说明方向；这些导航不是另一套上游映射。
+For information this context provides to others, describe the direction in the [directed exchanges](../../domain-model/README.md#exchanges) or an actual context map; these navigation links are not a second upstream mapping.
 
 <a id="questions"></a>
-## 边界争议与变化
+## Boundary disputes and changes
 
-- 已知事实与候选边界之间的差异：待填写。
-- 跨上下文政策、词义或归属缺口；责任人与 BL 导航：待填写。
-- 旧新基线、变更依据及影响：待填写；未经确认不移动已有工件。
+- Differences between known facts and the candidate boundary: TBD.
+- Gaps in cross-context policy, term meaning, or ownership; accountable owner and BL navigation: TBD.
+- Old and new baselines, basis for the change, and impact: TBD; do not move existing artifacts without confirmation.

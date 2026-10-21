@@ -1,20 +1,52 @@
-# 通用工作入口
+# Common work entry point
 
-人和 Agent 使用同一套方法、事实与结果，方法正文只维护在[活动导航](README.md#activities)所列的实际 `SKILL.md` 中。
+This file is the common entry point: it sets the reading path and the rules for all work. Humans and agents use the same methods, facts, and results. Method text is maintained only in the actual `SKILL.md` files listed in the [activity navigation](README.md#activities).
 
-## 读取入口
+## Start here
 
-1. 读 [README 项目登记](README.md#project)与当前任务的目标、范围、依据和完成条件；维护请求本身可以作依据，不强制创建 US。
-2. 从 [README 活动导航](README.md#activities)选择对应方法，**显式读取完整 `SKILL.md`**，再读它链接的当前事实、指引和表单。文件名、链接或描述不是自动包含保证；没有原生发现时也沿这条路径读取。
-3. 修改 Markdown 时读[文档规则](.github/instructions/docs.instructions.md)；修改任何测试时读[测试规则](.github/instructions/tests.instructions.md)。修改代码还须显式完整读[架构](.github/instructions/architecture.instructions.md)、[编码](.github/instructions/coding.instructions.md)和[安全规则](.github/instructions/security.instructions.md)，即使实际路径不匹配初始 globs。按实际项目补充匹配范围，不假设 `src` 是唯一代码位置或统一测试布局。
-4. 写入前核对实际目录、Git 分支、commit、暂存区及未提交范围；保留所有者内容、已有规则位置和无关改动。
+1. Read the [README project registration](README.md#project) and the current task's goal, scope, basis, and completion conditions.
+   - A maintenance request can itself serve as the basis.
+   - Creating a US is not mandatory.
+2. Choose the matching method from the [README activity navigation](README.md#activities). **Explicitly read the complete `SKILL.md`**, then read the current facts, guides, and forms it links to.
+   - Follow this reading path even when the client has no native discovery.
+   - File names, links, and descriptions do not guarantee automatic inclusion.
+3. Read the rules for what you change:
+   - Markdown: read the [documentation rules](.github/instructions/docs.instructions.md).
+   - Any test: read the [test rules](.github/instructions/tests.instructions.md).
+   - Code: also explicitly read the [architecture](.github/instructions/architecture.instructions.md), [coding](.github/instructions/coding.instructions.md), and [security rules](.github/instructions/security.instructions.md) in full, even if the actual paths do not match their initial globs.
+   - Extend the matched scope to fit the actual project. Do not assume that `src` is the only code location or that tests follow a uniform layout.
+4. Before writing, check the actual directory, Git branch, commit, index (staging area), and uncommitted scope.
+   - Preserve owner content, the existing locations of rules, and unrelated changes.
 
-## 边界
+## Rules
 
-- 只做获授权的任务。影响行为的事实缺失、来源不可读、冲突或授权不足时停止受影响的操作并说明，不把占位或提案当事实。
-- [开发说明](docs/development.md)未配置时不自行选栈、安装依赖或生成项目；输入齐备的纯文档维护可继续。
-- 初始生成使用 [generate-code](.github/skills/generate-code/SKILL.md)，既有代码/文档维护使用 [implement-task](.github/skills/implement-task/SKILL.md)；非空目标冲突要明确停写，跳过文件不等于生成完整。可选 [BC 配置](architecture/README.md#bc-configuration)不授予源写入或执行权限。
-- 模板版本或明确 BC 场景提案使用 [update-template](.github/skills/update-template/SKILL.md)，读取真实旧/本地/新来源及精确版本；缺旧基线、冲突或权限不明时停止受影响操作。提案不应用，也不授予任何跨仓 Git/平台权限。
-- 证据与影响按 [verify-change](.github/skills/verify-change/SKILL.md)处理；完成、暂停或接手按 [record-handoff](.github/skills/record-handoff/SKILL.md)处理。不补造结果，不复制权威记录或隐藏聊天依赖。
+### Authorization and facts
 
-客户端原生发现与权限仍须分别实测；本地候选范围及未运行关卡见[分发说明](docs/distribution.md)。角色不是独立人工批准者，也不自动组织团队；Markdown 规则不替代真实权限、sandbox 或 CI，外部操作仍须相应授权。
+- Do only authorized tasks.
+- **When a fact that affects behavior is missing, a source is unreadable, there is a conflict, or authorization is insufficient, stop the affected operations and explain why.**
+- Never treat placeholders or proposals as facts.
+
+### Code generation and maintenance
+
+- While the [development guide](docs/development.md) is not configured, do not choose a stack, install dependencies, or generate a project on your own. Documentation-only maintenance with complete inputs may continue.
+- Use [generate-code](.github/skills/generate-code/SKILL.md) for initial generation. Use [implement-task](.github/skills/implement-task/SKILL.md) for maintaining existing code or documents.
+- On a conflict with a non-empty target, explicitly stop writing. Skipped files do not mean that generation is complete.
+- The optional [BC configuration](architecture/README.md#bc-configuration) does not grant permission to write to sources or to execute anything.
+
+### Template updates
+
+- For template versions, or scenario proposals for explicitly named BCs, use [update-template](.github/skills/update-template/SKILL.md). Read the real old, local, and new sources and their exact versions.
+- When the old baseline is missing, there is a conflict, or permissions are unclear, stop the affected operations.
+- Proposals are not applied. They do not grant any cross-repository Git or platform permission.
+
+### Evidence and handoff
+
+- Handle evidence and impact with [verify-change](.github/skills/verify-change/SKILL.md).
+- Handle completing, pausing, or taking over a task with [record-handoff](.github/skills/record-handoff/SKILL.md).
+- Do not fabricate results, duplicate authoritative records, or depend on hidden chat context.
+
+## Limits of these files
+
+- Native client discovery and permissions must still be verified in practice, each separately. For the local distribution candidate's scope and the gates that have not been run, see the [distribution guide](docs/distribution.md).
+- Roles are not independent human approvers, and they do not organize a team automatically.
+- Markdown rules do not replace real permissions, sandboxes, or CI. External operations still require the corresponding authorization.

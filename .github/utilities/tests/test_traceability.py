@@ -35,7 +35,7 @@ class TraceFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "交付 inputs with spaces"
+        self.root = self.workspace / "поставка € inputs with spaces"
         self.root.mkdir()
         self.delivery = write_delivery_fixture(self.root)
 
@@ -105,7 +105,7 @@ class TraceabilityTests(TraceFixture):
         self.assertEqual("sample/CTX-001/SR-001", item.owner)
         self.assertEqual(str(self.root / "software-requirements/SR-001.md"), item.path)
         lines = before["software-requirements/SR-001.md"].decode().splitlines()
-        self.assertEqual(lines.index("### SR-001-AC-02：拒绝请求无副作用") + 1, item.line)
+        self.assertEqual(lines.index("### SR-001-AC-02: Rejected request has no side effects") + 1, item.line)
         source = next(f for f in report.baseline.files if f.path == "software-requirements/SR-001.md")
         self.assertEqual(hashlib.sha256(before[source.path]).hexdigest(), source.sha256)
         self.assertEqual(before, source_bytes(self.root))
@@ -113,10 +113,11 @@ class TraceabilityTests(TraceFixture):
     def test_dangling_target_outside_delivery_still_has_origin_location(self):
         write_metadata(self.root, metadata(id="VT-003", kind="verification-test", targets=[
             {"target": "other/CTX-002/REQ-999#req-999-ac-01", "criterionAnchor": "extra"}]),
-            '# VT-003：范围外\n<a id="plan"></a>\n## 计划\n'
-            '| 验证层次 | 业务验收 |\n' +
-            criterion_block("extra", "在已知前提下没有新增借用。",
-                            "提交再比较业务记录。", "已有有效资格但并发未知。"),
+            '# VT-003: Out of scope\n<a id="plan"></a>\n## Plan\n'
+            '| Verification layer | Business acceptance |\n' +
+            criterion_block("extra", "No new loan is created under the known preconditions.",
+                            "Submit, then compare the business records.",
+                            "Eligibility is already valid but concurrency is unknown."),
             "verification/VT-003.md")
         report = self.report()
         self.assertEqual("invalid", report.status)
@@ -154,36 +155,40 @@ class TraceabilityTests(TraceFixture):
         original = path.read_text(encoding="utf-8")
         start = original.index('<a id="no-write">')
         stop = original.index('<a id="runs">')
-        for content in ("", "全部通过。", "all pass", "<!-- meaningful-looking ignored text -->",
-                        "```text\n预期：拒绝；方法：观察；前提：有效。\n```",
-                        "| 本目标预期与独立判定标准 | 待填写 |\n"):
+        for content in ("", "All tests passed.", "all pass", "<!-- meaningful-looking ignored text -->",
+                        "```text\nExpected: reject; method: observe; precondition: valid.\n```",
+                        "| Expected outcome and independent pass criterion for this target | TBD |\n"):
             with self.subTest(content=content):
-                path.write_text(original[:start] + '<a id="no-write"></a>\n### 独立判据\n'
+                path.write_text(original[:start] + '<a id="no-write"></a>\n### Independent criterion\n'
                                 + content + "\n" + original[stop:], encoding="utf-8")
                 report = self.report()
                 self.finding(report, "INSUFFICIENT_CRITERION")
                 self.assertIn(DELIVERY[3], [f.target for f in report.findings if f.code == "UNCOVERED_ACCEPTANCE"])
 
     def test_declared_wrong_layer_is_not_inferred_from_vt_filename(self):
-        self.replace("verification/VT-002.md", "| 验证层次 | 软件行为 |", "| 验证层次 | 业务验收 |")
+        self.replace("verification/VT-002.md", "| Verification layer | Software behavior |",
+                     "| Verification layer | Business acceptance |")
         report = self.report()
         self.assertEqual(set(DELIVERY[2:]), {f.target for f in report.findings if f.code == "LAYER_MISMATCH"})
 
     def test_missing_unknown_or_ambiguous_plan_layer_is_explicit(self):
         path = self.root / "verification/VT-002.md"
         original = path.read_text(encoding="utf-8")
-        for row in ("", "| 验证层次 | unknown |", "| 验证层次 | 软件行为／业务验收 |",
-                    "| 验证层次 | 软件行为 |\n| 验证层次 | 业务验收 |",
-                    "```text\n| 验证层次 | 软件行为 |\n```"):
+        for row in ("", "| Verification layer | unknown |",
+                    "| Verification layer | Software behavior / Business acceptance |",
+                    "| Verification layer | Software behavior |\n| Verification layer | Business acceptance |",
+                    "```text\n| Verification layer | Software behavior |\n```"):
             with self.subTest(row=row):
-                path.write_text(original.replace("| 验证层次 | 软件行为 |", row), encoding="utf-8")
+                path.write_text(original.replace("| Verification layer | Software behavior |", row),
+                                encoding="utf-8")
                 report = self.report()
                 self.finding(report, "UNKNOWN_VALIDATION_LAYER")
                 self.assertEqual(set(DELIVERY[2:]), {f.target for f in report.findings if f.code == "UNCOVERED_ACCEPTANCE"})
 
     def test_layer_declaration_in_runs_cannot_replace_missing_plan(self):
-        self.replace("verification/VT-002.md", "| 验证层次 | 软件行为 |", "")
-        self.replace("verification/VT-002.md", "## 实际执行", "## 实际执行\n| 验证层次 | 软件行为 |")
+        self.replace("verification/VT-002.md", "| Verification layer | Software behavior |", "")
+        self.replace("verification/VT-002.md", "## Actual runs",
+                     "## Actual runs\n| Verification layer | Software behavior |")
         self.finding(self.report(), "UNKNOWN_VALIDATION_LAYER")
 
     def test_two_targets_cannot_share_one_criterion(self):
@@ -197,19 +202,25 @@ class TraceabilityTests(TraceFixture):
         write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
             {"target": DELIVERY[0], "criterionAnchor": "allow"},
             {"target": DELIVERY[1], "criterionAnchor": "reject"}]),
-            '# TS-001：业务场景\n<a id="basis"></a>\n## 依据\n'
-            '| 业务范围与场景类型 | REQ 业务验收：借用额度 |\n'
-            '<a id="targets"></a>\n## 逐项目标\n'
-            '<a id="allow"></a>\n### 允许\n'
-            '- 本目标前提与输入：会员资格有效且在额度内。\n'
-            '- 本目标动作、观察与独立判定标准：办理一次借用后业务登记增加。\n'
-            '- 对应步骤或实际测试标识：人工比较前后业务登记。\n'
-            '- 来源导航、未决条件与禁止副作用：不得改变其他会员登记；并发未知。\n'
-            '<a id="reject"></a>\n### 拒绝\n'
-            '- 本目标前提与输入：会员资格有效但已达额度。\n'
-            '- 本目标动作、观察与独立判定标准：再次申请后业务登记不变。\n'
-            '- 对应步骤或实际测试标识：人工核对拒绝响应及业务登记。\n'
-            '- 来源导航、未决条件与禁止副作用：不能形成新借用；失效策略未知。\n',
+            '# TS-001: Business scenario\n<a id="basis"></a>\n## Basis\n'
+            '| Business scope and scenario type | REQ business acceptance: borrowing allowance |\n'
+            '<a id="targets"></a>\n## Targets\n'
+            '<a id="allow"></a>\n### Allow\n'
+            '- Preconditions and inputs for this target: Membership is valid and within the allowance.\n'
+            '- Actions, observations, and independent pass criterion for this target: '
+            'After one loan, the business register grows.\n'
+            '- Corresponding steps or actual test identifier: Manually compare the business register '
+            'before and after.\n'
+            '- Source navigation, open conditions, and forbidden side effects: Must not change the '
+            'registers of other members; concurrency is unknown.\n'
+            '<a id="reject"></a>\n### Reject\n'
+            '- Preconditions and inputs for this target: Membership is valid but the allowance is reached.\n'
+            '- Actions, observations, and independent pass criterion for this target: '
+            'After applying again, the business register is unchanged.\n'
+            '- Corresponding steps or actual test identifier: Manually check the rejection response '
+            'and the business register.\n'
+            '- Source navigation, open conditions, and forbidden side effects: No new loan may be '
+            'created; the expiry policy is unknown.\n',
             "verification/TS-001.md")
         self.assertEqual("clean", self.report().status)
         self.replace("verification/TS-001.md", DELIVERY[0], DELIVERY[2])
@@ -219,8 +230,8 @@ class TraceabilityTests(TraceFixture):
         path = self.root / "stakeholder-requirements/REQ-001.md"
         with path.open("a", encoding="utf-8") as stream:
             stream.write('\nMention REQ-001-AC-99 and SR-001-AC-03.\n'
-                         '<!-- <a id="req-001-ac-03"></a>\n### REQ-001-AC-03：comment -->\n'
-                         '```md\n<a id="req-001-ac-04"></a>\n### REQ-001-AC-04：code\n```\n')
+                         '<!-- <a id="req-001-ac-03"></a>\n### REQ-001-AC-03: comment -->\n'
+                         '```md\n<a id="req-001-ac-04"></a>\n### REQ-001-AC-04: code\n```\n')
         self.assertEqual("clean", self.report().status)
 
     def test_bad_formal_inventory_cannot_be_reclassified_as_coverage(self):
@@ -271,18 +282,19 @@ class TraceabilityTests(TraceFixture):
         self.finding(report, "DUPLICATE_DELIVERY_ID")
 
     def test_explicit_design_and_maintenance_layers_use_actual_owner_kinds(self):
-        for owner, kind, layer in (("ABB-001", "architecture-building-block", "适用的设计验证"),
-                                   ("TASK-001", "development-log", "独立维护或文档检查")):
+        for owner, kind, layer in (("ABB-001", "architecture-building-block", "Applicable design verification"),
+                                   ("TASK-001", "development-log", "Standalone maintenance or document check")):
             with self.subTest(owner=owner):
                 write_artifact(self.root, id=owner, kind=kind, acceptance_ids=(owner + "-VC-01",))
                 target = "sample/CTX-001/" + owner + "#" + owner.lower() + "-vc-01"
                 write_metadata(self.root, metadata(id="VT-003", kind="verification-test",
                                targets=[{"target": target, "criterionAnchor": "inspect"}]),
-                               f'# VT-003：约束检查\n<a id="plan"></a>\n## 计划\n'
-                               f'| 验证层次 | {layer} |\n'
-                               + criterion_block("inspect", "实际变化符合来源中明确的边界。",
-                                                 "直接逐项比较来源与维护范围。",
-                                                 "不执行应用，也不改变无关的所有者文件。"),
+                               f'# VT-003: Constraint check\n<a id="plan"></a>\n## Plan\n'
+                               f'| Verification layer | {layer} |\n'
+                               + criterion_block("inspect", "The actual change stays within the boundary "
+                                                 "stated in the source.",
+                                                 "Compare the source and the maintenance scope item by item.",
+                                                 "Do not run the application or change unrelated owner files."),
                                "verification/VT-003.md")
                 self.assertEqual("clean", self.report([*DELIVERY, target]).status)
 
@@ -320,7 +332,9 @@ class ImpactTests(TraceFixture):
         seed_git_repo(self.root)
         write_metadata(self.root, metadata(id="TASK-001", kind="development-log",
                        upstream=["sample/CTX-001/SR-001"]),
-                       "# TASK-001：维护交付\n\n任务依赖软件要求，未执行应用。\n", "tasks/TASK-001.md")
+                       "# TASK-001: Maintain delivery\n\n"
+                       "The task depends on the software requirement; no application was run.\n",
+                       "tasks/TASK-001.md")
         git(self.root, "add", "--", ".")
         git(self.root, "commit", "--quiet", "-m", "Independent rule and delivery baseline")
         self.base = git(self.root, "rev-parse", "HEAD")
@@ -414,7 +428,8 @@ class CriterionIsolationTests(TraceFixture):
         path = self.root / "verification/VT-002.md"
         text = path.read_text(encoding="utf-8")
         start, end = text.index('<a id="record">'), text.index('<a id="no-write">')
-        path.write_text(text[:start] + '<a id="record"></a>\n### 独立判据\n\n' + text[end:], encoding="utf-8")
+        path.write_text(text[:start] + '<a id="record"></a>\n### Independent criterion\n\n' + text[end:],
+                        encoding="utf-8")
         report = self.report()
         self.assertEqual("invalid", report.status)
         self.assertEqual([DELIVERY[2]], [f.target for f in report.findings if f.code == "UNCOVERED_ACCEPTANCE"])

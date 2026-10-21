@@ -1,13 +1,16 @@
-# 有来源的本地文档导出
+# Sourced local document exports
 
-这些工具只生成可重建的派生文档，不接管领域、架构决定、VT 结果或批准。
-使用 Python 3.11+ 和[既有维护环境](development.md#maintenance-tools)；
-本地 JSON、SVG、HTML 只用 stdlib，没有浏览器、CDN、远程字体或来源命令。
-[rendering 清单](../.github/utilities/requirements-rendering.txt)不选择 PDF/PPTX 引擎。
+These tools only generate rebuildable derived documents; they do not take over the domain,
+architecture decisions, VT results, or approvals.
+Use Python 3.11+ and the [existing maintenance environment](development.md#maintenance-tools);
+local JSON, SVG, and HTML use only the stdlib, with no browser, CDN, remote fonts, or source commands.
+The [rendering manifest](../.github/utilities/requirements-rendering.txt) does not select a PDF/PPTX engine.
 
-## 输入和返回值
+<a id="inputs"></a>
+## Inputs and return values
 
-三个绑定函数从同名模块导入，API 不写文件，也不改变 cwd：
+Import the three bound functions from the modules of the same name; the API does not write files
+or change the cwd:
 
 ```python
 render_traceability(view)
@@ -15,135 +18,159 @@ render_architecture(inputs, format)
 render_presentation(inputs, format)
 ```
 
-`view` 是普通 Python mapping，只有必填 `root`、`scope`，可选 `format`
-（默认 `json`）和 `model_path`。`inputs` 是同样的显式 `root`、`scope`、
-可选 `model_path`，以及必填的 `sources` 列表。它不是另一个文件 manifest。
-每个 source 沿用现有 evidence 指针：`{"reference": "architecture/SWAS-001.md",
-"baseline": "sha256:实际原始字节摘要"}`；reference 可以带真实显式锚点，
-baseline 也可为可读的完整本地 Git commit/blob。未知字段、重复选择、非法版本、
-路径、引用和不匹配的基线都不是空数据。
+`view` is a plain Python mapping with only the required `root` and `scope`, plus optional `format`
+(default `json`) and `model_path`. `inputs` has the same explicit `root`, `scope`, and optional
+`model_path`, plus a required `sources` list. It is not another file manifest.
+Each source reuses the existing evidence pointer: `{"reference": "architecture/SWAS-001.md",
+"baseline": "sha256:<actual raw-byte digest>"}`; the reference may carry a real explicit anchor,
+and the baseline may also be a readable full local Git commit/blob. Unknown fields, duplicate
+selections, and invalid versions, paths, references, or mismatched baselines are not empty data.
 
-每次调用都读取显式 root 的真实库存，复用 parser、九视图派生、来源选择和
-基线核对。`model_path` 仅是待核对的已有模型：按 `check_model` 重算，
-`STALE_MODEL_SOURCE` / `MODEL_MISMATCH` 阻止渲染，不信任 schema-valid YAML。
-不接受脱离 root 的模型 dict 作为已验证事实。这里没有公开的“任意数据已验证”
-投影捷径，也不从文件名、扩展名、cwd 或 `available` 推断来源、执行或批准。
+Every call reads the real inventory of the explicit root and reuses the parser, the nine-view
+derivation, source selection, and baseline checks. `model_path` is only an existing model to be
+checked: it is recomputed with `check_model`, and `STALE_MODEL_SOURCE` / `MODEL_MISMATCH` block
+rendering; schema-valid YAML is not trusted. A model dict detached from the root is not accepted
+as a verified fact. There is no public "arbitrary data is verified" projection shortcut, and
+sources, execution, or approval are not inferred from file names, extensions, the cwd, or `available`.
 
-架构/演示 sources 的 Markdown 必须是库存中的真实正式工件；保留 source ID、
-路径、原始 baseline、行号和实际章节。JSON/YAML 必须是九视图已经核对的来源，
-输入的 `(reference, baseline)` 必须与当前九视图 `evidenceRefs` 中的一项完全一致；
-同一文件的其他 fragment 或整文件引用不能借已选 fragment 取得授权。
-不把任意 mapping 当 SWAS。实施报告只沿既有 report adapter 核对并保留导航，
-不将其执行/适用性条目重新解释为本次结果。引用不授予执行或写回权限。
-结构化投影仅序列化 JSON 可表示的值；`date`、YAML `!!binary` 等原生值不会隐式
-字符串化，返回 `INVALID_OPTIONAL_SOURCE`，并保留明确的来源错误。
+Markdown sources for architecture/presentation must be real formal artifacts in the inventory;
+the source ID, path, raw baseline, line numbers, and actual sections are kept. JSON/YAML sources
+must be sources that the nine views have already checked, and each input `(reference, baseline)`
+must exactly match one entry in the current nine-view `evidenceRefs`; another fragment of the same
+file, or a whole-file reference, cannot gain authorization through a selected fragment.
+An arbitrary mapping is not treated as a SWAS. Implementation reports are checked only through the
+existing report adapter, with navigation kept; their execution/applicability entries are not
+reinterpreted as results of this run. References grant no execution or write-back permission.
+Structured projections serialize only JSON-representable values; native values such as `date` or
+YAML `!!binary` are not implicitly converted to strings: they return `INVALID_OPTIONAL_SOURCE`
+and keep the explicit source error.
 
-返回普通 dict，固定具有：
+Each function returns a plain dict that always has:
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `status` | `rendered`、`partial`、`empty`、`unsupported` 或 `unavailable`，均不是业务结果 |
-| `format` / `media_type` | 实际格式和 MIME；不可用时 MIME 为 null |
-| `content` | 完整 UTF-8 文本内容；不可用时为 null，不返回伪造二进制 |
-| `counts` | 实际 `nodes/edges/sections/diagrams/messages/slides` 数量；没有该类则 0 |
-| `source` | 选定 scope 的真实派生 source 身份；空 trace 使用库存的实际 snapshot 身份 |
-| `gaps` | 实际来源、完整性和有限语法缺口，不据此计算风险/批准 |
-| `gates` | 本地格式为空；PDF/PPTX 列出尚未执行的授权、依赖、解析、页数/slide 数及内容检查 |
+| `status` | `rendered`, `partial`, `empty`, `unsupported`, or `unavailable`; none of these is a business result |
+| `format` / `media_type` | The actual format and MIME type; MIME is null when unavailable |
+| `content` | The complete UTF-8 text content; null when unavailable, and no fake binary is returned |
+| `counts` | The actual numbers of `nodes/edges/sections/diagrams/messages/slides`; 0 for any kind that is absent |
+| `source` | The real derived source identity of the selected scope; an empty trace uses the actual snapshot identity of the inventory |
+| `gaps` | Actual source, completeness, and limited-syntax gaps; risk/approval is not computed from them |
+| `gates` | Empty for local formats; for PDF/PPTX, lists the authorization, dependency, parsing, page/slide count, and content checks that have not been run |
 
-输入/来源/格式/I/O 错误抛现有 `ArtifactInputError(code, path, line, message)`。
-API 不吞错、不安装、不发送数据。读集每个文件只读一次；
-这不是文件系统事务或 OS sandbox，渲染期间不要修改来源。
+Input/source/format/I/O errors raise the existing `ArtifactInputError(code, path, line, message)`.
+The API does not swallow errors, install anything, or send data. Each file in the read set is read
+only once; this is not a file-system transaction or an OS sandbox, so do not modify sources during rendering.
 
-## 关系图
+<a id="traceability"></a>
+## Relationship graph
 
-trace 支持 `json`、`svg`、`html`。JSON content 是实际关系投影，含 `status`、
-`scope`、`source`、`nodes`、`edges`、九个 `views` 和 `gaps`。
-节点 `key` 是完整 `scope/id`，保留路径、baseline、身份行和完整锚点引用。
-边保留 `source/target` 节点 key、`sourceRef/targetRef`、`relation`、
-原声明路径/行；targets 另保留 criterion/testId。
+trace supports `json`, `svg`, and `html`. The JSON content is the actual relation projection,
+containing `status`, `scope`, `source`, `nodes`, `edges`, nine `views`, and `gaps`.
+A node `key` is the full `scope/id` and keeps the path, baseline, identity line, and full anchor reference.
+An edge keeps the `source/target` node keys, `sourceRef/targetRef`, `relation`, and the original
+declaration path/line; targets additionally keep criterion/testId.
 
-- `upstream` 是**声明者 → 所依赖的来源**，不是反转的消息流；
-  targets 是**验证/声明者的 criterion → 被验证目标**。
-- 选定 scope 的全部 owner 都保留，包括孤立节点；沿实际关系纳入跨 scope
-  依赖闭包，同短 ID 不合并。环只遍历一次，边不丢失。
-- 没有正式工件且库存合法时，trace 明确 `empty`，节点/边均为 0。
-  此时 scope 只记录请求，不确认其存在；不是成功导出的业务模型。
-  空库存不能满足显式 `model_path` 检查或架构/演示的主 scope 要求。
-- JSON、SVG 和 HTML 都带实际 source/gaps；图中箭头不推断 transport。
+- `upstream` is **declarer → the source it depends on**, not a reversed message flow;
+  targets is **the verifying/declaring artifact's criterion → the verified target**.
+- All owners in the selected scope are kept, including isolated nodes; the cross-scope dependency
+  closure is included along actual relations, and identical short IDs are not merged. Cycles are
+  traversed only once, and no edge is lost.
+- When there are no formal artifacts and the inventory is valid, trace is explicitly `empty`, with
+  0 nodes and 0 edges. In that case the scope only records the request and does not confirm that
+  it exists; this is not a successfully exported business model. An empty inventory cannot satisfy
+  an explicit `model_path` check or the primary-scope requirement of architecture/presentation.
+- JSON, SVG, and HTML all carry the actual source/gaps; arrows in the graph do not imply a transport.
 
-## 架构、SEQ 与演示
+<a id="architecture"></a>
+## Architecture, SEQ, and presentation
 
-architecture 支持 `html`、`svg`。输出保留九视图的原 `state/artifactRefs/
-evidenceRefs/gaps`，以及所选业务、逻辑、运行、部署来源的实际章节。
-业务/逻辑/运行导航分别回 requirements/architecture/sequences；只有实际选择的
-`deployment` 章节才提供部署内容，否则明确缺源，不从 ABB 推出部署拓扑。
-SWAS 的 `perspectives` 仍按原文展示；不会替作者补语言、容器、分类、风险接受、
-生命周期或发布。缺 ABB/风险/部署时仍可输出有缺口的文档，不称完整 SWAS。
+architecture supports `html` and `svg`. The output keeps the nine views' original
+`state/artifactRefs/evidenceRefs/gaps` and the actual sections of the selected business, logical,
+runtime, and deployment sources. Business/logical/runtime navigation leads back to
+requirements/architecture/sequences respectively. Only an actually selected `deployment` section
+provides deployment content; otherwise the source is explicitly reported as missing, and no
+deployment topology is inferred from ABBs. SWAS `perspectives` are still shown as written; the tool
+does not fill in language, containers, classification, risk acceptance, lifecycle, or release on the
+author's behalf. When ABB/risk/deployment input is missing, a document with gaps can still be output,
+but it is not called a complete SWAS.
 
-SEQ 的 `diagram` 显式锚点章节内，只接受共享 scanner 识别出的**一个闭合**
-Mermaid 围栏，无附加 fence options；多个图明确 unsupported，不拼接。
-有限子集是：
+Within the SEQ section with the explicit `diagram` anchor, only **one closed** Mermaid fence
+recognized by the shared scanner is accepted, with no additional fence options; multiple diagrams
+are explicitly unsupported and are not concatenated. The limited subset is:
 
-- `sequenceDiagram`；`participant ID [as 标签]`、`actor ID [as 标签]`，
-  ID 为 ASCII 字母/下划线开头的字母数字下划线。
-- 两端已明确声明的 `ID->>ID: 文本`、`ID-->>ID: 文本`，包括自消息。
-  保留原箭头 token 和虚实线，不把它们重新解释成同步/异步传输保证。
-- 非嵌套的 `alt 文本` / `else 文本` / `end`，以及 `opt 文本`、
-  `loop 文本` / `end`；每个区域至少有一条源消息，所有分支、标签与消息保持源顺序。
-- 空行及普通整行 `%%` 注释不画；init 指令、隐式参与者、激活、note、
-  嵌套片段、其他箭头/语句、空消息、未闭合片段或零消息均明确 unsupported。
+- `sequenceDiagram`; `participant ID [as Label]` and `actor ID [as Label]`, where ID consists of
+  ASCII letters, digits, and underscores and starts with a letter or underscore.
+- `ID->>ID: Text` and `ID-->>ID: Text` with both ends explicitly declared, including self-messages.
+  The original arrow tokens and solid/dashed lines are kept and are not reinterpreted as
+  synchronous/asynchronous transport guarantees.
+- Non-nested `alt Text` / `else Text` / `end`, as well as `opt Text` and `loop Text` / `end`;
+  each region has at least one source message, and all branches, labels, and messages keep the source order.
+- Blank lines and plain full-line `%%` comments are not drawn; init directives, implicit participants,
+  activations, notes, nested fragments, other arrows/statements, empty messages, unclosed fragments,
+  or zero messages are all explicitly unsupported.
 
-不支持的图整体不画成“完整”序列；文档保留来源与具体行/语法缺口，
-status 为 `unsupported`，CLI 退出 1。注释、外层 literal、相邻章节和未闭合
-fence 不会借位产生消息。成功/拒绝/错误边界来自原 `paths` 节和实际图，
-不会由工具补齐。没有完整 Mermaid 兼容承诺。
+An unsupported diagram is never drawn as a "complete" sequence; the document keeps the source and the
+specific line/syntax gaps, status is `unsupported`, and the CLI exits 1. Comments, outer literals,
+adjacent sections, and unclosed fences cannot be borrowed to produce messages. Success/rejection/error
+boundaries come from the original `paths` section and the actual diagram; the tool does not fill them in.
+There is no promise of full Mermaid compatibility.
 
-presentation 是必需的参数化能力，支持 `html`、`svg`，不是固定管理 deck。
-每个选中源的真实章节产生对应 slide；长段落分页但不删文本、来源或缺口。
-保留全部九视图的来源状态导航，以及实际 SEQ 绘图。两个不同 source 集合
-必须产生各自标题、章节、内容和 source ID，不共享硬编码业务叙事。
-SVG 是单个可解析的纵向多页画布，HTML 是可打印的连续 slide 文档，
-两者都不是 PPTX、PDF 或原生演示应用的验收。
+presentation is a required parameterized capability that supports `html` and `svg`; it is not a fixed
+management deck. The real sections of each selected source produce corresponding slides; long
+paragraphs are paginated without deleting text, sources, or gaps. The source-status navigation of all
+nine views and the actual SEQ drawings are kept. Two different source sets must produce their own
+titles, sections, content, and source IDs, without sharing a hard-coded business narrative.
+The SVG is a single parsable vertical multi-page canvas and the HTML is a printable continuous slide
+document; neither counts as acceptance of PPTX, PDF, or a native presentation application.
 
-视觉约定是静态、离线的浅色文档，使用系统 serif/sans/monospace fallback，
-不建立品牌 profile。完整身份和内容优先，长图/文档滚动，不截掉环或孤立 owner。
-SVG 使用可访问 title/desc、完整内容文本和实际方向；不请求外部资源。
-源 HTML、脚本、URL 和命令只作安全编码后的文字，输出链接仅为内部导航。
+The visual convention is a static, offline, light-colored document that uses system
+serif/sans/monospace fallbacks and does not establish a brand profile. Complete identity and content
+take priority: long graphs/documents scroll, and cycles or isolated owners are not cut off.
+SVG uses accessible title/desc, complete content text, and the actual direction; it requests no external resources.
+Source HTML, scripts, URLs, and commands appear only as safely encoded text, and output links are only internal navigation.
 
-## CLI、写入和错误边界
+<a id="cli"></a>
+## CLI, writes, and error boundaries
 
-以仓库根为 cwd，用实际项目解释器执行各脚本：
+With the repository root as the cwd, run each script with the actual project interpreter (Windows example):
 
 ```text
 .venv\Scripts\python.exe -B -X utf8 .github\utilities\render_traceability.py --root . --scope sample/CTX-001 --format svg
-.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope sample/CTX-001 --format html --source architecture/SWAS-001.md --baseline sha256:实际摘要
-.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope sample/CTX-001 --format html --source architecture/SWAS-001.md --baseline sha256:实际摘要
+.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_architecture.py --root . --scope sample/CTX-001 --format html --source architecture/SWAS-001.md --baseline sha256:<actual-digest>
+.venv\Scripts\python.exe -B -X utf8 .github\utilities\render_presentation.py --root . --scope sample/CTX-001 --format html --source architecture/SWAS-001.md --baseline sha256:<actual-digest>
 ```
 
-替换示例的 scope/来源/baseline；每个 `--source` 有同位置的 `--baseline`。
-无 source 的架构/演示 CLI 明确传空选择，只输出来源/缺口导航，不造内容。
-可给 `--model-path` 核对已有模型。默认只向 stdout 输出实际文本；
-失败/不可用时 stdout 为结构化 JSON 诊断。没有默认写入或目录创建。
+Replace the example scope/sources/baselines; each `--source` has a `--baseline` in the matching position.
+The architecture/presentation CLI without a source explicitly passes an empty selection and outputs
+only source/gap navigation, without fabricating content.
+You can pass `--model-path` to check an existing model. By default only the actual text is written to stdout;
+on failure or unavailability, stdout carries a structured JSON diagnostic. There is no default write or directory creation.
 
-`--output` 只允许本次明确的新本地文件，后缀必须与 `--format` 一致，
-父目录须已存在，采用 exclusive create。任何已有文件（含空文件）/目录、
-源/报告/历史、清单/已解析引用、未选/缺失声明的位置和其祖先/子路径都不能占用；
-路径不得进入 `.git` 元数据/历史，即使目标文件尚不存在；文件名不得含 `:`。
-路径按宿主正常方式解析链接后再与上述位置比较，case/规范化后也须隔离。
-非法声明导致无法建立隔离时拒绝写入。写入失败可能留下部分新文件，
-不自动清理、覆盖或换路径；下次仍拒绝覆盖。
+`--output` accepts only a new local file explicitly given for this run; its suffix must match
+`--format`, its parent directory must already exist, and it is created with exclusive create. It must
+not occupy any existing file (including an empty file) or directory, source/report/history,
+manifest/resolved reference, or unselected/missing declared location, or any ancestor/descendant path
+of these; the path must not enter `.git` metadata/history even if the target file does not exist yet,
+and the file name must not contain `:`. Links in the path are resolved in the host's normal way before
+comparison with the locations above, and the path must also stay isolated after case folding/normalization.
+When invalid declarations make isolation impossible to establish, the write is refused. A failed write
+may leave a partial new file, which is not automatically cleaned up, overwritten, or moved to another
+path; the next run still refuses to overwrite it.
 
-| 情况 | CLI 退出 |
+| Situation | CLI exit |
 |---|---|
-| 真实本地格式 `rendered/partial/empty` | 0；有内容不表示业务通过 |
-| 持久模型漂移，或所选 SEQ unsupported | 1 |
-| 输入、源、格式、I/O 错误，或 PDF/PPTX unavailable | 2 |
+| Real local format `rendered/partial/empty` | 0; having content does not mean a business pass |
+| Persisted model drift, or the selected SEQ is unsupported | 1 |
+| Input, source, format, or I/O error, or PDF/PPTX unavailable | 2 |
 
-## 单独未运行的格式关卡
+<a id="format-gates"></a>
+## Separate format gates not yet run
 
-PDF 和 PPTX 请求返回 `unavailable`，`content: null`，不会创建对应输出，
-也不探测全局包来推断授权。当前未选择/批准引擎、版本、模板、包、容器或服务。
-未来须分别取得选择/安装/处理输入的授权，锁定实际依赖，再执行真实签名、
-parser、非零页面/slide 数、完整源内容及人/App 检查。只有文件名、
-`%PDF`/`PK` 前缀或零页文件不合格。有限 refusal 回归不是这些格式的成功证据。
-本地 HTML/SVG 不关闭完整 ENH-17 或总体 parity。
+PDF and PPTX requests return `unavailable` with `content: null`; no corresponding output is created,
+and global packages are not probed to infer authorization. No engine, version, template, package,
+container, or service has been selected/approved yet. In the future, separate authorization must be
+obtained for selection, installation, and input processing, and the actual dependencies must be locked
+before real signature, parser, non-zero page/slide count, complete source content, and human/App checks
+are run. A file name alone, a `%PDF`/`PK` prefix, or a zero-page file does not qualify.
+Limited refusal regression is not evidence of success for these formats.
+Local HTML/SVG does not close the full ENH-17 or overall parity.

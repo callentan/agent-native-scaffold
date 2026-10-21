@@ -1,12 +1,20 @@
 ---
-description: 对照给定版本的本地与外部词汇，保留上下文含义和未决选择。
+description: Compare local and external glossaries of given versions while keeping context-specific meanings and open choices.
 ---
 
-# 对齐词汇
+# Glossary sync
 
-当前输入（由用户填写）：
-- 本地/外部词汇的真实文件或片段、版本与范围：待填写。
-- 相关上下文、已确认定义、冲突词及事实所有者：待填写。
-- 期望对齐提案或具体已获准的修改与路径：待填写；不默认全局重命名。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [define-requirements 的词汇对齐](../skills/define-requirements/SKILL.md#glossary-sync)，方法正文与停止条件以该文件为准。
+- Real files or excerpts, versions, and scope of the local glossary: TBD
+- Real files or excerpts, versions, and scope of the external glossary: TBD
+- Relevant contexts: TBD
+- Confirmed definitions, conflicting terms, and fact owners: TBD
+- Desired alignment proposal, or specific authorized changes and paths: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [define-requirements](../skills/define-requirements/SKILL.md) in full, then apply its [glossary sync](../skills/define-requirements/SKILL.md#glossary-sync) section.
+3. Make no global rename by default.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

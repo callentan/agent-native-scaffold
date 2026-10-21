@@ -1,13 +1,22 @@
 ---
-description: 在真实输入与授权范围内实施一个明确任务。
+description: Implement one explicit task within real inputs and the authorized scope.
 ---
 
-# 实施任务
+# Implement a task
 
-当前输入（由用户填写）：
-- 任务依据、目标、修改路径与非目标：待填写。
-- 完成条件、相关验收/VT 与基线：待填写。
-- 文档或编码范围；若编码，已选项目/栈及真实开发登记位置：待填写。
-- 当前授权、已知阻塞与需保留的改动：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，使用 [implement-task](../skills/implement-task/SKILL.md) 和 [verify-change](../skills/verify-change/SKILL.md)。此入口不补足缺失输入，也不扩展操作授权。
+- Task basis and goal: TBD
+- Paths to modify and non-goals: TBD
+- Completion criteria, related acceptance/VT, and baselines: TBD
+- Documentation or coding scope: TBD
+- If coding: the selected project/stack and the location of the real development registration: TBD
+- Current authorization: TBD
+- Known blockers and changes to keep: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [implement-task](../skills/implement-task/SKILL.md) and [verify-change](../skills/verify-change/SKILL.md) in full, then use them.
+3. This prompt does not fill in missing inputs or extend operational authorization.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

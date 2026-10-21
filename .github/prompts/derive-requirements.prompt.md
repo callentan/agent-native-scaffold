@@ -1,12 +1,19 @@
 ---
-description: 依据实际领域来源或任务细化软件要求。
+description: Refine software requirements from actual domain sources or a task.
 ---
 
-# 派生软件要求
+# Derive software requirements
 
-当前输入（由用户填写）：
-- 任务、范围、非目标与完成条件：待填写。
-- 实际 REQ/UC/INV/CAP/QAS 或维护依据的路径、版本、确认来源与未决项：待填写。
-- 当前 SR/验收库存、希望修订的位置及允许读写的范围：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [specify-feature](../skills/specify-feature/SKILL.md)，使用其[派生软件要求](../skills/specify-feature/SKILL.md#derive-requirements)小节。方法及停止条件只在该文件维护；本入口不批准需求或生成代码。
+- Task, scope, non-goals, and completion criteria: TBD
+- Paths, versions, confirmation sources, and open items of the actual REQ/UC/INV/CAP/QAS or maintenance basis: TBD
+- Current SR/acceptance inventory and the locations to revise: TBD
+- Permitted read/write scope: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [software requirement derivation](../skills/specify-feature/SKILL.md#derive-requirements) section.
+3. This prompt does not approve requirements or generate code.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

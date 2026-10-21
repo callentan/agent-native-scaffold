@@ -7,54 +7,54 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# SEQ-NNN：待填写
+# SEQ-NNN: TBD
 
-> 可选时序说明，不是运行证据。先读[SEQ 指引](../../architecture/README.md#sequences)与[元数据约定](../../domain-model/README.md#artifact-metadata)，按需复制到 `architecture\SEQ-NNN-<slug>.md`。项目/上下文明确后替换占位，删除本提示并核对相对链接。
+> Optional sequence description; not runtime evidence. Read the [SEQ guide](../../architecture/README.md#sequences) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `architecture/SEQ-NNN-<slug>.md` as needed. Once the project/context is clear, replace the placeholders, delete this notice, and check the relative links.
 
 <a id="basis"></a>
-## 场景与来源
+## Scenario and sources
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 场景范围与非目标 | 待填写 |
-| UC、ABB、规则/事件/接口的阅读导航与基线 | 待填写实际来源；声明关系只归 frontmatter 的 upstream |
-| 来源支持的前提与已知成功/拒绝路径 | 待填写；来源缺失或未确认就列问题 |
-| 记录日期与提出者 | 待填写；内容状态与确认声明归 frontmatter |
+| Scenario scope and non-goals | TBD |
+| Reading navigation and baselines for UCs, ABBs, and rules/events/interfaces | TBD: actual sources; declared relationships belong only in the frontmatter upstream |
+| Source-supported preconditions and known success/rejection paths | TBD; if a source is missing or unconfirmed, list the question |
+| Record date and proposer | TBD; content state and confirmation statements belong in the frontmatter |
 
 <a id="participants"></a>
-## 参与者与责任
+## Participants and responsibilities
 
-| 来源中的参与者及原文导航 | 实际职责与事实所有权 | 对应 ABB/接口的导航或缺项 |
+| Participants in the sources and navigation to the original text | Actual responsibilities and fact ownership | Navigation to the corresponding ABB/interface, or the missing item |
 |---|---|---|
-| 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD |
 
-只用来源实际命名的参与者。上下文、用户角色和运行组件要区分；没有 ABB/接口映射就不能将概念图称为完整运行架构。不为画满图添加服务、数据库或消息系统。
+Use only participants that the sources actually name. Distinguish contexts, user roles, and runtime components; without an ABB/interface mapping, a conceptual diagram cannot be called a complete runtime architecture. Do not add services, databases, or messaging systems just to fill out the diagram.
 
 <a id="paths"></a>
-## 路径与消息含义
+## Paths and message meaning
 
-| 场景分支与触发前提 | 提供/生产方 → 使用/消费方 | 信息或事件的业务含义 | 预期观察与原文导航 | 尚缺的契约 |
+| Scenario branch and triggering precondition | Provider/producer → user/consumer | Business meaning of the information or event | Expected observation and navigation to the original text | Missing contract |
 |---|---|---|---|---|
-| 成功：待填写 | 待填写 | 待填写 | 待填写 | 待填写 |
-| 拒绝：待填写 | 待填写 | 待填写 | 待填写 | 待填写 |
-| 错误/超时：待来源提供 | 待填写 | 待填写 | 待填写 | 待填写 |
+| Success: TBD | TBD | TBD | TBD | TBD |
+| Rejection: TBD | TBD | TBD | TBD | TBD |
+| Error/timeout: awaiting a source | TBD | TBD | TBD | TBD |
 
-仅当实际来源规定集成/事件消费为异步时，按该方向保留异步边界，不改成同步调用；只有概念交换时，不从箭头推断传输方式。失败传播、重试、顺序、重复/幂等、关联与交付保证须逐项有源，未知不填默认值。
+Only when an actual source specifies that integration/event consumption is asynchronous, keep the asynchronous boundary in that direction and do not turn it into a synchronous call; when there is only a conceptual exchange, do not infer the transport from the arrows. Failure propagation, retries, ordering, duplication/idempotency, correlation, and delivery guarantees each need a source; leave unknowns without default values.
 
 <a id="diagram"></a>
-## Mermaid 源
+## Mermaid source
 
 ```mermaid
 sequenceDiagram
-    %% 待填写有来源的参与者、消息及分支；当前没有运行序列。
+    %% TBD: sourced participants, messages, and branches; there is no runtime sequence yet.
 ```
 
-Mermaid 只是上述来源的图示。缺消息时保留明确缺口；可只写已知范围或暂不作图，不能用虚构交互补全。渲染成功也不证明调用、事件消费或错误处理执行过。
+Mermaid is only a diagram of the sources above. When messages are missing, keep an explicit gap; you may draw only the known scope or no diagram yet, but do not complete it with fictitious interactions. Successful rendering does not prove that calls, event consumption, or error handling were ever executed.
 
 <a id="verification-needs"></a>
-## 验证入口与未决项
+## Verification entry points and open items
 
-- 需要核对的原 UC/SR/ABB 判据及阅读导航：待填写；不复制另一套验收。
-- 相关 VT 与实际证据入口：未提供；没有 runner/应用时行为验证为 `not-run`。
-- 缺失的参与者、契约、错误路径及需谁确认：待填写。
-- 源或基线变化后的影响及重查入口：待填写；保留旧图和原结果，不自动升级确认。
+- Original UC/SR/ABB criteria to check and their reading navigation: TBD; do not copy a separate set of acceptance criteria.
+- Related VTs and entry points to actual evidence: Not provided; without a runner/application, behavior verification is `not-run`.
+- Missing participants, contracts, error paths, and who must confirm them: TBD.
+- Impact after source or baseline changes and recheck entry points: TBD; keep the old diagram and original results, and do not automatically upgrade confirmation.

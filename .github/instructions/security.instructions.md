@@ -2,13 +2,49 @@
 applyTo: "src/**,app/**,apps/**,lib/**,packages/**,services/**"
 ---
 
-# 实现中的安全边界
+# Security boundaries in implementation
 
-这是有限路径下的阅读规则，不是 ACL、安全扫描器或审计证明。实际代码/配置在未匹配路径时也须显式读取；真实权限由客户端、操作系统和平台配置决定。
+Apply these rules to implementation code and configuration. Use the project's actual policies and security mechanisms, and do not claim a security result without evidence.
 
-- 不在源码、配置、fixtures 或报告中保存秘密/凭据。采用项目已有获准的秘密注入方式；缺配置就停止相应操作，不创建可用默认密码或把敏感值写入日志。
-- 将外部输入按信任边界校验；数据库、命令、路径、输出编码分别使用实际语言/框架的安全机制。不要把输入拼成命令或绕过范围检查；现存用户内容和只读来源不因生成任务而获得覆盖权限。
-- 认证和授权是不同责任。沿实际策略核对主体、资源与动作，在既定受信边界实施判定；无政策不假定匿名访问、万能角色或仅靠前端检查，不因规则存在声称权限已配置。
-- 错误/日志只记录必要诊断，不暴露秘密、个人资料、原始敏感输入或内部细节；按实际项目约定处理审计、保留期和关联标识，未知规则请求责任人确认。
-- 沿用已选框架的密码学和依赖管理机制，不自造密码算法、关闭证书/鉴权检查或静默添加依赖。外部扫描、安装、数据发送和服务调用分别授权。
-- 相关拒绝路径、输入边界与泄露风险对应实际验收/测试；没有工具、对象或证据就记未执行/待审阅，不以安全清单打勾、测试文件名或内容写 Approved 宣称审计通过。
+## Scope of these rules
+
+- These are reading rules for a limited set of paths, not an ACL, a security scanner, or proof of an audit.
+- Read them explicitly even when the actual code or configuration sits in a path that does not match `applyTo`.
+- Real permissions are determined by the client, operating system, and platform configuration.
+
+## Secrets and credentials
+
+- **Do not store secrets or credentials in source code, configuration, fixtures, or reports.**
+- Use the project's existing, approved secret-injection mechanism.
+- If that configuration is missing, stop the corresponding operation. Do not create a usable default password or write sensitive values to logs instead.
+
+## Input, commands, and existing content
+
+- Validate external input at trust boundaries.
+- Use the actual language/framework's safety mechanisms for databases, commands, paths, and output encoding, respectively.
+- Do not build commands by concatenating input, and do not bypass scope checks.
+- A generation task does not grant permission to overwrite existing user content or read-only sources.
+
+## Authentication and authorization
+
+- Treat authentication and authorization as separate responsibilities.
+- Check principal, resource, and action against the actual policy, and enforce decisions at the established trusted boundary.
+- Without a policy, do not assume anonymous access, an all-powerful role, or frontend-only checks.
+- Do not claim permissions are configured just because a rule exists.
+
+## Errors, logs, and auditing
+
+- Record only the diagnostics needed in errors and logs. Do not expose secrets, personal data, raw sensitive input, or internal details.
+- Handle auditing, retention periods, and correlation identifiers according to the actual project's conventions. For unknown rules, ask the accountable owner to confirm.
+
+## Cryptography, dependencies, and external actions
+
+- Reuse the chosen framework's cryptography and dependency-management mechanisms.
+- Do not invent cryptographic algorithms, disable certificate or authentication checks, or silently add dependencies.
+- External scans, installs, data transmission, and service calls each need separate authorization.
+
+## Evidence
+
+- Map relevant rejection paths, input boundaries, and leakage risks to actual acceptance criteria and tests.
+- Without tools, objects, or evidence, record them as not run or pending review.
+- Do not claim an audit passed by ticking a security checklist, pointing to test file names, or writing Approved into content.

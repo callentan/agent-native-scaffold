@@ -1,12 +1,22 @@
 ---
-description: 对给定规则、要求或基线变化提出有来源的语义影响与待复核项。
+description: Propose source-backed semantic impact and items pending re-review for a given rule, requirement, or baseline change.
 ---
 
-# 评估变更影响
+# Assess change impact
 
-当前输入（由用户填写）：
-- 变更来源、实际工件/位置、旧新基线与确认状态：待填写。
-- 完整交付范围、已知依赖/消费者、原验收与实际结果入口：待填写。
-- 希望得到的影响提案及授权：待填写；默认只读，执行或写入需另明确范围。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [verify-change 的语义影响检查](../skills/verify-change/SKILL.md#impact)，模式、覆盖核对与停止条件以该文件为准。
+- Change source and the actual artifacts/locations: TBD
+- Old and new baselines, and confirmation status: TBD
+- Full delivery scope: TBD
+- Known dependencies/consumers: TBD
+- Original acceptance criteria and entry points to actual results: TBD
+- Desired impact proposal: TBD
+- Authorization: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [semantic impact check](../skills/verify-change/SKILL.md#impact) section.
+3. Work read-only by default. Running or writing needs a separately stated scope.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

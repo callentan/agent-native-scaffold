@@ -1,9 +1,9 @@
-# 项目放置说明
+# Project placement guide
 
-当前只有本说明，没有应用、依赖、预设技术栈或固定测试目录。不要为了让骨架“可运行”而自动创建项目。
+Currently there is only this guide: no application, dependencies, preset tech stack, or fixed test directory. Do not create a project automatically just to make the skeleton "runnable".
 
-用户明确选择并授权后，新项目可以直接放在 `src\`，也可以放在 `src\<project>\`。已有工程保留原路径及其原生源码、测试和配置布局，不要求迁移或建立 `src\tests\`。
+Once the user has explicitly chosen and authorized it, a new project can go directly in `src/` or in `src/<project>/`. An existing project keeps its original path and its native source, test, and configuration layout; it is not required to migrate or to create `src/tests/`.
 
-创建或接入前核对目标目录和所需输入；完成后在[开发说明的子项目登记](../docs/development.md#project-registration)中填写真实相对位置、原生布局、环境与依赖、安装/构建/运行/测试命令、实际工作目录、报告位置和适用条件。
+Before creating or onboarding a project, check the target directory and the required inputs; afterwards, fill in the real relative location, native layout, environment and dependencies, install/build/run/test commands, actual working directory, report location, and applicable conditions in the [subproject registration of the development guide](../docs/development.md#project-registration).
 
-开发输入尚未确定时保持未配置。没有应用时，应用构建与测试对文档任务不适用；已规划的业务或软件行为 VT 仍为 `not-run`，不能用文档检查报应用通过。
+While the development inputs are not yet determined, leave them not configured. When there is no application, application builds and tests are not applicable to documentation tasks; planned business or software behavior VTs remain `not-run`, and a document check cannot be reported as the application passing.

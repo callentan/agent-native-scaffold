@@ -1,12 +1,21 @@
 ---
-description: 从已确认项目输入开始接入资料。
+description: Start onboarding project materials from confirmed project inputs.
 ---
 
-# 接入项目
+# Onboard a project
 
-当前输入（由用户填写）：
-- 目标、范围与完成条件：待填写。
-- 项目名称、阶段、已知资料及确认来源：待填写。
-- 已有资料/规则位置、需保留内容与授权边界：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先显式读取 [AGENTS](../../AGENTS.md)，再完整读取并应用 [project-onboarding](../skills/project-onboarding/SKILL.md)。未提供的输入保持未决；本入口不授权创建应用。
+- Goal, scope, and completion criteria: TBD
+- Project name and phase: TBD
+- Known materials and confirmation sources: TBD
+- Locations of existing materials/rules: TBD
+- Content to keep: TBD
+- Authorization boundaries: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [project-onboarding](../skills/project-onboarding/SKILL.md) in full and apply it.
+3. Inputs that are not provided remain open. This prompt does not authorize creating an application.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

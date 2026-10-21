@@ -1,109 +1,109 @@
-# 总体设计：仓库模板与 Agent 能力文件
+# Overall design: repository template and Agent capability files
 
-**更新：2026-10-14。P1/P2 模板文件已按本设计制作；P3 的本地结果及 App、人工、发布缺项见[实际验收记录](../plan/roadmap.md#actual-acceptance)。本文替代此前以 CLI 和执行协调器为中心的提案。**
+**Updated: 2026-10-14. The P1/P2 template files have been produced according to this design; for the local P3 results and the outstanding App, manual, and release items, see the [actual acceptance record](../plan/roadmap.md#actual-acceptance). This document replaces the earlier proposal centered on a CLI and an execution coordinator.**
 
-## 1. 交付物是一套仓库内容
+## 1. The deliverable is a set of repository content
 
-`agent-native-scaffold` 提供我们自己的研发 repo 骨架。用户拿到它后，不需要启动框架进程或注册一个 Agent；使用自己已有的客户端即可读取项目资料、选择工作方法并执行任务。GitHub Copilot App 是首测使用界面，其入口支持需要独立记录。
+`agent-native-scaffold` provides our own R&D repo skeleton. Users who receive it do not need to start a framework process or register an Agent; they can use the client they already have to read project materials, choose a working method, and carry out tasks. The GitHub Copilot App is the first interface tested, and support for its entry points must be recorded separately.
 
-模板负责给项目一个稳定的工作场所：需求放在哪里、实现依据是什么、怎样验证、工作做到哪一步、换一个 Agent 怎样继续。它既包含工程文档模板，也包含 Agent 的工作约定，不能只剩下一组空目录或提示词。
+The template gives a project a stable place to work: where requirements live, what the implementation is based on, how it is verified, how far the work has progressed, and how another Agent can continue. It contains both engineering document templates and Agent working conventions; it must not shrink to a set of empty directories or prompts.
 
-核心分工是：**DDD 负责业务模型与边界，V-model 负责需求到验证的追溯，templates、skills 与 prompts 负责统一人和 Agent 的工作流程。** 采用轻量方法不是只采用目录名；首版必须提供最小建模、追溯与变更影响的填写和操作约定。
+The core division of labor is: **DDD owns the business model and its boundaries, the V-model owns traceability from requirements to verification, and templates, skills, and prompts unify the workflow of humans and Agents.** Adopting a lightweight method means more than adopting directory names; the first version must provide fill-in and operating conventions for minimal modeling, traceability, and change impact.
 
-参考项目提供经验。按用户选择，目录和工件命名沿用其中清楚、熟悉的做法；业务内容、技术栈、ADR 和路线图不因此成为我们的要求。采用目录名不等于复制实现或继承多仓库依赖。
+The reference projects provide experience. As the user chose, directory and artifact naming follows their clear, familiar conventions; their business content, tech stacks, ADRs, and roadmaps do not thereby become our requirements. Adopting directory names does not mean copying implementations or inheriting multi-repository dependencies.
 
-## 2. 两组内容，一份项目事实
+## 2. Two content groups, one set of project facts
 
-| 内容组 | 包含什么 | 维护原则 |
+| Content group | What it contains | Maintenance principle |
 |---|---|---|
-| 项目资料与记录 | 领域模型、业务与软件要求、User Stories、架构、验证及开发日志 | 内容属于项目；记录真实需求和结果，不为填模板编造业务事实 |
-| Agent 能力文件 | 通用入口、Copilot instructions、custom agents、skills、prompts | 说明怎样使用项目资料，不复制第二套需求、进度或验收条件 |
+| Project materials and records | Domain model, stakeholder and software requirements, user stories, architecture, verification, and development logs | The content belongs to the project; record real requirements and results, and do not invent business facts just to fill in templates |
+| Agent capability files | Common entry point, Copilot instructions, custom agents, skills, prompts | Explain how to use the project materials; do not duplicate a second set of requirements, progress, or acceptance criteria |
 
-骨架的 `src\` 只有使用说明，用户可在其中创建任意类型的项目；不预置业务代码、语言工程、依赖清单、锁文件或固定测试目录。源码、测试和依赖清单以后沿用下游所选技术栈的原生方式，已有工程保留原布局。模板不成为业务应用的生产依赖。
+The skeleton's `src/` contains only usage notes; users may create any type of project in it. It does not preset business code, language projects, dependency manifests, lock files, or a fixed test directory. Source code, tests, and dependency manifests later follow the native conventions of the tech stack chosen downstream, and existing projects keep their original layout. The template does not become a production dependency of the business application.
 
-## 3. 文档各司其职
+## 3. Each document has its own job
 
-| 位置 | 回答的问题 | 不承担的职责 |
+| Location | Question it answers | Responsibilities it does not take on |
 |---|---|---|
-| `domain-model\` | 业务概念及关系、共同术语、规则、上下文职责与交互是什么 | 不混入实现代码，不把业务边界等同于目录、服务或技术层 |
-| `stakeholder-requirements\` | 为什么做、给谁用、产品范围与业务要求是什么 | 不复制所有接口和实现细节 |
-| `software-requirements\` | 软件应怎样表现、满足哪些验收条件 | 不记录每天的任务进度 |
-| `user-stories\` | 本次交付切片是什么、依据什么、还差什么 | 不是需求到验证的必经层级，不把所有维护工作等同用户故事 |
-| `architecture\` | 怎样实现、当前结构与关键取舍是什么 | 不重复产品需求 |
-| `verification\` | 业务/软件要求怎样验证，覆盖有何缺口，结果对哪个基线适用 | 不把关联完整、验证规格或文档检查等同于软件行为通过 |
-| `_templates\` | 创建这些文档时使用什么表单 | 不把填写提示当作正式需求或事实 |
-| `logs\` | 做了什么、验证了什么、为何暂停、怎样接手 | 不冒充 CI 结果，不存全部聊天和运行输出 |
-| `docs\development.md` | 环境、依赖、构建、运行、测试及排障入口 | 不在技术栈未定时编造可运行命令 |
+| `domain-model/` | What the business concepts and their relationships, the shared terminology, the rules, and the context responsibilities and interactions are | Does not mix in implementation code; does not equate business boundaries with directories, services, or technical layers |
+| `stakeholder-requirements/` | Why it is built, for whom, and what the product scope and business requirements are | Does not duplicate every interface and implementation detail |
+| `software-requirements/` | How the software should behave and which acceptance criteria it must meet | Does not record daily task progress |
+| `user-stories/` | What the current delivery slice is, what it is based on, and what is still missing | Is not a mandatory layer between requirements and verification; does not equate all maintenance work with user stories |
+| `architecture/` | How it is implemented, and what the current structure and key trade-offs are | Does not repeat product requirements |
+| `verification/` | How business/software requirements are verified, what coverage gaps exist, and which baseline a result applies to | Does not equate complete links, verification specifications, or document checks with passing software behavior |
+| `_templates/` | Which forms to use when creating these documents | Does not treat fill-in hints as formal requirements or facts |
+| `logs/` | What was done, what was verified, why work paused, and how to take over | Does not pose as CI results; does not store all chats and run output |
+| `docs/development.md` | Entry point for environment, dependencies, build, run, test, and troubleshooting | Does not invent runnable commands while the tech stack is undecided |
 
-PRD 的产品概述放在业务需求入口，功能规格按软件要求、架构与验证的职责组织；不再维护同内容的另一组泛化目录。User Story 内可列实施清单，无关用户交付的维护任务沿用 issue 或 PR。详细命名和单仓调整见[模板蓝图](repository-blueprint.md)。
+The PRD's product overview lives in the stakeholder-requirements entry point; functional specifications are organized by the responsibilities of software requirements, architecture, and verification. No second set of generic directories with the same content is maintained. A user story may list an implementation checklist; maintenance tasks unrelated to user deliverables continue to use issues or PRs. For detailed naming and single-repository adjustments, see the [template blueprint](repository-blueprint.md).
 
-使用普通 Markdown 标题、相对链接和可辨认的文件名连接这些内容。验收引用带所属 REQ/SR 或独立维护任务及稳定标识，避免不同文件中的 `AC-1` 混淆。SR 引用上游依据，VT 直接引用目标验收项；反向通过引用与搜索核对，不强制经过 US。领域最低内容见[蓝图](repository-blueprint.md)，追溯、覆盖缺口和变更影响见[工作约定](execution-contracts.md)；不建立工件图数据库、manifest 或 lock。
+Connect this content with plain Markdown headings, relative links, and recognizable file names. An acceptance reference carries its owning REQ/SR or standalone maintenance task plus a stable identifier, so that `AC-1` in different files is not confused. An SR references its upstream basis, and a VT references its target acceptance criteria directly; reverse checks use references and search and are not forced through a US. For the minimum domain content, see the [blueprint](repository-blueprint.md); for traceability, coverage gaps, and change impact, see the [working conventions](execution-contracts.md). No artifact graph database, manifest, or lock is created.
 
-小改动使用轻流程：修正拼写不需要新业务需求；范围清楚的缺陷可以直接关联已有 SR/US 和复现记录。采用 DDD 风格命名不代表每个变更都必须新建 REQ、SR、US、ABB 和 VT。
+Small changes use a light process: fixing a typo needs no new stakeholder requirement, and a clearly scoped defect can link directly to an existing SR/US and a reproduction record. Adopting DDD-style naming does not mean every change must create a new REQ, SR, US, ABB, and VT.
 
-## 4. Agent 入口如何组织
+## 4. How the Agent entry points are organized
 
-`AGENTS.md` 是通用导航和共用工作约定，保持简短。它指向产品资料、当前任务、开发命令、相关规则和日志，不把所有文档全文塞进入口。
+`AGENTS.md` holds the common navigation and shared working conventions and stays short. It points to product materials, the current task, development commands, relevant rules, and logs, without stuffing the full text of every document into the entry point.
 
-`.github\copilot-instructions.md` 是 Copilot 的原生仓库入口，明确要求先读取通用入口及与任务相关的资料。它只保留必要的引导和 Copilot 使用差异；不得改写一套不同的完成标准。链接不是自动包含机制，是否实际读取引用文件需要验证。
+`.github/copilot-instructions.md` is Copilot's native repository entry point; it explicitly requires reading the common entry point and the task-relevant materials first. It keeps only the necessary guidance and Copilot-specific differences, and must not rewrite a different set of completion criteria. Links are not an automatic inclusion mechanism; whether referenced files are actually read must be verified.
 
-按路径生效的规则放在 `.github\instructions\`，用于文档、测试或将来选定技术栈的专用约定。通用入口需说明这些规则的位置，让非 Copilot Agent 也能按任务显式读取；不假设其他工具理解 `applyTo`。
+Path-scoped rules live in `.github/instructions/`, for conventions specific to documentation, tests, or a tech stack selected later. The common entry point must state where these rules are, so that non-Copilot Agents can also read them explicitly per task; do not assume other tools understand `applyTo`.
 
-## 5. Templates 与 Agent 能力文件的分工
+## 5. Division of labor between templates and Agent capability files
 
-| 类型 | 作用 | 示例 |
+| Type | Purpose | Examples |
 |---|---|---|
-| Template | 人和 Agent 共用的产物结构与填写提示 | REQ/SR 验收项、VT 目标与基线、日志引用 |
-| Instructions | 在适用范围内持续遵循的约定 | 不编造需求；保留已有修改；完成前实际验证 |
-| Custom agent | 用户选择的一种工作模式及工具范围 | 规划、实现、审阅 |
-| Skill | 人和 Agent 共用的方法、输入、步骤、产物与结束条件 | 建模与需求、规格与验证计划、实施、验证变更、记录交接 |
-| Prompt | 带当前任务输入的快捷调用入口 | 开始一个项目、规划一个功能、继续某个任务 |
+| Template | Artifact structure and fill-in hints shared by humans and Agents | REQ/SR acceptance criteria, VT targets and baselines, log references |
+| Instructions | Conventions followed continuously within their scope | Do not invent requirements; preserve existing changes; actually verify before completion |
+| Custom agent | A working mode chosen by the user, together with its tool scope | Planning, implementation, review |
+| Skill | Method, inputs, steps, outputs, and exit criteria shared by humans and Agents | Modeling and requirements, specification and verification planning, implementation, change verification, handoff recording |
+| Prompt | Shortcut entry point that carries the current task's input | Start a project, plan a feature, continue a task |
 
-Agents 不需要组成自动串行的“虚拟研发部门”。同一个通用 Agent 可以完成整项任务；专用 agent 只在角色聚焦或工具限制有价值时使用。其模型选择默认继承用户设置，不写死供应商或模型版本。
+Agents do not need to form an automatically chained "virtual R&D department". A single general-purpose Agent can complete a whole task; a specialized agent is used only when role focus or tool restrictions add value. Its model selection inherits the user's settings by default, without hard-coding a vendor or model version.
 
-Skill 正文在 `.github\skills\<name>\SKILL.md` 维护一份，按需附带 references、scripts 或 assets；文档表单统一引用 `_templates\` 中的文件。Prompt 和 custom agent 引用 skill，不再各自粘贴完整流程。能力入口还需说明产物写入哪个工件目录，不在 skill 或 prompt 旁边另存正式需求。
+Each skill's body is maintained once in `.github/skills/<name>/SKILL.md`, with references, scripts, or assets attached as needed; document forms consistently reference files in `_templates/`. Prompts and custom agents reference skills instead of each pasting the complete process. A capability entry point must also state which artifact directory its outputs are written to; formal requirements are not stored separately next to a skill or prompt.
 
-正式 README 提供按活动进入共享方法和表单的人工导航；人直接按步骤操作，不需要 Agent 服务。AGENTS 与 prompts 进入相同方法，不能改变业务事实或完成标准。P1 先连接已存在的资料和表单，P2 再连接 skills，不复制另一套人工版流程。
+The formal README provides human navigation by activity into the shared methods and forms; people follow the steps directly without needing an Agent service. AGENTS and prompts lead into the same methods and must not change business facts or completion criteria. P1 first connects the existing materials and forms, and P2 then connects the skills, without duplicating a separate manual version of the process.
 
-脚本只在确实需要具体检查或项目操作时引入，不借 skills 重新搭建一个隐蔽的 CLI 或调度器。
+Scripts are introduced only when a concrete check or project operation genuinely needs them; skills are not used to rebuild a hidden CLI or scheduler.
 
-## 6. “任何 Agent 可接入”怎样实现
+## 6. How "any Agent can plug in" is achieved
 
-兼容性分成两层：
+Compatibility has two layers:
 
-- 通用层：能读取仓库的 Agent 可以通过 `AGENTS.md`、普通 Markdown 和明确的项目命令工作。
-- 原生体验层：利用客户端实际支持的 instructions、skills、agent 选择和 prompt 快捷入口，优先覆盖 Copilot。
+- Common layer: any Agent that can read the repository can work through `AGENTS.md`, plain Markdown, and explicit project commands.
+- Native-experience layer: uses the instructions, skills, agent selection, and prompt shortcuts that the client actually supports, covering Copilot first.
 
-不支持自动发现的客户端，使用自然语言明确要求读取入口和目标 skill。若需要 `CLAUDE.md` 等专用入口，按实际客户端增加短引用，不复制整套能力。纯聊天模型若不能读取文件或执行项目工具，不属于直接开箱接入的范围。
+For clients without automatic discovery, explicitly ask in natural language for the entry point and the target skill to be read. If a dedicated entry point such as `CLAUDE.md` is needed, add a short reference for the actual client instead of duplicating the whole capability set. A chat-only model that cannot read files or run project tools is outside the scope of direct out-of-the-box use.
 
-本次核对的 GitHub 官方文档支持 `.github\skills` 等项目 skill 位置，也支持 `.github\agents` 中的 custom agent。Prompt files 的支持因使用界面而异，不能把 VS Code 的快捷入口承诺给 GitHub.com 或 Copilot CLI。依据见[来源登记 Q1–Q4](../research/source-register.md)；文档支持不等于本模板已经在相应客户端实测通过。
+The official GitHub documentation checked this time supports project skill locations such as `.github/skills`, as well as custom agents in `.github/agents`. Prompt file support varies by interface, so VS Code shortcuts must not be promised for GitHub.com or Copilot CLI. For the basis, see [source register Q1–Q4](../research/source-register.md); documented support does not mean this template has been verified in practice in the corresponding client.
 
-P0 选择 GitHub Copilot App，并不表示 App 继承上述界面的全部原生能力。P3 分别记录原生发现、显式读取和未验证；prompt files 是可选便利入口，核心工作不依赖 App 发现它们。
+Choosing the GitHub Copilot App in P0 does not mean the App inherits all native capabilities of the interfaces above. P3 records native discovery, explicit reading, and unverified items separately; prompt files are an optional convenience entry point, and core work does not depend on the App discovering them.
 
-## 7. 执行交给现有工具
+## 7. Execution is left to existing tools
 
-| 事情 | 实际负责者 |
+| Concern | Actual owner |
 |---|---|
-| 阅读、规划、改代码和运行命令 | 用户选择的 coding agent 及其工具 |
-| 工具授权、会话控制和资源限制 | Agent 客户端与宿主环境 |
-| 构建、lint、测试、应用运行 | 项目原生工具链 |
-| CI 检查、PR 审阅和分支保护 | 已配置的代码托管平台与维护者 |
-| 进度与交接摘要 | Agent 或开发者按模板更新文件，下一会话重新核对 |
+| Reading, planning, changing code, and running commands | The coding agent chosen by the user and its tools |
+| Tool authorization, session control, and resource limits | The Agent client and the host environment |
+| Build, lint, test, and running the application | The project's native toolchain |
+| CI checks, PR review, and branch protection | The configured code-hosting platform and the maintainers |
+| Progress and handoff summaries | The Agent or developer updates files from the templates; the next session re-checks them |
 
-模板本身不提供执行循环、权限隔离、可信发布器或自动恢复引擎。Git worktree 能隔离文件修改，但不是运行任意代码的安全沙箱。分支保护、必需审阅和 CI 不会因为复制了 Markdown 就自动启用。
+The template itself provides no execution loop, permission isolation, trusted publisher, or automatic recovery engine. A Git worktree can isolate file changes but is not a security sandbox for running arbitrary code. Branch protection, required reviews, and CI are not enabled automatically just because Markdown was copied.
 
-工作约定仍要求：缺业务事实要停下来澄清；验证失败要如实记录；不能通过删除测试或降低验收标准制造成功。需要强制执行的控制，应交给平台、权限与实际检查配置，而不是声称 prompt 就是安全边界。
+The working conventions still require: stop and clarify when business facts are missing; record verification failures truthfully; never manufacture success by deleting tests or lowering acceptance criteria. Controls that must be enforced belong in platform, permission, and actual check configuration, rather than in a claim that a prompt is a security boundary.
 
-## 8. 初始化、维护与交接
+## 8. Initialization, maintenance, and handoff
 
-首次使用通过模板仓库或文件复制完成。README 提供分阶段设置清单，onboarding skill 可以协助填写用户已确认的项目资料；技术栈与命令保持未配置也能使用骨架。用户决定创建具体项目后，再识别或确认其技术栈，登记真实路径与开发命令，不自动选择语言或初始化应用，也不需要自研初始化程序。
+First use is done through a template repository or by copying files. The README provides a staged setup checklist, and the onboarding skill can help fill in project information the user has confirmed; the skeleton is usable even while the tech stack and commands remain not configured. Only after the user decides to create a concrete project is its tech stack identified or confirmed and its real paths and development commands registered; no language is chosen and no application is initialized automatically, and no custom initialization program is needed.
 
-开发日志保存任务、分支或版本、已做事项、验证结果、阻塞和下一步。换会话时结合任务文件、日志与当前 Git 状态继续；这是可读的工作交接，不是进程级恢复，更不保证外部操作恰好执行一次。
+The development log records the task, branch or version, work done, verification results, blockers, and next steps. When switching sessions, continue from the task files, the log, and the current Git state; this is a readable work handoff, not process-level recovery, and it does not guarantee that external operations run exactly once.
 
-模板按 Git tag 或 release 发布，项目可在 README 记录来源版本。后续更新通过正常 diff 和审阅合入，不远程覆盖业务文件，也不持续跟踪参考仓库的 HEAD。
+The template is released by Git tag or release, and a project can record its source version in its README. Later updates are merged through normal diffs and review; business files are not overwritten remotely, and the reference repositories' HEAD is not tracked continuously.
 
-## 9. 首版边界
+## 9. First-version boundaries
 
-首版交付技术栈无关的 repo 骨架、项目文档模板、通用 Agent 入口和 Copilot 能力文件。在干净副本中验收入口、轻量建模、需求与 VT 的追溯、缺口发现、规则变更影响及换会话接手，均为纯文档演练。不创建应用或接入参考业务项目；应用代码、构建、测试与 CI 留给下游，也不宣称已经验证任何语言工具链。
+The first version delivers a tech-stack-agnostic repo skeleton, project document templates, a common Agent entry point, and Copilot capability files. In a clean copy, acceptance of the entry points, lightweight modeling, requirement-to-VT traceability, gap discovery, rule-change impact, and takeover after a session switch consists entirely of document-only exercises. No application is created and no reference business project is integrated; application code, build, test, and CI are left downstream, and no language toolchain is claimed to be verified.
 
-不纳入自研 CLI、协调器、SQLite 状态库、自定义 agent manifest/lock、自动升级器、跨仓库同步、Web 控制台或多 Agent 调度。领域建模深度和受监管场景的额外要求按项目需要决定；不强制完整方法流程，但保留当前任务适用的业务依据、验证对应与未决项。
+Out of scope: a custom CLI, coordinator, SQLite state store, custom agent manifest/lock, automatic upgrader, cross-repository sync, web console, or multi-Agent scheduling. Domain-modeling depth and additional requirements for regulated scenarios are decided per project need; the complete method process is not mandatory, but the business basis, verification mapping, and open items applicable to the current task are kept.

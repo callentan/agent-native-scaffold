@@ -1,101 +1,101 @@
-# 六仓增强执行：来源、契约与领域表单
+# Six-repository enhancement execution: sources, contracts, and domain forms
 
-本文件是制作记录，不进入下游模板候选。
+This file is a maker-side record and is not part of the downstream template candidate.
 
 <a id="session"></a>
-## 会话、任务与 Git 状态
+## Session, task, and Git state
 
-| 字段 | 实际记录 |
+| Field | Actual record |
 |---|---|
-| 日期/会话 | 2026-10-15；`1ff56941-bf56-4aa4-b769-fd4720915e1f` |
-| 任务 | 用户“先commit 当前的变更。然后开始按照增强计划执行优化”；依据[增强计划](../docs/plan/2026-10-14-ddd-functional-alignment.md)与[规格](../docs/design/ddd-functional-alignment.md) |
-| 分支/起始 | `callentan-repository-skeleton`；规划版本 `f9aab56` |
-| 当前变更先提交 | README 原两处排版已按新授权提交 `1a6f594`；随后 Git 状态干净，不再保留为未提交 |
-| 本次范围 | 六仓固定版本源码盘点、能力矩阵与范围补全，然后按依赖推进；不发布、不推送、不执行上游程序 |
-| 对象定位 | 本日志和矩阵的实际提交由 Git 文件历史定位；后续实现各自记录，不预填完成 |
+| Date/session | 2026-10-15; `1ff56941-bf56-4aa4-b769-fd4720915e1f` |
+| Task | User request: "First commit the current changes. Then start executing the optimizations according to the enhancement plan"; basis: the [enhancement plan](../docs/plan/2026-10-14-ddd-functional-alignment.md) and the [specification](../docs/design/ddd-functional-alignment.md) |
+| Branch/start | `callentan-repository-skeleton`; planning version `f9aab56` |
+| Commit current changes first | The two pending README formatting edits were committed as `1a6f594` under the new authorization; the Git state was clean afterwards, and nothing remained uncommitted |
+| Scope of this session | Inventory the pinned source of the six repositories, build the capability matrix, and complete the scope, then proceed in dependency order; no release, no push, no execution of upstream programs |
+| Object location | The actual commits of this log and the matrix are located through Git file history; later implementations are recorded separately, and completion is not pre-filled |
 
 <a id="changes"></a>
-## 本次变化
+## Changes in this session
 
-按约定六个完整 SHA 用 native Git 只读获取，未更新 submodule、运行 hook 或改参考仓库。浏览器曾跳转登录，Git 凭据已可用；源读取问题没有被当成“无要求”。
+As agreed, the six full SHAs were fetched read-only with native Git; no submodule was updated, no hook was run, and no reference repository was modified. The browser was once redirected to a sign-in page, but Git credentials were available; source-reading problems were not treated as "no requirement".
 
-三组独立盘点报告覆盖 252 entries/195 blobs，合并结果见[能力矩阵](../docs/research/ddd-capability-matrix.md)。目录和 gitlink 只读元数据，10 个上游路线文件标提案；其余 185 个文件全文读取。44 组 current 能力有交叉，不是已交付功能计数。
+Three independent inventory reports cover 252 entries/195 blobs; the merged result is in the [capability matrix](../docs/research/ddd-capability-matrix.md). For directories and gitlinks only metadata was read, and 10 upstream roadmap files are marked as proposals; the remaining 185 files were read in full. The 44 groups of current capabilities overlap and are not a count of delivered features.
 
-原 plan 漏了 QAS/战术资料、SEQ/Gherkin/SWAS、接口/词汇演化、来源接入/适配、图/导出和账本。用户确认完整纳入，媒体/PDF/平台依赖及执行另行授权；补入任务/ENH-15–18，更新原任务职责和首版/增强的适用边界。Python-first 不变；旧源的隐含 commit/push、读写矛盾与空成功不是需照搬的功能。
+The original plan omitted QAS/tactical material, SEQ/Gherkin/SWAS, interface/glossary evolution, source onboarding/adaptation, diagrams/export, and ledgers. The user confirmed full inclusion, with media/PDF/platform dependencies and their execution authorized separately; tasks/ENH-15–18 were added, and the responsibilities of the original tasks and the applicability boundary between the first version and the enhancement were updated. Python-first is unchanged; the old sources' implicit commit/push, read/write contradictions, and empty successes are not features to copy.
 
 <a id="verification"></a>
-## 实际结果入口
+## Actual result entry points
 
-| 对象 | 来源记录 | 限制 |
+| Object | Source record | Limitations |
 |---|---|---|
-| 六仓源码分类和能力 | [能力矩阵](../docs/research/ddd-capability-matrix.md)、[来源登记补充](../docs/research/source-register.md#9-六仓完整源码盘点补充2026-10-15) | 核对的是固定源码/载体，不是上游程序/平台运行 |
-| 原始快照与完整性 | 本机 `ddd-alignment-execution\references` 六份 manifest/Git 对象；`source-audit.json` | 仅本机，不能当跨机器 CI 链接；原 Git URL/commit/路径足以重新只读获取 |
-| 分组读取 | 同目录 BC/DOMAIN/FRAMEWORK inventory/capabilities | source 属性与我们的计划建议分别处理，不把建议当已实现 |
+| Six-repository source classification and capabilities | [Capability matrix](../docs/research/ddd-capability-matrix.md), [source register supplement](../docs/research/source-register.md#six-repo-source-inventory) | What was checked is the pinned source/carriers, not runs of the upstream programs/platforms |
+| Raw snapshots and integrity | Six manifests/Git objects under the local `ddd-alignment-execution/references`; `source-audit.json` | Local only; cannot serve as a cross-machine CI link; the original Git URLs/commits/paths are sufficient to re-fetch read-only |
+| Grouped reading | BC/DOMAIN/FRAMEWORK inventory/capabilities in the same directory | Source attributes and our plan recommendations are handled separately; recommendations are not treated as implemented |
 
-独立核对检查所有条目/object ID/commit/源散列、能力引用及来源行界限；四处超出文件末尾的报告引用已按实际长度纠正，再次检查没有错误。没有改源码来满足报告，也没有声称目录/gitlink 全文已读。
+An independent check covered every entry, object ID, commit, and source hash, the capability references, and the source line bounds; four report references that ran past the end of a file were corrected to the actual length, and a second check found no errors. No source was changed to fit the reports, and no claim is made that directories/gitlinks were read in full.
 
-来源关卡审阅补清了 Task 1 范围映射、单一 32-kind 枚举、九个视图的来源字段引用、DOCX 和演示导出的必需等价判据。再次审阅确认这些问题已处理，另指出主输入错误与可选视图缺项的表述矛盾；现已明确：root/schema/scope/主工件基线错误失败，单个可选摘要缺失/不可读/无效形成 unverified+gap，不吞错、不把空视图当完整模型。增强实现仍需按真实 tests 验证这些契约。
+The source-gate review clarified the Task 1 scope mapping, the single 32-kind enumeration, the source-field references of the nine views, and the required equivalence criteria for DOCX and presentation export. A second review confirmed these were addressed and pointed out a contradiction between the wording on primary-input errors and on missing optional views. It is now explicit: root/schema/scope/primary-artifact baseline errors fail, while a single missing/unreadable/invalid optional summary yields unverified+gap; errors are not swallowed, and an empty view is not treated as a complete model. The enhancement implementation must still verify these contracts with real tests.
 
 <a id="follow-up"></a>
-## 影响与未执行项
+## Impact and items not run
 
-计划、规格、蓝图及 P0 适用范围需要按完整来源修订；原首版/P3 记录不作废。不同消费 gitlink、外部 ADR/风险/ADO 实例、媒体服务、PDF/PPTX 引擎与真实 CI/权限/审批未运行，不能从源码盘点推导成功。
+The plan, specification, blueprint, and P0 applicability scope need revision against the complete sources; the original first-version/P3 records are not voided. The various consumer gitlinks, external ADR/risk/ADO instances, media services, PDF/PPTX engines, and real CI/permissions/approvals were not run; success cannot be inferred from the source inventory.
 
-任务 1 结束时尚未创建增强工具环境、安装依赖或初始化应用。核心工具环境已由用户选择 Python，随后按任务 2 先创建 manifest 与本地 `.venv`，实际结果在下方独立记录，不把工具栈作为业务语言；业务/平台/媒体验收仍受独立授权控制。
+When Task 1 ended, no enhancement tooling environment had been created, no dependencies installed, and no application initialized. The user chose Python for the core tooling environment; Task 2 then created the manifest first and then the local `.venv`, with actual results recorded separately below. The tooling stack is not treated as the business language; business/platform/media acceptance remains subject to separate authorization.
 
 <a id="handoff"></a>
-## 下一步
+## Next steps
 
-完成来源矩阵/范围的一致性审阅后进入任务 2：四个数据契约、类型化解析器与真实文件 tests，明确输入错误、重复 YAML 键、未知版本/状态、scope/ID、路径与确认声明。先看到测试的预期失败再实现，依赖只在 manifest 就绪后恢复。
+After the consistency review of the source matrix/scope, move to Task 2: four data contracts, typed parsers, and real-file tests that make input errors, duplicate YAML keys, unknown versions/statuses, scope/IDs, paths, and confirmation claims explicit. See the tests' expected failures before implementing; restore dependencies only after the manifest is ready.
 
-接手先检查 Git 与本日志之后的真实提交、计划 ledger 和来源可访问性，不重复获取/重做已完成来源组，也不把旧“仅规划”状态当当前未授权。发布、PR、业务项目和外部数据发送没有新增授权。
+Whoever takes over first checks Git and the actual commits after this log, the plan ledger, and source accessibility; do not re-fetch or redo completed source groups, and do not read the old "planning only" state as meaning the work is currently unauthorized. No new authorization was granted for release, PRs, business projects, or sending data externally.
 
 <a id="task2"></a>
-## Task 2：元数据契约、parser 与维护工具环境
+## Task 2: metadata contracts, parser, and maintenance tooling environment
 
-本节追加 Task 2 实际结果，不改写前面的 Task 1 当时状态。依据为[增强计划 Task 2](../docs/plan/2026-10-14-ddd-functional-alignment.md)及获准的 `ddd-alignment-execution\task2-brief.md`；范围只含本任务列出的 17 个仓库文件。起点为干净工作树、分支 `callentan-repository-skeleton`、完整 commit `81ffd45b3b9b7643d643a9162b533af92613c553`。此前 README 排版提交不重复执行。
+This section appends the actual Task 2 results without rewriting the Task 1 state recorded above. The basis is [enhancement plan Task 2](../docs/plan/2026-10-14-ddd-functional-alignment.md) and the authorized `ddd-alignment-execution/task2-brief.md`; the scope covers only the 17 repository files listed for this task. The starting point was a clean working tree on branch `callentan-repository-skeleton` at full commit `81ffd45b3b9b7643d643a9162b533af92613c553`. The earlier README formatting commit was not repeated.
 
-新增[四个数据契约](../.github/contracts/README.md)、[不可变 parser 与显式集合接口](../.github/utilities/README.md)、独立 schema/parser 测试及真实文件/Git helpers。`.gitignore` 只增加项目 `.venv` 和 Python 字节码；[开发登记](../docs/development.md#maintenance-tools)将维护环境与尚未配置的业务应用分开。原技能、表单、业务资料、源码、hooks、workflow 和远端均未修改。
+Added [four data contracts](../.github/contracts/README.md), an [immutable parser and explicit collection interface](../.github/utilities/README.md), separate schema/parser tests, and real-file/Git helpers. `.gitignore` adds only the project `.venv` and Python bytecode; the [development registration](../docs/development.md#maintenance-tools) separates the maintenance environment from the not-yet-configured business application. The existing skills, forms, business material, source code, hooks, workflows, and remotes were not modified.
 
-| 实际记录入口 | 对象与依据 | 可访问性与限制 |
+| Actual record entry point | Object and basis | Accessibility and limitations |
 |---|---|---|
-| 本会话获准报告 `files\ddd-alignment-execution\task2-report.md` | Task 2 起点及本段同批文件的 Git 提交；完整 SHA、RED/GREEN 命令、原始输出摘要、版本和自审修复均在报告 | 会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的本机 artifact，不进入仓库或分发候选；不是跨机器 CI 证据 |
-| [parser 行为测试](../.github/utilities/tests/test_artifact_io.py) 与[四类 schema 测试](../.github/utilities/tests/test_contracts.py) | 32 kind 各有 parser/schema 正例；九个视图的数据、完整引用、主输入错误和证据约束分别核对 | 可用已登记环境重跑；测试源码不是结果，本次运行定位在上行报告 |
-| [实际依赖 lock](../.github/utilities/requirements.lock) 与[维护命令](../docs/development.md#maintenance-tools) | 先建 manifest 后创建 `.venv`；Python 3.13.15，六项实际依赖版本，`pip check` 无冲突 | 当前 Windows 环境；未声称其他 Python/OS 已实际验证 |
+| Authorized report of this session: `files/ddd-alignment-execution/task2-report.md` | The Task 2 starting point and the Git commit of this section's batch of files; full SHAs, RED/GREEN commands, raw output summaries, versions, and self-review fixes are all in the report | Local artifact of session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; not part of the repository or the distribution candidate; not cross-machine CI evidence |
+| [Parser behavior tests](../.github/utilities/tests/test_artifact_io.py) and [schema tests for the four types](../.github/utilities/tests/test_contracts.py) | Each of the 32 kinds has parser/schema positive cases; the nine views' data, complete references, primary-input errors, and evidence constraints are checked separately | Can be re-run with the registered environment; test source is not a result; this run is located in the report in the row above |
+| [Actual dependency lock](../.github/utilities/requirements.lock) and [maintenance commands](../docs/development.md#maintenance-tools) | Manifest created first, then `.venv`; Python 3.13.15, six actual dependency versions, `pip check` reports no conflicts | Current Windows environment; no claim that other Python versions/OSes were actually verified |
 
-验证先有初始模块缺失错误，再用故意不校验的可读文件实现运行行为 RED：6 个 parser 方法产生 12 个失败，4 个 schema 方法产生 14 个失败；这些数含子例，不是额外发现的方法。实现后首轮 140 项通过；自审补充并复现 BOM 行号偏移、merge 归一化吞掉嵌套重复 `<<`、safe-tag 无效值泄漏内建异常，逐项修复后全量为 **143 个方法发现/执行、0 跳过、0 失败/错误**（parser 73、schema/Git 数据 70）。5 个 Python 文件通过语法检查，4 个契约文档示例实际解析/校验。完整命令与关键失败详情回报告读取。
+Verification first saw the initial missing-module error, then produced a behavioral RED with a deliberately non-validating readable-file implementation: 6 parser methods yielded 12 failures and 4 schema methods yielded 14 failures; these numbers include subtests and are not additional discovered methods. After implementation, the first run passed 140 tests; self-review then added and reproduced a BOM line-number offset, merge normalization swallowing nested duplicate `<<`, and invalid safe-tag values leaking built-in exceptions. After fixing each one, the full suite reported **143 methods discovered/run, 0 skipped, 0 failures/errors** (parser 73, schema/Git data 70). 5 Python files passed the syntax check, and 4 contract-document examples were actually parsed/validated. Read the full commands and key failure details from the report.
 
-Windows 的外部/内部目录 junction 和真实文件字节锁测试均已执行，没有用 skip 隐藏边界覆盖。`ArtifactInputError` 保留 code、文件、1-based 行号、错误信息与原始异常链；同 scope 重复只针对显式集合，不扫描或改写全仓。
+The Windows tests for external/internal directory junctions and real file byte locks were all run; no skip was used to hide boundary coverage. `ArtifactInputError` keeps the code, file, 1-based line number, error message, and original exception chain; same-scope duplicate detection applies only to explicit collections and does not scan or rewrite the whole repository.
 
-### Task 2 限制与下一步
+### Task 2 limitations and next steps
 
-- Task 2 完成的是 ENH-02、ENH-06 的输入契约与 parser，不是六仓增强全部完成。九个视图的真实源读取/派生、跨文件存在性/层次/覆盖、主基线真实性及手改检测仍由 Task 7/8 执行，当前为 `not-run`，没有为了“通过”增加 exporter。
-- 业务应用、媒体/PDF、外部来源接入、hook/CI、传播、发布、PR 和远端写入均未执行；相应独立授权关卡保持不变。schema-valid 的确认或 pass 声明也不认证人或证据真实性。
-- Markdown 读取限于已记录的显式 anchor + owner ATX 标题模式；没有通用 Markdown 渲染、隐式 anchor 推断或自动旧格式转换。Windows junction 的结果不泛化为其他宿主全部链接类型，路径检查也不是防并发恶意替换的 OS sandbox。
-- 没有已知阻塞 Task 2 的缺项。父会话按实际提交和报告进行范围复核后，再分派后续任务；本执行者未启动 Task 3 或任何嵌套代理/审阅者。接手重新核对 Git 与本机报告可访问性，不能只继承本摘要的通过结论。
+- Task 2 completed the input contracts and parser for ENH-02 and ENH-06; the six-repository enhancement as a whole is not complete. Real source reading/derivation for the nine views, cross-file existence/hierarchy/coverage, primary-baseline authenticity, and manual-edit detection remain for Task 7/8 and are currently `not-run`; no exporter was added just to "pass".
+- Business application, media/PDF, external source onboarding, hooks/CI, propagation, release, PRs, and remote writes were not run; the corresponding separate authorization gates remain unchanged. A schema-valid confirmation or pass claim does not certify the person or the authenticity of the evidence.
+- Markdown reading is limited to the documented explicit-anchor + owner ATX heading pattern; there is no general Markdown rendering, implicit anchor inference, or automatic legacy-format conversion. The Windows junction results do not generalize to all link types on other hosts, and the path checks are not an OS sandbox against concurrent malicious replacement.
+- No known gap blocks Task 2. The parent session dispatches later tasks only after a scope review against the actual commit and report; this executor did not start Task 3 or any nested agent/reviewer. Whoever takes over re-checks Git and the accessibility of the local report and must not simply inherit this summary's pass conclusion.
 
 <a id="task2-review-1"></a>
-## Task 2：范围审阅反馈修正，第 1 轮
+## Task 2: scope-review feedback fixes, round 1
 
-2026-10-15 12:44 的反馈给出三个修正：根错误定位、分发文档对排除资料的依赖、计划当前状态矛盾。开始时实际核对分支仍为 `callentan-repository-skeleton`，HEAD 为 `4b833dfad154e71e982e7e107d6cb9ae0cdc0464`，工作树与暂存区干净。反馈另报告父会话已在该对象独立执行 143 项、0 跳过；这是父会话的运行，不冒充本轮新证据。
+The feedback of 2026-10-15 12:44 requested three fixes: root error location, distribution documents depending on excluded material, and a contradiction in the plan's current status. At the start, the branch was verified to still be `callentan-repository-skeleton`, HEAD was `4b833dfad154e71e982e7e107d6cb9ae0cdc0464`, and the working tree and index were clean. The feedback also reported that the parent session had independently run 143 tests with 0 skipped on that object; that is the parent session's run and is not presented as new evidence from this round.
 
-本轮仅修改 7 个既有文件：`.github\utilities\artifact_io.py`、`.github\utilities\tests\test_artifact_io.py`、`.github\contracts\README.md`、`.github\utilities\README.md`、`docs\development.md`、`docs\plan\2026-10-14-ddd-functional-alignment.md`、`logs\2026-10-15-ddd-alignment.md`。另在原会话 `files\ddd-alignment-execution\task2-report.md` 追加完整记录；报告仍是本机 artifact，不进入提交。
+This round modified only 7 existing files: `.github/utilities/artifact_io.py`, `.github/utilities/tests/test_artifact_io.py`, `.github/contracts/README.md`, `.github/utilities/README.md`, `docs/development.md`, `docs/plan/2026-10-14-ddd-functional-alignment.md`, `logs/2026-10-15-ddd-alignment.md`. A full record was also appended to the original session's `files/ddd-alignment-execution/task2-report.md`; the report remains a local artifact and is not committed.
 
-- `parse_artifact` 只改一行根错误上下文为 `str(root)`，与集合 API 一致。新增真实文件回归同时断言两个 API 的 `code/path/line`，包含缺失根、实际文件充当根、null、错误类型及空选择。
-- 分发文档移除内部规格/计划/制作日志链接与依赖被排除 tests 的命令，契约字段及示例保留自包含。维护者测试与历史导航统一放在[制作仓检查约定](../docs/plan/2026-10-14-ddd-functional-alignment.md#maintainer-checks)及本日志，不新增检查器或文档文件。
-- 计划页首、页尾与相关状态句改为 Task 1 完成、Task 2 实现在范围审阅中、后续任务 `not-run`。原 P3、源码盘点和初始 `4b833df` 的 143 项结果保留其基线；Task 3–18 内容及 ENH 覆盖表与本轮基线逐字对比无变化。
+- `parse_artifact` changes only one line, setting the root error context to `str(root)`, consistent with the collection API. A new real-file regression asserts `code/path/line` for both APIs, covering a missing root, an actual file used as the root, null, a wrong type, and an empty selection.
+- The distribution documents drop links to the internal specification/plan/maker log and commands that depend on the excluded tests; contract fields and examples remain self-contained. Maintainer tests and historical navigation are consolidated in the [maker-repository check conventions](../docs/plan/2026-10-14-ddd-functional-alignment.md#maintainer-checks) and this log; no new checker or document file was added.
+- The plan's header, footer, and related status sentences now say Task 1 is complete, the Task 2 implementation is in scope review, and later tasks are `not-run`. The original P3, the source inventory, and the 143-test result at the initial `4b833df` keep their baselines; a verbatim comparison against this round's baseline shows no change to the Task 3–18 content or the ENH coverage table.
 
-本轮所有命令 cwd 均为仓库根，复用现有 `.venv`，没有安装或恢复依赖。定向回归命令：
+All commands in this round used the repository root as cwd and reused the existing `.venv`; no dependencies were installed or restored. Targeted regression command:
 
 ```text
 .venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_artifact_io.py -v -k test_invalid_root_errors_identify_root_in_both_apis
 ```
 
-先运行新增测试：1 个方法、12 个子例，其中单文件 API 的 4 个子例失败；错误都是 `INVALID_ROOT.path` 指向 `REQ-001.md` 而不是无效根，code 和行号仍为 `INVALID_ROOT` / 1。原输出为 `Ran 1 test in 0.009s; FAILED (failures=4)`，退出 1。只修一行后，同命令为 `Ran 1 test in 0.007s; OK`，退出 0，没有削弱断言。
+The new test was run first: 1 method with 12 subtests, of which the 4 single-file API subtests failed; in each failure `INVALID_ROOT.path` pointed to `REQ-001.md` instead of the invalid root, while the code and line number were still `INVALID_ROOT` / 1. The original output was `Ran 1 test in 0.009s; FAILED (failures=4)`, exit 1. After the one-line fix, the same command gave `Ran 1 test in 0.007s; OK`, exit 0, with no assertion weakened.
 
-分发依赖诊断用现有解释器执行限定 inline Python，读取 3 份分发文档并按已排除路径检查真实相对链接，同时检查是否要求 `unittest discover`：原来 19 条本地链接中有 5 条指向排除资料，另有 2 条下游命令依赖排除 tests，共 7 个问题、退出 1；修改后为 `3 documents, 16 local links, 0 findings`、退出 0。诊断不作为新工具分发，完整执行代码与输出追加在原 Task 2 报告。
+The distribution-dependency diagnostic ran bounded inline Python with the existing interpreter: it read the 3 distribution documents, checked their actual relative links against the excluded paths, and also checked whether they required `unittest discover`. Originally, 5 of 19 local links pointed to excluded material and 2 downstream commands depended on the excluded tests, 7 findings in total, exit 1; after the change: `3 documents, 16 local links, 0 findings`, exit 0. The diagnostic is not distributed as a new tool; the full code and output were appended to the original Task 2 report.
 
-覆盖套件和语法检查实际执行：
+Full suite and syntax checks actually run:
 
 ```text
 .venv\Scripts\python.exe -X utf8 -u -m unittest discover -s .github\utilities\tests -t .github\utilities -p test_*.py -v
@@ -103,1283 +103,1283 @@ Windows 的外部/内部目录 junction 和真实文件字节锁测试均已执�
 git --no-pager diff --check
 ```
 
-全量输出 `Ran 144 tests in 5.440s; OK`：144 个方法发现/执行、0 跳过、0 失败/错误；语法及 diff 检查退出 0。独立执行计数复核为 parser 74、schema/Git 数据 70、参数化子例 327（子例不另加到方法数），同样 0 跳过/失败/错误。限定的 5 份 Markdown 共 39 个相对链接及锚点均有效；3 份分发文档无排除目标依赖；4 个保留的契约示例实际解析/校验有效。完整诊断代码、输出与提交对象追加在原报告，不用旧 143 项替代当前证据。
+The full run output `Ran 144 tests in 5.440s; OK`: 144 methods discovered/run, 0 skipped, 0 failures/errors; the syntax and diff checks exited 0. An independent recount gave parser 74, schema/Git data 70, and 327 parameterized subtests (subtests are not added to the method count), likewise with 0 skipped/failures/errors. All 39 relative links and anchors in the 5 scoped Markdown files are valid; the 3 distribution documents have no dependency on excluded targets; the 4 retained contract examples actually parse/validate. The full diagnostic code, output, and committed object were appended to the original report; the old 143-test result does not substitute for current evidence.
 
-本轮未修改 schema、依赖、共享技能/表单或后续工具，没有子代理/审阅者、安装、hook、workflow、push、PR 或其他远端操作。提交后停在 Task 2，等待父会话核对本轮实际 diff 与证据；“修正已实现”不等于审阅已关闭或增强全部交付。
+This round did not modify schemas, dependencies, shared skills/forms, or later tools, and involved no subagents/reviewers, installs, hooks, workflows, pushes, PRs, or other remote operations. After committing, work stopped at Task 2 to await the parent session's check of this round's actual diff and evidence; "fixes implemented" does not mean the review is closed or the enhancement fully delivered.
 
-### 父会话范围核对完成
+### Parent-session scope check completed
 
-在修正提交 `322cd9082c0f99a4583cf54b04590075c5e1b42f` 上回读了单行 parser 修正、新增双 API 的真实 invalid-root 回归，以及分发文档/计划的范围修订；三项反馈均已处理，没有扩展 schema 或引入新运行功能。
+On fix commit `322cd9082c0f99a4583cf54b04590075c5e1b42f`, the one-line parser fix, the new real invalid-root regression covering both APIs, and the scope revisions to the distribution documents/plan were read back; all three feedback items were addressed, with no schema extension and no new runtime functionality.
 
-父会话使用现有项目 `.venv`、显式仓库 cwd 独立执行全套工具测试：`Ran 144 tests in 5.054s; OK`，退出 0、跳过 0。原始命令/输出与 commit 在本机 `ddd-alignment-execution\task2-final-tests.json`，不是复述实现者结果。当前 Task 2 的范围审阅关闭，下一步为 Task 3；这不关闭后续模型导出、追溯、App/人工或业务执行验收。
+Using the existing project `.venv` and an explicit repository cwd, the parent session independently ran the full tooling test suite: `Ran 144 tests in 5.054s; OK`, exit 0, 0 skipped. The raw command/output and commit are in the local `ddd-alignment-execution/task2-final-tests.json`; this is not a restatement of the implementer's result. The Task 2 scope review is now closed, and the next step is Task 3; this does not close later acceptance of model export, traceability, App/manual work, or business execution.
 
 <a id="task3"></a>
-## Task3：可选领域表单与实际文档使用
+## Task3: optional domain forms and actual document use
 
-### 会话、范围与对象
+### Session, scope, and object
 
-| 项目 | 本次记录 |
+| Item | Record |
 |---|---|
-| 日期与执行者 | 2026-10-15；Task3 implementer 单会话执行、自审，无嵌套 Agent |
-| 任务依据 | 用户批准的 [Task3](../docs/plan/2026-10-14-ddd-functional-alignment.md#task3)，父会话固定的 Task3 brief 与 case input；不是新业务需求 |
-| 分支与起始基线 | `callentan-repository-skeleton`；`6f8a0f9667f7b4d81840a7d4d6a994ceff45934b`，已核对完整 SHA 与 Task2 修正的祖先关系 |
-| 原有改动 | 开始时暂存区与工作树均干净，没有待代为提交的旧改动 |
-| 本次对象 | 下列 24 个分发文件及 Task3 计划状态、本日志；同次局部提交，完整提交号回 Git 与会话报告读取 |
-| 非目标 | 不改 parser/schema、共享 skills/agents/prompts、应用/测试布局；不安装依赖、不执行参考源、hooks/CI、媒体/平台操作或远端操作，不启动 Task4+ |
+| Date and executor | 2026-10-15; Task3 implementer, single-session execution and self-review, no nested agent |
+| Task basis | User-approved [Task3](../docs/plan/2026-10-14-ddd-functional-alignment.md#task3), plus the Task3 brief and case input fixed by the parent session; not a new business requirement |
+| Branch and starting baseline | `callentan-repository-skeleton`; `6f8a0f9667f7b4d81840a7d4d6a994ceff45934b`; the full SHA and its ancestry relative to the Task2 fixes were verified |
+| Pre-existing changes | The index and working tree were both clean at the start; there were no earlier changes to commit on anyone's behalf |
+| Objects in this session | The 24 distribution files described below, the Task3 plan status, and this log; committed together in one scoped commit; read the full commit ID from Git and the session report |
+| Non-goals | No changes to the parser/schema, shared skills/agents/prompts, or application/test layout; no dependency installs, no execution of reference sources, hooks/CI, media/platform operations, or remote operations; Task4+ not started |
 
-### 实际变化
+### Actual changes
 
-- 新增 18 个独立编写的领域/QAS/战术表单，完整列表与正式落点见[领域工件导航](../domain-model/README.md#optional-forms)；所有空表保留 draft 与待项目确认的身份。
-- 接入[领域指引](../domain-model/README.md#artifact-metadata)、[REQ/QAS 指引](../stakeholder-requirements/README.md#domain-inputs)、[场景/VT 指引](../verification/README.md#domain-scenarios)及[根表单导航](../README.md#forms)。旧轻量正文、稳定锚点和项目事实没有替换。
-- [REQ 表单](../_templates/items/stakeholder-requirement.md)与 [VT 表单](../_templates/items/verification-test.md)接入现有 frontmatter，删除重复的内容状态栏；VT 的目标关系归元数据，正文按 criterionAnchor 保存独立判据，历史执行与当前适用性分开。
-- 没有修改其他字段指引。制作资料、演练实例、一次性检查脚本与报告没有进入分发文件或成为它们的依赖。
+- Added 18 independently written domain/QAS/tactical forms; see the [domain artifact navigation](../domain-model/README.md#optional-forms) for the full list and formal locations. Every blank form keeps draft status and an identity to be confirmed by the project.
+- Wired them into the [domain guide](../domain-model/README.md#artifact-metadata), the [REQ/QAS guide](../stakeholder-requirements/README.md#domain-inputs), the [scenario/VT guide](../verification/README.md#domain-scenarios), and the [root form navigation](../README.md#forms). The existing lightweight body text, stable anchors, and project facts were not replaced.
+- The [REQ form](../_templates/items/stakeholder-requirement.md) and the [VT form](../_templates/items/verification-test.md) adopt the existing frontmatter, and the duplicate content-status field was removed; VT target relations belong to metadata, the body keeps an independent criterion per criterionAnchor, and historical runs are kept separate from current applicability.
+- No other field guidance was modified. Maker material, exercise instances, one-off check scripts, and reports did not enter the distribution files or become their dependencies.
 
-### 结果入口与可访问性
+### Result entry points and accessibility
 
-原始结果在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\` 下；以下是该已授权入口内的定位，不是仓库自带命令或跨机器报告。接手时须取得该目录或重新执行有界检查。
+The raw results are under `files/ddd-alignment-execution/` of parent session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; the locations below are within that authorized entry point and are not repository commands or cross-machine reports. Whoever takes over must obtain that directory or re-run bounded checks.
 
-| 检查层次 | 实际记录定位 | 对象与限制 |
+| Check layer | Actual record location | Object and limitations |
 |---|---|---|
-| parser/schema 与实际表单复制使用 | `task3-artifacts\run-03\results.json`、`template-provenance.json`，实际实例在同级 `used-copy\` | 27 个草稿工件覆盖全部 18 新 kind；10 个 owner-qualified 验收与 10 条目标引用；同 scope 重号拒绝。不是通用覆盖图或业务执行 |
-| 本地文档链接与保留性 | 同一 `results.json`、`lightweight-before.txt` 和 `lightweight-copy\domain-model\README.md` | 24 个变更分发文件及 57 个复制 Markdown 依赖、正例/重号副本均检查本地链接；轻量正文和所有者标记逐字节保留 |
-| 规则变化的文档操作 | `task3-artifacts\run-03\allowance-change-plan.md` | 针对 UC/INV/REQ/SR/TS/VT 的影响计划，保留原文件与未知项；未实际迁移或执行业务 |
-| 本次真实维护工具回归 | `task3-report.md` 的命令与终端摘录 | 当前工作树上新运行一次现有全套测试：144 项、0 跳过、退出 0；未复用 Task2 历史通过 |
-| 自审与提交交接 | `task3-report.md` | 精确变更文件、复制路径、操作/结果、提交号与语义限制；同一执行者自审，不代表父会话或人工批准 |
+| Parser/schema and actual copied use of the forms | `task3-artifacts/run-03/results.json`, `template-provenance.json`; the actual instances are in the sibling `used-copy/` | 27 draft artifacts cover all 18 new kinds; 10 owner-qualified acceptance criteria and 10 target references; same-scope duplicate IDs rejected. Not a general coverage map or business execution |
+| Local document links and preservation | The same `results.json`, `lightweight-before.txt`, and `lightweight-copy/domain-model/README.md` | Local links checked in the 24 changed distribution files, the 57 copied Markdown dependencies, and the positive/duplicate-ID copies; lightweight body text and owner markers preserved byte for byte |
+| Document operation for a rule change | `task3-artifacts/run-03/allowance-change-plan.md` | Impact plan for UC/INV/REQ/SR/TS/VT that keeps the original files and unknowns; nothing was actually migrated and no business execution took place |
+| Actual maintenance-tool regression in this session | Commands and terminal excerpts in `task3-report.md` | One fresh run of the existing full suite on the current working tree: 144 tests, 0 skipped, exit 0; the historical Task2 pass was not reused |
+| Self-review and commit handoff | `task3-report.md` | Exact changed files, copy paths, operations/results, commit ID, and semantic limitations; self-review by the same executor, which does not represent parent-session or human approval |
 
-检查过程中保留了两个检查脚本问题的记录：`run-01` 用归一化换行与 parser 保留的 CRLF 比较而误报，按原始字节比较后 `run-02` 完成；随后扩查重号反例，发现移入 `negative\` 后的相对链接未重定位，补正该临时副本构造后 `run-03` 全部有限检查完成。两项都只修正会话检查脚本，未改 parser、schema 或分发表单，旧产物保留。
+Records of two check-script problems were kept: `run-01` reported false differences because it compared normalized line endings with the CRLF that the parser preserves; after comparing raw bytes, `run-02` completed. Extending the check to duplicate-ID negative cases then showed that relative links were not relocated after the files moved into `negative/`; after the construction of that temporary copy was corrected, `run-03` completed all bounded checks. Both fixes touched only the session check scripts, not the parser, schema, or distribution forms, and the old outputs were kept.
 
-### 缺口、影响与停点
+### Gaps, impact, and stopping point
 
-- 自用演练明确保留资格失效、并发、QAS 度量、战术边界/身份/事件、接口版本及失败政策缺口。全部业务/软件行为记录仍为 `not-run`，没有应用、runner 或批准可作为执行依据。
-- 全部 18 类都有真实填表后的 parser/schema 正例；语义复核限于实际操作的固定文档案例。其他战术模式的设计正确性、真实应用行为、性能与跨平台支持未验证。
-- 当前 parser 不检查完整跨文件覆盖或批准真实性；本次只对明确选择的夹具关系做有界核对，没有交付后续 checker/exporter。
-- Task3 实现与自审结束，等待父会话/用户的独立范围复核；交接者需重新核对本次提交、工作树和本机证据可访问性。本执行停在 Task3，不把 Task4+ 或原 P3 未完成项改成完成，不推送或创建 PR。
+- The self-use exercise explicitly keeps gaps in qualification lapse, concurrency, QAS measures, tactical boundaries/identity/events, interface versions, and failure policy. All business/software behavior records remain `not-run`; no application, runner, or approval can serve as a basis for execution.
+- All 18 kinds have parser/schema positive cases from actually filled-in forms; semantic review is limited to the fixed document cases that were actually worked through. Design correctness of other tactical patterns, real application behavior, performance, and cross-platform support were not verified.
+- The current parser does not check complete cross-file coverage or the authenticity of approvals; this session only made a bounded check of explicitly selected fixture relations and delivered no later checker/exporter.
+- Task3 implementation and self-review are finished and await the independent scope review by the parent session/user; whoever takes over must re-check this session's commit, the working tree, and the accessibility of the local evidence. This execution stops at Task3; it does not mark Task4+ or unfinished original P3 items as complete, and it does not push or create a PR.
 
-### Task3 独立范围复核与下一阶段基线
+### Task3 independent scope review and next-stage baseline
 
-对 `0aef102257de02cd4cee40ac1ee4af46d14e2251` 的独立审阅未指出表单/身份/来源边界缺陷，只发现计划页尾仍写“下一步任务 3”；现已与页首和任务小节统一为 Task3 本次范围完成、下一步 Task4，不重复执行已交付表单。父会话在该 commit 上实际复跑 `144 tests in 4.870s; OK`，0 跳过、退出 0，结果位于本机 `task3-parent-tests.json`。
+The independent review of `0aef102257de02cd4cee40ac1ee4af46d14e2251` found no defects in the form/identity/source boundaries; it only found that the plan's footer still said "next step: Task 3". The footer has now been aligned with the header and the task subsection: Task3's scope for this session is complete and the next step is Task4; the delivered forms are not redone. The parent session actually re-ran `144 tests in 4.870s; OK` on that commit, 0 skipped, exit 0; the result is in the local `task3-parent-tests.json`.
 
-另一个独立消费者只用当前六个共享方法与新表单处理五个固定输入场景，实际填 UC、QAS 和 Published Interface 三个草稿，parser 成功解析，未改仓库。来源不全、2 与 3 的规则冲突、active 的同名异义、QAS 缺指标、接口/审批/覆盖缺项均保留；它没有伪造缺失的文件、行号、actor、指标或验收 ID。报告位于 `task4-baseline-use\task4-baseline-report.md`，既是 Task3 的有限消费者观察，也是 Task4 增强前基线，不是人工参与或 App 原生测试。
+Another independent consumer used only the current six shared methods and the new forms to process five fixed input scenarios, actually filled in three drafts (UC, QAS, and Published Interface), and the parser parsed them successfully; the repository was not changed. Incomplete sources, the rule conflict between 2 and 3, the homonym for active, the missing QAS metric, and the interface/approval/coverage gaps were all kept; it did not fabricate missing files, line numbers, actors, metrics, or acceptance IDs. The report is at `task4-baseline-use/task4-baseline-report.md`; it is both a bounded consumer observation of Task3 and the pre-enhancement baseline for Task4, not human participation or an App-native test.
 
-该基线已有正确控制行为，不能为新方法编造 RED 或可靠性提升。可确认的功能缺口是独立反向提取活动尚未提供，Task4 尚未实施；新的领域方法需对同一输入再观察并明确覆盖范围。
+That baseline already shows correct control behavior, so no RED or reliability gain can be invented for the new methods. The functional gap that can be confirmed is that a separate reverse-extraction activity is not yet provided and Task4 has not yet been implemented; the new domain methods must be observed again on the same input with their coverage stated explicitly.
 
 <a id="task4"></a>
-## Task4：领域方法、反向候选与薄入口
+## Task4: domain methods, reverse-engineering candidates, and thin entry points
 
-本节追加 Task4 实际结果，保留上节作为实施前的历史观察。**当前 Task4 已实现，等待独立复核；本执行停在 Task4，Task5–18 为 `not-run`。**
+This section appends the actual Task4 results and keeps the previous section as the historical pre-implementation observation. **Task4 is now implemented and awaits independent review; this execution stops at Task4, and Task5–18 are `not-run`.**
 
-### 会话、任务与 Git 对象
+### Session, task, and Git objects
 
-| 项目 | 实际记录 |
+| Item | Actual record |
 |---|---|
-| 日期与执行者 | 2026-10-15；Task4 implementer 单会话实施与自用，无嵌套 Agent 或独立 reviewer |
-| 依据与范围 | 用户批准的 [Task4](../docs/plan/2026-10-14-ddd-functional-alignment.md#task4) 与本机会话 brief；只实现方法/入口和状态记录，不重新获取源或重做基线 |
-| 分支与起始对象 | `callentan-repository-skeleton`；`6f617e101b88e85bbeecfb3347187f24d0f90891`，已核对完整 SHA |
-| 原有未提交内容 | 开始时工作树与暂存区均干净，无需重做“先提交当前变更” |
-| 本次对象定义 | 18 个分发文档，加计划当前状态与本日志追加段，共 20 个仓库文件；包含本节的 Git 提交及会话报告记录完整提交号 |
-| 授权边界 | 允许本次限定文件、显式自用/文档检查、一次既有回归与含 coauthor 的本地提交；不推送、PR、安装、联网、执行应用/源程序、hooks/CI 或后续任务 |
+| Date and executor | 2026-10-15; Task4 implementer, single-session implementation and self-use, no nested agent or independent reviewer |
+| Basis and scope | User-approved [Task4](../docs/plan/2026-10-14-ddd-functional-alignment.md#task4) and the local session brief; implements only methods/entry points and status records, without re-fetching sources or redoing the baseline |
+| Branch and starting object | `callentan-repository-skeleton`; `6f617e101b88e85bbeecfb3347187f24d0f90891`, full SHA verified |
+| Pre-existing uncommitted content | The working tree and index were both clean at the start; no need to redo "commit the current changes first" |
+| Object definition for this session | 18 distribution documents plus the plan's current status and this log's appended section, 20 repository files in total; the Git commit containing this section and the session report record the full commit ID |
+| Authorization boundary | Permitted: the scoped files of this session, explicit self-use/document checks, one run of the existing regression suite, and a local commit with a co-author trailer; no push, PR, install, network access, running of applications/source programs, hooks/CI, or later tasks |
 
-### 实际变化与判断
+### Actual changes and judgments
 
-- 新增 [reverse-engineer-domain](../.github/skills/reverse-engineer-domain/SKILL.md)，从实际文件、外部记录或已提供摘录保存候选、原始依据、认识类别、冲突、确认需要与影响。缺原文件/行号不补造；实现默认值不成为业务批准，未提供的指标/演员/政策继续未知。
-- 聚焦 [define-requirements](../.github/skills/define-requirements/SKILL.md) 的访谈、知识锤炼、词汇、接口、来件 ADR 和可选 Intended Use；扩展 [verify-change](../.github/skills/verify-change/SKILL.md) 的领域/BL 审阅、查询和影响。保留完整验收优先、精确目标反查、旧新基线及只读/执行分支，遵循实际 Task3 元数据和表单契约。
-- 新增十个[薄 prompts](../docs/agent-support.md#entry-points)，每个只含当前输入与一个实际方法小节链接；仅校准 planner/plan-feature 的选择路由及 README/AGENTS/agent-support 导航。当前实际为七方法、十五 prompts、三个模式，不是最终计划的九方法。
-- 原四份未涉及方法、其余模式、copilot-instructions、表单、parser/schema、依赖、tests 与空白项目事实没有改动；未发现需要修改 record-handoff 或 copilot-instructions 的集成问题。未链接未来方法或治理/架构表单。
+- Added [reverse-engineer-domain](../.github/skills/reverse-engineer-domain/SKILL.md), which records candidates, the original basis, epistemic category, conflicts, confirmation needs, and impact from actual files, external records, or supplied excerpts. Missing original files/line numbers are not fabricated; implementation defaults do not become business approval, and metrics/actors/policies that were not provided remain unknown.
+- Focused [define-requirements](../.github/skills/define-requirements/SKILL.md) on interviews, knowledge crunching, glossary, interfaces, incoming ADRs, and the optional Intended Use; extended [verify-change](../.github/skills/verify-change/SKILL.md) with domain/BL review, queries, and impact. Kept complete acceptance first, exact target reverse lookup, old and new baselines, and the read-only/execution branches, following the actual Task3 metadata and form contracts.
+- Added ten [thin prompts](../docs/agent-support.md#entry-points), each containing only the current input and a link to one actual method section; only the planner/plan-feature selection routing and the README/AGENTS/agent-support navigation were adjusted. The current actual count is seven methods, fifteen prompts, and three modes, not the nine methods of the final plan.
+- The four original methods not involved, the other modes, copilot-instructions, forms, parser/schema, dependencies, tests, and blank project facts were not changed; no integration issue requiring changes to record-handoff or copilot-instructions was found. No links to future methods or governance/architecture forms were added.
 
-### 实际结果入口
+### Actual result entry points
 
-下列位置均在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 已授权的 `files\ddd-alignment-execution\`，仅本机可访问、不进入分发候选；不能当作跨机器 CI 链接。接手需取得该目录或重新执行有界检查。
+All locations below are in the authorized `files/ddd-alignment-execution/` of parent session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; they are accessible only on the local machine and are not part of the distribution candidate, so they cannot serve as cross-machine CI links. Whoever takes over must obtain that directory or re-run bounded checks.
 
-| 层次 | 实际记录定位 | 对象与限制 |
+| Layer | Actual record location | Object and limitations |
 |---|---|---|
-| 实施前独立基线 | `task4-baseline-use\task4-baseline-report.md` 及七份原产物 | 原六方法已有正确控制行为；本轮只读取并核对散列，不重跑、不制造失败 |
-| 三方法同题自用 | `task4-after-use\case-interview.md`、`case-reverse.md`、`case-glossary.md`、`case-interface.md`、`case-review.md` | 同一实施者的五个有限案例；具体选择、来源位置、冲突、需谁补什么及禁止副作用分别记录，不是独立复核或人工参与 |
-| 表单使用与附加停点 | `task4-after-use` 中 UC/QAS/PI 草稿与 `supplemental-stops.md` | 三份实际表单使用，fixture 身份不是生产事实；ADR/Intended Use 只覆盖缺输入停点，查询只覆盖当前领域目录 |
-| 文档/结构检查 | `task4-checks.py` 的实际 stdout 与 `task4-report.md` | 限定闭包/相对链接/锚点、YAML、scope 与基线保留检查；不交付新 checker/exporter，不把 parser 当完整追溯引擎 |
-| 维护工具回归 | `task4-report.md` 的实际命令与输出摘录 | 当前项目 `.venv`、明确仓库 cwd，新运行一次原 144 项；不是方法语义、业务/软件行为或 App 测试 |
+| Independent pre-implementation baseline | `task4-baseline-use/task4-baseline-report.md` and seven original outputs | The original six methods already showed correct control behavior; this round only read them and checked hashes, without re-running or manufacturing failures |
+| Self-use of the three methods on the same cases | `task4-after-use/case-interview.md`, `case-reverse.md`, `case-glossary.md`, `case-interface.md`, `case-review.md` | Five bounded cases by the same implementer; the specific choices, source locations, conflicts, who must supply what, and forbidden side effects are recorded separately; not an independent review or human participation |
+| Form use and additional stop points | UC/QAS/PI drafts in `task4-after-use` and `supplemental-stops.md` | Three actual form uses; fixture identities are not production facts; ADR/Intended Use cover only stops for missing inputs, and queries cover only the current domain directory |
+| Document/structure checks | Actual stdout of `task4-checks.py` and `task4-report.md` | Bounded checks of closure/relative links/anchors, YAML, scope, and baseline preservation; no new checker/exporter delivered, and the parser is not treated as a complete traceability engine |
+| Maintenance-tool regression | Actual commands and output excerpts in `task4-report.md` | Current project `.venv`, explicit repository cwd, one fresh run of the original 144 tests; not a test of method semantics, business/software behavior, or the App |
 
-本次回归实际输出为 `Ran 144 tests in 4.654s; OK`，144 项均执行、0 跳过、0 失败/错误，退出 0；没有改动测试或复用 Task3 的通过结果。原输入和基线产物的散列保留。既有原生六方法/P3 记录不升级为七方法已测，新增及修订方法只作显式文件自用记录。
+The actual regression output was `Ran 144 tests in 4.654s; OK`: all 144 tests ran, 0 skipped, 0 failures/errors, exit 0; no test was changed and the Task3 pass was not reused. The hashes of the original inputs and baseline outputs were preserved. The existing native six-method/P3 records are not upgraded to "seven methods tested"; the new and revised methods are recorded only as explicit-file self-use.
 
-### 缺口、影响与停点
+### Gaps, impact, and stopping point
 
-- CASE-REVIEW 未给真实缺失软件验收的 owner/ID/路径，只能精确回指输入的章节/行并请求原文；没有发明目标，也没有报告覆盖完整。“Approved”缺决定/基线仍不获认可。
-- 原路径/行号、2 与 3 的取舍、actor、QAS 度量、契约版本/错误政策与完整消费者清单仍有缺口。新记录为候选或提案，没有把既有正确基线描述为纪律失败或声称可靠性提升。
-- 新 ADR/Intended Use 的真实来件修订、广泛模型/客户端表现、App 原生入口和人工 T17 均未验证；没有假造风险分类或给借用案例施加医疗/QMS 前置。
-- 独立复核由父会话/用户另行进行，本执行者没有认证批准。后续工具/适配器、应用、媒体/PDF/平台、hooks/CI、推送和 PR 未执行；独立授权关卡与完整增强验收不变。
-- 接手先核对本次完整提交、工作树、计划全部当前状态及本机报告可读性；只复核 Task4，不从本次局部结果自动启动 Task5 或其他任务。
+- CASE-REVIEW did not give the owner/ID/path of the actually missing software acceptance, so the review could only point precisely back to the input's section/line and request the original text; no target was invented, and coverage was not reported as complete. An "Approved" without a decision/baseline is still not accepted.
+- Gaps remain in the original paths/line numbers, the choice between 2 and 3, actors, QAS measures, contract version/error policy, and the complete consumer list. The new records are candidates or proposals; the existing correct baseline was not described as a discipline failure, and no reliability improvement is claimed.
+- Real incoming revisions of the new ADR/Intended Use, broad model/client behavior, the App's native entry points, and manual T17 were not verified; no risk classification was fabricated, and no medical/QMS precondition was imposed on the borrowed cases.
+- Independent review is done separately by the parent session/user; this executor did not certify approval. Later tools/adapters, applications, media/PDF/platforms, hooks/CI, pushes, and PRs were not run; the separate authorization gates and full enhancement acceptance are unchanged.
+- Whoever takes over first checks this session's full commit, the working tree, the plan's complete current status, and the readability of the local report; review only Task4, and do not automatically start Task5 or any other task from this partial result.
 
-### Task4 父会话范围复核
+### Task4 parent-session scope review
 
-对 `f8df3924da01d807091236651f22f047edff19ca` 的独立代码/文档范围审阅未发现重大问题；父会话另在该对象实际运行原工具套件，`144 tests in 2.906s; OK`，0 跳过、退出 0。新方法是 Markdown 活动说明，不把该回归当方法行为或 App 原生通过。
+The independent code/document scope review of `f8df3924da01d807091236651f22f047edff19ca` found no major issues; the parent session also actually ran the original tooling suite on that object: `144 tests in 2.906s; OK`, 0 skipped, exit 0. The new methods are Markdown activity instructions; this regression is not treated as a pass of method behavior or of App-native support.
 
-独立修改后消费者实际读取三个完整方法，形成五个案例的来源/冲突/缺项判断和 UC/QAS/PI 草稿；父会话重解析三份实际草稿，身份、kind、draft 和验收数量符合该合成输入。这只支持有限修改后使用，不代表全部工作流正确或性能提升。
+An independent post-change consumer actually read the three complete methods and produced source/conflict/gap judgments for the five cases plus UC/QAS/PI drafts; the parent session re-parsed the three actual drafts, and their identities, kinds, draft status, and acceptance counts matched that synthetic input. This supports only bounded post-change use; it does not show that all workflows are correct or that performance improved.
 
-该消费者另外在修改后任务中生成了一个所谓 “no-new-method baseline”，不是独立修改前观察；其中的失败叙述不作为 RED、对照或改进证据。唯一有效的修改前基线仍为 `task4-baseline-use` 中此前保留未知/冲突的正确控制记录。原报告原样保留，方法论限制由本记录说明，不改写旧观察。
+That consumer also produced a so-called "no-new-method baseline" within the post-change task; it is not an independent pre-change observation, and its failure narrative is not used as RED, a control, or evidence of improvement. The only valid pre-change baseline remains the correct control record in `task4-baseline-use`, which had kept the unknowns/conflicts. The original report is kept as is; this record states the methodological limitation without rewriting the old observation.
 
-消费者还因相对输出路径歧义把十个临时文件写到仓库未跟踪的 `execution` 目录；父会话保留全部原字节并迁入本机会话 `task4-independent-observation`，空目录清理后 Git 无这些未跟踪文件，未修改或提交源文件。字节迁移和无效对照说明在 `task4-observation-relocation.json`；路径清理首次因目录属性失败，显式核对为空后才针对性删除。
+Because of an ambiguous relative output path, the consumer also wrote ten temporary files to an untracked `execution` directory in the repository; the parent session kept all the original bytes and moved them into the local session's `task4-independent-observation`. After the empty directory was cleaned up, Git showed none of these untracked files, and no source file was modified or committed. The byte relocation and the note on the invalid control are in `task4-observation-relocation.json`; the first path cleanup failed because of a directory attribute, and the directory was deleted specifically only after it was explicitly verified to be empty.
 
-消费者报告本会话 callable skill 列表未包含新方法，使用显式文件读取完成；本次没有独立客户端加载 trace，因此仍保留原生发现未验证，不能扩大成所有客户端不支持。Task4 本次范围复核关闭，下一步 Task5 的 BC 方法；媒体/平台/业务/人工验收关卡不变。
+The consumer reported that this session's callable skill list did not include the new methods, so it completed the work by reading the files explicitly. There was no independent client loading trace this time, so native discovery remains unverified, and this cannot be extended to a claim that no client supports it. The Task4 scope review is closed; the next step is the BC method in Task5; the media/platform/business/manual acceptance gates are unchanged.
 
 <a id="task5"></a>
-## Task5：BC 表单、方法与安全初始生成契约
+## Task5: BC forms, methods, and safe initial-generation contract
 
-本节追加 Task5 实际记录，保留上文各阶段的历史观察。**当前 Task5 已实施，等待独立审查；本执行停于 Task5，Task6–18 为 `not-run`。**
+This section appends the actual Task5 record and keeps the historical observations of the earlier stages above. **Task5 is now implemented and awaits independent review; this execution stops at Task5, and Task6–18 are `not-run`.**
 
-### 会话、任务与 Git 状态
+### Session, task, and Git state
 
-| 项目 | 实际记录 |
+| Item | Actual record |
 |---|---|
-| 日期与执行者 | 2026-10-15；Task5 implementer 单会话实施与自用，无 subagent/reviewer |
-| 依据与授权 | 用户批准的 [Task5](../docs/plan/2026-10-14-ddd-functional-alignment.md#task5)、本机 task5-brief 与固定十案例；仅文档/方法/规则、有限检查、一次既有回归和含 coauthor 的本地提交 |
-| 起始分支/完整对象 | `callentan-repository-skeleton`；`d7693a8e481dd84effc155378ae16c255c04d9b7` |
-| 原有未提交内容 | 开始时工作树/暂存区干净，无需重复“先提交旧变更” |
-| 本次范围与对象 | 31 个分发文件加本计划状态和本日志追加，共 33 个文件；同批提交由 Git 文件历史定位，完整 SHA/提交后状态回本机 task5-report 读取 |
-| 不变边界 | 不修改 parser/schema/依赖/测试、Task3 领域表单、其他四个方法或 reviewer；不生成业务应用、运行后续工具、联网/安装、配置 hooks/CI、推送或 PR |
+| Date and executor | 2026-10-15; Task5 implementer, single-session implementation and self-use, no subagent/reviewer |
+| Basis and authorization | User-approved [Task5](../docs/plan/2026-10-14-ddd-functional-alignment.md#task5), the local task5-brief, and the ten fixed cases; only documents/methods/rules, bounded checks, one run of the existing regression suite, and a local commit with a co-author trailer |
+| Starting branch/full object | `callentan-repository-skeleton`; `d7693a8e481dd84effc155378ae16c255c04d9b7` |
+| Pre-existing uncommitted content | The working tree/index were clean at the start; no need to repeat "commit the old changes first" |
+| Scope and objects of this session | 31 distribution files plus this plan's status and this log's appended section, 33 files in total; the commit for this batch is located through Git file history; read the full SHA/post-commit state from the local task5-report |
+| Unchanged boundaries | No changes to the parser/schema/dependencies/tests, the Task3 domain forms, the other four methods, or the reviewer; no business application generated, no later tools run, no network/installs, no hooks/CI configured, no push or PR |
 
-### 实际变化
+### Actual changes
 
-- [SR](../_templates/items/software-requirement.md)、[US](../_templates/items/user-story.md)、[ABB](../_templates/items/architecture-building-block.md)、[ADR](../_templates/items/architecture-decision.md) 接入现有元数据，删除重复内容状态/关系表；VT 只补 [companion](../verification/README.md#feature-companion) 接入，原运行/适用性与全量目标盘点保留。
-- 增加 [SEQ/SWAS 与 BC 配置字段指引](../architecture/README.md)、空白 feature；九视图只引用来源，不制造模型导出、基础设施、质量度量、风险分类或批准。
-- [specify-feature](../.github/skills/specify-feature/SKILL.md) 提供 SR、可选切片、必要架构、VT/feature、SEQ/SWAS 聚焦小节；[generate-code](../.github/skills/generate-code/SKILL.md) 单独处理初始输入/路径/非空冲突/拟生成说明。既有维护仍用 implement-task，文档路径不依赖应用输入。
-- 新增三份有限代码规则和六个薄 prompts；planner/implementer 只作相关路由，reviewer 仍沿 verify 的原入口。原十五 prompts 无需手术式修订；通过共享方法可到达新分支。当前实数为 **8 方法、21 prompts、3 模式**，没有 Task11 的 update-template。
-- 分发内容没有依赖制作 design/plan/research、实际日志、tests 或本机会话产物；仅共享的日志指引/空表继续分发。原 P3 六方法/五 prompts/两规则的历史观察保留，不能升级为新入口原生发现已测。
+- [SR](../_templates/items/software-requirement.md), [US](../_templates/items/user-story.md), [ABB](../_templates/items/architecture-building-block.md), and [ADR](../_templates/items/architecture-decision.md) adopt the existing metadata, and the duplicate content-status/relation tables were removed; VT only gained the [companion](../verification/README.md#feature-companion) hookup, and its original run/applicability and full target inventory are kept.
+- Added [SEQ/SWAS and BC configuration field guidance](../architecture/README.md) and a blank feature; the nine views only reference sources and do not manufacture model exports, infrastructure, quality measures, risk classifications, or approvals.
+- [specify-feature](../.github/skills/specify-feature/SKILL.md) provides focused subsections for SR, optional slices, necessary architecture, VT/feature, and SEQ/SWAS; [generate-code](../.github/skills/generate-code/SKILL.md) separately handles initial inputs/paths/non-empty conflicts/the planned-generation statement. Maintenance of existing work still uses implement-task, and the documentation path does not depend on application inputs.
+- Added three bounded code rules and six thin prompts; planner/implementer only received the relevant routing, and the reviewer still follows verify's original entry point. The original fifteen prompts needed no surgical revision; the new branches are reachable through the shared methods. The actual current count is **8 methods, 21 prompts, 3 modes**, without Task11's update-template.
+- The distributed content does not depend on the maker design/plan/research, actual logs, tests, or local session outputs; only the shared log guidance/blank form continue to be distributed. The historical P3 observation of six methods/five prompts/two rules is kept and cannot be upgraded into "native discovery of the new entry points tested".
 
-### 实际证据入口
+### Actual evidence entry points
 
-所有本轮辅助文件都在父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的绝对授权 artifact 根内，没有仓库相对的 execution 输出目录。下表只给该本机入口内定位；不是跨机器证据或新分发工具。
+All auxiliary files from this round are inside the absolute, authorized artifact root of parent session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; there is no repository-relative execution output directory. The table below gives only locations within that local entry point; they are not cross-machine evidence or new distributed tools.
 
-| 记录入口 | 实际对象与限制 |
+| Record entry point | Actual object and limitations |
 |---|---|
-| `files\ddd-alignment-execution\task5-report.md` | 本次完整报告、准确命令/cwd/路径、范围、真实检查、提交与限制；提交后重查实际 Git |
-| `task5-baseline-use\task5-baseline-report.md` | 唯一真实修改前基线；本次只读，控制原已正确，不补造 RED 或可靠性提升 |
-| `task5-after-use\start-state.json`、`copy-provenance.json` | 起始 94 个 tracked 文件与四份固定输入摘要；90 个实际分发副本、11 个表单复制前字节摘要 |
-| `task5-after-use\BC-USE-01.md` 至 `BC-USE-10.md` | 同一实施者对同一十例的有限操作/停点；原身份、项目、审批与旧报告缺项仍保留，不是独立审查 |
-| `task5-after-use\consumer-copy`、`use-check-01.json` | 九个实际填表 Markdown 经原 parser 解析、五个 owner-qualified 合成验收和三条目标；BC 使用真实本地输入摘要，九视图用现有 schema 校验；feature 只作文本/映射 |
-| `task5-after-use\tool-tests.json` | 当前 `.venv`、明确仓库 cwd，只运行一次原套件：`144 tests in 4.977s; OK`，0 跳过/失败/错误，退出 0 |
+| `files/ddd-alignment-execution/task5-report.md` | The full report for this session: exact commands/cwd/paths, scope, real checks, commit, and limitations; actual Git was re-checked after the commit |
+| `task5-baseline-use/task5-baseline-report.md` | The only real pre-change baseline; read-only this time; the control was already correct, so no RED or reliability gain is fabricated |
+| `task5-after-use/start-state.json`, `copy-provenance.json` | 94 tracked files at the start and digests of the four fixed inputs; 90 actual distribution copies and pre-copy byte digests of 11 forms |
+| `task5-after-use/BC-USE-01.md` to `BC-USE-10.md` | Bounded operations/stop points by the same implementer on the same ten cases; the original gaps in identity, project, approval, and old reports are kept; not an independent review |
+| `task5-after-use/consumer-copy`, `use-check-01.json` | Nine actually filled-in Markdown forms parsed by the original parser, five owner-qualified synthetic acceptance criteria, and three targets; BC uses real local input digests, and the nine views are validated with the existing schema; the feature is only text/mapping |
+| `task5-after-use/tool-tests.json` | Current `.venv`, explicit repository cwd, the original suite run only once: `144 tests in 4.977s; OK`, 0 skipped/failures/errors, exit 0 |
 
-初轮有限文档检查覆盖 90 个分发文件，其中 80 个 Markdown、63 份 YAML frontmatter、512 个本地链接；实际消费副本的 92 个 Markdown/568 个本地链接也可定位，六个已有外链未访问。最终状态/日志核对另留最终 receipt，不用这些数量证明业务语义或原生客户端运行。
+The first round of bounded document checks covered 90 distribution files, including 80 Markdown files, 63 YAML frontmatter blocks, and 512 local links; the 92 Markdown files/568 local links of the actual consumer copy can also be located, and six existing external links were not visited. The final status/log check keeps a separate final receipt; these counts are not used to prove business semantics or native client runs.
 
-原 owner fixture 在预检与检查后仍为 225 字节，SHA-256 为 `2b060d2f641e7a1f02ccaf35c676f402aa49726ba06cef4a8b5b6921eda84466`。另一个合成 Markdown 修正严格只替换一个链接并保留周围字节；原 BC-USE-04 缺实际目标，未被该补充例假装解阻。错误 owner 的 VT 可解析但目标不存在，BC `HEAD` 基线被实际 schema 拒绝；空配置仍带明确占位而不是有效项目登记。
+The original owner fixture was still 225 bytes after the pre-check and the checks, SHA-256 `2b060d2f641e7a1f02ccaf35c676f402aa49726ba06cef4a8b5b6921eda84466`. Another synthetic Markdown fix strictly replaced only one link and kept the surrounding bytes; the original BC-USE-04 lacks an actual target and was not presented as unblocked by that supplementary case. A VT with a wrong owner parses, but its target does not exist; a BC `HEAD` baseline was rejected by the actual schema; the blank configuration still carries explicit placeholders rather than a valid project registration.
 
-本次没有为 Task5 消费副本建立 Git 仓库或提交。原 144 项套件内部按其既有 helpers 在受控临时目录构造并清理本地 Git/文件夹具，这是原套件的内部行为，不是新增业务工程或 Task5 生成活动；未修改 helper、安装 hook 或连接远端。
+No Git repository or commit was created for the Task5 consumer copy. Internally, the original 144-test suite uses its existing helpers to build and clean up local Git/file fixtures in a controlled temporary directory; that is the original suite's internal behavior, not a new business project or a Task5 generation activity. No helper was modified, no hook installed, and no remote connected.
 
-### 缺口与下一步
+### Gaps and next steps
 
-- 合成身份只用于局部结构例，不补原十案例未给的 owner/ID/源文件/基线。没有实际 UC/INV/CAP/QAS、参与者/错误/副作用/并发/失效政策或确认时，相关要求/US/架构仍为候选或阻塞。
-- 有界库存明确保留 `task5-synthetic/CTX-BORROW/SR-SYN-001#sr-syn-001-ac-02` 与 `task5-synthetic/CTX-BORROW/ABB-SYN-008#abb-syn-008-vc-01` 两个未覆盖目标；metadata/schema 与链接检查不等于这些验收通过。
-- 新 SEQ 是已知概念方向的部分说明；SWAS 缺真实 ABB/部署/风险/发布来源，九视图仅 requirements 为 partial、其余 unverified。没有 Gherkin parser/runner、Mermaid/PDF/演示渲染或应用行为执行；全部相应结果为 `not-run`。
-- Task13 正向应用生成/原生 runner 需要另选实际项目/栈/路径、命令/cwd/报告和授权；本次不为了声称成功要求创建应用。后续 checker/exporter、源接入、hooks/CI、平台/人工验收均未启动。
-- 下一步由父会话独立复核本次 33 文件、完整报告、十例实际副本与全部当前状态；接手先核对完整 commit、工作树和本机证据可访问性。Task5 尚未获得独立审查结论，不自动进入 Task6。
+- Synthetic identities are used only for local structure cases and do not fill in the owners/IDs/source files/baselines that the original ten cases did not give. Without actual UC/INV/CAP/QAS, participants/errors/side effects/concurrency/failure policies, or confirmation, the related requirements/US/architecture remain candidates or blocked.
+- The bounded inventory explicitly keeps two uncovered targets, `task5-synthetic/CTX-BORROW/SR-SYN-001#sr-syn-001-ac-02` and `task5-synthetic/CTX-BORROW/ABB-SYN-008#abb-syn-008-vc-01`; metadata/schema and link checks do not mean these acceptance criteria pass.
+- The new SEQ is a partial description in a known conceptual direction; SWAS lacks real ABB/deployment/risk/release sources; of the nine views only requirements is partial, and the rest are unverified. There is no Gherkin parser/runner, Mermaid/PDF/presentation rendering, or execution of application behavior; all corresponding results are `not-run`.
+- Task13 forward application generation/native runner requires a separately chosen actual project/stack/paths, commands/cwd/reports, and authorization; this session does not require creating an application just to claim success. The later checker/exporter, source onboarding, hooks/CI, and platform/manual acceptance were not started.
+- Next, the parent session independently reviews this session's 33 files, the full report, the actual copies of the ten cases, and the complete current status; whoever takes over first checks the full commit, the working tree, and the accessibility of the local evidence. Task5 has not yet received an independent review conclusion, so work does not automatically move on to Task6.
 
 <a id="task5-review"></a>
-## Task5 复核追加
+## Task5 review addendum
 
-2026-10-15，父会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 按既有增强执行授权关闭本次资料契约关卡。实际核对分支仍为 `callentan-repository-skeleton`，HEAD 为 `5d39f407630d557b8b0bd51fa12efdde0b5bfef8`；独立消费观察后 status 只有分支行，没有暂存、未暂存或未跟踪文件。本次只追加本日志并同步规格、计划和 roadmap 的当前状态，不改变 Task5 的实现或旧记录。
+On 2026-10-15, parent session `1ff56941-bf56-4aa4-b769-fd4720915e1f` closed this documentation-contract gate under the existing enhancement execution authorization. The branch was verified to still be `callentan-repository-skeleton`, HEAD `5d39f407630d557b8b0bd51fa12efdde0b5bfef8`; after the independent consumer observation, status showed only the branch line, with no staged, unstaged, or untracked files. This addendum only appends to this log and syncs the current status of the specification, plan, and roadmap; it does not change the Task5 implementation or the old records.
 
-Task5 的独立范围审阅返回无重大问题。父会话在上述实现对象运行的原始记录为本机会话 `files\ddd-alignment-execution\task5-parent-tests.json`：当前项目解释器、明确仓库 cwd、原 144 项工具测试、0 跳过、退出 0，实际用时 2.564 秒。这是对未改 parser/schema 的工具回归，不是新业务行为结果。
+The independent scope review of Task5 returned no major issues. The raw record of the parent session's run on the implementation object above is the local session's `files/ddd-alignment-execution/task5-parent-tests.json`: current project interpreter, explicit repository cwd, the original 144 tooling tests, 0 skipped, exit 0, actual duration 2.564 seconds. This is a tooling regression on an unchanged parser/schema, not a result for new business behavior.
 
-独立修改后消费者记录在同一入口的 `task5-independent-use\task5-independent-report.md`。它实际只读固定十例、当前方法/规则/表单和 owner fixture，逐例区分可草拟、缺身份、非空冲突、缺运行输入、历史适用性及对应停点；没有另造修改前基线，没有运行 parser、应用或 renderer，也没有修改仓库。其观察中的 fixture 仍是 225 字节，摘要与前节原值相同。该报告仅支持本次显式文件使用和手工结构核对，不证明原生发现、人工对照或一般可靠性提升。上述完整报告和原始工具记录仅在本机可访问，换机须重新取得或执行相应检查。
+The independent post-change consumer's record is at `task5-independent-use/task5-independent-report.md` in the same entry point. It actually read only the ten fixed cases, the current methods/rules/forms, and the owner fixture, and for each case distinguished what can be drafted, missing identity, non-empty conflicts, missing run inputs, historical applicability, and the corresponding stop points; it did not fabricate a separate pre-change baseline, did not run the parser, an application, or a renderer, and did not modify the repository. In its observation the fixture was still 225 bytes, with the same digest as the original value in the previous section. That report supports only this session's explicit-file use and manual structure check; it does not prove native discovery, a human control comparison, or a general reliability gain. The full report and raw tooling records above are accessible only on the local machine; on another machine they must be re-obtained, or the corresponding checks re-run.
 
-前节两个合成未覆盖目标继续保留，真正应用生成、Gherkin runner、客户端/人工、PDF/平台和批准均未验收。下一步按[任务 6](../docs/plan/2026-10-14-ddd-functional-alignment.md)实现有明确输入、定位、基线和退出码的 Python 工件检查器；不因此创建应用或安装后续可选依赖。接手仍须重新核对当前 Git、任务状态及证据可访问性。
+The two synthetic uncovered targets from the previous section remain; real application generation, the Gherkin runner, client/manual work, PDF/platforms, and approval have not been accepted. The next step is to implement, per [Task 6](../docs/plan/2026-10-14-ddd-functional-alignment.md), a Python artifact checker with explicit inputs, locations, baselines, and exit codes; this does not mean creating an application or installing later optional dependencies. Whoever takes over must still re-check the current Git state, task status, and evidence accessibility.
 
 <a id="task6"></a>
-## Task6：正式工件检查器
+## Task6: formal artifact checker
 
-### 会话、范围与 Git
+### Session, scope, and Git
 
-本节追加 Task6 / ENH-07 的实际实现与执行记录，保留前面各任务的原始结果。任务来源为[既有 Task6 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6)和用户“先commit 当前的变更。然后开始按照增强计划执行优化”的本次限定授权；没有新建业务 REQ/SR。状态为**已实现，等待独立审阅**，不是实现者自行关闭 review gate。
+This section appends the actual implementation and execution record of Task6 / ENH-07 and keeps the original results of the earlier tasks. The task source is the [existing Task6 plan](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6) plus the bounded authorization of this session from the user's request "First commit the current changes. Then start executing the optimizations according to the enhancement plan"; no new business REQ/SR was created. The status is **implemented, awaiting independent review**; the implementer does not close the review gate on its own.
 
-- 起始完整对象 `fea6e3f7f5749f223528a0311734e062e392a1b3`，分支 `callentan-repository-skeleton`；已核对为原 App 管理的 isolated worktree、无 superproject，108 个原 tracked 源文件、工作树/暂存区干净。前序提交已完成，不做空的“先提交”或修改主 checkout。
-- 本次只修改 12 个范围内文件：新增 checker/对应测试，共享 parser 的最小行处理和字段定位，utilities README、开发说明、docs/tests instructions、verify-change 的耦合工具说明，以及规格、计划、roadmap、本日志。四个 schema、32-kind、依赖、既有 tests/helpers、应用与其他工具/入口保持原位。
-- 完整报告为本会话 `files\ddd-alignment-execution\task6-report.md`；同批提交的实际 SHA 由 Git 文件历史和报告定位。提交前后 Git/暂存范围分别记录，不将测试时未提交的对象写成只有 HEAD。
+- Starting full object `fea6e3f7f5749f223528a0311734e062e392a1b3`, branch `callentan-repository-skeleton`; verified to be the original App-managed isolated worktree with no superproject, 108 original tracked source files, and a clean working tree/index. The preceding commits were already done, so no empty "commit first" was made and the main checkout was not modified.
+- This session modified only 12 in-scope files: the new checker and its tests, minimal line handling and field location in the shared parser, the utilities README, the development guide, the docs/tests instructions, the coupled tool notes in verify-change, plus the specification, plan, roadmap, and this log. The four schemas, the 32 kinds, dependencies, existing tests/helpers, applications, and other tools/entry points stay as they were.
+- The full report is this session's `files/ddd-alignment-execution/task6-report.md`; the actual SHA of the commit for this batch is located through Git file history and the report. The Git/staging scope before and after the commit is recorded separately; an object that was uncommitted during testing is not recorded as HEAD alone.
 
-### 实际变化与判定边界
+### Actual changes and judgment boundaries
 
-新增 [check_artifacts.py](../.github/utilities/check_artifacts.py) 的 `run_check(root, base_sha=None)` 与独立 CLI；[使用契约](../.github/utilities/README.md#artifact-checker)登记发现规则、支持的 Markdown、占位、JSON、错误码、计数和输出保护。继续使用 `Artifact`、`ArtifactInputError`、canonical key、owner acceptance 和源位置，没有第二套 YAML/frontmatter/验收解析器或配置框架。
+Added `run_check(root, base_sha=None)` and a standalone CLI in [check_artifacts.py](../.github/utilities/check_artifacts.py); the [usage contract](../.github/utilities/README.md#artifact-checker) registers the discovery rules, supported Markdown, placeholders, JSON, error codes, counts, and output protection. It keeps using `Artifact`, `ArtifactInputError`, canonical keys, owner acceptance, and source locations; there is no second YAML/frontmatter/acceptance parser or configuration framework.
 
-明确 root 下的文件名/元数据信号决定正式库存，template/native/maker/test/Git/环境目录有精确排除；普通轻量 guide 不冒充正式工件，root 祖先的 `.venv` 也不误排除整个夹具。标题/占位/本地链接为 `invalid`；parser、路径、基线和写报告问题为 `input-error`；没有正式工件为 `empty`，不是业务通过。
+File-name/metadata signals under the explicit root determine the formal inventory, with exact exclusions for template/native/maker/test/Git/environment directories; an ordinary lightweight guide does not pass as a formal artifact, and a `.venv` in an ancestor of root does not wrongly exclude the whole fixture. Heading/placeholder/local-link problems are `invalid`; parser, path, baseline, and report-writing problems are `input-error`; no formal artifact means `empty`, which is not a business pass.
 
-base 只读取精确 commit/tree/blob 作历史比较，目标始终是完整当前工作文件，含未暂存/未跟踪正式输入；未改的身份/链接错误不能隐藏。旧元数据不套用新规则，不运行 filters/textconv、来源命令或网络读取，不猜 main/master/HEAD/暂存内容。报告记录原始字节与实际读集，读失败不记成删除，`comparison_complete` 区分不完整比较；没有提供 index-only hook。
+base reads only the exact commit/tree/blob for historical comparison; the target is always the complete current working files, including unstaged/untracked formal inputs, and unchanged identity/link errors cannot be hidden. Old metadata is not subjected to new rules; no filters/textconv, source commands, or network reads are run, and main/master/HEAD/staged content is not guessed. The report records the raw bytes and the actual read set; a read failure is not recorded as a deletion, and `comparison_complete` distinguishes incomplete comparisons; no index-only hook is provided.
 
-API 不写入；CLI 默认只输出 JSON，只有显式新 `.json` 路径才写报告。拒绝覆盖已有源/历史文件、自动建目录和 UNC 报告路径；报告输出与输入散列分开。`verify-change` 只更新原来“检查器未提供”的说明，保留只读模式不运行命令、无覆盖/导出和不认证批准的边界；没有新增方法、角色、prompt 或工作流。
+The API does not write; by default the CLI only prints JSON and writes a report only to an explicit new `.json` path. It refuses to overwrite existing source/historical files, to create directories automatically, and to use UNC report paths; the report output is kept separate from the input hashes. `verify-change` only updates the earlier "checker not provided" note and keeps the boundaries that read-only mode runs no commands, makes no overwrites/exports, and does not certify approvals; no new method, role, prompt, or workflow was added.
 
-### 实际结果入口
+### Actual result entry points
 
-所有原始执行证据都在会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的获准 `files\ddd-alignment-execution\task6-evidence\` 下；以下定位仅在本机可访问，不是随下游分发的依赖或跨机器 CI 证明。
+All raw execution evidence is under the authorized `files/ddd-alignment-execution/task6-evidence/` of session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; the locations below are accessible only on the local machine and are neither dependencies distributed downstream nor cross-machine CI proof.
 
-| 记录定位 | 对象与说明 |
+| Record location | Object and notes |
 |---|---|
-| `start.json` | 实际 root、分支、Git dir/common dir、起始 commit/index 状态和 108 个原文件字节摘要 |
-| `red-01-missing-module.json`、`red-02-behavior.json`、`red-03-assertions.json` | 先缺模块，再使用无检查行为的接口确认真实 RED；补足两处测试断言前提后为 52 方法、77 断言失败、0 错误/跳过，源码和 raw stdout/stderr 保留 |
-| `check-04-implementation.json`、`red-05-boundaries.json`、`green-06-boundaries.json` | 初步 52 方法通过；自审发现并用八个新增边界复现问题，再到 60 方法通过：缺分隔符/标题身份的发现、普通 project 误报、inline-code 注释开头、UNC 预拒绝和不可读文件的比较完整性 |
-| `parser-01-shared-helper.json`、`parser-02-literal-comments.json` | 两次有界 parser 回归均为原 74 方法、0 跳过；共享提取及字面注释修正未破坏旧接口行为 |
-| `full-01-precommit.json` | 同一最终代码对象完整 suite：204 方法发现/执行、361 个子例、0 跳过/失败/错误、24.468 秒、退出 0；原 74 parser + 70 schema/Git 数据 + 新 60 checker，没有替换原套件 |
-| `cli-01-receipts.json`、`cli-01-execution.json`、`cli-01\` | 9 次真实 CLI：正例、坏文件、空骨架、精确 base/重跑、无效/符号 base、错误 root 类型、旧报告保护；逐条保存参数/cwd/stdout/stderr/退出码和源字节前后摘要，显式报告另列 |
-| `check14-zero-*`、`check14-skipped-*` | 证据门禁实测：零发现和全跳过拒绝。当前 Python 3.13 原生 CLI 零发现实际退出 5（最初预期 0 的观察保留），仅用 `wasSuccessful()` 的真实 API runner 则零发现退出 0；计数门禁仍拒绝，未添加自我证明的产品测试 |
-| `worktree-01-receipts.json` | 当前真实 worktree 的 full/base 均为 empty、0 正式工件、40 排除条目、17 个实际读取 Markdown 摘要；两次检查前后 110 个源文件字节和 Git 状态相同。该对象在本日志追加之前，不能当最终日志字节摘要 |
-| `syntax-01.json`、`dependencies-01.json` | 现有 Python 的 compileall 和 pip check 退出 0；编译缓存明确写入获准证据目录，没有新安装或改 lock |
+| `start.json` | Actual root, branch, Git dir/common dir, starting commit/index state, and byte digests of the 108 original files |
+| `red-01-missing-module.json`, `red-02-behavior.json`, `red-03-assertions.json` | First the missing module, then a real RED confirmed with an interface that has no checking behavior; after completing the preconditions of two test assertions: 52 methods, 77 assertion failures, 0 errors/skipped; source and raw stdout/stderr kept |
+| `check-04-implementation.json`, `red-05-boundaries.json`, `green-06-boundaries.json` | Initially 52 methods passed; self-review found problems and reproduced them with eight new boundary cases, after which 60 methods passed: discovery with a missing delimiter/heading identity, false positives on an ordinary project, comment openers in inline code, UNC pre-rejection, and comparison completeness for unreadable files |
+| `parser-01-shared-helper.json`, `parser-02-literal-comments.json` | Both bounded parser regressions ran the original 74 methods with 0 skipped; the shared extraction and the literal-comment fix did not break the old interface behavior |
+| `full-01-precommit.json` | Full suite on the same final code object: 204 methods discovered/run, 361 subtests, 0 skipped/failures/errors, 24.468 seconds, exit 0; the original 74 parser + 70 schema/Git data + 60 new checker tests; the original suite was not replaced |
+| `cli-01-receipts.json`, `cli-01-execution.json`, `cli-01/` | 9 real CLI runs: positive case, bad file, empty skeleton, exact base/re-run, invalid/symbolic base, wrong root type, old-report protection; each saves arguments/cwd/stdout/stderr/exit code and before/after source byte digests, with explicit reports listed separately |
+| `check14-zero-*`, `check14-skipped-*` | Evidence gate verified in practice: zero discovered and all skipped are rejected. With zero discovered, the current Python 3.13 native CLI actually exits 5 (the observation that initially expected 0 is kept), whereas a real API runner that only uses `wasSuccessful()` exits 0 on zero discovered; the count gate still rejects it, and no self-proving product test was added |
+| `worktree-01-receipts.json` | On the current real worktree, both full and base are empty: 0 formal artifacts, 40 excluded entries, 17 digests of actually read Markdown files; the bytes of 110 source files and the Git state were identical before and after both checks. That object predates this log's appended section and cannot serve as the final log byte digest |
+| `syntax-01.json`, `dependencies-01.json` | compileall and pip check with the existing Python exited 0; the compile cache was explicitly written to the authorized evidence directory; no new install and no lock change |
 
-命令和门禁入口只用于这次获准执行，测试代码与预期病例本身不是运行证据。原始记录保留失败和成功的不同对象/阶段；未把初次模块缺失或 naive runner 的退出 0 当作功能/回归通过。最终范围、自审、文档链接、提交及提交后状态回完整报告读取。
+The commands and gate entry points are used only for this authorized run; test code and the expected cases themselves are not run evidence. The raw records keep the distinct objects/stages of failures and successes; the initial missing module and the naive runner's exit 0 are not treated as a functional/regression pass. Read the final scope, self-review, document links, commit, and post-commit state from the full report.
 
-### 限制、未执行与下一步
+### Limitations, items not run, and next steps
 
-- 真实运行宿主为 Windows、Python 3.13.15、现有 PyYAML 6.0.2/jsonschema 4.23.0；本机真实 SHA-1/SHA-256 Git、字节锁及 junction 已用。最低 Python 3.11、其他 OS、所有文件系统/权限策略尚未实测，不由当前成功推导。
-- 目录不可枚举及部分不可读比较路径采用明确 OS 边界注入；UNC 测试在本地阻止解析以保证不联网，没有修改 ACL。真实文件字节锁另有实际执行。路径检查不是防并发恶意替换的操作系统隔离。
-- Markdown 是已登记的有限语法，不是完整 renderer；普通 guide、跨文件 canonical 覆盖/层次/语义、模型导出不属于 Task6。明确保留未决业务事实，Task5 的两个合成未覆盖目标、旧结果适用性和业务/软件 VT 的 `not-run` 未升级。
-- 未启动子代理/独立审阅者、Task7、来源接入、应用、Gherkin runner、hooks/CI、媒体/PDF、平台、推送或 PR，没有安装依赖或改变权限。方法说明只做直接耦合的可用工具更新，不声称新的独立 Agent 压力测试或可靠性结论。
-- 下一步由调用方独立核对本次 commit、12 文件 diff、完整报告与各原始证据；接手先检查当前工作树/暂存区和本机证据是否可读。Task6 等待该复核，本执行在本地提交与报告后停止；Task7–18 及原 P3 的未执行关卡仍保持原状。
+- The real run host was Windows, Python 3.13.15, with the existing PyYAML 6.0.2/jsonschema 4.23.0; real local SHA-1/SHA-256 Git, byte locks, and junctions were used. The minimum Python 3.11, other OSes, and all file systems/permission policies have not been verified in practice and are not inferred from the current success.
+- Non-enumerable directories and some unreadable comparison paths use explicit OS-boundary injection; the UNC tests block resolution locally to guarantee no network access, and no ACL was modified. The real file byte lock was also actually exercised. The path checks are not OS isolation against concurrent malicious replacement.
+- Markdown is the registered bounded syntax, not a complete renderer; ordinary guides, cross-file canonical coverage/hierarchy/semantics, and model export are not part of Task6. Open business facts are explicitly kept; Task5's two synthetic uncovered targets, the applicability of old results, and the `not-run` of business/software VTs were not upgraded.
+- No subagent/independent reviewer, Task7, source onboarding, application, Gherkin runner, hooks/CI, media/PDF, platform, push, or PR was started; no dependency was installed and no permission changed. The method notes only received the directly coupled update about the available tool; no new independent agent stress test or reliability conclusion is claimed.
+- Next, the caller independently checks this session's commit, the 12-file diff, the full report, and each piece of raw evidence; whoever takes over first checks the current working tree/index and whether the local evidence is readable. Task6 awaits that review; this execution stops after the local commit and report; the not-run gates of Task7–18 and the original P3 remain as they were.
 
 <a id="pause-task6"></a>
-## 用户暂停与恢复点
+## User pause and resume point
 
-2026-10-15，用户要求“先暂停 保存一下状态。 我会实时继续”。增强执行暂停，不自动推进后续任务。Task1–5 的有限范围关卡已关闭；Task6 的实现提交为 `b8d4f826db142de052038288f938d90b1581020e`，**独立审阅发现两项 Important，修复第 1 轮尚未关闭**：
+On 2026-10-15, the user asked: "Pause for now and save the state. I will continue in real time." Enhancement execution is paused, and later tasks are not advanced automatically. The bounded-scope gates of Task1–5 are closed; Task6's implementation commit is `b8d4f826db142de052038288f938d90b1581020e`, and **the independent review found two Important issues; fix round 1 is not yet closed**:
 
-- 无正式 ID 文件名/H1 的工件，开头分隔符多一个空格时，明显的元数据可能被当作普通 guide，导致漏检。
-- 代码围栏信息字符串中的 `<!--` 会污染正文注释状态，关闭围栏后仍可能隐藏坏链接和真实 owner 验收项。
+- For an artifact without a formal-ID file name/H1, an extra space in the opening delimiter can cause obvious metadata to be treated as an ordinary guide, so the artifact is missed.
+- A `<!--` in a code fence's info string corrupts the body comment state, which can still hide broken links and real owner acceptance criteria after the fence closes.
 
-完整只读审阅保存在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task6-review-findings.md`；原始实现、追加修复/暂停信息回 `task6-report.md`，执行总账为同目录 `progress.md`。父会话已核对两处代码机制，未把静态分析伪称为新的执行复现。原实现对象上的 204 项回归结果保留，不能证明这两个新增场景已经修复。
+The full read-only review is saved in `files/ddd-alignment-execution/task6-review-findings.md` of local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; the original implementation and the appended fix/pause information are in `task6-report.md`, and the execution ledger is `progress.md` in the same directory. The parent session verified both code mechanisms and did not pass off static analysis as a new execution reproduction. The 204-test regression result on the original implementation object is kept and cannot prove that these two new scenarios are fixed.
 
-18:19:55 +08:00 的只读 Git 观察：分支 `callentan-repository-skeleton`，HEAD 仍为上述 `b8d4f826`；仅 `test_artifact_check.py`、`test_artifact_io.py` 两个工具测试文件有未暂存改动，无暂存/未跟踪路径。本暂停记录是随后新增的日志改动；没有为保存状态提交尚未完成的测试，也没有回滚所有者内容。执行者已收到停止新实现、测试和提交的指令；其最终暂停回报仍待收到，已启动命令和 RED 结果不能在此预填。
+Read-only Git observation at 18:19:55 +08:00: branch `callentan-repository-skeleton`, HEAD still the `b8d4f826` above; only the two tooling test files `test_artifact_check.py` and `test_artifact_io.py` have unstaged changes, with no staged/untracked paths. This pause record is a log change added afterwards; the unfinished tests were not committed to save the state, and no owner content was rolled back. The executor has received the instruction to stop new implementation, tests, and commits; its final pause report has not yet been received, and the commands already started and their RED results cannot be pre-filled here.
 
-恢复时先重查 Git、两个测试改动、完整报告的最新暂停段及实际证据；继续同一修复轮，取得真实复现/修复结果后再做限定复核，不重做 Task1–5。Task7 的可选来源入口仍待用户选择：`model-sources.yaml` 或每次显式命令/API 输入；用户此次只要求暂停，没有批准推荐方案。收到执行者的后续完成通知也只补充暂停状态，不自动恢复实现或审阅。
+When resuming, first re-check Git, the two test changes, the latest pause section of the full report, and the actual evidence; continue the same fix round, and do a bounded review only after obtaining real reproduction/fix results; do not redo Task1–5. Task7's optional source entry point still awaits the user's choice: `model-sources.yaml` or explicit command/API input each time; this time the user only asked to pause and did not approve the recommended option. A later completion notice from the executor only supplements the pause state and does not automatically resume implementation or review.
 
-**暂停确认追加：** 执行者已停止，工具状态为 idle，所启动的命令均已结束，没有新提交或生产代码修改。最新交接位于 `task6-report.md` 第 10 节 `task6-fix1-paused`；`task6-evidence\red-fix1-01.json` 保存暂停前已完成的真实 RED：143 个方法、26 个失败、0 错误/跳过。两个测试文件新增 9 个方法，已复现两项漏检；这不是修复通过，下一步仍是限定生产修正、GREEN 和独立复核。本次只补保存该状态，没有恢复执行；当前保留两份测试及本日志的未暂存改动。
+**Pause confirmation addendum:** The executor has stopped, its tool status is idle, all commands it started have finished, and there is no new commit or production code change. The latest handoff is in section 10, `task6-fix1-paused`, of `task6-report.md`; `task6-evidence/red-fix1-01.json` stores the real RED completed before the pause: 143 methods, 26 failures, 0 errors/skipped. The two test files add 9 methods that reproduce both missed detections; this is not a passing fix, and the next steps remain the bounded production fix, GREEN, and independent review. This addendum only saves that state and does not resume execution; the unstaged changes to the two test files and this log are currently kept.
 
 <a id="resume-task6"></a>
-## Task6 修复轮恢复
+## Task6 fix round resumed
 
-2026-10-15 20:16 +08:00，用户明确要求“恢复执行”。重新核对实际 Git：HEAD 仍为 `b8d4f826db142de052038288f938d90b1581020e`，分支 `callentan-repository-skeleton`；暂存区为空，未暂存范围仍只有两个工具测试文件及本日志。两个测试文件的原始字节摘要与 `red-fix1-01.json` 一致，两个生产模块摘要与原实现记录一致，没有把暂停期间的内容当成新修复。
+At 2026-10-15 20:16 +08:00, the user explicitly asked to "resume execution". Actual Git was re-checked: HEAD still `b8d4f826db142de052038288f938d90b1581020e`, branch `callentan-repository-skeleton`; the index was empty, and the unstaged scope was still only the two tooling test files and this log. The raw byte digests of the two test files match `red-fix1-01.json`, and the digests of the two production modules match the original implementation record; content from the pause period was not treated as a new fix.
 
-本次从第 1 修复轮继续两项已复现的漏检，保留暂停记录和原 RED，不重做 Task1–5。限定修正后仍须取得新的受影响模块结果和独立复核，旧 204 项结果不自动适用于修复对象。Task7 来源入口的选择尚未答复，恢复指令不等于采用推荐清单；应用、平台和发布的单独授权边界不变。
+This session continues fix round 1 on the two reproduced missed detections, keeping the pause record and the original RED, without redoing Task1–5. After the bounded fix, new results for the affected modules and an independent review must still be obtained; the old 204-test result does not automatically apply to the fixed object. The choice of Task7's source entry point has not been answered yet, and the resume instruction does not mean adopting the recommended list; the separate authorization boundaries for applications, platforms, and release are unchanged.
 
 <a id="task6-fix1"></a>
-## Task6 第 1 轮修正：从保存的 RED 恢复
+## Task6 fix round 1: resuming from the saved RED
 
-### 会话、任务与 Git
+### Session, task, and Git
 
-2026-10-15，按用户“恢复执行”和本机 `task6-fix1-resume-brief.md` 继续同一轮修正；依据为[Task6 / ENH-07](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6)及完整两项 Important 审阅。恢复时分支 `callentan-repository-skeleton`、HEAD `b8d4f826db142de052038288f938d90b1581020e`，暂存区为空。
+On 2026-10-15, the same fix round continued per the user's "resume execution" and the local `task6-fix1-resume-brief.md`; the basis is [Task6 / ENH-07](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6) and the full review with its two Important findings. At resume time the branch was `callentan-repository-skeleton`, HEAD `b8d4f826db142de052038288f938d90b1581020e`, and the index was empty.
 
-原有未暂存内容是两个工具测试文件和本日志。9 个新增测试方法来自暂停前的 RED，本执行未重写测试；本日志的 `pause-task6`、暂停确认与 `resume-task6` 是父会话的原有同任务内容，保留后随限定提交纳入，不计为本执行的实现。新恢复快照保护了这份较新的日志前缀，未重用早于暂停记录的旧起点。
+The pre-existing unstaged content was the two tooling test files and this log. The 9 new test methods come from the RED before the pause, and this execution did not rewrite the tests; this log's `pause-task6`, the pause confirmation, and `resume-task6` are the parent session's existing content for the same task, kept and included in the bounded commit, and not counted as this execution's implementation. The new resume snapshot protected this newer log prefix and did not reuse the old starting point that predates the pause record.
 
-### 本次变化
+### Changes in this session
 
-- [检查器](../.github/utilities/check_artifacts.py)只修改 `_formal`：首行可辨认但不合法的分隔符不再提前终止元数据前缀；真正的语法接受/拒绝仍由原 parser 决定。普通正文、代码与注释中的字段不因此成为正式库存。
-- [共享 parser](../.github/utilities/artifact_io.py)只修改 `iter_markdown_lines`：先核对围栏前的注释状态，使用原始信息字符串判断围栏合法性，不让围栏信息或内容开启正文注释；保留实际正文注释、代码排除及源行号。
-- [工具说明](../.github/utilities/README.md#checker-discovery)补充上述边界；[计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6)区分原实现结果、本轮回归和仍开放的复审关卡。没有新模块、schema、依赖、模型图或业务工件。
+- The [checker](../.github/utilities/check_artifacts.py) changes only `_formal`: a recognizable but invalid delimiter on the first line no longer ends the metadata prefix early; actual syntax acceptance/rejection is still decided by the original parser. Fields in ordinary body text, code, and comments do not become part of the formal inventory as a result.
+- The [shared parser](../.github/utilities/artifact_io.py) changes only `iter_markdown_lines`: it first checks the comment state before a fence, uses the raw info string to decide whether the fence is valid, and does not let the fence info or content open a body comment; actual body comments, code exclusion, and source line numbers are preserved.
+- The [tool notes](../.github/utilities/README.md#checker-discovery) add the boundaries above; the [plan](../docs/plan/2026-10-14-ddd-functional-alignment.md#task6) distinguishes the original implementation result, this round's regression, and the still-open review gate. No new module, schema, dependency, model diagram, or business artifact.
 
-### 实际结果入口
+### Actual result entry points
 
-完整追加报告在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task6-report.md` 第 11 节；本节与修正随新局部提交保存，实际 commit、文件清单、命令/cwd、输出及字节摘要回该报告和 Git 核对。报告只在本机可访问，不是已分发的跨机器证据。
+The full appended report is in section 11 of `files/ddd-alignment-execution/task6-report.md` in local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; this section and the fix are saved with the new scoped commit; check the actual commit, file list, commands/cwd, output, and byte digests against that report and Git. The report is accessible only on the local machine and is not distributed cross-machine evidence.
 
-同目录 `task6-evidence` 保留原 `red-fix1-01.json`，并新增 `fix1-resume-start.json`、`green-fix1-resume-discovery.json`、`fix1-resume-before-green.json` 与 `green-fix1-resume-01.json`。发现修正先执行 2 个既有方法；随后实际聚焦 `test_artifact*.py`：发现/执行均为 143（checker 65、parser 78），173 个子例，0 失败/错误/跳过，测试子进程退出 0，47.530 秒。测试前后全部 110 个源路径字节一致；原测试字节、80 个此前证据文件和父会话日志/原报告前缀均保留。后续自审、提交后核对分别由 `fix1-resume-review.json`、`fix1-resume-post.json` 定位。
+`task6-evidence` in the same directory keeps the original `red-fix1-01.json` and adds `fix1-resume-start.json`, `green-fix1-resume-discovery.json`, `fix1-resume-before-green.json`, and `green-fix1-resume-01.json`. The discovery fix first ran 2 existing methods; the actual focused run of `test_artifact*.py` then gave 143 discovered/run (checker 65, parser 78), 173 subtests, 0 failures/errors/skipped, test subprocess exit 0, 47.530 seconds. The bytes of all 110 source paths were identical before and after the tests; the original test bytes, the 80 earlier evidence files, and the parent session's log/original report prefixes were all preserved. The subsequent self-review and post-commit check are located by `fix1-resume-review.json` and `fix1-resume-post.json` respectively.
 
-这是维护工具的真实文件、Git 和 CLI 回归，不是业务验收。原报告中的历史 204 方法及其他结果保持原基线；本轮未重跑无变化的 schema 或全套测试，也未把旧通过升级为修正通过。
+This is a real-file, Git, and CLI regression of the maintenance tools, not business acceptance. The historical 204 methods and other results in the original report keep their original baseline; this round did not re-run the unchanged schema tests or the full suite, and did not upgrade the old pass into a pass of the fix.
 
-### 限制与下一步
+### Limitations and next steps
 
-- 本机 Windows / Python 3.13.15 实测；Python 3.11 和其他宿主仍未执行，不推导跨宿主兼容。保存的 9 个测试方法未新增或削弱断言，源字节与暂停前 RED 一致。
-- 两项修正等待调用方限定复审，未自行关闭 Important 或独立关卡。接手先检查新 commit、实际 diff、最新报告和证据可访问性；不要盲目重放旧 audit 的范围假设。
-- Task7 来源入口仍待用户选择，本轮没有选定 `model-sources.yaml` 或替代入口；Task7–18、应用、hooks/CI、平台和发布保持未执行。没有子代理、工作流、新 worktree、安装、权限变更、push 或 PR；完成限定本地提交与追加报告后停止。
+- Verified in practice on local Windows / Python 3.13.15; Python 3.11 and other hosts have still not been run, and cross-host compatibility is not inferred. The 9 saved test methods gained no assertions and had none weakened; their source bytes match the pre-pause RED.
+- Both fixes await the caller's bounded review; the executor did not close the Important findings or the independent gate itself. Whoever takes over first checks the new commit, the actual diff, the latest report, and evidence accessibility; do not blindly replay the scope assumptions of the old audit.
+- Task7's source entry point still awaits the user's choice; this round did not choose `model-sources.yaml` or an alternative entry point; Task7–18, applications, hooks/CI, platforms, and release remain not run. No subagents, workflows, new worktrees, installs, permission changes, pushes, or PRs; work stops after the bounded local commit and the appended report.
 
 <a id="task6-review"></a>
-## Task6 第 1 轮限定复审与来源入口决定
+## Task6 round-1 bounded review and source entry-point decision
 
-父会话核对了 `b8d4f826db142de052038288f938d90b1581020e` 至 `e0b9fae75a4ea07176e36e4b5b776887ab2a893c` 的完整七文件限定 diff：两个生产函数的选择/状态边界、保留的九个失败用例及相关说明。两项 Important 均已处理，未发现本修正引入的重大问题；这是协调者直接完成的限定复审，不是实现者自审，也未另起重复审阅任务。实际 commit/parent/trailer 和干净工作树/暂存区已重查。
+The parent session checked the complete seven-file bounded diff from `b8d4f826db142de052038288f938d90b1581020e` to `e0b9fae75a4ea07176e36e4b5b776887ab2a893c`: the selection/state boundaries of the two production functions, the nine retained failing cases, and the related notes. Both Important findings were addressed, and no major issue introduced by this fix was found; this is a bounded review done directly by the coordinator, not implementer self-review, and no duplicate review task was started. The actual commit/parent/trailer and the clean working tree/index were re-checked.
 
-本机会话 `files\ddd-alignment-execution\task6-fix1-review-result.md` 保存逐项依据；`task6-fix1-parent-tests.json` 保存父会话在 `e0b9fae` 独立执行的准确命令、cwd 和原始输出：`test_artifact*.py` 发现并执行 143 方法、0 跳过、退出 0，43.040 秒。两模块的新结果不替换原 204 项全套的历史基线，不声明 Python 3.11、其他宿主或业务行为已经验证。完整报告仍只有本机可访问。
+The local session's `files/ddd-alignment-execution/task6-fix1-review-result.md` stores the item-by-item basis; `task6-fix1-parent-tests.json` stores the exact command, cwd, and raw output of the parent session's independent run at `e0b9fae`: `test_artifact*.py` discovered and ran 143 methods, 0 skipped, exit 0, 43.040 seconds. The new results for the two modules do not replace the historical baseline of the original full 204-test suite, and they do not claim that Python 3.11, other hosts, or business behavior have been verified. The full report is still accessible only on the local machine.
 
-Task6 的本次实现/范围复核关卡关闭。恢复后，用户还单独选择了“使用可选 model-sources.yaml 来源清单（推荐）”；上一节执行者未收到该后续决定，其“仍待选择”是起始上下文，不作为当前未决状态。Task7 将依此登记来源路径和固定基线，不复制正文、结果或批准状态；正式来源清单、模型导出和覆盖工具尚未创建，不获得外部读写权限。
+Task6's implementation/scope review gate for this session is closed. After resuming, the user also separately chose "Use the optional model-sources.yaml source manifest (recommended)"; the executor in the previous section did not receive this later decision, and its "still awaiting choice" is the starting context, not the current open status. Task7 will accordingly register source paths and pinned baselines, without copying body text, results, or approval status; the formal source manifest, model export, and coverage tools have not yet been created, and no external read/write permission is granted.
 
-本次同步规格、计划、roadmap 的当前状态，保留全部旧观察。计划中 Task8 的旧示意也与已实现的报告 schema 对齐为 `entries[].execution` / `evidenceRefs`，没有新增全局结果字段或声称 Task8 已运行。下一步按[Task7](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7)继续；应用、平台及发布关卡不变。
+This update syncs the current status of the specification, plan, and roadmap and keeps all old observations. The old Task8 sketch in the plan was also aligned with the implemented report schema as `entries[].execution` / `evidenceRefs`; no global result field was added, and no claim is made that Task8 has run. The next step continues with [Task7](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7); the application, platform, and release gates are unchanged.
 
 <a id="task7"></a>
-## Task7：完整覆盖、影响候选与九视图模型
+## Task7: complete coverage, impact candidates, and the nine-view model
 
-### 会话、范围与 Git
+### Session, scope, and Git
 
-按用户原执行授权、“恢复执行”及另行选择的可选 `model-sources.yaml`，仅实施[Task7 / ENH-06、ENH-08](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7)。起点为 `def03cdc0f58414eeb4d59da61928d451b431aaa`，分支 `callentan-repository-skeleton`，现有 App-isolated worktree，暂存区及工作树起始均干净；无需重复初始提交或 Task6 修正。状态为**已实施，等待独立复核**，不是实现者关闭独立关卡。
+Under the user's original execution authorization, "resume execution", and the separately chosen optional `model-sources.yaml`, only [Task7 / ENH-06, ENH-08](../docs/plan/2026-10-14-ddd-functional-alignment.md#task7) was implemented. The starting point was `def03cdc0f58414eeb4d59da61928d451b431aaa`, branch `callentan-repository-skeleton`, in the existing App-isolated worktree, with the index and working tree both clean at the start; there was no need to repeat the initial commit or the Task6 fix. The status is **implemented, awaiting independent review**; the implementer does not close the independent gate.
 
-### 本次变化
+### Changes in this session
 
-- 新增[来源 schema](../.github/contracts/model-sources.schema.json)和[空表](../_templates/config/model-sources.yaml)，清单只保存多个明确 scope 下的视图路径/固定基线。原四份 schema、32 kind、九视图输出和 8/21/3 方法/入口/模式数量不变；没有创建正式项目清单。
-- [覆盖/影响工具](../.github/utilities/check_traceability.py)读取完整实际库存，区分显式交付与上下文，反查所有目标、原所有者 AC/VC、正文层次和独立判据。精确 base 的旧新依赖图保留删除/移除引用，产生候选与源位置，不改规则或结果。
-- [模型工具](../.github/utilities/export_model.py)引用真实 Markdown 或已有摘要，保留 scope-qualified refs、证据路径/固定基线及具体 gap。YAML/证据/清单均进入来源身份；缺主输入失败，缺可选源保留固定视图。检查重算不修复，显式输出不覆盖已有文件或占用登记源路径。
-- parser/checker 仅抽出共享已读库存、原始 YAML mapping/历史 blob 解析与保护输出；保留 Task6 的围栏/注释处理和全部原测试。更新实际契约、工具/开发/领域/验证/架构指引及 verify 方法的工具入口，未重写方法或增加代理流程。
+- Added a [source schema](../.github/contracts/model-sources.schema.json) and a [blank form](../_templates/config/model-sources.yaml); the manifest stores only view paths/pinned baselines under multiple explicit scopes. The original four schemas, 32 kinds, nine-view output, and the 8/21/3 counts of methods/entry points/modes are unchanged; no formal project manifest was created.
+- The [coverage/impact tool](../.github/utilities/check_traceability.py) reads the complete actual inventory, distinguishes explicit deliveries from context, and reverse-looks-up all targets, the original owners' AC/VC, body hierarchy, and independent criteria. The old and new dependency graphs for an exact base keep deleted/removed references and produce candidates with source locations, without changing rules or results.
+- The [model tool](../.github/utilities/export_model.py) references real Markdown or existing summaries and keeps scope-qualified refs, evidence paths/pinned baselines, and concrete gaps. YAML/evidence/manifests all enter the source identity; a missing primary input fails, while a missing optional source keeps the fixed view. Checking recomputes without repairing, and explicit output neither overwrites existing files nor occupies registered source paths.
+- The parser/checker only factored out the shared already-read inventory, raw YAML mapping/historical blob parsing, and protected output; Task6's fence/comment handling and all original tests are kept. The actual contracts, the tooling/development/domain/verification/architecture guides, and the tool entry point of the verify method were updated; no method was rewritten and no agent flow was added.
 
-### 实际证据入口
+### Actual evidence entry points
 
-完整报告与提交后实况在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task7-report.md`。新 receipts、辅助脚本及保留的合成来源都仅在同目录 `task7-evidence`，单元测试的瞬时夹具只在仓库忽略的 `.venv`。这些入口仅本机可访问，不是已分发的跨机器证据。
+The full report and the actual post-commit state are in `files/ddd-alignment-execution/task7-report.md` of local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`. The new receipts, helper scripts, and retained synthetic sources are only in `task7-evidence` in the same directory, and the transient unit-test fixtures are only in the repository-ignored `.venv`. These entry points are accessible only on the local machine and are not distributed cross-machine evidence.
 
-- `baseline-213.json`：在起点**新跑** 213 方法、0 跳过、退出 0，未将 Task6 的旧全套结果当作本次基线。
-- `manifest-red*.json` / `manifest-green.json`、`trace-impact-red.json` / `trace-impact-green.json`、`model-red.json` / `model-first-green.json`：先有独立预期和实际失败，再实现并重跑。来源 schema 初始 10 方法、覆盖/影响初始 25 方法、导出初始 28 方法；不是只看语法或虚构 baseline。
-- `self-review-boundaries-red.json` 及各聚焦 `*-green.json`：自审复现后修正来源合并、字段完整性、跨 scope/嵌套证据定位、同一 schema 读点和输出冲突等边界；保留真实失败，不把首次未通过记成 GREEN。
-- `final-full-suite.json`：完整保留与新增套件实际发现/执行 **293 方法**，0 失败、0 错误、0 跳过，退出 0，106.635 秒；包含原 schema 70、parser 78、checker 65，以及 Task7 trace 27、model/manifest 53。命令/cwd/stdout/stderr 和逐源前后字节摘要在该 receipt；测试期间仓库输入字节未变。
-- `observations\observations.json` 和同目录 `outputs`：保留真实四项交付、仅软件拒绝遗漏、规则 2→3 的源文件/旧新 Git 身份，以及九视图模型、检查和手改副本。省略项精确为 `sample/CTX-001/SR-001#sr-001-ac-02`；两 owner 文件未删改，规则单改追到 REQ/SR/两 VT/任务五个候选。两脚本实际 CLI 分别观察到 0/1/2，输入和旧输出字节保持不变。
+- `baseline-213.json`: a **fresh run** of 213 methods at the starting point, 0 skipped, exit 0; Task6's old full-suite result was not used as this session's baseline.
+- `manifest-red*.json` / `manifest-green.json`, `trace-impact-red.json` / `trace-impact-green.json`, `model-red.json` / `model-first-green.json`: independent expectations and actual failures came first, then implementation and re-runs. Initially 10 methods for the source schema, 25 for coverage/impact, and 28 for export; not a syntax-only check or an invented baseline.
+- `self-review-boundaries-red.json` and each focused `*-green.json`: after self-review reproduced them, boundaries such as source merging, field completeness, cross-scope/nested evidence location, a single schema read point, and output conflicts were fixed; real failures are kept, and a first failed run is not recorded as GREEN.
+- `final-full-suite.json`: the complete retained and new suites actually discovered/ran **293 methods**, 0 failures, 0 errors, 0 skipped, exit 0, 106.635 seconds; this includes the original schema 70, parser 78, and checker 65, plus Task7 trace 27 and model/manifest 53. The commands/cwd/stdout/stderr and per-source before/after byte digests are in that receipt; repository input bytes did not change during the tests.
+- `observations/observations.json` and `outputs` in the same directory: keep the source files/old and new Git identities for the real four deliveries, the omitted software-only rejection, and the rule change 2→3, plus the nine-view model, the check, and the manually edited copy. The omitted item is exactly `sample/CTX-001/SR-001#sr-001-ac-02`; the two owner files were not deleted or changed, and the single rule change traced to five candidates: REQ/SR/two VTs/task. The actual CLIs of the two scripts each observed 0/1/2, and the input and old output bytes stayed unchanged.
 
-这是本地维护工具的行为验证，不是业务或软件 VT 执行。完整结果、19 个输入案例的对应测试、自审和提交清单回报告/receipts 核对，日志不维护另一份验收结果表。
+This is behavioral verification of the local maintenance tools, not execution of business or software VTs. Check the full results, the tests corresponding to the 19 input cases, the self-review, and the commit list against the report/receipts; the log does not maintain a separate acceptance result table.
 
-### 限制与停点
+### Limitations and stopping point
 
-- 实测为 Windows / Python 3.13.15；Python 3.11、其他宿主和更大真实项目未运行。I/O 故障注入已在测试中明确标注，不冒充实际权限配置。
-- 覆盖判据和直接 Markdown/摘要适配是已说明的机械结构检查，不证明自然语言判据充分、风险可接受、批准真实或已发布。只处理实际 canonical 依赖，隐含语义/轻量链接仍需责任人核对。读取不是文件系统事务。
-- 未执行独立 reviewer/Agent 压力测试、Task8–18、应用/Gherkin、hooks/CI、媒体、平台/远端操作；未安装依赖、改权限、amend、push 或 PR。实施报告字段仍为空，未创建 Task8 收集器。
-- 本次完成范围内本地提交和报告后停止。下一步由调用方核对精确 commit、20 文件范围、原始证据及完整来源契约，再决定 Task7 独立复核；不能从局部 GREEN 推导完整功能等价。
+- Verified in practice on Windows / Python 3.13.15; Python 3.11, other hosts, and larger real projects were not run. I/O fault injection is explicitly marked in the tests and does not pose as an actual permission configuration.
+- The coverage criteria and the direct Markdown/summary adaptation are documented mechanical structure checks; they do not prove that natural-language criteria are sufficient, that risk is acceptable, or that approvals are real or published. Only actual canonical dependencies are handled; implicit semantics/lightweight links still need checking by the accountable owner. Reading is not a file-system transaction.
+- No independent reviewer/agent stress test, Task8–18, application/Gherkin, hooks/CI, media, or platform/remote operations were run; no dependency installs, permission changes, amend, push, or PR. The implementation-report fields are still empty, and no Task8 collector was created.
+- This session stops after the in-scope local commit and report. Next, the caller checks the exact commit, the 20-file scope, the raw evidence, and the complete source contract, and then decides on the Task7 independent review; complete functional equivalence cannot be inferred from a partial GREEN.
 
 <a id="task7-fix1"></a>
-## Task7 第 1 轮修正：五项 Important
+## Task7 fix round 1: five Important findings
 
-### 起点与范围
+### Starting point and scope
 
-用户授权在同一轮处理 T7-I1–I5。独立审阅和父会话机制核对均未声称新运行复现；本轮从干净的 `fe1acd39e1e25025d037e0c072e437824e848911`、同一 `callentan-repository-skeleton` worktree 开始，实际补复现后再修。只修改两个工具、必要的共享 Markdown 读取、相关测试/契约/工具说明及当前状态；四份原 schema、32 kind、九视图与 8/21/3 不变。
+The user authorized handling T7-I1–I5 in one round. Neither the independent review nor the parent session's mechanism check claimed a new run reproduction; this round started from a clean `fe1acd39e1e25025d037e0c072e437824e848911` in the same `callentan-repository-skeleton` worktree, first actually reproduced the issues, and then fixed them. Only the two tools, the necessary shared Markdown reading, the related tests/contracts/tool notes, and the current status were modified; the four original schemas, 32 kinds, nine views, and 8/21/3 are unchanged.
 
-### 实际修正与原断言保护
+### Actual fixes and protection of the original assertions
 
-- T7-I1：直接 quality 同时需要可核实 QAS 与真实 utility-tree 来源/基线，缺源为 unverified 且清空 refs；已有源缺字段/条目仍 partial。原缺度量 fixture 补一个实际树文件只是隔离缺字段条件，原 partial 与 responseMeasure 断言不变；缺树另有新 RED，不创造 kind 或生产树数据。
-- T7-I2：在解引用前登记所选已解析源文档的全部嵌套位置，缺失/前项失败不漏掉后项；声明不能安全登记时只读仍可给 gap，但输出被拒绝，不假称完成隔离。合法新模型可原样 export/check，旧输出不覆盖。
-- T7-I3：正文与闭合代码围栏复用同一个注释/围栏状态机，图检查只接受实际归属 `diagram` 的代码块。注释、外层 literal、未闭合块或普通说明均不能补图；Task6 的旧围栏/注释测试保留。
-- T7-I4：按真实 VT `runs` 章节读取本 owner 的子运行块和逐判据多列表，每条记录分别核对明确数量、日期、说明和基线。不放宽 `section_lines`，不从总数推算数量、不跨块拼合；同基线结果冲突保留两侧引用及 gap。
-- T7-I5：公开 `impact_report(root, None, task_ids)` 直接返回 INVALID_BASE/input-error，不通过测试 helper 的默认 base，也不退化成 clean 空比较。
+- T7-I1: a direct quality view requires both verifiable QAS and a real utility-tree source/baseline; a missing source yields unverified with refs cleared, while an existing source with missing fields/entries is still partial. Adding one actual tree file to the original missing-measure fixture only isolates the missing-field condition; the original partial and responseMeasure assertions are unchanged; the missing-tree case has its own new RED, and no kind or production tree data was created.
+- T7-I2: all nested locations of the selected resolved source documents are registered before dereferencing, so a missing/failed earlier item does not cause later items to be skipped; when a declaration cannot be registered safely, the read-only path can still report a gap, but output is refused, without falsely claiming that isolation is complete. A valid new model can be exported/checked as is, and old output is not overwritten.
+- T7-I3: body text and closed code fences reuse the same comment/fence state machine, and the diagram check accepts only code blocks that actually belong to `diagram`. Comments, outer literals, unclosed blocks, or ordinary notes cannot stand in for a diagram; Task6's old fence/comment tests are kept.
+- T7-I4: this owner's run sub-blocks and per-criterion multi-column tables are read from the real VT `runs` section, and each record is checked separately for explicit counts, date, notes, and baseline. `section_lines` is not relaxed, counts are not inferred from totals, and blocks are not stitched together; conflicting results on the same baseline keep the references on both sides plus a gap.
+- T7-I5: the public `impact_report(root, None, task_ids)` returns INVALID_BASE/input-error directly, without going through the test helper's default base and without degrading into a clean empty comparison.
 
-### 真实结果入口
+### Actual result entry points
 
-本机会话 `files\ddd-alignment-execution\task7-report.md` 追加 fix1，原报告前缀和原证据保留。新 receipts/helpers/保留样本仅用 `task7-evidence\fix1-*` 名称；瞬时测试夹具仍只在忽略的 `.venv`。这些是本机证据，不随模板分发。
+fix1 is appended to the local session's `files/ddd-alignment-execution/task7-report.md`; the original report prefix and original evidence are kept. New receipts/helpers/retained samples use only `task7-evidence/fix1-*` names; transient test fixtures are still only in the ignored `.venv`. This is local evidence and is not distributed with the template.
 
-- `fix1-start.json` 记录干净起点、116 个源文件、123 个旧证据文件和原报告/日志前缀摘要。
-- `fix1-all-red.json`：先只改测试，生产代码仍为起点；18 方法、20 个失败子例、0 错误/跳过，五项都实际复现。I2 的错误创建发生在自有临时输入里，不是生产源。旧 293 方法结果没有被重标成本轮基线。
-- `fix1-i1-green.json`、`fix1-i2-green.json`、`fix1-i3-green.json`、`fix1-i4-green.json`、`fix1-i5-green.json` 分别记录 8/6/10/9/7 方法的定向 GREEN；包含对应正常/缺项/隔离控制及保留 Task6 用例。后续不安全位置的补充 RED/GREEN 另见 `fix1-reservation-boundary-*.json`。
-- `fix1-full-suite.json`：本轮只执行一次完整保留＋新增套件，实际发现/执行 **313 方法**，0 失败、0 错误、0 跳过，退出 0，105.466 秒。完整命令/cwd/stdout/stderr 与前后源字节在 receipt；被测工具、tests 与 schemas 的字节在提交前后再核对，不用语法或旧结果替代。
-- `fix1-observations\results.json` 保留八组新来源/结果观察，涵盖五项：QAS 缺树/实树、后续缺失嵌套位置的实际 CLI 拒绝、注释/外层 literal/真实图、所属运行表，以及 None base 与真实精确 Git base 对照。均记录工具执行前后输入摘要；运行表仅为已提供的合成来源记录，不是一次业务/软件执行。
+- `fix1-start.json` records the clean starting point, 116 source files, 123 old evidence files, and digests of the original report/log prefixes.
+- `fix1-all-red.json`: only tests were changed first, with production code still at the starting point; 18 methods, 20 failing subtests, 0 errors/skipped; all five issues were actually reproduced. The erroneous creation for I2 happened inside its own temporary input, not in production sources. The old 293-method result was not relabeled as this round's baseline.
+- `fix1-i1-green.json`, `fix1-i2-green.json`, `fix1-i3-green.json`, `fix1-i4-green.json`, `fix1-i5-green.json` record the targeted GREEN for 8/6/10/9/7 methods respectively, including the corresponding normal/missing-item/isolation controls and the retained Task6 cases. The later supplementary RED/GREEN for unsafe locations is in `fix1-reservation-boundary-*.json`.
+- `fix1-full-suite.json`: this round ran the complete retained + new suite only once, actually discovering/running **313 methods**, 0 failures, 0 errors, 0 skipped, exit 0, 105.466 seconds. The full commands/cwd/stdout/stderr and before/after source bytes are in the receipt; the bytes of the tools under test, tests, and schemas were re-checked before and after the commit and not substituted by syntax checks or old results.
+- `fix1-observations/results.json` keeps eight new groups of source/result observations covering all five items: QAS with a missing/real tree, the actual CLI refusal for a later missing nested location, comment/outer literal/real diagram, the owned run tables, and a None base compared with a real exact Git base. All record input digests before and after tool execution; the run tables are only supplied synthetic source records, not a business/software execution.
 
-### 限制与停点
+### Limitations and stopping point
 
-本轮自审与测试不关闭审阅关卡；Task7 保持**待限定复审**。Windows / Python 3.13.15 实测，不声称 Python 3.11、其他宿主、自然语言语义、人工批准或业务执行已验证。只读来源状态不是 pass/approval/release；未实施 Task8–18，没有 reviewer/subagent/workflow、安装、权限变更、hook 安装、远程操作、amend、push 或 PR。完成新局部提交及报告追加后停止，由调用方核对五项修正、完整 diff 和新旧证据保护。
+This round's self-review and tests do not close the review gate; Task7 remains **awaiting bounded review**. Verified in practice on Windows / Python 3.13.15; no claim is made that Python 3.11, other hosts, natural-language semantics, human approval, or business execution have been verified. A read-only source state is not pass/approval/release; Task8–18 were not implemented, and there were no reviewers/subagents/workflows, installs, permission changes, hook installs, remote operations, amend, push, or PR. Work stops after the new scoped commit and the report addendum; the caller checks the five fixes, the full diff, and the protection of new and old evidence.
 
 <a id="task7-fix2"></a>
-## Task7 第 2 轮局部修正：新 F1-N1
+## Task7 fix round 2 (scoped): new F1-N1
 
-2026-10-16，按用户限定请求从干净的 `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` 开始。fix1 限定复审已将原 T7-I1–I5 标为 addressed；本轮只处理新 Important F1-N1，不重新打开原五项。审阅者和父会话仅给出静态机制，以下是本轮新运行证据。
+On 2026-10-16, per the user's bounded request, work started from a clean `d622b14ed8a564a5ad11b28514ff9b41b484d4b8`. The fix1 bounded review had marked the original T7-I1–I5 as addressed; this round handles only the new Important F1-N1 and does not reopen the original five. The reviewer and the parent session gave only the static mechanism; the following is this round's new run evidence.
 
-- 先在原正例中仅将 `### VT-002-RUN-01` 改为 `## VT-002-RUN-01`，完整表格/判据不变并刷新该来源基线。`fix2-red.json` 实际复现错误 available；六个聚焦方法出现六个失败断言/子例，0 错误/跳过。当时只改 `test_model_export.py`。
-- 生产修改仅在 `_owned_runs`：锚点和紧随的真实标题关联，所属 `runs` H2 必须先建立，再接收下级标题；遇 peer/ancestor 标题立即结束，不能先接收其前置锚点。空行/注释可保留关联，说明、代码或另一锚点会打断未配对关联。`section_lines`、raw parser 和共享字面扫描器均未修改。
-- `fix2-focused-green.json`：六个新方法和七个保留的运行记录控制，共 13 方法 GREEN。覆盖 H2 唯一变更、H1 ancestor、有效 H3、随后 peer/外部章节隔离及未配对锚点；H1 的原 MULTIPLE_TITLES 输入错误仍保留。各工具调用前后都核对实际输入字节。
-- `fix2-model-suite.json`：只运行整个 `test_model_export.py` selector，实际发现/执行 **77 方法**，0 失败、0 错误、0 跳过，退出 0，40.500 秒。没有重跑或重标旧 313 全套、父会话 243 方法或独立 schema 套件。
+- First, in the original positive case, only `### VT-002-RUN-01` was changed to `## VT-002-RUN-01`, with the complete table/criteria unchanged and that source's baseline refreshed. `fix2-red.json` actually reproduced the wrong available; six focused methods showed six failing assertions/subtests, 0 errors/skipped. At that point only `test_model_export.py` had been changed.
+- The production change is only in `_owned_runs`: an anchor is associated with the real heading that immediately follows it; the owning `runs` H2 must be established before lower-level headings are accepted; a peer/ancestor heading ends it immediately, and its preceding anchor cannot be accepted first. Blank lines/comments keep the association, while prose, code, or another anchor breaks an unpaired association. `section_lines`, the raw parser, and the shared literal scanner were not modified.
+- `fix2-focused-green.json`: six new methods and seven retained run-record controls, 13 methods GREEN in total. Covers the single H2 change, an H1 ancestor, a valid H3, isolation of a subsequent peer/external section, and unpaired anchors; the original MULTIPLE_TITLES input error for H1 is still kept. Actual input bytes were checked before and after every tool call.
+- `fix2-model-suite.json`: only the whole `test_model_export.py` selector was run, actually discovering/running **77 methods**, 0 failures, 0 errors, 0 skipped, exit 0, 40.500 seconds. The old 313-test full suite, the parent session's 243 methods, and the separate schema suite were not re-run or relabeled.
 
-新证据与辅助脚本只保存在本机会话 `files\ddd-alignment-execution\task7-evidence\fix2-*`，原报告的 fix2 追加位于 `task7-report.md`；起点摘要保存 116 个源文件、266 个旧证据文件及原日志/报告前缀。上述结果是局部工具与来源结构验证，不是业务执行或独立批准。
+New evidence and helper scripts are saved only in the local session's `files/ddd-alignment-execution/task7-evidence/fix2-*`, and the fix2 addendum to the original report is in `task7-report.md`; the starting-point digest stores 116 source files, 266 old evidence files, and the original log/report prefixes. These results are scoped verification of the tool and source structure, not business execution or independent approval.
 
-Task7 保持**待限定复审**。本轮只有该函数、同一模型测试文件、直接契约说明和当前状态/本日志变更；四份原 schema、32 kind、九视图与 8/21/3 不变。完成新局部提交和报告追加后停止；没有 subagent、Task8、应用、安装、权限/hook 配置、amend、push、PR 或远程操作。
+Task7 remains **awaiting bounded review**. This round changed only that function, the same model test file, the directly related contract notes, and the current status/this log; the four original schemas, 32 kinds, nine views, and 8/21/3 are unchanged. Work stops after the new scoped commit and the report addendum; no subagent, Task8, application, installs, permission/hook configuration, amend, push, PR, or remote operations.
 
 <a id="task7-review"></a>
-## Task7 复审关闭
+## Task7 review closed
 
-2026-10-16，父会话直接读取 `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` 至 `23c06b6bc46099c04091c61c036016b88cf4ae99` 的完整七文件局部 diff，核对 `_owned_runs` 的锚点/真实标题配对、peer/ancestor 截断和六个新控制。F1-N1 已处理，未发现此修正引入的重大问题；原 T7-I1–I5 沿用上一轮独立复审的 addressed 判定，不重复开展原始全量审阅。实际 head/parent/trailer、七路径范围和干净工作树/暂存区已重查。
+On 2026-10-16, the parent session directly read the complete seven-file scoped diff from `d622b14ed8a564a5ad11b28514ff9b41b484d4b8` to `23c06b6bc46099c04091c61c036016b88cf4ae99` and checked the anchor/real-heading pairing in `_owned_runs`, the peer/ancestor cutoff, and the six new controls. F1-N1 is addressed, and no major issue introduced by this fix was found; the original T7-I1–I5 keep the addressed judgment from the previous round's independent review, and the original full review was not repeated. The actual head/parent/trailer, the seven-path scope, and the clean working tree/index were re-checked.
 
-本机会话 `files\ddd-alignment-execution\task7-fix2-review-result.md` 保存本轮逐项依据；`task7-fix2-parent-tests.json` 保存父会话在 `23c06b6` 的实际项目解释器、cwd、`test_model_export.py` 和原始输出：77 方法、0 跳过、退出 0，48.748 秒。此前 `task7-fix1-review-result.md` 与 `task7-fix1-parent-tests.json` 分别保存五项判定/新问题及 `d622b14e` 上的 243 方法结果。这些不同对象和范围不拼成一次新全套通过，旧 RED/报告仍保留。
+The local session's `files/ddd-alignment-execution/task7-fix2-review-result.md` stores this round's item-by-item basis; `task7-fix2-parent-tests.json` stores the parent session's actual project interpreter, cwd, `test_model_export.py`, and raw output at `23c06b6`: 77 methods, 0 skipped, exit 0, 48.748 seconds. Earlier, `task7-fix1-review-result.md` and `task7-fix1-parent-tests.json` stored the five judgments/new issue and the 243-method result on `d622b14e`, respectively. These different objects and scopes are not combined into one new full-suite pass; the old RED/reports are still kept.
 
-Task7 的有限实现和范围复核关卡关闭，没有遗留的本任务审阅发现；不是增强整体、真实业务执行或跨宿主资格通过。本次只同步规格、计划、roadmap 和本日志。下一步按既有授权处理 Task8 的实施摘要桥接；真实结果仍归 VT/原始报告，不能由模型 available、commit 或测试文件存在推导。
+Task7's bounded implementation and scope review gate is closed, with no outstanding review findings for this task; this is not a pass of the enhancement as a whole, of real business execution, or of cross-host qualification. This update only syncs the specification, plan, roadmap, and this log. The next step, under the existing authorization, handles Task8's implementation-summary bridge; real results still belong to VTs/raw reports and cannot be inferred from model availability, commits, or the existence of test files.
 
 <a id="task8"></a>
-## Task8：从既有 owned VT 记录收集只读实施摘要
+## Task8: collecting a read-only implementation summary from existing owned VT records
 
-### 2026-10-16：任务、Git 与边界
+### 2026-10-16: task, Git, and boundaries
 
-按原执行授权、“恢复执行”以及用户单独选择“直接复用现有 VT 运行记录（推荐）”，只实施 [Task8 / ENH-12](../docs/plan/2026-10-14-ddd-functional-alignment.md#task8)。起点为 `d30b87b805a133bca54d25ce5887e06071e605c1`、分支 `callentan-repository-skeleton`，现有 App-isolated worktree；起始工作树/暂存区均干净。Task7 的两轮修正和复审关闭结论保留，未重做其审阅。
+Under the original execution authorization, "resume execution", and the user's separate choice "Directly reuse existing VT run records (recommended)", only [Task8 / ENH-12](../docs/plan/2026-10-14-ddd-functional-alignment.md#task8) was implemented. The starting point was `d30b87b805a133bca54d25ce5887e06071e605c1`, branch `callentan-repository-skeleton`, in the existing App-isolated worktree; the working tree/index were both clean at the start. Task7's two fix rounds and its review-closure conclusion are kept, and its review was not redone.
 
-本节写入前再次检查暂存区为空，未提交内容仅属本轮工具、测试、表单及直接资料导航。局部提交的实际对象和提交后状态以本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-report.md` 最终追加为准；不在提交前编造自身 SHA。该报告/receipts 只在本机可访问，接手者须取得该会话材料。
+Before this section was written, the index was checked again and was empty; the uncommitted content belongs only to this round's tools, tests, forms, and direct documentation navigation. The actual object of the scoped commit and the post-commit state are as given in the final addendum of `files/ddd-alignment-execution/task8-report.md` in local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; the commit's own SHA is not invented before the commit. That report and its receipts are accessible only on the local machine, and whoever takes over must obtain that session's material.
 
-### 本次变化
+### Changes in this session
 
-- [收集器](../.github/utilities/collect_implementation_report.py) 从明确 commit 读取 BC、验收、代码和测试文本，单独读取后追加的 VT owned runs/原始报告。scope、owner、criterion、对象/要求/计划基线和源码 marker 都需实际匹配；无记录保留逐目标 not-run，冲突失败，不建立另一个执行输入账本。
-- [共用 VT reader](../.github/utilities/vt_records.py) 窄提取原 owned-run/四列结果读取，保留 H3 与关闭 H2/H1 的归属、注释/围栏和严格节隔离；安全 Git/固定 bytes 检查沿原模块共享。自查又用 RED/GREEN 覆盖共享判据、适用性表隔离、Unicode 行边界和声明来源保护。
-- [model 桥接](../.github/utilities/export_model.py) 使用既有 verification 来源选择，验证报告 schema/scope/baseline 和可重建性，仅增加报告引用。其余 canonical/evidence/baseline 与九视图 gap 保留，不复制 entries/执行/适用性，也不向领域源写新 model。
-- [报告空表](../_templates/reports/implementation-report.yaml)、[字段契约](../.github/contracts/README.md#implementation-report)、[使用入口](../.github/utilities/README.md#implementation-report)、开发/BC/验证说明及 handoff 直达导航已补齐。五份 schema、32 kinds、九视图、8/21/3 均未扩展；没有真实业务 BC/config/model/VT/application 写入生产目录。
+- The [collector](../.github/utilities/collect_implementation_report.py) reads the BC, acceptance, code, and test text from an explicit commit, and separately reads the VT owned runs/raw reports appended later. scope, owner, criterion, the object/requirement/plan baselines, and source markers must all actually match; without a record each target stays not-run, conflicts fail, and no separate execution-input ledger is created.
+- The [shared VT reader](../.github/utilities/vt_records.py) narrowly extracts the original owned-run/four-column result reading, keeping H3 ownership and closure by H2/H1, comments/fences, and strict section isolation; the safe Git/pinned-bytes checks remain shared from the original module. Self-review then used RED/GREEN to cover shared criteria, applicability-table isolation, Unicode line boundaries, and declared-source protection.
+- The [model bridge](../.github/utilities/export_model.py) uses the existing verification source selection, validates the report's schema/scope/baseline and reproducibility, and adds only a report reference. The remaining canonical/evidence/baseline data and the nine-view gaps are kept; entries/execution/applicability are not copied, and no new model is written to the domain sources.
+- The [blank report form](../_templates/reports/implementation-report.yaml), [field contract](../.github/contracts/README.md#implementation-report), [usage entry point](../.github/utilities/README.md#implementation-report), the development/BC/verification notes, and direct handoff navigation were completed. The five schemas, 32 kinds, nine views, and 8/21/3 were not extended; no real business BC/config/model/VT/application was written to production directories.
 
-### 实际结果入口
+### Actual result entry points
 
-本轮原始证据在同一会话 `files\ddd-alignment-execution\task8-evidence\`。JSON 保存真实解释器、参数列表、cwd、stdout/stderr、退出、发现/执行/跳过和受检输入字节；不是日志重建的业务结果表。
+This round's raw evidence is in the same session's `files/ddd-alignment-execution/task8-evidence/`. The JSON files store the real interpreter, argument list, cwd, stdout/stderr, exit, discovered/run/skipped counts, and the checked input bytes; they are not a business result table reconstructed from the log.
 
-- `baseline-retained.json`：在本轮起点实际运行 319 方法，0 跳过，退出 0。保留旧 313/243/77 的日期、范围和对象，不重标。
-- `red-01/02` 至 `green-10`：先缺收集器 RED，再验证逐目标收集与 model bridge。保留安装夹具遗漏共用 reader 的一次失败及修正，不通过删测试解阻。合成源 pass/fail 只是输入，文本 fixture 不运行应用。
-- `full-11-retained-new.json`：当时 373 方法全套通过；最终自查后新增五个控制，不能用此结果替代新对象。
-- `red-12-final-boundaries.json`、`red-13-shared-criterion.json`、`green-14-final-boundaries.json`：按实际文件复现并修正声明来源目录写入、共享判据、适用性字面隔离、Unicode 投影和错误 evidence collection 形状。夹具的换行修正与产品缺陷分别记录。
-- `full-17-final-retained-new.json`：**378 方法实际发现/执行，0 失败、0 错误、0 跳过，退出 0，386.857 秒**；受检输入 bytes 未变。`retained-inventory-comparison.json` 确认全部 319 个原测试身份保留，新增 59；最终含 contract 70、parser 78、checker 65、trace 29、model 86、collector 50。
-- 文档/范围检查及原日志、报告前缀保护见 `check-16-docs-scope.json` 和报告的最终检查追加。辅助脚本最初未保留 checkout 的 CRLF 语义，其失败已留原输出，只修正辅助脚本参数，未改仓库配置。正式工件检查仍是 empty/0，不是业务通过。
+- `baseline-retained.json`: 319 methods actually run at this round's starting point, 0 skipped, exit 0. The dates, scopes, and objects of the old 313/243/77 results are kept and not relabeled.
+- `red-01/02` to `green-10`: first the missing-collector RED, then verification of per-target collection and the model bridge. One failure where the installed fixture omitted the shared reader, and its fix, are kept; nothing was unblocked by deleting tests. The pass/fail values in synthetic sources are only input, and text fixtures do not run an application.
+- `full-11-retained-new.json`: the full 373-method suite passed at that time; the final self-review added five more controls, so this result cannot substitute for the new object.
+- `red-12-final-boundaries.json`, `red-13-shared-criterion.json`, `green-14-final-boundaries.json`: reproduced with actual files and fixed writes into declared source directories, shared criteria, literal isolation of applicability, Unicode projection, and the wrong evidence collection shape. The fixture's line-ending fix and the product defects are recorded separately.
+- `full-17-final-retained-new.json`: **378 methods actually discovered/run, 0 failures, 0 errors, 0 skipped, exit 0, 386.857 seconds**; the checked input bytes did not change. `retained-inventory-comparison.json` confirms that all 319 original test identities are kept and 59 were added; the final suite contains contract 70, parser 78, checker 65, trace 29, model 86, collector 50.
+- Document/scope checks and protection of the original log and report prefixes are in `check-16-docs-scope.json` and the report's final-check addendum. The helper script initially did not preserve the checkout's CRLF semantics; its failure keeps the original output, and only the helper script's arguments were fixed, without changing repository configuration. The formal artifact check is still empty/0, which is not a business pass.
 
-### 缺口与下一步
+### Gaps and next steps
 
-Task8 状态为**已实施并完成本地验证，等待独立复核**。Windows/Python 3.13.15 实测；Python 3.11、其他宿主、人工身份/审批及真实业务执行均未据此认证。支持有限且明确的字段/selector/marker 语法，不承诺通用历史记录导入；不能认证外部事件实际发生。一个原始报告 I/O 拒绝控制采用窄边界注入，不冒充宿主 ACL 验证。
+Task8's status is **implemented and locally verified, awaiting independent review**. Verified in practice on Windows/Python 3.13.15; Python 3.11, other hosts, human identity/approval, and real business execution are not certified by this. A bounded, explicit field/selector/marker syntax is supported; general import of historical records is not promised, and the tool cannot certify that external events actually happened. One raw-report I/O refusal control uses narrow boundary injection and does not pose as host ACL verification.
 
-没有 subagent/reviewer/workflow、新 worktree、安装、权限或 hook/CI 配置、amend、push、PR、应用、远端及 Task9–18 操作。完成新局部提交和报告后停止；调用方下一步应核对精确 commit、源差异、全量 receipt、只读保护及报告可访问性，再进行独立 review。原 P3 和后续任务的未执行关卡保持原状。
+No subagents/reviewers/workflows, new worktrees, installs, permission or hook/CI configuration, amend, push, PR, application, remote, or Task9–18 operations. Work stops after the new scoped commit and report; next, the caller should check the exact commit, the source diff, the full-suite receipt, the read-only protection, and report accessibility, and then run the independent review. The not-run gates of the original P3 and later tasks remain as they were.
 
 <a id="task8-fix1"></a>
-## Task8 第 1 轮限定修正（1/5）：T8-I1、T8-I2、T8-I3
+## Task8 bounded fix round 1 (1/5): T8-I1, T8-I2, T8-I3
 
-2026-10-16，按用户本轮限定请求，从干净的 `7f747e55e480b92822c5599d1e9f54dccba98d9d`、原 `callentan-repository-skeleton` 分支开始。独立审阅/父会话给出的是静态反例，未提供新的运行复现；本轮先写真实文件/Git/CLI 测试，再改生产代码，不把上一轮 378 方法记录当作这三个反例的验证。
+On 2026-10-16, per the user's bounded request for this round, work started from a clean `7f747e55e480b92822c5599d1e9f54dccba98d9d` on the original `callentan-repository-skeleton` branch. The independent review/parent session supplied static counterexamples without a new run reproduction; this round first wrote real file/Git/CLI tests and then changed production code, and it did not treat the previous round's 378-method record as verification of these three counterexamples.
 
-### 范围与修正
+### Scope and fixes
 
-- T8-I1：仅调整 [声明位置登记](../.github/utilities/export_model.py)。root/path 的保护与 baseline 是否存在/有效分开；不完整或不可解析的 domainSources 声明阻止显式输出，但默认可选读取仍保留 gap。可解析位置继续保护子路径；YAML alias 不丢声明上下文。
-- T8-I2：仅在[运行收集](../.github/utilities/collect_implementation_report.py)已有逐目标/判据核对之后，以 pass/fail 行的不同 testId 核对 recorded executed 下限。同一测试覆盖多个独立判据只计一次，额外实际执行可保留；不从命令文本、manual、skipped 或 not-run 推算数量。
-- T8-I3：仅在[计划投影](../.github/utilities/vt_records.py)排除子树前检查全部声明 criterion 的真实正文锚点；位于 runs/applicability 被排除区的判据明确失败，不让修改后的判据冒充旧计划。原标题归属、严格判据边界及 Unicode/BOM/CRLF bytes 保留。
-- 测试只增加在两个已有 collector/model 模块；直接文档仅澄清这三处规则并同步当前状态。五份 schema、32 kinds、九视图、8/21/3 不变，没有新的结果输入账本。
+- T8-I1: only the [declared-location registration](../.github/utilities/export_model.py) was adjusted. Protection of root/path is separated from whether the baseline exists/is valid; an incomplete or unparsable domainSources declaration blocks explicit output, while the default optional read still keeps a gap. Parsable locations continue to protect their subpaths; a YAML alias does not lose the declaration context.
+- T8-I2: only in [run collection](../.github/utilities/collect_implementation_report.py), after the existing per-target/criterion checks, the distinct testIds of pass/fail rows are used to check the lower bound of the recorded executed count. One test covering several independent criteria is counted once, and additional actual executions may be kept; counts are not inferred from command text, manual, skipped, or not-run.
+- T8-I3: only in the [plan projection](../.github/utilities/vt_records.py), before subtrees are excluded, the real body anchors of all declared criteria are checked; a criterion located in the excluded runs/applicability area fails explicitly, so a modified criterion cannot pass as the old plan. The original heading ownership, strict criterion boundaries, and Unicode/BOM/CRLF bytes are preserved.
+- Tests were added only to the two existing collector/model modules; the directly related documents only clarify these three rules and sync the current status. The five schemas, 32 kinds, nine views, and 8/21/3 are unchanged; there is no new result-input ledger.
 
-### 实际证据入口
+### Actual evidence entry points
 
-本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-report.md` 追加本轮完整报告；新 receipts 均在其 `task8-evidence\fix1-*`。这些材料仅本机可访问，不是下游运行依赖。
+This round's full report is appended to `files/ddd-alignment-execution/task8-report.md` in local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; all new receipts are in its `task8-evidence/fix1-*`. This material is accessible only on the local machine and is not a downstream runtime dependency.
 
-- `fix1-before.json` 保存 120 个源文件、1305 个旧任务材料及本报告/原日志前缀身份。
-- `fix1-red-01-all-findings.json`：生产代码未变时 16 方法、18 个失败断言/子例、0 错误/跳过，退出 1。`fix1-red-verified.json` 确认三个生产文件仍等于起点，I3 未被其他 guard 掩盖。
-- `fix1-red-02-i1-files.json`：6 方法、13 个失败断言/子例，明确观察到不该创建的文件实际被写入受控 fixture；新增 alias 上下文控制。测试只清理自己的错误输出，没有写真实领域源。
-- `fix1-green-03-i1.json`、`fix1-green-04-i2.json`、`fix1-green-05-i3.json`：三个聚焦组分别 6、6、5 方法通过，0 跳过、退出 0；均核对输入 bytes/file-set。
-- `fix1-full-06-retained-new.json`：完整 retained+new 实际发现/执行 **395 方法**，0 失败、0 错误、0 跳过，退出 0，460.423 秒；受检源字节未变。原 378 项结果保留原对象，新结果不拼接旧 319/373/378 或 Task7 的历史结果。
-- 最终范围、链接/语法、旧材料与提交后字节核对，以及新 commit SHA，沿上述完整报告的最终追加查看；不在提交前预填自身 SHA。
+- `fix1-before.json` stores the identities of 120 source files, 1305 old task materials, and this report's/the original log's prefixes.
+- `fix1-red-01-all-findings.json`: with production code unchanged, 16 methods, 18 failing assertions/subtests, 0 errors/skipped, exit 1. `fix1-red-verified.json` confirms that the three production files still equal the starting point and that I3 was not masked by another guard.
+- `fix1-red-02-i1-files.json`: 6 methods, 13 failing assertions/subtests; it was explicitly observed that files that should not have been created were actually written into the controlled fixture; an alias-context control was added. The tests clean up only their own erroneous output and did not write to real domain sources.
+- `fix1-green-03-i1.json`, `fix1-green-04-i2.json`, `fix1-green-05-i3.json`: the three focused groups passed 6, 6, and 5 methods respectively, 0 skipped, exit 0; all check input bytes/file sets.
+- `fix1-full-06-retained-new.json`: the complete retained+new suite actually discovered/ran **395 methods**, 0 failures, 0 errors, 0 skipped, exit 0, 460.423 seconds; the checked source bytes did not change. The original 378-test result keeps its original object, and the new result is not combined with the old 319/373/378 results or Task7's historical results.
+- For the final scope, link/syntax, old-material, and post-commit byte checks, and for the new commit SHA, see the final addendum of the full report above; the commit's own SHA is not pre-filled before the commit.
 
-### 关卡与后续
+### Gate and follow-up
 
-本轮本地修正和验证不等于独立批准，Task8 保持**等待限定复审**。合成 VT 记录只验证收集/归属/拒绝路径，不证明外部业务事件或人工审批；实测仍限 Windows/Python 3.13.15，其他宿主和 Python 3.11 未运行。
+This round's local fixes and verification are not independent approval; Task8 remains **awaiting bounded review**. The synthetic VT records verify only the collection/ownership/refusal paths and do not prove external business events or human approval; verification in practice is still limited to Windows/Python 3.13.15, and other hosts and Python 3.11 were not run.
 
-未启动子代理、reviewer、工作流、Task9、应用/原生业务测试、安装、权限/持久 hook 配置、amend、push、PR 或远端操作。完成新范围内本地提交与报告后停止，由调用方核对本轮精确 commit、三处机制、全部新原始证据及旧记录保护，再做限定复审。
+No subagents, reviewers, workflows, Task9, application/native business tests, installs, permission/persistent hook configuration, amend, push, PR, or remote operations were started. Work stops after the new in-scope local commit and report; the caller checks this round's exact commit, the three mechanisms, all new raw evidence, and the protection of old records, and then does the bounded review.
 
 <a id="task8-fix2"></a>
-## Task8 第 2 轮限定修正（2/5）：T8-F1-N1
+## Task8 bounded fix round 2 (2/5): T8-F1-N1
 
-2026-10-16，按本轮限定请求，从干净的 `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` 和原分支/worktree 开始。第 1 轮限定复审已将原 T8-I1/I2/I3 判为 **ADDRESSED**，本轮不重开；只处理业务 tree 的 root/path 被误作领域位置而拒绝合法输出的新 Important。审阅中的这一新反例是静态追踪，下面是新的运行证据。
+On 2026-10-16, per this round's bounded request, work started from a clean `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` on the original branch/worktree. The round-1 bounded review had judged the original T8-I1/I2/I3 as **ADDRESSED**, and this round does not reopen them; it handles only the new Important finding that the root/path of a business tree was mistaken for a domain location, causing valid output to be refused. This new counterexample in the review is a static trace; the following is new run evidence.
 
-- 先只改 `test_model_export.py`，复用现有完整 QAS/utility-tree 夹具，写入审阅给出的 mapping/list 数据并刷新实际 baseline。另加字符串业务标签控制，确认不会生成虚假的受保护目录。两例均通过真实 CLI 导出与 check 往返核对，除显式新输出外全部源 bytes/file-set 保持原样。
-- `fix2-red-01-tree-roundtrip.json`：生产代码未改时 2 方法失败，实际只读 quality 为 available，但合法输出被 `REPORT_CONFLICT` / 2 拒绝，0 错误/跳过。
-- 生产修改仅在 [reserve_declarations](../.github/utilities/export_model.py) 的一个判断条件及注释：缺 baseline 的特殊保护仍在真正的 domainSources 条目上下文生效；其余节点恢复完整 root/path/baseline 的既有 provenance 形状要求，不凭两个业务键猜目录。没有禁用/改名 tree 键，没有改 tree adapter 或 I1 的缺失/不完整/alias/目录保护，也没有改 reference/path+baseline 处理。
-- `fix2-green-02-tree-roundtrip.json`：2 方法 GREEN，0 跳过，退出 0，3.580 秒。
-- `fix2-model-03-complete.json`：只选择整个 model 模块，实际发现/执行 **94 方法**，0 失败/错误/跳过，退出 0，160.163 秒，受检源字节未变。原 92 个模型测试均保留，新增 2；未重跑 395 全套或 collector 套件。
+- First only `test_model_export.py` was changed, reusing the existing complete QAS/utility-tree fixture, writing the mapping/list data given in the review, and refreshing the actual baseline. A string business-label control was also added to confirm that no false protected directory is produced. Both cases were checked with a real CLI export-and-check round trip; apart from the explicit new output, all source bytes/file sets stayed unchanged.
+- `fix2-red-01-tree-roundtrip.json`: with production code unchanged, 2 methods failed: the actual read-only quality was available, but the valid output was refused with `REPORT_CONFLICT` / 2; 0 errors/skipped.
+- The production change is only one condition and its comment in [reserve_declarations](../.github/utilities/export_model.py): the special protection for a missing baseline still applies in the context of real domainSources entries; other nodes return to the existing provenance shape requirement of a complete root/path/baseline, and directories are not guessed from two business keys. The tree keys were not disabled/renamed, the tree adapter and I1's missing/incomplete/alias/directory protections were not changed, and the reference/path+baseline handling was not changed.
+- `fix2-green-02-tree-roundtrip.json`: 2 methods GREEN, 0 skipped, exit 0, 3.580 seconds.
+- `fix2-model-03-complete.json`: only the whole model module was selected, actually discovering/running **94 methods**, 0 failures/errors/skipped, exit 0, 160.163 seconds; the checked source bytes did not change. All 92 original model tests are kept, and 2 were added; the 395-test full suite and the collector suite were not re-run.
 
-新材料在本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task8-evidence\fix2-*`；完整报告追加至同处 `task8-report.md`。`fix2-before.json` 保存 120 个源文件、1322 个旧任务材料及原报告/日志前缀身份。旧 395 全套及父会话在起点运行的 153 方法记录保留其原范围和对象，不计作此次新反例的执行证据。
+The new material is in `files/ddd-alignment-execution/task8-evidence/fix2-*` of local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`; the full report is appended to `task8-report.md` in the same place. `fix2-before.json` stores the identities of 120 source files, 1322 old task materials, and the original report/log prefixes. The old 395-test full suite and the parent session's 153-method run at the starting point keep their original scopes and objects and are not counted as execution evidence for this new counterexample.
 
-本轮只改一处生产机制、同一模型测试文件、直接契约说明和最小状态/日志。schema、32 kinds、九视图和 8/21/3 不变；原 I1/I2/I3 addressed 判定保留，Task8 仍**等待限定复审**。实际新提交与提交后状态沿完整报告最终追加查看。
+This round changed only one production mechanism, the same model test file, the directly related contract notes, and the minimal status/log. The schemas, 32 kinds, nine views, and 8/21/3 are unchanged; the original I1/I2/I3 addressed judgment is kept, and Task8 is still **awaiting bounded review**. For the actual new commit and post-commit state, see the final addendum of the full report.
 
-没有子代理/reviewer、Task9、应用/原生执行、安装、持久权限/hook 变更、amend、push、PR 或远端操作。实测仅 Windows/Python 3.13.15；来源可读/可导出不认证业务结果、人工批准或跨宿主资格。局部提交和交接后停止，由调用方继续限定复审。
+No subagents/reviewers, Task9, application/native execution, installs, persistent permission/hook changes, amend, push, PR, or remote operations. Verified in practice only on Windows/Python 3.13.15; readable/exportable sources do not certify business results, human approval, or cross-host qualification. Work stops after the scoped commit and handoff; the caller continues with the bounded review.
 
 <a id="task8-review"></a>
-## Task8 复审关闭
+## Task8 review closed
 
-2026-10-16，父会话直接核对 `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` 至 `9a3055acf51bcebab9f2a833b91c577a0c1cae49` 的完整七文件局部 diff、两个真实往返控制及报告追加。T8-F1-N1 已处理：缺 baseline 的保护仍由真实 domainSources 上下文驱动，普通业务 root/path 不再误声明路径；原域位置、alias、目录和引用保护保持。未发现本修正引入的重大问题，原 T8-I1/I2/I3 维持上一轮 addressed 判定。
+On 2026-10-16, the parent session directly checked the complete seven-file scoped diff from `062e607cde5cd5ecb2a0b2d83bff60ab2940c867` to `9a3055acf51bcebab9f2a833b91c577a0c1cae49`, the two real round-trip controls, and the report addendum. T8-F1-N1 is addressed: the protection for a missing baseline is still driven by the real domainSources context, and an ordinary business root/path no longer wrongly declares a path; the original domain-location, alias, directory, and reference protections are kept. No major issue introduced by this fix was found, and the original T8-I1/I2/I3 keep the previous round's addressed judgment.
 
-本机会话 `files\ddd-alignment-execution\task8-fix2-review-result.md` 保存本轮复核依据；`task8-fix2-parent-tests.json` 保存父会话在 `9a3055a` 的实际解释器、cwd 和模型模块原始输出：94 方法、0 跳过、退出 0，157.340 秒。前轮三项判定及新问题在 `task8-fix1-review-result.md`，对应独立 collector/model 153 方法结果在 `task8-fix1-parent-tests.json`。这些记录及旧 395 全套不合并、不替换彼此的对象与范围。
+The local session's `files/ddd-alignment-execution/task8-fix2-review-result.md` stores this round's review basis; `task8-fix2-parent-tests.json` stores the parent session's actual interpreter, cwd, and raw model-module output at `9a3055a`: 94 methods, 0 skipped, exit 0, 157.340 seconds. The previous round's three judgments and the new issue are in `task8-fix1-review-result.md`, and the corresponding independent collector/model 153-method result is in `task8-fix1-parent-tests.json`. These records and the old 395-test full suite are not merged and do not replace one another's objects and scopes.
 
-实际 head/parent/trailer、七个提交路径和干净工作树/暂存区已重查。Task8 的有限实现与范围复核关卡关闭，没有遗留的本任务审阅发现；不认证真实业务执行、人工批准或其他宿主。下一步按[任务 9](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9)处理可选治理/审阅/工具资格资料；应用、媒体、平台和发布的独立边界仍保留。
+The actual head/parent/trailer, the seven committed paths, and the clean working tree/index were re-checked. Task8's bounded implementation and scope review gate is closed, with no outstanding review findings for this task; this does not certify real business execution, human approval, or other hosts. The next step, per [Task 9](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9), handles the optional governance/review/tool-qualification material; the separate boundaries for applications, media, platforms, and release remain.
 
 <a id="task9"></a>
-## Task9：可选审阅、工具用途、Intended Use 与风险引用
+## Task9: optional review, tool use, Intended Use, and risk references
 
-2026-10-16，按本轮 Task9 / ENH-09 明确授权，在原 `callentan-repository-skeleton` worktree 从干净的 `002ad73a18700e7c95b21a0fa7d0d84a26f453b5` 开始，暂存区及原有未提交范围均为空。任务 1–8 的已关闭关卡不重开。依据[增强规格](../docs/design/ddd-functional-alignment.md)、[Task9 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9)及固定矩阵 DOMAIN-08、DOMAIN-20、FRAMEWORK-03 的既有记录，不重新获取或运行参考来源。
+On 2026-10-16, under this round's explicit Task9 / ENH-09 authorization, work started in the original `callentan-repository-skeleton` worktree from a clean `002ad73a18700e7c95b21a0fa7d0d84a26f453b5`, with the index and the pre-existing uncommitted scope both empty. The closed gates of Tasks 1–8 are not reopened. The basis is the [enhancement specification](../docs/design/ddd-functional-alignment.md), the [Task9 plan](../docs/plan/2026-10-14-ddd-functional-alignment.md#task9), and the existing records for DOMAIN-08, DOMAIN-20, and FRAMEWORK-03 in the pinned matrix; reference sources were not re-fetched or run.
 
-### 本轮变化与归属
+### Changes in this round and ownership
 
-- 新增[治理指引](../docs/governance.md)、[AI 工具说明](../docs/ai-tooling.md)，以及[审阅记录](../_templates/items/review-record.md)、[工具资格/使用](../_templates/items/tool-qualification.md)、[Intended Use](../_templates/items/intended-use.md)、[风险控制引用](../_templates/items/risk-control.md)四张可选空表。
-- 只合入 README、相关领域/要求/架构/验证/日志指引的必要导航，以及原 define-requirements、verify-change、record-handoff 的字段入口。新表保持 draft；身份/内容声明/真实关系归 frontmatter，实际决定、评价、当前适用性和 VT 结果不互相替代。
-- 保留现有源接口：review 的 `decision` 两列原字段，risk 的 `analysis/control/residual` 与原风险字段。没有生产工具、schema、依赖、prompt、角色或新方法变更，没有正式治理/QMS/业务实例；仍为 8 方法、21 prompts、3 模式。
+- Added the [governance guide](../docs/governance.md), the [AI tooling notes](../docs/ai-tooling.md), and four optional blank forms: [review record](../_templates/items/review-record.md), [tool qualification/use](../_templates/items/tool-qualification.md), [Intended Use](../_templates/items/intended-use.md), and [risk control reference](../_templates/items/risk-control.md).
+- Merged in only the necessary navigation in the README and the related domain/requirement/architecture/verification/log guides, plus field entry points in the existing define-requirements, verify-change, and record-handoff. The new forms stay draft; identity/content claims/real relations belong to frontmatter, and actual decisions, evaluations, current applicability, and VT results do not substitute for one another.
+- The existing source interfaces are kept: the original two-column `decision` field for review, and `analysis/control/residual` plus the original risk fields for risk. No production tool, schema, dependency, prompt, role, or new-method change, and no formal governance/QMS/business instance; still 8 methods, 21 prompts, 3 modes.
 
-### 实际检查与证据入口
+### Actual checks and evidence entry points
 
-本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的 `files\ddd-alignment-execution\task9-evidence\` 保存本轮原始证据；同级 `task9-report.md` 汇总精确命令、cwd、源字节、状态与最终提交。只在本机可访问，不是公共或跨机器 CI 证据。
+`files/ddd-alignment-execution/task9-evidence/` of local session `1ff56941-bf56-4aa4-b769-fd4720915e1f` stores this round's raw evidence; the sibling `task9-report.md` summarizes the exact commands, cwd, source bytes, status, and final commit. Accessible only on the local machine; not public or cross-machine CI evidence.
 
-| 证据入口 | 对象、观察与限制 |
+| Evidence entry point | Object, observation, and limitations |
 |---|---|
-| `baseline.json`、`baseline-reading.md` | 精确干净起点，120 个原文件与 1353 个旧任务材料的 bytes 身份；已有方法对 10 情形的安全决定原本成立，没有伪造 RED |
-| `method-use.md` | 三处方法导航的逐项直接应用；只读输入仍返回发现，不执行/保存；不是独立 Agent、人工 T17 或原生权限观察 |
-| `run-03\provenance.json`、`case-results.json` | 10 个预备情形、11 份实际复制/填写的四类表单，保存模板与实填 bytes、字段、完整身份及具体缺口 |
-| `run-03\check-filled.json`、`command-*.json` | 现有 checker 实际尝试/检查 13 个正式合成记录，clean；四种缺确认元数据由 parser 报 INVALID_METADATA；source/result 两个已存在输出目标均拒绝覆盖 |
-| `run-03\model-alpha.json`、`model-beta.json`、`model-unavailable.json` | 合成决定治理来源 available 不等于批准；未知控制前/残余风险为 partial，不可用来源为 unverified；异 scope 同号不混用决定 |
-| `run-03\coverage-missing.json`、`optional-free.json` | 完整两项目标盘点定位第二项 UNCOVERED_ACCEPTANCE，VT 原 not-run 不改写；无治理要求的维护为 empty 库存，不算业务通过 |
-| `run-03\navigation.json`、`protected-bytes.json` | 104 个候选文件、619 条本地链接/锚点无缺口；不含制作资料/测试依赖，输入与旧结果 bytes 保留，拒绝覆盖另列 |
+| `baseline.json`, `baseline-reading.md` | The exact clean starting point and the byte identities of 120 original files and 1353 old task materials; the existing methods' safe decisions for the 10 situations already held, and no RED was fabricated |
+| `method-use.md` | Item-by-item direct application of the three method navigation points; read-only input still returns findings without executing/saving; not an independent agent, manual T17, or native permission observation |
+| `run-03/provenance.json`, `case-results.json` | 10 prepared situations and 11 actually copied/filled-in forms of the four types; stores template and filled-in bytes, fields, complete identities, and concrete gaps |
+| `run-03/check-filled.json`, `command-*.json` | The existing checker actually attempted/checked 13 formal synthetic records: clean; four kinds of missing confirmation metadata are reported by the parser as INVALID_METADATA; both existing output targets (source/result) refuse overwriting |
+| `run-03/model-alpha.json`, `model-beta.json`, `model-unavailable.json` | An available synthetic decision governance source does not equal approval; unknown pre-mitigation/residual risk is partial, and an unavailable source is unverified; same numbers in different scopes do not mix decisions |
+| `run-03/coverage-missing.json`, `optional-free.json` | A complete two-item target inventory locates the second item as UNCOVERED_ACCEPTANCE, and the VT's original not-run is not rewritten; maintenance without governance requirements has an empty inventory, which is not a business pass |
+| `run-03/navigation.json`, `protected-bytes.json` | 104 candidate files and 619 local links/anchors with no gaps; no maker material/test dependencies; input and old result bytes kept, with overwrite refusals listed separately |
 
-夹具只在忽略的 `.venv` 中，报告与记录脚本只在上述获准的绝对会话目录。采用现有 Python 3.13.15、PyYAML 6.0.2、jsonschema 4.23.0；实际 parser 评价的两个自有合成输入、0 跳过与环境/观察保存在夹具原始 `sources\evaluation.json`，不是业务测试。没有重跑无关 Python 全套。前两次有界运行原样保留；后续只细化演练输入的版本变更、用途/跟进与对象范围，未修改生产 validator，不把这些运行合并为更多验收项或伪造失败基线。
+Fixtures are only in the ignored `.venv`, and the report and recording scripts are only in the authorized absolute session directory above. The existing Python 3.13.15, PyYAML 6.0.2, and jsonschema 4.23.0 were used; the two own synthetic inputs actually evaluated by the parser, 0 skipped, and the environment/observations are saved in the fixture's raw `sources/evaluation.json`; this is not a business test. The unrelated full Python suite was not re-run. The first two bounded runs are kept as is; later runs only refined the exercise inputs' version change, use/follow-up, and object scope, without modifying the production validator; these runs are not merged into more acceptance items, and no failing baseline was fabricated.
 
-### 限制与下一步
+### Limitations and next steps
 
-本轮已完成文档实施与自审，**Task9 等待独立范围审阅**，不记录真实 expert/clinical/regulatory approval、风险接受或工具资格。合成具名决定仅证明字段/导航可用；实际确认、组织政策、外部风险源、人工 T17、客户端/OS 权限与业务应用均未验证。当前 Markdown 规则不成为 ACL 或 sandbox。
+This round completed the documentation implementation and self-review; **Task9 awaits independent scope review**, and no real expert/clinical/regulatory approval, risk acceptance, or tool qualification is recorded. Synthetic named decisions only show that the fields/navigation are usable; actual confirmation, organizational policy, external risk sources, manual T17, client/OS permissions, and business applications were not verified. The current Markdown rules do not become an ACL or sandbox.
 
-本轮只授权 20 个文档路径；实际本地提交及提交后 Git 状态以报告最终记录为准，不预填 commit。旧日志前缀与历史结果保持，后续审阅应重查精确提交、实填副本、源字段缺口和只读/覆盖保护。没有子代理/reviewer/workflow、Task10 或后续实现、应用、安装、hook/权限配置、amend、push、PR、发布或远端操作；提交与报告完成后停止，等待本任务的范围审阅。
+This round authorized only 20 documentation paths; the actual local commit and post-commit Git state are as recorded at the end of the report, and the commit is not pre-filled. The old log prefix and historical results are kept; the later review should re-check the exact commit, the filled-in copies, the source field gaps, and the read-only/overwrite protection. No subagents/reviewers/workflows, Task10 or later implementation, applications, installs, hook/permission configuration, amend, push, PR, release, or remote operations; work stops after the commit and report are done, awaiting this task's scope review.
 
 <a id="task9-review"></a>
-## Task9 独立范围审阅关闭
+## Task9 independent scope review closed
 
-2026-10-16，独立 reviewer 核对 `002ad73a18700e7c95b21a0fa7d0d84a26f453b5` 至 `3b818e5902f343a808fe476033256902f0d32a2d` 的全部 20 个 Markdown 变更，判定符合 Task9 / ENH-09 文档范围、质量可接受，无 Critical/Important/Minor 发现。另行只读核对既有 confirmation schema 和 model-source 的 review/risk 字段兼容，没有执行工具或重新审查 Task1–8。
+On 2026-10-16, an independent reviewer checked all 20 Markdown changes from `002ad73a18700e7c95b21a0fa7d0d84a26f453b5` to `3b818e5902f343a808fe476033256902f0d32a2d` and judged them within the Task9 / ENH-09 documentation scope and of acceptable quality, with no Critical/Important/Minor findings. It also separately checked, read-only, the compatibility of the review/risk fields with the existing confirmation schema and model-source; it did not run tools or re-review Task1–8.
 
-原始审阅会话的结果定位与兼容性依据保存在本机会话 `files\ddd-alignment-execution\task9-review-result.md`。父会话已重查实际 head/parent/trailer、变更范围和干净 Git；独立 `task9-parent-consumer.json` 保存现有 checker/trace CLI 的真实参数、cwd、输出与前后字节：13 个正式合成记录 clean，仍精确发现 `task9/alpha/REQ-SYN-001#req-syn-001-ac-02` 在来源第 16 行未覆盖，输入未变。此故意保留的夹具缺口不是产品待办，也没有被伪造为通过。
+The result locations and compatibility basis from the original review session are saved in the local session's `files/ddd-alignment-execution/task9-review-result.md`. The parent session re-checked the actual head/parent/trailer, the change scope, and the clean Git state; a separate `task9-parent-consumer.json` stores the real arguments, cwd, output, and before/after bytes of the existing checker/trace CLIs: the 13 formal synthetic records are clean, and the tool still precisely finds `task9/alpha/REQ-SYN-001#req-syn-001-ac-02` uncovered at line 16 of its source, with inputs unchanged. This deliberately retained fixture gap is not a product backlog item and was not faked as a pass.
 
-Task9 的文档实现/审阅关卡关闭，不认证真实专家决定、工具资格、风险接受、人工 T17 或权限。后续按[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10)实现可选 hooks/CI，并只在受控本地 Git 夹具试验；不在当前真实工作树安装 hook，不更改远端 required checks，也不从文档存在推断 CI 已运行。
+Task9's documentation implementation/review gate is closed; this does not certify real expert decisions, tool qualification, risk acceptance, manual T17, or permissions. Next, per [Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10), implement optional hooks/CI and try them only in a controlled local Git fixture; no hook is installed in the current real working tree, remote required checks are not changed, and CI is not inferred to have run from the existence of documents.
 
 <a id="task10"></a>
-## Task10：可选 index hooks 与分开的本地/CI 接入
+## Task10: optional index hooks and separate local/CI integration
 
-### 会话、依据与 Git
+### Session, basis, and Git
 
-2026-10-16，按用户再次明确的 Task10-only 授权实施，依据为
-[任务 10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10)、ENH-10、
-固定矩阵 FRAMEWORK-05/08/09 及本机会话的完整 brief/16 个预备情形。
-没有重新打开 Task1–9 已关闭的范围关卡，也没有子代理、reviewer 或后续任务。
+On 2026-10-16, implemented under the user's again-explicit Task10-only authorization; the basis is
+[Task 10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10), ENH-10,
+FRAMEWORK-05/08/09 in the pinned matrix, and the local session's full brief/16 prepared situations.
+The closed scope gates of Task1–9 were not reopened, and there were no subagents, reviewers, or later tasks.
 
-起点 `7d22bd1d3889cd918d786991cfab9a9039292b97`，
-分支 `callentan-repository-skeleton`，实际检查暂存与工作树均干净。
-沿用已存在的隔离工作树、Python 3.13.15 项目 venv、Git 2.53.0.windows.4
-及原依赖 lock；不安装新依赖。写本节时，本轮源码/测试/workflow/说明及状态更新
-仍为该起点之上的 Task10 未提交范围，未暂存；获授权本地提交的精确对象与提交后
-状态由下述 `task10-report.md` 记录，不在提交内预填自身 SHA。
+Starting point `7d22bd1d3889cd918d786991cfab9a9039292b97`,
+branch `callentan-repository-skeleton`; the index and working tree were actually checked and both clean.
+The existing isolated worktree, the Python 3.13.15 project venv, Git 2.53.0.windows.4,
+and the original dependency lock were reused; no new dependency was installed. When this section was written, this round's source/tests/workflows/notes and status updates
+were still the uncommitted Task10 scope on top of that starting point, unstaged; the exact object of the authorized local commit and the post-commit
+state are recorded by `task10-report.md` below, and the commit's own SHA is not pre-filled inside the commit.
 
-### 本次变化
+### Changes in this session
 
-- [Python hooks、安装与恢复说明](../.github/hooks/README.md)：默认提案，选定解释器和
-  hook，保留 owner bytes/config；已有 hooksPath/文件/links、共享 metadata 与
-  后续 owner 编辑明确冲突，不覆盖、不跳过后称完整。只在自有 Git 夹具执行安装。
-- [共享 index 适配](../.github/utilities/hook_checks.py)：原始 blobs、完整 staged
-  文件集、mode/blob/tree/基线与实际工具版本身份；含 Git partial commit 的真正
-  alternate index。只使用私有临时普通文件，不执行暂存源码、filters 或 gitlinks。
-  [安装器](../.github/utilities/install_hooks.py)不提交、不改 config、不推送。
-- checker 的私有历史根入口与 trace 的同库存函数作窄复用；没有改 schema、kind、
-  结果所有权或原公开工作树/非空交付选择语义。覆盖从所有 owner 验收出发；零 owner
-  不强造 AC，也不隐藏已声明的悬空 target。
-- commit-msg 的受管路径政策来自 FRAMEWORK-08 的 reviewed-by 文本能力，
-  不认证身份、不生成 reviewer、不改消息；merge/fixup/squash 标题没有特殊放行。
-- 下游 [validate-artifacts](../.github/workflows/validate-artifacts.yml)只调用分发模块；
-  制作专用 [tooling-tests](../.github/workflows/tooling-tests.yml)与
-  [计数 runner](../.github/utilities/tests/run_tooling_tests.py)不进入下游依赖。
-  两份 workflow 声明 lock、明确 cwd、精确 PR head/base 和保留报告，未远端运行。
+- [Python hooks, installation, and recovery notes](../.github/hooks/README.md): proposal by default, with the selected interpreter and
+  hook, preserving owner bytes/config; existing hooksPath/files/links, shared metadata, and
+  later owner edits are explicit conflicts: nothing is overwritten, and nothing is skipped and then called complete. Installation runs only in an own Git fixture.
+- [Shared index adapter](../.github/utilities/hook_checks.py): raw blobs, the complete staged
+  file set, mode/blob/tree/baseline, and the actual tool-version identity, including the real
+  alternate index of a Git partial commit. Only private temporary regular files are used; staged source code, filters, and gitlinks are not executed.
+  The [installer](../.github/utilities/install_hooks.py) does not commit, change config, or push.
+- The checker's private historical-root entry point and trace's same-inventory function are narrowly reused; schemas, kinds,
+  result ownership, and the original public working-tree/non-empty-delivery selection semantics were not changed. Coverage starts from all owner acceptance criteria; zero owners
+  does not force an AC into existence and does not hide a declared dangling target.
+- The commit-msg managed-path policy comes from FRAMEWORK-08's reviewed-by text capability;
+  it does not authenticate identity, generate reviewers, or change messages; merge/fixup/squash titles get no special exemption.
+- The downstream [validate-artifacts](../.github/workflows/validate-artifacts.yml) calls only distributed modules;
+  the maker-only [tooling-tests](../.github/workflows/tooling-tests.yml) and
+  the [counting runner](../.github/utilities/tests/run_tooling_tests.py) do not become downstream dependencies.
+  Both workflows declare the lock, an explicit cwd, the exact PR head/base, and retained reports; they were not run remotely.
 
-### 实际结果入口
+### Actual result entry points
 
-本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的
-`files\ddd-alignment-execution\task10-evidence\` 保存原始 receipt；
-同级 `task10-report.md` 是完整交接。均只在本机可访问，不是公共或 hosted CI 证据。
+In local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`,
+`files/ddd-alignment-execution/task10-evidence/` stores the raw receipts;
+the sibling `task10-report.md` is the full handoff. Both are accessible only on the local machine and are not public or hosted CI evidence.
 
-| 原始入口 | 实际对象、观察及限制 |
+| Raw entry point | Actual object, observation, and limitations |
 |---|---|
-| `native-startup.json` | 两个自有 Git 原生启动试验：绝对 Python shebang 未选到登记 venv，带引号版本也未成功；之后才采用最薄 Git `sh` launcher，并用实际 commit 验证。当前真实 index/config/hooks bytes 保持 |
-| `red-hooks\`、各 `green-*\` 与 `red-*\` | 先观察缺实现及具体边界失败，再作聚焦修正；Windows 路径断言、运行模块预检、目录别名、来源诊断、执行工具身份及 owner receipt 输入修正均保留原失败，不覆盖旧结果 |
-| `final-suite\suite.json`、`unittest.txt`、`command.json` | **仅一次**最终 retained+new：发现/运行/执行 428，跳过 0，失败/错误 0；397 个保留方法与 31 个新 hook 方法，源码/契约/入口读集前后不变，精确起点/base 与 raw 输出均保留 |
-| `final-suite\native-receipts\` | 31 个新方法的真实命令、cwd、输出/退出、index/工作文件/config/owner hook 摘要；实际安装后的 commit 没有隐藏 `--no-verify` 或临时关签名/hook |
-| `runner-controls-final\`、`green-runner-base\` | 独立真实零发现、全跳过、失败/成功套件控制，以及精确/短号/符号/不可用 base；预期失败确实非零，不混入 428 的回归数量 |
-| `static-pre-final-02\` | 8 份 Python 源语法、两份 YAML 与 4 个 shell 片段、本轮说明链接、环境一致性；真实共享工作树仅 inspect，拒绝共享安装且 bytes 不变。工件扫描 empty，不算业务通过 |
+| `native-startup.json` | Two native-startup trials in own Git fixtures: an absolute Python shebang did not select the registered venv, and a quoted version did not succeed either; only then was the thinnest Git `sh` launcher adopted and verified with an actual commit. The current real index/config/hooks bytes were kept |
+| `red-hooks/`, each `green-*/` and `red-*/` | First observed the missing implementation and specific boundary failures, then made focused fixes; the fixes to Windows path assertions, the run-module pre-check, directory aliases, source diagnostics, executing-tool identity, and owner receipt input all keep the original failures without overwriting old results |
+| `final-suite/suite.json`, `unittest.txt`, `command.json` | A final retained+new run, **only once**: 428 discovered/run/executed, 0 skipped, 0 failures/errors; 397 retained methods and 31 new hook methods; the read set of source/contracts/entry points was unchanged before and after; the exact starting point/base and raw output are all kept |
+| `final-suite/native-receipts/` | Real commands, cwd, output/exit, and index/working-file/config/owner-hook digests for the 31 new methods; commits after the actual installation did not hide a `--no-verify` or temporarily disable signing/hooks |
+| `runner-controls-final/`, `green-runner-base/` | Separate real controls for zero discovered, all skipped, and failing/succeeding suites, plus exact/short/symbolic/unavailable bases; expected failures were indeed non-zero and are not mixed into the 428 regression count |
+| `static-pre-final-02/` | Syntax of 8 Python sources, two YAML files and 4 shell snippets, this round's note links, and environment consistency; the real shared working tree was only inspected, the shared install was refused, and bytes were unchanged. The artifact scan is empty, which is not a business pass |
 
-`static-pre-final\failure.json` 保留最初未找到 packaged MinGit Bash 的检查中断；
-定位后使用**已经安装**的另一份 Bash 仅做 YAML run 片段语法检查，没有换用 Python
-执行验证或把语法检查称作 GitHub hosted run。原生 hook 仍由当前 Git 的 `sh` 调用
-登记 venv，空格/Unicode/引号路径与缺运行时失败都有真实提交结果。
+`static-pre-final/failure.json` keeps the initial check interruption when the packaged MinGit Bash was not found;
+after locating it, another **already installed** Bash was used only for syntax checks of the YAML run snippets; Python was not substituted
+for execution verification, and the syntax check is not called a GitHub hosted run. The native hook is still invoked by the current Git's `sh`, calling
+the registered venv; paths with spaces/Unicode/quotes and missing-runtime failures all have real commit results.
 
-### 自审、限制与下一步
+### Self-review, limitations, and next steps
 
-本轮自审沿 Task10 文件清单、全部 16 个预备情形、分发依赖与旧新 API 语义核对；
-它不是独立 reviewer 或人工批准。**Task10 本地实现完成，等待独立范围审阅。**
-复核者应重新检查最终提交、31 个新方法及原生 receipts，尤其是 index 与工作树分离、
-精确 base/工具身份、owner hook/config 保留、空覆盖/错误及真实计数门禁。
+This round's self-review checked against the Task10 file list, all 16 prepared situations, distribution dependencies, and old and new API semantics;
+it is not an independent reviewer or human approval. **The Task10 local implementation is complete and awaits independent scope review.**
+The reviewer should re-check the final commit, the 31 new methods, and the native receipts, especially the separation of index and working tree,
+the exact base/tool identity, owner hook/config preservation, empty coverage/errors, and the real count gate.
 
-没有在当前工作树、主 checkout、用户/global 配置或其他项目安装 hooks；
-共享 metadata 默认安装明确拒绝。托管 CI、POSIX 原生启动、required checks、
-真实身份认证、应用与原 P3 平台/人工项仍为 `not-run` 或未验证。仅本地断言通过
-不能关闭整个 ENH-10；Task11 的 `.feature` fan-out 与多目标提案完全留待原任务。
-提交后停止等待本任务复核，不 amend、push、PR、传播、发布或自动继续后续任务。
+No hooks were installed in the current working tree, the main checkout, user/global configuration, or other projects;
+a default install into shared metadata is explicitly refused. Hosted CI, POSIX native startup, required checks,
+real identity authentication, applications, and the original P3 platform/manual items remain `not-run` or unverified. Local assertions passing alone
+cannot close the whole of ENH-10; Task11's `.feature` fan-out and multi-target proposals are left entirely to that task.
+After the commit, work stops to await this task's review; no amend, push, PR, propagation, release, or automatic continuation to later tasks.
 
 <a id="resume-task10"></a>
-## Task10 修复轮恢复
+## Task10 fix round resumed
 
-2026-10-16 09:08 +08:00，用户再次要求“恢复执行”。父会话重读入口、当前任务和本机证据，实际分支仍为 `callentan-repository-skeleton`、HEAD 为 `92e3d2ae4c576b523cc9a584a542966bcf7b2965`，恢复检查时工作树/暂存区干净。Task1–9 不重复执行；Task10 两项 Important 和一项相关写入恢复问题仍待修正，旧实现的 428 项结果不是这些问题的修复证明。
+At 2026-10-16 09:08 +08:00, the user again asked to "resume execution". The parent session re-read the entry points, the current task, and the local evidence; the actual branch was still `callentan-repository-skeleton`, HEAD `92e3d2ae4c576b523cc9a584a542966bcf7b2965`, and the working tree/index were clean at the resume check. Task1–9 are not re-run; Task10's two Important findings and one related write-recovery issue still await fixes, and the old implementation's 428-test result does not prove these issues are fixed.
 
-原执行代理在当前运行时不可用，未发现其遗留的活动工具命令。本机会话 `files\ddd-alignment-execution\task10-evidence\fix1\` 已保留：隔离 Python 3.11.15 的安装/环境记录、3.11 原生提交参数问题的两项真实失败，以及 3.11/3.13 配置丢失的受控观察；没有生产修复提交。已有测试解释器留在项目忽略区，不重复下载或创建；标准 Windows venv loader 的自身拒绝与受控完整解释器回退观察分别记录，不能称 POSIX 已测试。
+The original executing agent is unavailable in the current runtime, and no active tool commands left by it were found. The local session's `files/ddd-alignment-execution/task10-evidence/fix1/` already keeps the install/environment records of an isolated Python 3.11.15, two real failures from the 3.11 native commit-argument problem, and the controlled observation of configuration loss on 3.11/3.13; there is no production fix commit. The existing test interpreter stays in the project's ignored area and is not downloaded or created again; the standard Windows venv loader's own refusal and the controlled fallback to the complete interpreter are recorded separately, and POSIX cannot be called tested.
 
-该次 3.11 环境恢复实际发现旧 lock 缺少 `referencing` 在 Python <3.13 下所需的条件依赖；旧失败和随后环境恢复记录都保留。后续只对支持版本所需的 lock 条件项及直接说明作必要修正，不升级原依赖或改主环境。恢复执行继续同一限定修复轮，沿本机 `task10-fix1-resume-brief.md` 重新核对源/运行时，再取得新修正结果与复审；不在真实工作树安装 hooks，不运行远端 CI 或推导资格、业务、跨宿主通过。
+That 3.11 environment restoration actually found that the old lock lacked the conditional dependency that `referencing` requires on Python <3.13; both the old failure and the subsequent environment-restoration records are kept. Later work only makes the necessary fixes to the lock's conditional entries needed for supported versions and to the directly related notes, without upgrading the original dependencies or changing the main environment. Resumed execution continues the same bounded fix round, re-checks the sources/runtime per the local `task10-fix1-resume-brief.md`, and then obtains new fix results and a review; no hooks are installed in the real working tree, no remote CI is run, and no qualification, business, or cross-host pass is inferred.
 
 <a id="task10-fix1"></a>
-## Task10 第 1 轮限定修正（恢复执行）
+## Task10 bounded fix round 1 (resumed execution)
 
-### 任务、Git 与既有状态
+### Task, Git, and existing state
 
-2026-10-16，继续用户 09:08 +08:00“恢复执行”所指的同一轮修正，不是重做
-[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10) 或推进后续任务。
-起点为 `92e3d2ae4c576b523cc9a584a542966bcf7b2965`，
-分支仍为 `callentan-repository-skeleton`；暂存区为空，原有未提交内容仅为上一节
-父会话的恢复说明。该说明和此前全部日志字节前缀保留。
-本轮按已有授权作一个带指定 coauthor 的本地提交；最终对象、准确文件清单与提交后
-状态由同一份本机 `task10-report.md` 追加段及其 delivery receipts 定位，不 amend。
+On 2026-10-16, this continues the same fix round referred to by the user's "resume execution" at 09:08 +08:00; it does not redo
+[Task10](../docs/plan/2026-10-14-ddd-functional-alignment.md#task10) or advance later tasks.
+The starting point is `92e3d2ae4c576b523cc9a584a542966bcf7b2965`,
+and the branch is still `callentan-repository-skeleton`; the index was empty, and the only pre-existing uncommitted content was the previous section's
+resume note by the parent session. That note and the byte prefix of the entire earlier log are kept.
+Under the existing authorization, this round makes one local commit with the specified co-author; the final object, exact file list, and post-commit
+state are located by the addendum in the same local `task10-report.md` and its delivery receipts; no amend.
 
-依据为原 Task10/ENH-10、原独立审阅 `task10-review-findings.md` 的 T10-I1/I2/M1
-和恢复 brief 的关联条件依赖授权。原 worker 已保存的解释器配置、依赖失败/恢复、
-I1 两项原生 RED 与配置丢失观察均从原记录读取，不重新下载、覆盖或改记为本轮动作。
+The basis is the original Task10/ENH-10, T10-I1/I2/M1 from the original independent review `task10-review-findings.md`,
+and the resume brief's authorization for the associated conditional dependency. The interpreter configuration, dependency failure/recovery,
+the two native REDs for I1, and the configuration-loss observation saved by the original worker are all read from the original records; they are not re-downloaded, overwritten, or re-recorded as actions of this round.
 
-### 本轮变化
+### Changes in this round
 
-- `hook_checks.py` 的共享参数解析兼容 3.11 的原生 commit-msg 顺序；受管与非受管
-  实际提交分别验证，不把验证逻辑移入 shell。
-- installer probe 与两份入口共用窄用途环境检查。launcher 保留准确所选 executable/
-  prefix；启动时先核对版本、venv/config、固定直接依赖及可导入性，再读 index/工件，
-  结束前重验配置/环境身份。配置丢失或 base 回退不再只是成功报告中的一个字段。
-- installer 在独占创建后立即记账；短写或 write/flush/close 失败保留准确路径、
-  预期/当前字节和手工恢复状态，不自动删除。实际 owner 后续编辑保持，重装/恢复
-  遇到残留或不匹配收据仍拒绝。错误通过受控 fixture I/O 注入，不制造真实磁盘满。
-- lock 仅追加已实际安装核对的 `typing-extensions==4.16.0` / Python `<3.13` 条件项。
-  原六项 pins 不变；现有 3.11 隔离环境离线从更新 lock 恢复并检查，主 3.13
-  只有 dry-run/一致性读取，仍选择原六项。直接说明及原生/依赖契约测试同步更新。
+- The shared argument parsing in `hook_checks.py` is compatible with 3.11's native commit-msg order; managed and unmanaged
+  actual commits are verified separately, and the verification logic is not moved into the shell.
+- The installer probe and the two entry points share a narrow-purpose environment check. The launcher keeps the exact selected executable/
+  prefix; at startup it first checks the version, venv/config, pinned direct dependencies, and importability, then reads the index/artifacts,
+  and re-verifies the configuration/environment identity before finishing. Configuration loss or a fallback to base is no longer just a field in a success report.
+- The installer records to its ledger immediately after exclusive creation; a short write or a write/flush/close failure keeps the exact path,
+  expected/current bytes, and manual-recovery state, without automatic deletion. Actual later owner edits are kept, and reinstall/recovery
+  still refuses when it meets leftovers or mismatched receipts. Errors are injected through controlled fixture I/O; no real full disk is produced.
+- The lock only appends the conditional entry `typing-extensions==4.16.0` / Python `<3.13`, verified by an actual install.
+  The original six pins are unchanged; the existing isolated 3.11 environment was restored offline from the updated lock and checked, while the main 3.13
+  only had a dry-run/consistency read and still selects the original six. The directly related notes and the native/dependency contract tests were updated accordingly.
 
-### 实际结果入口与适用性
+### Actual result entry points and applicability
 
-本机会话 `1ff56941-bf56-4aa4-b769-fd4720915e1f` 的原
-`files\ddd-alignment-execution\task10-report.md` 追加本轮结果；新的原始证据全部
-在 `task10-evidence\fix1-resume\`，只在本机可访问，不是跨机器或 hosted 证据。
+In local session `1ff56941-bf56-4aa4-b769-fd4720915e1f`, this round's results are appended to the original
+`files/ddd-alignment-execution/task10-report.md`; all new raw evidence
+is in `task10-evidence/fix1-resume/`, accessible only on the local machine, and is not cross-machine or hosted evidence.
 
-- `baseline.json`、`saved-native-audit.json`：现场、原日志/报告前缀、旧证据身份和完整
-  原生收据读取；旧 3.11 RED 仍在 `fix1\red311-i1\`，没有覆盖。
-- `red313-runtime-recovery-lock\`、`red311-parser-lock\` 与各新 `green*`：
-  先观察配置回退/版本漂移、部分写入和条件 lock 的真实反例，再作逐项修正。
-  3.13 RED 的 8 方法有 12 条断言失败（含子测试），不是 12 个方法；0 errors/skips。
-- `runtime-lock.json`：3.11 离线 sync/check 的七项实际库存、元数据条件来源，以及
-  3.13 dry-run 的六项选择和未改环境。没有未声明的测试专用依赖。
-- `final311\suite.json`、`unittest.txt`、`command.json`：本轮仅一次完整最终
-  retained+new，3.11.15 实际发现/运行/执行 **439**、失败/错误/跳过均 0，
-  runner 723.375 秒。原 428 个测试身份全部保留，新增 11；源/测试读集前后不变。
-- `focused313-final\`：3.13.15 只执行 **42** 项聚焦 hook/依赖回归，失败/错误/
-  跳过均 0；没有为了重复证明再跑该版本完整套件。
-- `results-audit.json`：两个版本各有 31 次实际安装后的原生提交（13 接受、
-  18 按预期拒绝），无隐藏 bypass；受控 I/O 与发现/执行数量分别核对。
-- `runner-controls311\`：独立零发现、全跳过、失败、成功控制的实际退出
-  `1/1/1/0`，不混入 439 或 42 的方法数。`static-final\` 和 delivery receipts
-  保留文档/语法、精确 base 与真实 index/config/hooks/source 的只读及提交边界。
+- `baseline.json`, `saved-native-audit.json`: the on-site state, the original log/report prefixes, the old evidence identities, and a read of the complete
+  native receipts; the old 3.11 RED is still in `fix1/red311-i1/` and was not overwritten.
+- `red313-runtime-recovery-lock/`, `red311-parser-lock/`, and each new `green*`:
+  real counterexamples of configuration fallback/version drift, partial writes, and the conditional lock were observed first and then fixed item by item.
+  The 3.13 RED's 8 methods had 12 assertion failures (including subtests), not 12 methods; 0 errors/skips.
+- `runtime-lock.json`: the seven actual inventory items from the 3.11 offline sync/check and the metadata sources of the condition, plus
+  the six selections of the 3.13 dry-run and the unchanged environment. No undeclared test-only dependencies.
+- `final311/suite.json`, `unittest.txt`, `command.json`: this round's only complete final
+  retained+new run; 3.11.15 actually discovered/ran/executed **439**, with 0 failures/errors/skipped,
+  runner 723.375 seconds. All 428 original test identities are kept, and 11 were added; the source/test read set was unchanged before and after.
+- `focused313-final/`: 3.13.15 ran only **42** focused hook/dependency regressions, with 0 failures/errors/
+  skipped; the full suite was not re-run on that version just to prove the same thing again.
+- `results-audit.json`: each of the two versions has 31 native commits after actual installation (13 accepted,
+  18 rejected as expected), with no hidden bypass; controlled I/O and discovered/executed counts were checked separately.
+- `runner-controls311/`: the separate zero-discovered, all-skipped, failing, and succeeding controls actually exited
+  `1/1/1/0` and are not mixed into the 439 or 42 method counts. `static-final/` and the delivery receipts
+  keep the documentation/syntax checks, the exact base, and the read-only and commit boundaries of the real index/config/hooks/source.
 
-标准 Windows venv loader 在配置丢失时已自行拒绝，不能算新增 guard 的预修正失败。
-完整 Windows 解释器副本则在明确的 PYTHONHOME/PYTHONPATH 边界条件下真实启动，
-丢失 venv prefix 后由共享 guard 返回输入错误，未执行工件/index 检查；没有向
-base/global 安装依赖。这些是本机 Windows 实验，**不是 POSIX/Ubuntu 的实测**。
+The standard Windows venv loader already refuses on its own when the configuration is lost, so that cannot count as a pre-fix failure of the new guard.
+A complete Windows interpreter copy, by contrast, really started under explicit PYTHONHOME/PYTHONPATH boundary conditions;
+after the venv prefix was lost, the shared guard returned an input error and no artifact/index check ran; no dependencies were installed into
+base/global. These are local Windows experiments, **not verification in practice on POSIX/Ubuntu**.
 
-### 自审与下一步
+### Self-review and next steps
 
-本轮自审只覆盖上述三项与关联 lock、直接文档/状态和全部现存回归身份；没有改变
-schema/kind、来源/报告所有权、原工具算法、workflows 或 Task1–9 的其他实现。
-**修正已实现，等待 Task10 限定复审，审阅关卡未关闭。**
+This round's self-review covers only the three items above plus the associated lock, the directly related documents/status, and all existing regression identities; it did not change
+schema/kind, source/report ownership, the original tool algorithms, workflows, or any other implementation of Task1–9.
+**The fixes are implemented and await the Task10 bounded review; the review gate is not closed.**
 
-真实工作树/main checkout/user/global 未安装 hooks 或改配置；没有应用、
-POSIX/WSL/container 安装、远端 CI、required checks、push、PR、发布或新 worker。
-原 428 与新 439/42 的对象/运行各自保留；本机通过不推出托管、身份认证、业务或
-增强整体通过。保持分支/worktree，提交后停止，下一步仅为本轮独立限定复审。
+No hooks were installed and no configuration was changed in the real working tree/main checkout/user/global; no application,
+POSIX/WSL/container installs, remote CI, required checks, push, PR, release, or new worker.
+The objects/runs of the original 428 and the new 439/42 are each kept; a local pass does not imply a hosted, identity-authentication, business, or
+whole-enhancement pass. The branch/worktree are kept; work stops after the commit, and the only next step is this round's independent bounded review.
 
 <a id="task10-fix2"></a>
-## Task10 第 2 轮窄修正：Minor 报告导入边界
+## Task10 narrow fix round 2: Minor report-import boundary
 
-2026-10-16，沿用户限定的 T10-F1-N1 继续。干净起点
-`edca016ca976642fb2bf93cef3f542018ba13e7a`，分支
-`callentan-repository-skeleton`，无原有 dirty/index 改动。
-本机 `task10-fix1-review-result.md` 已将原 I1/I2/M1 和条件 lock 判为 ADDRESSED，
-维持关闭；无新增 Important/Critical。本轮只有新增 Minor，不重开这些发现。
+On 2026-10-16, work continued on T10-F1-N1 as bounded by the user. Clean starting point
+`edca016ca976642fb2bf93cef3f542018ba13e7a`, branch
+`callentan-repository-skeleton`, with no pre-existing dirty/index changes.
+The local `task10-fix1-review-result.md` had judged the original I1/I2/M1 and the conditional lock as ADDRESSED,
+and they remain closed; there are no new Important/Critical findings. This round has only the new Minor and does not reopen those findings.
 
-原 `run_hook` 在 selected-prefix 不匹配时已拒绝并保持退出 2，但 `main --report`
-又为写报告导入 `check_artifacts` 及 YAML/jsonschema/referencing 链。实际 RED
-在 3.11.15/3.13.15 均复现：各 6 方法、8 条子测试断言失败、0 errors/skips。
-拒绝始终成立，原生 launcher 不请求报告；这不是成功 fallback 或原生提交漏洞。
+The original `run_hook` already refused and kept exit 2 when the selected prefix did not match, but `main --report`
+still imported `check_artifacts` and the YAML/jsonschema/referencing chain to write the report. The actual RED
+reproduced on both 3.11.15 and 3.13.15: 6 methods each, 8 failing subtest assertions, 0 errors/skips.
+The refusal always held, and the native launcher does not request a report; this is not a successful fallback or a native commit vulnerability.
 
-本轮生产改动仅为共享 main/报告衔接与初始启动校验布尔标记。启动拒绝时不导入
-validator、不检查或创建报告路径，stdout JSON 与恢复提示/退出 2 保留，并明确
-`report_output.written: false`、`reason: startup-refused`。有效环境仍用原共享
-exclusive/conflict 写入；有效环境下的源/基线输入错误仍可保存新报告，不复制写入引擎。
+This round's production change is only the shared main/report hand-off and a boolean flag for the initial startup check. When startup is refused, the
+validator is not imported and the report path is not checked or created; the stdout JSON and the recovery hint/exit 2 are kept, with explicit
+`report_output.written: false` and `reason: startup-refused`. A valid environment still uses the original shared
+exclusive/conflict write; source/baseline input errors in a valid environment can still save a new report, and the write engine is not duplicated.
 
-6 个新回归覆盖两份入口、新/已有报告、显式子进程 import 观察与不带观察的真实 CLI，
-以及有效环境的创建/冲突和输入错误报告控制。import 观察只记录并委托真正导入，
-不 mock 运行时或 Git stdout，也不声称 native POSIX。源、消息、index/config/hooks
-和既有报告字节分别核对；测试没有创建新解释器或安装 hooks。
+The 6 new regressions cover both entry points, new/existing reports, explicit subprocess import observation and the real CLI without observation,
+plus controls for creation/conflict and input-error reports in a valid environment. The import observation only records and delegates to the real import;
+it does not mock the runtime or Git stdout, and it does not claim native POSIX. The bytes of sources, messages, index/config/hooks,
+and existing reports are checked separately; the tests did not create a new interpreter or install hooks.
 
-新证据只在本机会话 `files\ddd-alignment-execution\task10-evidence\fix2\`：
-`baseline.json`、`red311-report-startup\`、`red313-report-startup\` 和
-`green311-report-selectors\`、`green313-report-selectors\` 保存完整参数/cwd/
-stdout/stderr/退出与前后摘要。两个版本最终各发现/执行 **9 方法**（6 新 + 3 保留），
-失败/错误/跳过均 0；3.11 为 63.000 秒，3.13 为 52.419 秒。这些是受影响选择器，
-不是重跑 439 全套，也不与旧 439/42 或复审记载的独立 112 项合成新总数。
+The new evidence is only in the local session's `files/ddd-alignment-execution/task10-evidence/fix2/`:
+`baseline.json`, `red311-report-startup/`, `red313-report-startup/`, and
+`green311-report-selectors/`, `green313-report-selectors/` store the complete arguments/cwd/
+stdout/stderr/exit and before/after digests. Each version finally discovered/ran **9 methods** (6 new + 3 retained),
+with 0 failures/errors/skipped; 63.000 seconds on 3.11 and 52.419 seconds on 3.13. These are the affected selectors,
+not a re-run of the 439-test full suite, and they are not combined with the old 439/42 or the separate 112 recorded by the review into a new total.
 
-同一份本机 `task10-report.md` 追加 fix2 的最终提交、静态/保护检查和原始证据入口；
-原日志全部 97,086 字节前缀和此前报告/证据保留，不改写历史结果。仅有界自审后
-按授权作一个带指定 coauthor 的新本地提交，不 amend；对象与提交后状态回报告读取。
-本机证据不是公共或托管结果，原 I1/I2/M1/lock 已关闭与新 Minor 待复审分别记录。
+The same local `task10-report.md` appends fix2's final commit, static/protection checks, and raw evidence entry points;
+the original log's full 97,086-byte prefix and the earlier reports/evidence are kept, and historical results are not rewritten. Only after a bounded self-review,
+one new local commit with the specified co-author is made under the authorization, with no amend; read the object and post-commit state from the report.
+Local evidence is not a public or hosted result; the closure of the original I1/I2/M1/lock and the new Minor awaiting review are recorded separately.
 
-**第 2 轮修正已实现，等待 T10-F1-N1 限定复审；任务关卡未关闭。**
-不改 schema、lock、workflow、installer 或后续任务；不安装/更改真实 hook/config，
-不重做原生环境实验，不安装运行时/依赖，不启动子代理、reviewer、应用或 Task11，
-不执行远端 CI、push、PR 或发布。POSIX/托管平台未执行限制保持，提交后停止。
+**The round-2 fix is implemented and awaits the T10-F1-N1 bounded review; the task gate is not closed.**
+No changes to schemas, the lock, workflows, the installer, or later tasks; no installing/changing of the real hook/config,
+no redoing of native environment experiments, no installing of runtimes/dependencies, no starting of subagents, reviewers, applications, or Task11,
+and no remote CI, push, PR, or release. The limitation that POSIX/hosted platforms were not run remains; work stops after the commit.
 
 <a id="task10-review"></a>
-## Task10 本地范围复核关闭
+## Task10 local scope review closed
 
-2026-10-16，原 I1/I2/M1 和 `<3.13` 条件依赖已由独立 reviewer 确认为 ADDRESSED；
-本次父会话直接读取 `edca016ca976642fb2bf93cef3f542018ba13e7a` 至
-`02657745e3b7212ebe2b3b58ec7a9a83713317f2` 的完整七文件局部 diff 与报告追加，
-确认 Minor T10-F1-N1 已处理，未发现该修正引入的新问题。只改初始校验标记与报告衔接，
-不复制报告 writer、不削弱正常环境的 exclusive/conflict 保护；不重复原 Task10 全量审阅。
+On 2026-10-16, the original I1/I2/M1 and the `<3.13` conditional dependency had been confirmed ADDRESSED by the independent reviewer;
+this time the parent session directly read the complete seven-file scoped diff from `edca016ca976642fb2bf93cef3f542018ba13e7a` to
+`02657745e3b7212ebe2b3b58ec7a9a83713317f2` and the report addendum,
+and confirmed that Minor T10-F1-N1 is addressed, with no new issue introduced by the fix. Only the initial-check flag and the report hand-off changed;
+the report writer was not duplicated, and the exclusive/conflict protection of a normal environment was not weakened; the original full Task10 review was not repeated.
 
-本机会话 `files\ddd-alignment-execution\task10-fix1-review-result.md` 与
-`task10-fix2-review-result.md` 分别保留两轮判定。父会话另在最新修正对象上用现有
-3.11.15/3.13.15 分别执行 6 个 `StartupReportTests`，均无失败、错误或跳过、退出 0；
-原始输出/receipt 在 `task10-evidence\fix2-parent311\`、`fix2-parent313\`。
-3.11 原始 unittest 用时 32.213 秒，3.13 为 26.847 秒；捕获开销另记，不混作测试时长。
-此前 `task10-fix1-parent311.json` 的 112 项和实现者 439/42 项保持原对象，不拼成新全套。
+The local session's `files/ddd-alignment-execution/task10-fix1-review-result.md` and
+`task10-fix2-review-result.md` keep the two rounds' judgments respectively. On the latest fix object, the parent session also used the existing
+3.11.15/3.13.15 to run the 6 `StartupReportTests` on each, with no failures, errors, or skips, and exit 0;
+the raw output/receipts are in `task10-evidence/fix2-parent311/` and `fix2-parent313/`.
+The raw unittest duration was 32.213 seconds on 3.11 and 26.847 seconds on 3.13; capture overhead is recorded separately and not counted as test duration.
+The earlier 112 tests in `task10-fix1-parent311.json` and the implementer's 439/42 keep their original objects and are not combined into a new full suite.
 
-实际 head/parent/coauthor、七个提交路径和干净工作树/暂存区已核对。Task10 的本地实现
-及有限范围审阅关卡关闭，无遗留的本任务发现；不是整个 ENH-10 或托管平台通过。
-真实项目安装、POSIX/Ubuntu 原生执行、服务端 required checks、应用和人工验收仍未执行。
-下一步按[Task11](../docs/plan/2026-10-14-ddd-functional-alignment.md#task11)实现本地三方更新
-及多目标提案，不因此授权 clone/fetch/远端写入/PR、自动合并或发布。
+The actual head/parent/co-author, the seven committed paths, and the clean working tree/index were checked. Task10's local implementation
+and bounded scope review gate is closed, with no outstanding findings for this task; this is not a pass of the whole of ENH-10 or of hosted platforms.
+Real project installation, POSIX/Ubuntu native execution, server-side required checks, applications, and manual acceptance have still not been run.
+The next step, per [Task11](../docs/plan/2026-10-14-ddd-functional-alignment.md#task11), implements the local three-way update
+and multi-target proposals; this does not authorize clone/fetch/remote writes/PRs, automatic merges, or release.
 
 <a id="task11"></a>
-## Task11：只读三方模板与明确 BC 场景提案
+## Task11: read-only three-way template update and explicit BC scenario proposals
 
-2026-10-16，只实施已授权增强计划的 Task11，从干净
-`2a8c9a95ad991167756ba7b02ec5727b3100ed2c`、原
-`callentan-repository-skeleton` linked worktree 开始；不创建新 worktree、不访问主 checkout。
-开工时核对 135 个原 tracked 文件、暂存区/工作文件无改动，实际维护解释器仍为
-3.13.15，已有最低版本解释器为 3.11.15。本轮无安装、运行时或依赖变化。
-开工的 445 个测试身份只是 discovery 清单，不是先前通过的全套。
+On 2026-10-16, only Task11 of the authorized enhancement plan was implemented, starting from a clean
+`2a8c9a95ad991167756ba7b02ec5727b3100ed2c` in the original
+`callentan-repository-skeleton` linked worktree; no new worktree was created and the main checkout was not accessed.
+At the start, 135 original tracked files were verified, with no changes in the index/working files; the actual maintenance interpreter was still
+3.13.15, and the existing minimum-version interpreter was 3.11.15. This round made no install, runtime, or dependency changes.
+The 445 test identities at the start are only a discovery list, not a previously passed full suite.
 
-### 实施范围与判断
+### Implementation scope and judgments
 
-- [只读 core](../.github/utilities/plan_template_update.py)以窄 dataclass 比较真实
-  base/local/candidate 的原始 bytes；UPDATE-01…16 含双向修改/删除冲突、本地主动删除、
-  add/add、本地业务文件、精确内容/本地 Git 版本、别名/排除、读失败、漂移及输出保护。
-- [明确登记契约](../docs/template-updates.md#registration)与
-  [空白数据表单](../_templates/config/template-updates.yaml)只含来源、版本和允许文件：
-  场景→明确 BC/repo/context→本地映射→独立 no-change/proposed/conflict/unavailable。
-  复用安全 YAML reader 和受限 Git helper，不发明根/版本、复制 model 或整仓。
-  目标失败不抹去其他提案；未选/缺失的登记目标根仍受输出保护。
-- 新增第九个 [update-template 方法](../.github/skills/update-template/SKILL.md)、
-  第二十二个[薄 prompt](../.github/prompts/update-template.prompt.md)和维护者侧手动
-  `propose-template-updates.yml`；三个模式不变。原八方法保留，不增加角色流水线，
-  workflow 不成为下游 runtime dependency，YAML 只作本地读取/范围自审，未执行。
-- [工具说明](../.github/utilities/README.md#template-update)、开发登记、README/AGENTS、
-  接入导航、计划/规格/roadmap 与 FRAMEWORK-09 的本地差距同步；原生六方法/五 prompts
-  的历史观察不扩为九/二十二已获客户端验证，旧 38 文件也不是本轮 release allowlist。
+- The [read-only core](../.github/utilities/plan_template_update.py) uses narrow dataclasses to compare the raw bytes of the real
+  base/local/candidate; UPDATE-01–16 cover modify/delete conflicts in both directions, deliberate local deletions,
+  add/add, local business files, exact content/local Git versions, aliases/exclusions, read failures, drift, and output protection.
+- The [explicit registration contract](../docs/template-updates.md#registration) and
+  the [blank data form](../_templates/config/template-updates.yaml) contain only sources, versions, and allowed files:
+  scenario → explicit BC/repo/context → local mapping → separate no-change/proposed/conflict/unavailable.
+  The safe YAML reader and the restricted Git helper are reused; roots/versions are not invented, and models or whole repositories are not copied.
+  A target failure does not erase other proposals; unselected/missing registered target roots remain under output protection.
+- Added the ninth [update-template method](../.github/skills/update-template/SKILL.md),
+  the twenty-second [thin prompt](../.github/prompts/update-template.prompt.md), and the maintainer-side manual
+  `propose-template-updates.yml`; the three modes are unchanged. The original eight methods are kept, no role pipeline was added,
+  the workflow does not become a downstream runtime dependency, and the YAML was only read locally/self-reviewed for scope, not run.
+- The [tool notes](../.github/utilities/README.md#template-update), development registration, README/AGENTS,
+  integration navigation, plan/specification/roadmap, and the local gap for FRAMEWORK-09 were synced; the historical observation of six native methods/five prompts
+  is not extended into nine/twenty-two verified by clients, and the old 38 files are not this round's release allowlist.
 
-### TDD、自审与有限自用入口
+### TDD, self-review, and bounded self-use entry points
 
-新增[回归测试](../.github/utilities/tests/test_template_update.py)从实际冲突 RED 开始，
-随后三方/读边界、版本/scope、批量登记各先失败再实现。自审另复现“选定文件 stat 后消失
-被当缺席”和“来源/目标诊断混淆”，分别修正；输出保留根解析失败也取得真实拒绝路径 RED，
-再窄映射为 input-error/2，不吞为成功。读取失败的 Windows 文件锁、目录 junction 与真实
-Git 对象/CLI 使用实际资源；目录枚举、受控变更和输出解析 I/O 注入另行标注，不冒充 OS ACL。
+The new [regression tests](../.github/utilities/tests/test_template_update.py) started from an actual conflict RED;
+then the three-way/read boundaries, version/scope, and batch registration each failed first and were implemented afterwards. Self-review also reproduced "a selected file that disappears after stat
+is treated as absent" and "source/target diagnostics are confused", and fixed each; a failure to resolve the output-protection root also got a real refusal-path RED
+before being narrowly mapped to input-error/2 rather than swallowed as success. The read-failure tests for Windows file locks, directory junctions, and real
+Git objects/CLI use actual resources; I/O injection for directory enumeration, controlled changes, and output resolution is marked separately and does not pose as an OS ACL.
 
-仅本机可访问的证据在本会话 `files\ddd-alignment-execution\task11-evidence\`，
-完整报告入口为同级 `task11-report.md`（完成阶段写入）；不是分发内容或跨机器公开证据。
-`start.json` 保存原文件摘要/445 个身份；`red-01`、`green-02`、`red-03/green-04`、
-`red-05/green-06`、`red-07/check-08`、`red-09/green-10` 保存准确 runner argv/cwd、
-stdout/stderr、发现/执行/失败/错误/跳过和源读集。最近完整的 Task11 聚焦组为
-58 方法、0 失败/错误/跳过；新增的独立 consumer 与输出解析 guard 各另有 1 方法实跑，
-不能将这些选择器拼成一次新的全套结果。
+Evidence accessible only locally is in this session's `files/ddd-alignment-execution/task11-evidence/`,
+and the full report entry point is the sibling `task11-report.md` (written at the completion stage); this is not distributed content or cross-machine public evidence.
+`start.json` stores the original file digests/445 identities; `red-01`, `green-02`, `red-03/green-04`,
+`red-05/green-06`, `red-07/check-08`, `red-09/green-10` store the exact runner argv/cwd,
+stdout/stderr, discovered/run/failed/error/skipped counts, and the source read set. The most recent complete Task11 focused group is
+58 methods, 0 failures/errors/skipped; the new separate consumer and the output-resolution guard each had 1 more method actually run,
+and these selectors cannot be combined into one new full-suite result.
 
-新方法按 writing-skills 做有界自用。`method-before-observation.md` 保留
-project-onboarding 的**正确**基线，不制造旧方法错误；positive/conflict/missing-base
-读取实际夹具后得到 0/1/2，全部源 bytes/文件集不变。只是同 Agent 显式读取/自用，
-不是 fresh-context 独立压力实验、人工 T17、native discovery 或权限试验。
+The new method had bounded self-use following writing-skills. `method-before-observation.md` keeps
+project-onboarding's **correct** baseline and does not manufacture errors in the old method; positive/conflict/missing-base
+read the actual fixtures and gave 0/1/2, with all source bytes/file sets unchanged. This is only explicit reading/self-use by the same agent,
+not a fresh-context independent stress experiment, manual T17, native discovery, or permission trial.
 
-### 本阶段状态与剩余关卡
+### Status at this stage and remaining gates
 
-主体本地实现完成；最终保留＋新增全套、文档/历史前缀核对及本地提交仍待本节追加实际结果。
-Task11 交付将等待独立范围审阅，不自行关闭此关卡。原远端 fan-out 的 clone/push/PR、
-托管/self-hosted workflow 运行、POSIX 原生、服务端门禁、真实安装、应用、人工及 Tasks12–18
-均未执行；本轮不启动 subagent/reviewer，不向目标仓库写入、提交或执行任何远程操作。
+The main local implementation is complete; the final retained + new full suite, the document/historical-prefix check, and the local commit still await actual results appended to this section.
+The Task11 delivery will await independent scope review and does not close this gate itself. The original remote fan-out's clone/push/PR,
+hosted/self-hosted workflow runs, POSIX native, server-side gates, real installation, applications, manual work, and Tasks12–18
+were all not run; this round starts no subagent/reviewer and does not write to, commit to, or perform any remote operation on target repositories.
 
-### Task11 收尾诊断修正与证据对象
+### Task11 wrap-up diagnostic fix and evidence objects
 
-收尾用自有假标记检查后发现，新工具经 helper 拒绝 URI/UNC 时会回显原值。
-没有使用真实凭据或访问网络。先取得实际 CLI 反例及四个失败子例，再只在新 planner 边界
-提前拒绝网络根、复用输出错误码但不输出原值；未修改旧 helpers 或其他任务。
-该新回归 RED→GREEN，所有者 bytes/文件集仍受保护。
+A wrap-up check with own fake markers found that the new tool echoes the original value when the helper refuses a URI/UNC.
+No real credentials were used and no network was accessed. An actual CLI counterexample and four failing subtests were obtained first; then, only at the new planner boundary,
+network roots are refused early, reusing the output error code without printing the original value; the old helpers and other tasks were not modified.
+This new regression went RED→GREEN, and owner bytes/file sets are still protected.
 
-为避免混用源码对象，尚在运行的第一份最低版本完整尝试被明确中止，未生成完整 runner
-receipt/raw output，不能记通过或推算执行数量。`interrupted-13.json`、
-`red-17-uri-diagnostic-probe.json` 和 `green-20-uri-diagnostic-probe.json` 保留原因及
-真实拒绝输出；此前所有证据保留。修正后的最终最低版本全套另起独立前缀，不重复完整基线。
+To avoid mixing source objects, the first complete minimum-version attempt, still running, was explicitly aborted; it produced no complete runner
+receipt/raw output and cannot be recorded as a pass or used to infer an execution count. `interrupted-13.json`,
+`red-17-uri-diagnostic-probe.json`, and `green-20-uri-diagnostic-probe.json` keep the reason and
+the real refusal output; all earlier evidence is kept. The final minimum-version full suite after the fix uses a separate new prefix and does not repeat the complete baseline.
 
-同一最终 core 在主用 3.13.15 上以 `focus-19-primary313` 实际发现/执行
-**61 个新方法**，0 失败/错误/跳过、退出 0；runner 43.924 秒（unittest 42.532 秒）。
-`inventory-23-retained.json` 确认原 445 个身份全部保留、当前发现 506、增加 61；
-这仍只是 discovery/字节保护记录，不是最低版全套结果。原八方法、二十一 prompts、
-三个角色、五份 schema 与两份依赖清单共 39 个原文件的 bytes 均未变。
+With the same final core on the primary 3.13.15, `focus-19-primary313` actually discovered/ran
+**61 new methods**, 0 failures/errors/skipped, exit 0; runner 43.924 seconds (unittest 42.532 seconds).
+`inventory-23-retained.json` confirms that all 445 original identities are kept, 506 are currently discovered, and 61 were added;
+this is still only a discovery/byte-protection record, not the minimum-version full-suite result. The bytes of the 39 original files (the original eight methods, twenty-one prompts,
+three roles, five schemas, and two dependency manifests) are all unchanged.
 
-最终方法/批量实用另留 `method-after-final21.json`、`manual-batch-final21-use.json` 和
-`manual-batch-final21-proposal.json`，保留最终 core 摘要、实际参数/cwd/输出/退出及源哈希。
-`static-22-corrected-core.json` 核对 14 份变化 Markdown/364 个本地链接、9/22/3 实数、
-旧日志 101,890-byte 前缀与历史原生观察原文；无新/旧链接发现。外链未访问，
-workflow 仅解析/自审并禁用 checkout clean，预备来源须在工具 checkout 之外。
+The final practical use of the method/batch is kept separately in `method-after-final21.json`, `manual-batch-final21-use.json`, and
+`manual-batch-final21-proposal.json`, which keep the final core digest, actual arguments/cwd/output/exit, and source hashes.
+`static-22-corrected-core.json` checks the 14 changed Markdown files/364 local links, the actual 9/22/3 counts,
+the old log's 101,890-byte prefix, and the original text of the historical native observations; no new/old link findings. External links were not visited;
+the workflow was only parsed/self-reviewed, with checkout clean disabled, and the prepared sources must be outside the tool's checkout.
 
-最低版环境没有 pip 模块，诊断 `pip check` 退出 1，不能写作通过；未为此重装。
-`environment-15.json` 保存主用 pip check/0、两个解释器实际包版本/导入成功和未安装事实。
-正式工件检查的 `formal-16-root.json` 为 empty/0、发现/执行正式对象均为 0，
-不能用它替代行为全套或普通文档检查。最终最低版完整结果仍以随后追加的实际 receipt 为准。
+The minimum-version environment has no pip module, so the diagnostic `pip check` exited 1 and cannot be recorded as a pass; nothing was reinstalled for it.
+`environment-15.json` stores the primary pip check/0, the actual package versions/successful imports of both interpreters, and the fact that nothing was installed.
+The formal artifact check `formal-16-root.json` is empty/0, with 0 formal objects discovered/run;
+it cannot substitute for the behavioral full suite or ordinary document checks. The final complete minimum-version result is still as given by the actual receipt appended afterwards.
 
-### Task11 最终完整验证与交接状态
+### Task11 final complete verification and handoff state
 
-最终 `final-18-retained-new.json/.txt` 已在未重装的 Python **3.11.15** 完整执行：
-实际发现/执行 **506 方法**，失败/错误/跳过均 **0**，退出 **0**；
-runner **838.141 秒**，原始 unittest **836.005 秒**。这是最终源码的一次完整保留＋新增运行，
-不是把先前选择器拼接成全套，也不是中止尝试的结果。
+The final `final-18-retained-new.json/.txt` ran completely on the non-reinstalled Python **3.11.15**:
+**506 methods** actually discovered/run, failures/errors/skipped all **0**, exit **0**;
+runner **838.141 seconds**, raw unittest **836.005 seconds**. This is one complete retained + new run of the final source,
+not earlier selectors stitched into a full suite, and not the result of the aborted attempt.
 
-`final-24-integrity.json` 独立核对原始输出中 506 个实际 `ok` 身份恰好等于原 445＋新 61，
-无缺失/额外身份；全部受检工具/测试/契约/依赖输入哈希保持不变，且与主用 3.13 的 61 项
-运行使用同一份输入。最终方法/批量证据的 core 摘要也与当前文件相同，原日志
-101,890-byte 前缀仍逐字节保留。上段 empty 工件检查的精确字段是
-`checked_count/attempted_count=0`，并非 unittest 的发现/执行计数。
+`final-24-integrity.json` independently checks that the 506 actual `ok` identities in the raw output exactly equal the original 445 + new 61,
+with no missing/extra identities; all checked tool/test/contract/dependency input hashes are unchanged, and the 61-method run on the primary 3.13
+used the same inputs. The core digest in the final method/batch evidence also matches the current file, and the original log's
+101,890-byte prefix is still preserved byte for byte. The exact fields of the empty artifact check in the previous section are
+`checked_count/attempted_count=0`, not unittest discovered/run counts.
 
-实现和范围内自审完成，Task11 状态为 **implemented，等待独立范围审阅**。
-只按本次授权准备一个新的本地 coauthored 提交；实际 commit/parent/trailer、18 个范围文件、
-提交后 Git 状态与完整原始结果入口回本机 `task11-report.md` 读取。日志不把自身所在提交号
-猜写为预先已发生的对象，不 amend、push、PR 或清理此 App 管理的 worktree。
+Implementation and in-scope self-review are complete; Task11's status is **implemented, awaiting independent scope review**.
+Only one new local co-authored commit is prepared under this authorization; read the actual commit/parent/trailer, the 18 in-scope files,
+the post-commit Git state, and the full raw result entry points from the local `task11-report.md`. The log does not guess the ID of the commit containing it
+as an object that already exists, and there is no amend, push, PR, or cleanup of this App-managed worktree.
 
-下一步仅为独立 Task11 审阅；接手者须重新核对提交、差异、最终 receipt 与可访问性。
-POSIX/托管/self-hosted 执行、服务端 required checks、真实安装、远端 fan-out/PR、
-应用/人工 T17/新原生发现及 Tasks12–18 保持各自 not-run/授权关卡，本轮提交后停止。
+The only next step is the independent Task11 review; whoever takes over must re-check the commit, diff, final receipt, and accessibility.
+POSIX/hosted/self-hosted execution, server-side required checks, real installation, remote fan-out/PRs,
+applications/manual T17/new native discovery, and Tasks12–18 keep their respective not-run/authorization gates; this round stops after the commit.
 
 <a id="task11-fix1"></a>
-## Task11 fix1（1/5）：路径、根身份与输出保留
+## Task11 fix1 (1/5): paths, root identity, and output reservation
 
-2026-10-16，按本轮有界请求从干净
-`94b47794d66e14dd26d561d7240748a967d784f0`、原
-`callentan-repository-skeleton` worktree 开始。完整读取独立审阅的三个 Important
-（T11-I1/I2/I3）和一个 Minor（M1）；审阅者/父会话此前只有静态反例，
-本轮另取真实运行证据，不将其静态观察写作已复现。
+On 2026-10-16, per this round's bounded request, work started from a clean
+`94b47794d66e14dd26d561d7240748a967d784f0` in the original
+`callentan-repository-skeleton` worktree. The independent review's three Important findings
+(T11-I1/I2/I3) and one Minor (M1) were read in full; the reviewer/parent session previously had only static counterexamples,
+so this round obtained real run evidence separately and does not record their static observations as reproduced.
 
-### 范围、保护与逐项修正
+### Scope, protection, and item-by-item fixes
 
-本轮只改新 planner 的拓扑/根/输出路径逻辑、聚焦测试、直接更新说明、本计划及本日志。
-没有改依赖、共享 Git/YAML helpers、方法/prompt/角色、工作流、业务应用或 Task15。
-仍使用原 3.11.15 最低解释器与 3.13.15 主用解释器，无安装或全局环境变化。
+This round changed only the new planner's topology/root/output-path logic, the focused tests, the directly updated notes, this plan, and this log.
+Dependencies, shared Git/YAML helpers, methods/prompts/roles, workflows, business applications, and Task15 were not changed.
+The original 3.11.15 minimum interpreter and the 3.13.15 primary interpreter are still used, with no installs or global environment changes.
 
-- I1：在缺席分类前统一文件、目录及父前缀的 case-folded 检查；映射读取也核对实际目录项，
-  不把大小写不同的 owner 目录视为可新增位置，不通过缩小完整 owner 范围解阻。
-- I2：原始 traversal 的每个实际前缀先核对存在/目录/链接身份，再 canonicalize。
-  根、登记文件、输出及所有声明的输出保留位置均不再先用 abspath 抹去 `..`；
-  正常显式 sibling 根和准确本地 Git 版本保持可用。未知缺失前缀后的父遍历拒绝。
-- I3：报告不得相等、位于声明根下方，或成为该根的文件祖先；缺失/未选目标及缺失源同样
-  保护。拒绝输出仍保留独立 selected target 的 stdout 结果、非零退出及原文件集。
-- M1：只删除相邻的一个重复 `task11` 锚点，不作无关 Markdown 清理。
+- I1: before absence classification, files, directories, and parent prefixes get a unified case-folded check; mapping reads also verify actual directory entries,
+  so an owner directory differing only in case is not treated as a location where new files can be added, and nothing is unblocked by narrowing the complete owner scope.
+- I2: every actual prefix of the raw traversal is first checked for existence/directory/link identity and only then canonicalized.
+  Roots, registration files, outputs, and all declared output-reservation locations no longer have `..` erased by abspath first;
+  normal explicit sibling roots and exact local Git versions remain usable. Parent traversal after an unknown missing prefix is refused.
+- I3: a report must not equal a declared root, lie below it, or become a file ancestor of that root; missing/unselected targets and missing sources are protected
+  in the same way. A refused output still keeps the stdout results of independent selected targets, the non-zero exit, and the original file set.
+- M1: only the one adjacent duplicate `task11` anchor was deleted; no unrelated Markdown cleanup.
 
-### 聚焦证据入口（仅本机）
+### Focused evidence entry points (local only)
 
-本会话 `files\ddd-alignment-execution\task11-evidence\fix1\` 独立保存本轮新证据，
-没有覆盖原中止记录或 506/61 receipt。`baseline.json` 捕获原 506 个测试身份（仅 discovery）、
-142 个 tracked 源、26,507-byte 报告前缀、110,283-byte 日志前缀及 50 份已有证据摘要。
+This session's `files/ddd-alignment-execution/task11-evidence/fix1/` separately stores this round's new evidence
+without overwriting the original abort record or the 506/61 receipts. `baseline.json` captures the original 506 test identities (discovery only),
+142 tracked sources, the 26,507-byte report prefix, the 110,283-byte log prefix, and digests of 50 existing evidence files.
 
-`red-01-all-findings` 在 planner/计划仍等于起点时实际执行 77 个 Task11 方法，
-包括新回归；有 16 个失败子例和两个断言取值错误。随后将这两个断言明确为“禁止文件祖先
-输出创建”，`red-02-findings-assertions` 对新组执行 16 方法、18 失败子例、0 错误/跳过，
-取得 I1/I2/I3 的真实 RED。已有正确的映射目录拒绝和普通 sibling/Git 例保留为控制。
+`red-01-all-findings` actually ran 77 Task11 methods while the planner/plan still equaled the starting point,
+including the new regressions; there were 16 failing subtests and two assertions with wrong expected values. Those two assertions were then made explicit as "forbid output creation as a file ancestor",
+and `red-02-findings-assertions` ran 16 methods on the new group with 18 failing subtests and 0 errors/skipped,
+obtaining a real RED for I1/I2/I3. The existing correct refusal of mapping directories and the ordinary sibling/Git cases are kept as controls.
 
-之后 I1 五方法、I2 十二方法、I3 六方法选择器分别 GREEN；登记文件 raw traversal
-和映射中缺席文件的目录前缀另有单例 RED，再取得对应 GREEN。全部使用真实文件、
-Windows junction、准确本地 Git 和当前解释器 CLI；没有 mock Git stdout 或替换实际
-文件身份。case/路径/状态的预期不从待测实现推导。控制例和单独选择器不能拼成全套。
+After that, the I1 five-method, I2 twelve-method, and I3 six-method selectors each went GREEN; the raw traversal of registration files
+and the directory prefix of absent files in mappings each had a single-case RED before getting the corresponding GREEN. All use real files,
+Windows junctions, exact local Git, and the current interpreter's CLI; Git stdout was not mocked, and actual
+file identities were not replaced. Expectations for case/paths/status are not derived from the implementation under test. Control cases and separate selectors cannot be stitched into a full suite.
 
-`native-04-traversal-policy.json` 只记录真实 Windows 的 junction/父路径观察：
-本机 Win32 读取会取 lexical shadow，本轮策略仍拒绝带已抵消 junction 的原始声明；
-这不是 POSIX 行为证据。提供的执行宿主为 Windows，本轮没有访问/创建 POSIX 宿主，
-POSIX runtime 保持 not-run，不安装 OS 或用 Git shell 冒充该项。
+`native-04-traversal-policy.json` records only the real Windows junction/parent-path observations:
+local Win32 reads take the lexical shadow, and this round's policy still refuses a raw declaration with a cancelled-out junction;
+this is not evidence of POSIX behavior. The provided execution host is Windows; this round did not access/create a POSIX host,
+the POSIX runtime remains not-run, and no OS was installed and no Git shell was used to pose as that item.
 
-本轮最终保留＋新增全套、完整原始执行身份、前缀保护与新本地提交的实际结果待本节追加，
-并追加在同一份本机 `task11-report.md`。实现不自行批准限定复审；平台/真实安装/远端
-传播/PR、人工与后续任务关卡不变。
+The actual results of this round's final retained + new full suite, the complete raw execution identities, the prefix protection, and the new local commit are to be appended to this section
+and also to the same local `task11-report.md`. The implementation does not approve its own bounded review; the platform/real installation/remote
+propagation/PR, manual, and later-task gates are unchanged.
 
-### fix1 最终运行、源保护与停止点
+### fix1 final run, source protection, and stopping point
 
-本轮唯一一次最终最低版保留＋新增全套 `fix1\final-11-retained-new.json/.txt`：
-现有 Python 3.11.15 实际发现/执行 **524 方法**，0 失败/错误/跳过、退出 0；
-runner **851.172 秒**，原始 unittest **849.297 秒**。主用 3.13.15 的
-`focus-12-new313` 独立执行 18 个新案例，0 失败/错误/跳过、退出 0，
-capture 22.227 秒，unittest 21.262 秒；没有重跑完整基线。
+This round's only final minimum-version retained + new full suite, `fix1/final-11-retained-new.json/.txt`:
+the existing Python 3.11.15 actually discovered/ran **524 methods**, 0 failures/errors/skipped, exit 0;
+runner **851.172 seconds**, raw unittest **849.297 seconds**. On the primary 3.13.15,
+`focus-12-new313` separately ran the 18 new cases, 0 failures/errors/skipped, exit 0,
+capture 22.227 seconds, unittest 21.262 seconds; the complete baseline was not re-run.
 
-`integrity-16-full.json` 核对完整原始输出中的 524 个实际 `ok` 身份，
-恰为原 506＋新 18，无缺失/额外项；全套、79 项聚焦与 3.13 新例使用同一输入哈希。
-源及测试输入未变，`use-15-final-core.json` 保存当前 core 实际 API/CLI 的
-I1/I2/I3 拒绝、独立 clean 提案与正常 sibling/Git 0 退出，保护每次调用前后所有
-自有文件/文件集。没有把旧版本 506/61 或本轮选择器相加冒充新的全套。
+`integrity-16-full.json` checks the 524 actual `ok` identities in the complete raw output:
+exactly the original 506 + new 18, with no missing/extra items; the full suite, the 79-method focused group, and the new 3.13 cases used the same input hashes.
+Source and test inputs did not change; `use-15-final-core.json` stores the current core's actual API/CLI
+I1/I2/I3 refusals, an independent clean proposal, and normal sibling/Git exit 0, protecting all
+own files/file sets before and after each call. The old 506/61 or this round's selectors were not added up to pose as a new full suite.
 
-当前原 26,507-byte 报告、110,283-byte 日志前缀及 50 份旧证据全部保持原字节；
-M1 只有相邻锚点 2→1，现有九方法/二十二 prompts/三个角色和全部原生观察不变。
-有限文档检查、最终五文件范围与新提交的准确对象/parent/coauthor/提交后 Git 状态
-继续回同一份本机 `task11-report.md` 的 fix1 追加段读取，不在日志预填尚未发生的提交号。
+The original 26,507-byte report prefix, the 110,283-byte log prefix, and the 50 old evidence files all keep their original bytes;
+M1 only changed the adjacent anchors from 2→1, and the existing nine methods/twenty-two prompts/three roles and all native observations are unchanged.
+For the bounded document check, the final five-file scope, and the new commit's exact object/parent/co-author/post-commit Git state,
+continue reading the fix1 addendum in the same local `task11-report.md`; the log does not pre-fill a commit ID that does not yet exist.
 
-**I1/I2/I3/M1 的本轮修正已实现并自审，等待限定复审，不自行关闭关卡。**
-只按授权准备一个新本地 coauthored 提交，不 amend/push/PR，保留本 worktree。
-后续仅限 Task11 fix1 scope re-review；不启动 reviewer/subagent、Task15 或其他后续任务，
-也不执行 POSIX/托管/服务端/真实安装/远端传播/应用/人工或新原生入口验收。
+**This round's fixes for I1/I2/I3/M1 are implemented and self-reviewed and await the bounded review; the implementer does not close the gate.**
+Only one new local co-authored commit is prepared under the authorization; no amend/push/PR, and this worktree is kept.
+What follows is limited to the Task11 fix1 scope re-review; no reviewer/subagent, Task15, or other later task is started,
+and no POSIX/hosted/server-side/real-installation/remote-propagation/application/manual or new native entry-point acceptance is performed.
 
 <a id="task11-review"></a>
-## Task11 本地提案范围复审关闭
+## Task11 local proposal scope re-review closed
 
-2026-10-16，原独立 reviewer 对 `94b47794d66e14dd26d561d7240748a967d784f0` 至
-`37cf6700af8f1fad1c60e2fe1135d25573cc1995` 的五文件 fix1 作限定复审：
-I1/I2/I3/M1 均为 ADDRESSED，合规与代码质量符合本轮范围，无 Critical/Important/Minor
-新发现。正常 sibling 根、独立目标/映射/版本、原始字节和输出拒绝后的 stdout 结果保持。
-没有重复原 18 文件全量审阅，也没有将 Windows junction 观察称作 POSIX 执行。
+On 2026-10-16, the original independent reviewer did a bounded re-review of the five-file fix1 from `94b47794d66e14dd26d561d7240748a967d784f0` to
+`37cf6700af8f1fad1c60e2fe1135d25573cc1995`:
+I1/I2/I3/M1 are all ADDRESSED, compliance and code quality match this round's scope, and there are no new Critical/Important/Minor
+findings. Normal sibling roots, independent targets/mappings/versions, raw bytes, and the stdout results after an output refusal are preserved.
+The original full 18-file review was not repeated, and the Windows junction observation is not called POSIX execution.
 
-本机会话 `files\ddd-alignment-execution\task11-fix1-review-result.md` 保存各项依据；
-父会话另在该修正对象运行 `test_template_update.py`，现有 3.11.15 解释器发现/执行
-79 方法，0 失败/错误/跳过、退出 0，87.843 秒，受检输入未变；原始命令、输出、cwd
-与摘要在 `task11-fix1-parent311.json` 及其 invocation/raw-output 文件。旧 506/524
-全套和其他选择器记录保留各自对象，不能混成一次新运行。Git head/parent/coauthor、
-五个提交路径及干净工作树/暂存区已重查。
+The local session's `files/ddd-alignment-execution/task11-fix1-review-result.md` stores the basis for each item;
+the parent session also ran `test_template_update.py` on that fix object, where the existing 3.11.15 interpreter discovered/ran
+79 methods, 0 failures/errors/skipped, exit 0, 87.843 seconds, with checked inputs unchanged; the raw command, output, cwd,
+and digests are in `task11-fix1-parent311.json` and its invocation/raw-output files. The old 506/524
+full suites and the other selector records keep their own objects and cannot be mixed into one new run. The Git head/parent/co-author,
+the five committed paths, and the clean working tree/index were re-checked.
 
-Task11 的有限本地实现/审阅关卡关闭，没有遗留本任务发现。固定能力矩阵只更新对应
-本地状态；远端 clone/push/PR、托管 workflow 和完整外部功能等价仍未执行或接受。
-下一步按[Task15](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15)实现可选来源接入，
-Task16–18 满足后才收口 Task12 候选；不因编号顺序跳过前置能力或授权关卡。
+Task11's bounded local implementation/review gate is closed, with no outstanding findings for this task. The pinned capability matrix only updates the corresponding
+local status; remote clone/push/PR, hosted workflows, and complete external functional equivalence have still not been run or accepted.
+The next step, per [Task15](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15), implements optional source onboarding;
+the Task12 candidate is wrapped up only after Task16–18 are satisfied; prerequisite capabilities and authorization gates are not skipped because of numbering order.
 
 <a id="task15"></a>
-## Task15：明确本地领域源接入（待独立审阅）
+## Task15: explicit local domain-source onboarding (awaiting independent review)
 
-### 会话、任务与 Git 状态
+### Session, task, and Git state
 
-| 字段 | 本次记录 |
+| Field | Record |
 |---|---|
-| 日期与任务 | 2026-10-16；Task15 / ENH-15，仅本任务 |
-| 工具与方式 | 实施 Agent 自用、自审；既有 Python 3.13.15 / 3.11.15、原生 Git、Windows；无 subagent/reviewer |
-| 任务来源与范围 | [Task15 计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15)、[ENH-15](../docs/design/ddd-functional-alignment.md#requirements)；完整 brief 与 12 类输入在获准本机会话产物 |
-| 分支与起点 | `callentan-repository-skeleton`；`d38e7f6a71ef692c764d085df699a04c6844768b`，已重查 worktree/暂存区干净 |
-| 本次对象与提交 | 上述起点加本轮 Task15 代码/文档；局部 coauthored 提交的准确 SHA 与提交后状态见实际 Git 和本机 `task15-report.md` |
-| 原有与本次范围 | 无原有未提交修改；本轮仅来源工具/tests/指南、窄共用 helper、直接导航和当前状态；既有 tests、schema、lock、hooks/workflows 与原验收结果未重写 |
-| 权限与停止边界 | 只在 `.venv` 自有夹具显式接入及同意 index；不运行原安装器、source hooks/filters，不请求网络、探测凭据、修改真实项目配置、推送或创建 PR |
+| Date and task | 2026-10-16; Task15 / ENH-15, this task only |
+| Tools and mode | Implementing agent's self-use and self-review; existing Python 3.13.15 / 3.11.15, native Git, Windows; no subagent/reviewer |
+| Task source and scope | [Task15 plan](../docs/plan/2026-10-14-ddd-functional-alignment.md#task15), [ENH-15](../docs/design/ddd-functional-alignment.md#requirements); the full brief and the 12 input categories are in the authorized local session outputs |
+| Branch and starting point | `callentan-repository-skeleton`; `d38e7f6a71ef692c764d085df699a04c6844768b`; worktree/index re-checked and clean |
+| Object and commit | The starting point above plus this round's Task15 code/documents; for the exact SHA of the scoped co-authored commit and the post-commit state, see actual Git and the local `task15-report.md` |
+| Pre-existing and current scope | No pre-existing uncommitted changes; this round covers only the source tool/tests/guide, a narrow shared helper, direct navigation, and the current status; existing tests, schemas, the lock, hooks/workflows, and original acceptance results were not rewritten |
+| Permissions and stop boundaries | Explicit onboarding and index consent only in own fixtures under `.venv`; no running of the original installer or source hooks/filters, no network requests, credential probing, changes to real project configuration, pushes, or PR creation |
 
-### 本次变化
+### Changes in this session
 
-- 新增 [setup_domain_source.py](../.github/utilities/setup_domain_source.py)、
-  [真实本地用例](../.github/utilities/tests/test_domain_source.py)及
-  [分发使用说明](../docs/domain-sources.md)。inspect 始终只读；register 只维护准确既有
-  BC 来源列表，非空领域指南不被覆盖。可选本地子模块 materialization 与登记分开，
-  另需准确目标、所有权声明和独立 index 同意，不隐含 commit/push。
-- 将原固定 commit/领域 bytes 比较窄提取到
-  [source_baseline.py](../.github/utilities/source_baseline.py)，collector 共用；
-  原路径遍历与 Git 环境 helper 由 planner/checker/接入共用，没有第二份 YAML 或来源 parser。
-  BC v1 的 root/path/固定基线/readOnly 保留，配置表单只加导航注释。
-- 自审反例先 RED 再修正：显式 CLI 操作、非法 ID 类型、大小写 metadata 根、
-  原生完整 index 身份、Git 格式/Windows 长路径及准确部分状态记账。
-  原生本地 clone/objects/index 的真实失败被保留；不把冲突、缺项或跳过当成功。
-  onboarding 只增加现有指南链接，仍为九方法、二十二 prompts、三模式。
+- Added [setup_domain_source.py](../.github/utilities/setup_domain_source.py),
+  [real local test cases](../.github/utilities/tests/test_domain_source.py), and
+  the [distributed usage guide](../docs/domain-sources.md). inspect is always read-only; register only maintains the exact existing
+  BC source list, and non-empty domain guides are not overwritten. Optional local submodule materialization is separate from registration
+  and additionally requires an exact target, an ownership declaration, and separate index consent; it implies no commit/push.
+- The original pinned-commit/domain-bytes comparison was narrowly extracted into
+  [source_baseline.py](../.github/utilities/source_baseline.py) and shared with the collector;
+  the original path-traversal and Git-environment helpers are shared by the planner/checker/onboarding, with no second YAML or source parser.
+  BC v1's root/path/pinned baseline/readOnly are kept, and the configuration form only gains navigation comments.
+- Self-review counterexamples went RED first and were then fixed: explicit CLI operations, invalid ID types, case variants of metadata roots,
+  native complete index identity, Git format/Windows long paths, and exact partial-state bookkeeping.
+  Real failures of native local clone/objects/index are kept; conflicts, missing items, or skips are not treated as success.
+  onboarding only adds a link to the existing guide; still nine methods, twenty-two prompts, three modes.
 
-### 实际结果入口与访问限制
+### Actual result entry points and access limitations
 
-本机会话 `files\ddd-alignment-execution\task15-evidence\` 保留真实命令、cwd、解释器、
-原始输出及摘要，完整入口为同层 `task15-report.md`。它们仅在本机可访问，
-没有作为跨机器证据分发，也不是业务 VT/人工批准记录：
+The local session's `files/ddd-alignment-execution/task15-evidence/` keeps the real commands, cwd, interpreters,
+raw output, and digests; the full entry point is the sibling `task15-report.md`. They are accessible only on the local machine,
+were not distributed as cross-machine evidence, and are not business VT/human approval records:
 
-- `red-03-behavior.*`：44 个新方法、64 个断言/子例失败，0 错误/跳过；较早缺模块和
-  scaffold 运行分别保留。`green-01-primary.*` 与 `green-02`–`green-07` 是不同对象/
-  选择器的 3.13 聚焦结果，不能合并为一次新全套。
-- `final-minimum-suite.*`：本轮唯一最终 3.11.15 保留＋新增全套实际发现/执行
-  **579 方法**，0 失败/错误/跳过、退出 0，runner 1104.109 秒；原 524 个身份保留、
-  新增 55。运行期间工具输入未变；原 524 的历史结果未改写为本轮结果。
-- `inventory-before-final.json` 和执行身份核对保留方法及原 tests 的起始 bytes；
-  Windows CRLF 工作文件与 Git LF blob 的初次证据脚本比较错误单列记录，未改产品或
-  测试来掩盖它。`receipts-01` 逐 SOURCE-01–12 保存真实 API/CLI 0/1/2、准确源/目标/
-  原生 metadata 和前后散列；`single-repository-receipt.json` 另验证同仓登记只改 BC 配置，
-  原领域指南和 Git metadata 不变。
-- 普通指南的本地链接/锚点、分发新导航、BC 表单数据和 9/22/3 库存分别核对；
-  原正式工件检查为 `empty`、checked 0，不写成业务通过。追加前旧日志前缀及原
-  verification/client/native/human 记录用原始工作字节摘要保护，旧基线/结果保留。
+- `red-03-behavior.*`: 44 new methods, 64 failing assertions/subtests, 0 errors/skipped; the earlier missing-module and
+  scaffold runs are kept separately. `green-01-primary.*` and `green-02`–`green-07` are 3.13 focused results for different objects/
+  selectors and cannot be merged into one new full suite.
+- `final-minimum-suite.*`: this round's only final 3.11.15 retained + new full suite actually discovered/ran
+  **579 methods**, 0 failures/errors/skipped, exit 0, runner 1104.109 seconds; the original 524 identities are kept,
+  and 55 were added. Tool inputs did not change during the run; the historical result of the original 524 was not rewritten as this round's result.
+- `inventory-before-final.json` and the execution-identity check keep the starting bytes of the methods and the original tests;
+  the initial evidence-script comparison error between Windows CRLF working files and Git LF blobs is recorded separately, and neither the product nor the
+  tests were changed to mask it. `receipts-01` stores, for each of SOURCE-01–12, the real API/CLI 0/1/2, the exact source/target/
+  native metadata, and before/after hashes; `single-repository-receipt.json` additionally verifies that same-repository registration changes only the BC configuration,
+  with the original domain guide and Git metadata unchanged.
+- Local links/anchors in ordinary guides, the new distribution navigation, the BC form data, and the 9/22/3 inventory were checked separately;
+  the original formal artifact check is `empty`, checked 0, and is not written up as a business pass. The old log prefix before the append and the original
+  verification/client/native/human records are protected by raw working-byte digests; the old baselines/results are kept.
 
-### 缺口、影响与下一步
+### Gaps, impact, and next steps
 
-Task15 **本地实现与自验证完成，待独立范围审阅**；本轮没有 reviewer 或批准结论。
-readOnly/所有权参数不提供 OS ACL，inspect 与写入检查也不是恶意并发文件系统的
-sandbox。非空/别名/不支持布局/共享 metadata/漂移停止；部分状态只供所有者逐路径
-核对后手工恢复，不自动清理、reset 或覆盖后续 owner 内容。
+Task15 **local implementation and self-verification are complete, awaiting independent scope review**; this round has no reviewer or approval conclusion.
+The readOnly/ownership parameters do not provide an OS ACL, and the inspect and write checks are not a
+sandbox against a malicious concurrent file system. Non-empty targets/aliases/unsupported layouts/shared metadata/drift stop the operation; partial state is only for the owner to check path by path
+and then restore manually, with no automatic cleanup, reset, or overwriting of later owner content.
 
-真实项目接入、网络、POSIX、托管平台、应用、原生客户端、人工和发布均未运行；
-原 P3 与其他 ENH 的外部结果不升级。Task12–14、16–18 未实施，Task12 仍受 15–18
-前置约束。交付本次局部提交和完整本机报告后停止；后续先由协调者按实际基线安排
-Task15 独立审阅，不在本轮自动开展后续任务或外部操作。
+Real project onboarding, network, POSIX, hosted platforms, applications, native clients, manual work, and release were all not run;
+the external results of the original P3 and other ENH items are not upgraded. Task12–14 and 16–18 were not implemented, and Task12 is still subject to the 15–18
+prerequisite constraint. Work stops after delivering this scoped commit and the full local report; next, the coordinator first arranges
+the independent Task15 review against the actual baseline, and this round does not automatically start later tasks or external operations.
 
 <a id="task15-fix1"></a>
-## Task15 fix1（1/5）：限定修正，待范围复审
+## Task15 fix1 (1/5): bounded fixes, awaiting scope re-review
 
-### 会话、任务与 Git 范围
+### Session, task, and Git scope
 
-2026-10-16，按用户给定的完整独立审阅与四项修正要求，仅处理
-**Task15-I1/I2/I3/M1**。起点重查为干净
-`3a99245ee7448f99579399bd9d560f34b536c4ed`，仍在
-`callentan-repository-skeleton` 的原隔离 worktree，没有原有未提交内容。
-审阅与父会话当时只静态确认这些机制；下面的新 RED/GREEN 属于本轮执行，不归给 reviewer。
-本次仅两处源机制、一个新回归文件、直接指南/当前状态和本追加；准确局部提交 SHA
-及提交后 Git 状态由最终本机报告/Git 记录，不 amend/push/PR。
+On 2026-10-16, per the full independent review and the four fix requests given by the user, only
+**Task15-I1/I2/I3/M1** were handled. The starting point was re-checked as a clean
+`3a99245ee7448f99579399bd9d560f34b536c4ed`, still in the original isolated worktree of
+`callentan-repository-skeleton`, with no pre-existing uncommitted content.
+At the time, the review and the parent session only confirmed these mechanisms statically; the new RED/GREEN below belong to this round's execution and are not attributed to the reviewer.
+This round covers only two source mechanisms, one new regression file, the directly related guide/current status, and this addendum; the exact scoped commit SHA
+and the post-commit Git state are recorded by the final local report/Git; no amend/push/PR.
 
-### 本次变化与结果入口
+### Changes and result entry points
 
-- **I1：** 首次新 checkout 前，区分 owner HEAD 中已有、index 缺失的 metadata 与真正
-  新建/unborn；已暂存删除和大小写别名均先 conflict，不因 index 同意撤销 owner 意图。
-  原始 HEAD/index/config/working bytes 保留；HEAD 只用于 owner 历史观察，不选来源版本。
-- **I2：** BC token 使用实际解析/规划的原始取得 bytes；后续一致性读变化即
-  INPUT_CHANGED。真实项目 ID/context A→B 控制修改在 inspect 内触发拒绝，保留 B，
-  不交付混合 token；不是消除一切恶意 TOCTOU 的声明。
-- **I3：** 共享原始 Git reader 与 native helper 在命令前检查本地普通 Gitfile、
-  commondir、common/worktree/显式 config，拒绝 include/includeIf 与不安全 metadata。
-  不调用 Git config 来发现 include，不打开声明目标；native clone 另重查准确源。
-  相对 config 绑定命令 cwd，不完整 metadata 不借祖先发现。只作窄边界防护，
-  不展开或改写 owner/user/global config，不增加通用 Git 配置模型。
-- **M1：** `.gitmodules` 本身及大小写/后代 checkout 重叠在预检拒绝，未创建部分
-  checkout/module metadata；原 register、raw blob 和其他 owner 内容保护保留。
+- **I1:** before the first new checkout, metadata that exists in the owner's HEAD but is missing from the index is distinguished from a truly
+  new/unborn state; staged deletions and case aliases are both treated as conflicts first, and index consent does not revoke the owner's intent.
+  The raw HEAD/index/config/working bytes are kept; HEAD is used only for observing owner history and does not select the source version.
+- **I2:** the BC token uses the raw acquired bytes that were actually parsed/planned; a change in a later consistency read yields
+  INPUT_CHANGED. A controlled change of a real project ID/context A→B inside inspect triggers refusal, keeps B,
+  and delivers no mixed token; this is not a claim to eliminate every malicious TOCTOU.
+- **I3:** before running commands, the shared raw Git reader and the native helper check the local regular Gitfile,
+  commondir, and common/worktree/explicit config, refusing include/includeIf and unsafe metadata.
+  Git config is not invoked to discover includes, and declared targets are not opened; native clone re-checks the exact source separately.
+  Relative config is bound to the command cwd, and incomplete metadata does not borrow ancestor discovery. This is only a narrow boundary protection;
+  it does not expand or rewrite owner/user/global config and adds no general Git configuration model.
+- **M1:** a checkout overlapping `.gitmodules` itself or its case variants/descendants is refused at pre-check, without creating partial
+  checkout/module metadata; the original register, raw blob, and other owner-content protections are kept.
 
-真实命令、cwd、解释器、计数、前后 hashes 与限制在本机会话
-`files\ddd-alignment-execution\task15-evidence\fix1\`，总入口仍为同层
-`task15-report.md` 的本轮追加。记录仅本机可访问，不分发为下游依赖：
+The real commands, cwd, interpreters, counts, before/after hashes, and limitations are in the local session's
+`files/ddd-alignment-execution/task15-evidence/fix1/`; the overall entry point is still this round's addendum in the sibling
+`task15-report.md`. The records are accessible only on the local machine and are not distributed as downstream dependencies:
 
-- `red-01-regressions.*` 实际 28 方法、28 个失败条目，0 错误/跳过；包括已正确的
-  五个保留控制，不将子例失败数当方法数。后续直接耦合边界另留 RED。
-  I1/I2/M1 使用真实文件、CLI/native；I3 使用安全的命令前/文件系统拦截，
-  **没有执行带 include 的风险 Git 命令或访问 UNC endpoint**。
-- `green-01`–`green-07` 各有准确选择器和原始结果，不拼接成一条新全套。
-  真正新建/unborn、普通 local、SHA1/SHA256、common metadata 可读与 shared native
-  拒绝等控制分别存在；没有模拟 Git stdout。
-- `final-minimum-suite.*` 是本轮唯一最终 3.11.15 保留＋新增全套：
-  **611 发现/执行，0 失败/错误/跳过，退出 0，runner 1443.297 秒**。
-  `test-identity-reconciliation.json` 反查全部 579 个原身份和 32 个新身份，
-  其中原 55 个来源方法实际保留；工具输入执行中和执行后未变。
-- `i1-* / i2-* / i3-*-pre-invocation / m1-*` 保存准确源/目标/metadata/输出 hashes；
-  I2 明确标出 harness 的 owner B 修改，I3 明确标出静态声明和拦截层次。
-  原 579/55 receipts、70 份旧证据、20125-byte 报告与 122389-byte 日志前缀分别受
-  原始 bytes guard 保护；原结果和基线未重写。正式工件检查仍为 empty、checked 0，
-  不是业务通过。
+- `red-01-regressions.*`: actually 28 methods (including the five retained controls that were already correct) with 28 failing entries, 0 errors/skipped;
+  subtest failure counts are not treated as method counts. Later directly coupled boundaries keep their own RED.
+  I1/I2/M1 use real files and CLI/native; I3 uses safe pre-command/file-system interception,
+  **without running risky Git commands with includes or accessing a UNC endpoint**.
+- `green-01`–`green-07` each have an exact selector and raw results and are not stitched into one new full suite.
+  Separate controls exist for truly new/unborn, ordinary local, SHA1/SHA256, readable common metadata, and shared-native
+  refusal; Git stdout was not simulated.
+- `final-minimum-suite.*` is this round's only final 3.11.15 retained + new full suite:
+  **611 discovered/run, 0 failures/errors/skipped, exit 0, runner 1443.297 seconds**.
+  `test-identity-reconciliation.json` reconciles all 579 original identities and 32 new identities,
+  among which the original 55 source methods are actually kept; tool inputs did not change during or after the run.
+- `i1-* / i2-* / i3-*-pre-invocation / m1-*` store the exact source/target/metadata/output hashes;
+  I2 explicitly marks the harness's owner-B modification, and I3 explicitly marks the static declarations and interception layers.
+  The original 579/55 receipts, 70 old evidence files, the 20125-byte report prefix, and the 122389-byte log prefix are each protected by
+  raw-bytes guards; the original results and baselines were not rewritten. The formal artifact check is still empty, checked 0,
+  which is not a business pass.
 
-### 缺口与停止边界
+### Gaps and stop boundaries
 
-I1/I2/I3/M1 的修正和本地自验证完成，**待限定复审**；不替独立 reviewer 关闭发现。
-schema、lock、原 tests/helpers、9/22/3 方法/prompt/模式及旧外部/native/client/human
-结果保持。没有装依赖、启动 subagent/reviewer 或新的真实 app/worktree，没有真实项目
-配置写入、网络/凭据探测、source hooks/filters、隐含 setup commit 或外部平台操作。
+The fixes and local self-verification for I1/I2/I3/M1 are complete, **awaiting bounded re-review**; findings are not closed on the independent reviewer's behalf.
+The schemas, lock, original tests/helpers, the 9/22/3 methods/prompts/modes, and the old external/native/client/human
+results are unchanged. No dependencies were installed and no subagent/reviewer or new real app/worktree was started; no writes to real project
+configuration, network/credential probing, source hooks/filters, implicit setup commits, or external platform operations.
 
-本轮只交付新的局部 coauthored commit 和追加报告后停止，不开始 Task16 或其他后续任务。
-Task12 仍受 15–18 前置与相应审阅/授权关卡约束。后续由协调者在实际提交基线上
-安排限定复审；网络、POSIX、平台、应用、客户端、人工和发布结果仍为 not-run。
+This round stops after delivering only the new scoped co-authored commit and the report addendum, and does not start Task16 or any other later task.
+Task12 is still subject to the 15–18 prerequisites and the corresponding review/authorization gates. Next, the coordinator arranges the bounded re-review
+on the actual commit baseline; network, POSIX, platform, application, client, manual, and release results remain not-run.
 
 <a id="task15-fix2"></a>
-## Task15 fix2（2/5）：仅原 I3，待限定复审
+## Task15 fix2 (2/5): original I3 only, awaiting bounded re-review
 
-2026-10-16，完整读取 fix1 复审结论；I1/I2/M1 已为 ADDRESSED，没有新独立发现，
-本轮不重开它们。起点重查为干净 `fcd25504053b32b698b74d2462a7349bf3c17d9b`，
-原 worktree/分支不变。只修改 `_git_config_file` 的注释与 continuation 交互、新 fix2
-来源测试及最小指南/当前状态；setup/guard 位置、原 tests/helpers、schema/lock、
-collector/proposal、方法/prompt/模式与旧结果保持。
+On 2026-10-16, the fix1 re-review conclusion was read in full; I1/I2/M1 are already ADDRESSED with no new independent findings,
+and this round does not reopen them. The starting point was re-checked as a clean `fcd25504053b32b698b74d2462a7349bf3c17d9b`,
+with the original worktree/branch unchanged. Only the comment/continuation interaction in `_git_config_file`, the new fix2
+source tests, and the minimal guide/current status were modified; the setup/guard placement, original tests/helpers, schema/lock,
+collector/proposal, methods/prompts/modes, and old results are unchanged.
 
-问题是判断注释前全局删除反斜杠换行，把下行 include 拼进了物理注释。
-修正改为按物理 bytes 扫描，在注释外识别 LF/CRLF continuation；# / ; 注释在
-物理换行结束，实际 quoted literal/普通注释仍可用，模糊/不完整 CR 先 typed refusal。
-这不是通用 Git 配置解释器，也不是网络 endpoint 的实际复现。
+The problem was that backslash-newlines were deleted globally before comments were recognized, splicing the include on the next line into a physical comment.
+The fix scans by physical bytes instead and recognizes LF/CRLF continuations outside comments; # / ; comments end at
+the physical line break, actual quoted literals/ordinary comments still work, and an ambiguous/incomplete CR gets a typed refusal first.
+This is not a general Git configuration interpreter, nor an actual reproduction against a network endpoint.
 
-本机 `files\ddd-alignment-execution\task15-evidence\fix2\` 保存准确命令/cwd、
-输入/输出 hashes、原始结果与保护记录，总报告只在 `task15-report.md` 追加：
+The local `files/ddd-alignment-execution/task15-evidence/fix2/` stores the exact commands/cwd,
+input/output hashes, raw results, and protection records; the overall report is appended only to `task15-report.md`:
 
-- `red-01-comment-continuations.*`：10 方法、48 个失败子例，0 错误/跳过；两项
-  保留控制本已正确。覆盖 #/;、LF/CRLF、BOM、include/includeIf、inline/comment
-  backslash parity、真实 quoted continuation。风险 Git/UNC 在调用前由 tripwire 拦住，
-  没有实际执行带 include 的命令或访问 endpoint。
-- `green-01-comment-continuations.*`：3.13.15 新例 10/10，零失败/错误/跳过。
-  `affected-source-minimum.*` 按授权只运行 3.11.15 的 `test_domain_source*.py`：
-  **97 发现/执行，0 失败/错误/跳过，退出 0，runner 549.016 秒**；
-  87 个原来源身份与 10 个新身份逐一核对，受检 bytes 未变。
-- `scanner-receipts.json` 的 21 个安全本地声明/保留控制记录 typed outcome、
-  zero affected Git / zero UNC filesystem access、前后字节摘要。原 132 份证据、
-  parent 611/32 receipts、报告/日志前缀保护保留；没有重跑 611 全套或未变
-  schema/collector suite，也没有把旧成功改作本轮结果。
+- `red-01-comment-continuations.*`: 10 methods, 48 failing subtests, 0 errors/skipped; two
+  retained controls were already correct. Covers #/;, LF/CRLF, BOM, include/includeIf, inline/comment
+  backslash parity, and real quoted continuation. Risky Git/UNC is stopped by a tripwire before invocation;
+  no command with an include was actually run and no endpoint was accessed.
+- `green-01-comment-continuations.*`: new cases on 3.13.15 10/10, zero failures/errors/skipped.
+  `affected-source-minimum.*`, per the authorization, ran only `test_domain_source*.py` on 3.11.15:
+  **97 discovered/run, 0 failures/errors/skipped, exit 0, runner 549.016 seconds**;
+  the 87 original source identities and 10 new identities were checked one by one, and the checked bytes did not change.
+- The 21 safe local declarations/retained controls in `scanner-receipts.json` record the typed outcome,
+  zero affected Git / zero UNC filesystem access, and before/after byte digests. The protection of the original 132 evidence files,
+  the parent's 611/32 receipts, and the report/log prefixes is kept; the 611-test full suite and the unchanged
+  schema/collector suites were not re-run, and old successes were not relabeled as this round's results.
 
-本轮自审与局部验证完成，I3 待限定复审；I1/I2/M1 维持已确认处理。
-没有 package/OS 设置/真实项目/网络、source hooks/filters、subagent/reviewer、
-Task16/后续、push/PR/发布动作。交付新局部 coauthored commit 与追加报告后停止；
-精确 SHA、提交后干净状态与证据入口见实际 Git 和本机总报告。
+This round's self-review and scoped verification are complete; I3 awaits bounded re-review, and I1/I2/M1 remain confirmed as addressed.
+No package/OS settings/real project/network, source hooks/filters, subagent/reviewer,
+Task16/later work, or push/PR/release actions. Work stops after delivering the new scoped co-authored commit and the report addendum;
+for the exact SHA, the clean post-commit state, and the evidence entry points, see actual Git and the overall local report.
 
 <a id="task15-review"></a>
-## Task15 本地来源接入范围复核关闭
+## Task15 local source-onboarding scope review closed
 
-2026-10-16，原 I1/I2/M1 已由独立 reviewer 确认为 ADDRESSED；父会话本轮直接核对
-`fcd25504053b32b698b74d2462a7349bf3c17d9b` 至
-`4f053d78c7eedd8bd3b490f61b81065414009b72` 的完整七文件局部 diff、
-物理注释/续行扫描和 10 个新控制，确认原 I3 已处理，未发现此修正引入的新问题。
-只改一处 scanner，不改变 guard 放置、setup/index/token、schema/lock 或原接口。
+On 2026-10-16, the original I1/I2/M1 had been confirmed ADDRESSED by the independent reviewer; in this round the parent session directly checked
+the complete seven-file scoped diff from `fcd25504053b32b698b74d2462a7349bf3c17d9b` to
+`4f053d78c7eedd8bd3b490f61b81065414009b72`,
+the physical comment/continuation scanning, and the 10 new controls, and confirmed that the original I3 is addressed, with no new issue introduced by the fix.
+Only one scanner changed; the guard placement, setup/index/token, schema/lock, and original interfaces are unchanged.
 
-本机会话 `files\ddd-alignment-execution\task15-fix1-review-result.md` 与
-`task15-fix2-review-result.md` 保留两轮处置。父会话在最新修正对象用现有 3.11.15
-执行新测试模块：发现/执行 10、0 失败/错误/跳过、退出 0，21.562 秒，输入未变；
-准确参数、cwd、原始输出和摘要在 `task15-fix2-parent311.json` 及其相邻文件。
-原 97 个来源方法、611 全套和此前父会话 32 项保留各自对象/范围，不合并成新总数。
+The local session's `files/ddd-alignment-execution/task15-fix1-review-result.md` and
+`task15-fix2-review-result.md` keep the dispositions of the two rounds. On the latest fix object, the parent session used the existing 3.11.15
+to run the new test module: 10 discovered/run, 0 failures/errors/skipped, exit 0, 21.562 seconds, inputs unchanged;
+the exact arguments, cwd, raw output, and digests are in `task15-fix2-parent311.json` and its adjacent files.
+The original 97 source methods, the 611-test full suite, and the parent session's earlier 32 keep their own objects/scopes and are not merged into a new total.
 
-Git head/parent/coauthor、七路径范围和干净工作树/暂存区已核对。Task15 的有限本地
-实现/范围审阅关卡关闭，无遗留本任务发现；不是 OS 权限、网络/POSIX/平台、真实项目
-或业务/人工/发布验收。风险 include 配置从未传给 Git 或用于访问 UNC endpoint。
-下一步按[Task16](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16)继续本地文档/转录
-与候选评分；可选依赖、音频服务、真实数据发送及其余授权关卡仍保留。
+The Git head/parent/co-author, the seven-path scope, and the clean working tree/index were checked. Task15's bounded local
+implementation/scope review gate is closed, with no outstanding findings for this task; this is not acceptance of OS permissions, network/POSIX/platforms, real projects,
+or business/manual/release. The risky include configuration was never passed to Git or used to access a UNC endpoint.
+The next step, per [Task16](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16), continues with local document extraction/transcription
+and candidate scoring; optional dependencies, audio services, sending real data, and the remaining authorization gates are still kept.
 
 <a id="task16"></a>
-## Task16：本地来源候选与透明评分（实施、自审，待独立复核）
+## Task16: local source candidates and transparent scoring (implemented, self-reviewed, awaiting independent review)
 
-### 会话、任务与 Git
+### Session, task, and Git
 
-2026-10-16，依据用户恢复执行后的 Task16 明确 brief 与
-[原计划](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16)，仅实施 ENH-16
-的获准本地范围。原分支 `callentan-repository-skeleton`、现有隔离工作树，起点
-`6c0f8ec910ce1eeedfacbfcdd1fd756adc0a5478` 已核实 clean，无原有未提交内容。
-本段写入时仍为该 HEAD 加 Task16 未提交范围；最终提交身份回本机报告核对，
-不预填 commit 或独立复核已完成。
+On 2026-10-16, based on the explicit Task16 brief given after the user resumed execution and the
+[original plan](../docs/plan/2026-10-14-ddd-functional-alignment.md#task16), only the authorized local scope of ENH-16
+was implemented. Original branch `callentan-repository-skeleton`, existing isolated worktree; the starting point
+`6c0f8ec910ce1eeedfacbfcdd1fd756adc0a5478` was verified clean, with no pre-existing uncommitted content.
+When this section was written, the state was still that HEAD plus the uncommitted Task16 scope; check the final commit identity against the local report;
+neither the commit nor completion of the independent review is pre-filled.
 
-### 本次变化
+### Changes in this session
 
-新增 [extract_source](../.github/utilities/extract_source.py)、
-[score_candidates](../.github/utilities/score_candidates.py)、
-[transcribe_audio](../.github/utilities/transcribe_audio.py)、
-两个原生 tests、仅含说明的 media 清单与[来源契约](../docs/source-extraction.md)。
-既有逆向方法只加工具导航，相关 utilities/development/source 指引和计划/规格/路线图同步；
-没有新方法/模式/prompt、候选确认引擎、正式 kind/schema 或强制依赖。
+Added [extract_source](../.github/utilities/extract_source.py),
+[score_candidates](../.github/utilities/score_candidates.py),
+[transcribe_audio](../.github/utilities/transcribe_audio.py),
+two native tests, a media manifest containing only notes, and the [source contract](../docs/source-extraction.md).
+The existing reverse-engineering method only gained tool navigation, and the related utilities/development/source guides and the plan/specification/roadmap were synced;
+no new method/mode/prompt, candidate-confirmation engine, formal kind/schema, or mandatory dependency.
 
-候选保留实际原始 bytes SHA256、片段、行/paragraph 或 supplied speaker/turn/time，
-及实际 DOCX document/table/cell 位置。DOCX 只用 stdlib 读取真实自有 OPC ZIP/XML；
-公开 part/总量/展开比/XML 深度/节点边界，不解包到磁盘或跟随 relationships。
-支持的普通段落/矩形表格子集以外明确拒绝，不把常见办公布局说成完整支持。
-透明 0–100 因素不是校准概率或接受阈值，相反/重复来源不被删除或决定优先级。
+Candidates keep the actual raw-bytes SHA256, the fragment, the line/paragraph or supplied speaker/turn/time,
+and the actual DOCX document/table/cell location. DOCX is read only with the stdlib from real own OPC ZIP/XML;
+the part/total-size/expansion-ratio/XML-depth/node limits are public, nothing is unpacked to disk, and relationships are not followed.
+Anything outside the supported subset of plain paragraphs/rectangular tables is explicitly refused, and common office layouts are not described as fully supported.
+The transparent 0–100 factors are not calibrated probabilities or acceptance thresholds; contradictory/duplicate sources are not deleted and do not decide priority.
 
-### 实际结果入口与当前边界
+### Actual result entry points and current boundaries
 
-本机会话 `files\ddd-alignment-execution\task16-report.md` 与绝对获准的
-`task16-evidence\` 保留独立 RED/GREEN、准确 command/cwd、stdout/stderr、
-发现/执行/跳过与退出码及工具输入 SHA256。最终 focused 3.13.15 结果为
-48 个来源/音频拒绝方法和 19 个评分方法，均无失败/错误/跳过；
-这些局部结果不是整个增强或独立审阅通过。
+The local session's `files/ddd-alignment-execution/task16-report.md` and the absolute, authorized
+`task16-evidence/` keep the separate RED/GREEN, exact command/cwd, stdout/stderr,
+discovered/run/skipped counts and exit codes, and the tool input SHA256. The final focused 3.13.15 result is
+48 source/audio-refusal methods and 19 scoring methods, all with no failures/errors/skips;
+these partial results are not a pass of the whole enhancement or of the independent review.
 
-`format-invocations.json` 及自有格式原件/输出另保留四格式真实 CLI、
-DOCX 段落+表格位置和候选评分往返，source bytes 与精确文件集合不变。
-`syntax-and-frozen-code.json` 保存五个新 Python 文件的内存编译结果；
-`pre-handoff-ownership.json` 核实原 9/22/3 库存、旧 log bytes 及未改动的
-Task15 guard/setup、核心 lock、contracts 和保留测试。
-这些资料仅本机可访问，接手需取得本次实际报告；不形成下游运行前提。
+`format-invocations.json` and the own format originals/outputs also keep the real CLI runs for the four formats,
+DOCX paragraph+table locations, and the candidate-scoring round trip, with source bytes and the exact file set unchanged.
+`syntax-and-frozen-code.json` stores the in-memory compilation results of the five new Python files;
+`pre-handoff-ownership.json` verifies the original 9/22/3 inventory, the old log bytes, and the unchanged
+Task15 guard/setup, core lock, contracts, and retained tests.
+This material is accessible only on the local machine, and whoever takes over must obtain this session's actual report; it does not form a downstream runtime precondition.
 
-本段写入时，唯一一次最终 3.11.15 retained+new suite 正在运行，结果尚未断言；
-完成后另追加实际入口。不把当前 621 个保留 test sources 当成此前 621 全套 pass。
-旧 611 全套、97 个来源方法和 10 个 parent 方法继续保留各自基线/范围，
-本轮不重写旧 receipt 或把旧结果拼成新全量结果。
+When this section was written, the only final 3.11.15 retained+new suite was still running, and its result was not yet asserted;
+the actual entry point is appended separately once it completes. The current 621 retained test sources are not treated as an earlier 621-test full-suite pass.
+The old 611-test full suite, the 97 source methods, and the 10 parent methods keep their own baselines/scopes;
+this round does not rewrite old receipts or stitch old results into a new full result.
 
-### 缺口、影响与下一步
+### Gaps, impact, and next steps
 
-音频 API/CLI 只核对授权/缺项/adapter 不可用的诚实拒绝，不读音频或密钥、不发现环境
-provider、不调用服务、不写 fake transcript。服务/模型/SDK/数据发送未选择或授权；
-实际转录及 EXTRACT-14 未来服务失败仍 `not-run`，不是 mock success。
-ENH-16 和 Task12 前置未整体关闭；DOCX 限定布局之外的格式扩展也没有验证通过。
+The audio API/CLI only checks honest refusals for authorization/missing items/an unavailable adapter; it does not read audio or keys, does not discover an environment
+provider, does not call a service, and does not write a fake transcript. No service/model/SDK/data sending has been chosen or authorized;
+actual transcription and EXTRACT-14's future service failure remain `not-run`, not a mock success.
+ENH-16 and the Task12 prerequisites are not closed as a whole; format extensions beyond the bounded DOCX layout have not been verified either.
 
-本轮只自审，未运行 reviewer/subagent、Agent 压力测试或人工/App 工作流；
-Task15 physical-comment/include guard 未修改。待最终本地证据与一个 scoped coauthored
-commit 后停止，交独立复核；不发起后续任务、安装、平台、push/PR 或发布操作。
+This round had only self-review; no reviewer/subagent, agent stress test, or manual/App workflow was run;
+the Task15 physical-comment/include guard was not modified. Work stops after the final local evidence and one scoped co-authored
+commit and is handed to independent review; no later tasks, installs, platform, push/PR, or release operations are started.
 
 <a id="task16-local-verification"></a>
-### Task16 最终最低版本核对（追加）
+### Task16 final minimum-version check (addendum)
 
-唯一一次最终 retained+new 运行已完成：现有 3.11.15 实际发现/运行/执行 **688**，
-其中 621 个保留来源方法＋67 个新方法，0 失败/错误/跳过，退出 0，
-**1,799.906 秒**，`inputs_unchanged=true`，没有 expected failure 或 unexpected success。
-原始计数、逐方法输出、准确 command/cwd/stdout/stderr/exit 和代码/contracts/lock
-输入身份在本机 `task16-evidence\final-minimum311.json` 及相邻
-`-invocation.json`、`-unittest.txt`，不是重标旧 611/97/10 记录或虚构旧 621 全套 pass。
+The only final retained+new run has completed: the existing 3.11.15 actually discovered/ran/executed **688**,
+of which 621 are retained source methods + 67 new methods, 0 failures/errors/skipped, exit 0,
+**1,799.906 seconds**, `inputs_unchanged=true`, with no expected failure or unexpected success.
+The raw counts, per-method output, exact command/cwd/stdout/stderr/exit, and the code/contracts/lock
+input identities are in the local `task16-evidence/final-minimum311.json` and the adjacent
+`-invocation.json` and `-unittest.txt`; this is not a relabeling of the old 611/97/10 records or an invented old 621 full-suite pass.
 
-这是本次离线工具/拒绝合同的维护验证结果，不是音频服务、任意 DOCX 布局、App/人工、
-平台或业务验收。前三个工具、两个新测试的字节保持与 focused GREEN 相同；
-后续仅补本次文档/交接的实际结果，不重跑完整 baseline。最终 format/文档核对、
-输入/旧日志前缀保存和 scoped 本地 commit 身份回 `task16-report.md` 查看。
-本地范围已实施、待独立复核；ENH-16 真实音频/未来服务失败仍 not-run，
-没有推进 Task12、17、18 或整体功能等价结论。
+This is the maintenance verification result for this session's offline tools/refusal contract, not acceptance of audio services, arbitrary DOCX layouts, App/manual work,
+platforms, or business. The bytes of the first three tools and the two new tests remain identical to the focused GREEN;
+later work only adds this session's actual documentation/handoff results, without re-running the complete baseline. For the final format/document check,
+the preservation of inputs/the old log prefix, and the identity of the scoped local commit, see `task16-report.md`.
+The local scope is implemented and awaits independent review; ENH-16's real audio/future service failure remain not-run,
+and no progress is claimed toward Task12, 17, 18, or an overall functional-equivalence conclusion.
 
 <a id="task16-fix1"></a>
-## Task16 fix1：三个 Important 与一个 Minor 的限定修正（待范围复审）
+## Task16 fix1: bounded fixes for three Important findings and one Minor (awaiting scope re-review)
 
-### 会话、依据与起点
+### Session, basis, and starting point
 
-依据 2026-10-16 23:46 用户 fix round 1/5 请求和本机完整
-`task16-review-findings.md`，处理 T16-I1/I2/I3/M1，不把静态审阅当成已经运行的 repro。
-原分支、既有工作树，起点 `9942e70a59577f3ead9049d006c2bd827a168101` 已核实 clean。
-本段写入时 HEAD 仍为起点加本轮未提交范围；实际最终 commit 回本机报告读取。
+Based on the user's fix round 1/5 request at 2026-10-16 23:46 and the complete local
+`task16-review-findings.md`, T16-I1/I2/I3/M1 were handled; the static review is not treated as a repro that has already run.
+Original branch, existing working tree; the starting point `9942e70a59577f3ead9049d006c2bd827a168101` was verified clean.
+When this section was written, HEAD was still the starting point plus this round's uncommitted scope; read the actual final commit from the local report.
 
-### 变化与边界
+### Changes and boundaries
 
-- 完整规范化源单元与 text/kind/nature/全部 uncertainty 必须一致，取消任意子串接受；
-  Maybe 与 restrictive suffix 不能被删掉后获得高分。
-- `artifact_io.py` 只窄暴露既有 Markdown 状态机的行前注释状态，原行/围栏接口保持。
-  extractor/scorer 用同一规范化逻辑与声明 context，支持跨行注释后缩进的正常候选，
-  不复制 parser，也不信任 caller 的 duplicated visible text。
-- 评分前先校验整个输入；envelope 单位总数、行组/turn、DOCX paragraph/body/table/cell
-  和可知空单元关系必须自洽。裸 list 不猜总数、读原件认证或丢重复/partial 来源。
-- DOCX 有 grid 按 grid，无 grid 按首行实际宽度检查全部 rows，不扩大 OOXML 子集。
-- 只改三个相关 Python 模块、两个原生测试及直接契约/状态/日志。
-  Source guard、schema、lock、角色/方法/prompt、runner、依赖和音频入口不改。
+- The complete normalized source unit must agree with text/kind/nature/all uncertainty, and acceptance of arbitrary substrings was removed;
+  Maybe and restrictive suffixes cannot be dropped to obtain a high score.
+- `artifact_io.py` only narrowly exposes the existing Markdown state machine's comment state at the start of a line; the original line/fence interfaces are kept.
+  The extractor/scorer use the same normalization logic and the declared context, supporting normal indented candidates after multi-line comments,
+  without duplicating the parser and without trusting the caller's duplicated visible text.
+- The whole input is validated before scoring; the envelope's total unit count, line groups/turns, DOCX paragraph/body/table/cell,
+  and known empty-unit relations must be self-consistent. A bare list does not guess totals, read originals for authentication, or drop duplicate/partial sources.
+- DOCX checks all rows against the grid when there is one, and otherwise against the first row's actual width, without enlarging the OOXML subset.
+- Only the three related Python modules, the two native tests, and the directly related contract/status/log were changed.
+  The source guard, schema, lock, roles/methods/prompts, runner, dependencies, and audio entry point are unchanged.
 
-### 真实结果入口与原证据
+### Actual result entry points and original evidence
 
-本机会话 `files\ddd-alignment-execution\task16-report.md` 的 fix1 追加段，
-以及 `task16-evidence\fix1\` 保留准确 command/cwd/stdout/stderr、真实计数/退出码、
-源码/输入 SHA256 和独立预期。首次实际运行就是新的 failing regressions，
-source 50 方法的两个 M1 子例失败，scoring 34 方法的 32 个子例失败；0 errors/skips，
-当时生产代码仍与起点完全一致。后续 focused RED/GREEN 与补充 I2 约束各有新 receipt，
-没有覆盖失败记录或用新结果改标旧基线。
+The fix1 addendum in the local session's `files/ddd-alignment-execution/task16-report.md`
+and `task16-evidence/fix1/` keep the exact command/cwd/stdout/stderr, real counts/exit codes,
+source/input SHA256, and independent expectations. The first actual run was the new failing regressions:
+two M1 subtests failed among the 50 source methods, and 32 subtests failed among the 34 scoring methods; 0 errors/skips,
+with production code at that point still identical to the starting point. The later focused RED/GREEN and the supplementary I2 constraint each have new receipts;
+no failure record was overwritten, and no old baseline was relabeled with new results.
 
-当前 3.13 focused：来源 50、评分 36、保留 parser 78 方法各自通过，无失败/错误/跳过；
-原 67 个 Task16 test 方法 AST 全部未改，新增 19 个方法。
-`frozen-code-and-assertions.json` 保存五个 Python 文件的内存编译/冻结身份，
-并核对 47 条 guard/schema/lock/role/prompt/method/runner/audio 等受保护路径。
-唯一一次新的 3.11 retained+new suite 正在运行，本段不预填最终数量/结果。
+Current 3.13 focused results: source 50, scoring 36, and retained parser 78 methods each passed, with no failures/errors/skips;
+the ASTs of all 67 original Task16 test methods are unchanged, and 19 methods were added.
+`frozen-code-and-assertions.json` stores the in-memory compilation/frozen identities of the five Python files
+and checks 47 protected paths such as guard/schema/lock/role/prompt/method/runner/audio.
+The only new 3.11 retained+new suite is running; this section does not pre-fill the final counts/result.
 
-旧 Task16 688/67、Task15 611/97/10 等记录及适用对象继续保留；
-旧报告 24,282 bytes 和旧日志 135,973 bytes 的原始前缀已单列起始身份，
-旧证据不覆盖，待交付前再核对。原 688 不覆盖本次审阅 counterexamples，
-不能将其沿用为修正通过或独立审阅通过。
+Records such as the old Task16 688/67 and Task15 611/97/10, and the objects they apply to, are kept;
+the raw prefixes of the old report (24,282 bytes) and the old log (135,973 bytes) have their starting identities listed separately,
+old evidence is not overwritten, and they are re-checked before delivery. The original 688 does not cover this review's counterexamples
+and cannot be carried over as a pass of the fixes or of the independent review.
 
-### 限制、影响与下一步
+### Limitations, impact, and next steps
 
-context、原始片段、hash 和说话者仍是给定来源声明；只证明内部一致性，不认证原件
-或未提供的前缀，不变成校准概率/业务决定。合法空行/空段落与 partial list 保留，
-DOCX 仍是明确子集。实际音频/服务失败仍 not-run，ENH-16 和后续前置未整体关闭。
-本轮仅自审，无 subagent/reviewer、网络、私有输入、provider/安装、App 或真实项目操作。
-待本地最终证据及一个新的 scoped coauthored commit 后停止，交原范围复审；
-不改写 review finding 的处置，不自动宣布四项已被独立关闭，不开始后续任务或 push/PR。
+The context, raw fragment, hash, and speaker are still supplied source claims; only internal consistency is proven, not the original
+or prefixes that were not provided, and nothing becomes a calibrated probability/business decision. Valid blank lines/empty paragraphs and partial lists are kept,
+and DOCX is still an explicit subset. Actual audio/service failure remains not-run, and ENH-16 and the later prerequisites are not closed as a whole.
+This round had only self-review, with no subagent/reviewer, network, private inputs, provider/installs, App, or real project operations.
+Work stops after the final local evidence and one new scoped co-authored commit and goes to the original scope re-review;
+the disposition of the review findings is not rewritten, the four items are not automatically declared independently closed, and no later task or push/PR is started.
 
 <a id="task16-fix1-minimum"></a>
-### fix1 最终最低版本结果（追加）
+### fix1 final minimum-version result (addendum)
 
-唯一一次新的 retained+new suite 已完成：现有 3.11.15，发现/运行/执行 **707**，
-即 688 个保留方法＋19 个新方法；0 失败/错误/跳过，退出 0，
-**1,799.438 秒**，`inputs_unchanged=true`，无 expected failure 或 unexpected success。
-原始入口为本机 `task16-evidence\fix1\final-minimum311.json` 及相邻
-`-invocation.json`、`-unittest.txt`，保留准确 command/cwd/stdout/stderr 和输入身份。
-没有单独重跑 688 baseline，也没有把旧 688 记录改标为本轮 707。
+The only new retained+new suite has completed: the existing 3.11.15 discovered/ran/executed **707**,
+i.e. 688 retained methods + 19 new methods; 0 failures/errors/skipped, exit 0,
+**1,799.438 seconds**, `inputs_unchanged=true`, with no expected failure or unexpected success.
+The raw entry point is the local `task16-evidence/fix1/final-minimum311.json` and the adjacent
+`-invocation.json` and `-unittest.txt`, which keep the exact command/cwd/stdout/stderr and input identities.
+The 688 baseline was not re-run separately, and the old 688 record was not relabeled as this round's 707.
 
-完整契约/坐标修正的实际执行入口与自审范围在 fix1 报告；所有旧 assertion 保留。
-后续只完成文档/format 与保护核对、一个局部 coauthored commit 后停止。
-当前为本地修正待范围复审，不代表四项 finding 被独立关闭，更不关闭音频、ENH-16、
-平台/真实项目/业务验收或推进后续任务。
+The actual execution entry points and the self-review scope for the complete contract/coordinate fixes are in the fix1 report; all old assertions are kept.
+What remains is only the document/format and protection checks and one scoped co-authored commit, after which work stops.
+This is currently a local fix awaiting scope re-review; it does not mean the four findings are independently closed, let alone close audio, ENH-16,
+platform/real-project/business acceptance, or advance later tasks.
 
 <a id="task16-review"></a>
-## Task16：离线范围限定复审与接续交接
+## Task16: bounded offline scope re-review and continuation handoff
 
-### 会话、任务与 Git
+### Session, task, and Git
 
-2026-10-17，协调会话 `1ff56941`，继续用户已授权的增强计划。
-本次写入前核对原分支 `callentan-repository-skeleton`，HEAD 为修正对象
-`97d35aa57a4fb6687da995858ab6009ec23e1bce`，父提交为
-`9942e70a59577f3ead9049d006c2bd827a168101`，暂存区与工作树为空。
-本次仅同步增强规格、实施计划、路线图和本日志；该文档 checkpoint 由本文件
-Git 历史定位，不预填自身提交 hash。此前实施、自审、失败及待审记录保留原文和基线。
+On 2026-10-17, coordinating session `1ff56941` continued the enhancement plan already authorized by the user.
+Before this write, the original branch `callentan-repository-skeleton` was verified, with HEAD at the fix object
+`97d35aa57a4fb6687da995858ab6009ec23e1bce`, parent commit
+`9942e70a59577f3ead9049d006c2bd827a168101`, and an empty index and working tree.
+This update only syncs the enhancement specification, implementation plan, roadmap, and this log; this documentation checkpoint is located through this file's
+Git history, and its own commit hash is not pre-filled. The earlier implementation, self-review, failure, and pending-review records keep their original text and baselines.
 
-### 复审结论与实际结果入口
+### Re-review conclusion and actual result entry points
 
-原 reviewer 对上述精确修正范围完成只读限定复审：T16-I1/I2/I3 三个 Important
-及 T16-M1 Minor 均为 ADDRESSED，修正及紧邻回归中无新的可执行发现。
-完整源单元/限定语、envelope 可知坐标、共享 Markdown 行前注释状态及无 grid
-矩形宽度的修正均已核对；这是本次代码范围结论，不是人工批准或完整 ENH-16 通过。
-reviewer 未运行命令或测试，其读取的执行记录不改称 reviewer 独立实测。
+The original reviewer completed a read-only bounded re-review of the exact fix scope above: the three Important findings T16-I1/I2/I3
+and the Minor T16-M1 are all ADDRESSED, with no new actionable findings in the fixes and the adjacent regressions.
+The fixes for complete source units/qualifiers, known envelope coordinates, the shared Markdown start-of-line comment state, and rectangular width
+without a grid were all checked; this is a conclusion about this code scope, not human approval or a pass of the complete ENH-16.
+The reviewer did not run commands or tests, and the execution records it read are not relabeled as the reviewer's independent verification in practice.
 
-本机证据入口为 `files\ddd-alignment-execution\` 下
-`task16-fix1-rereview.md`、`task16-report.md#task16-fix1` 和
-`task16-evidence\fix1\`，保留 review 来源、实际 RED/GREEN、707 方法最低版本
-执行及原始输出。协调者另在同一对象用既有 Python 3.11.15 执行来源/评分 86 方法，
-0 失败/错误/跳过，退出 0、62.672 秒、输入未变；准确 command/cwd/字节身份
-和原始输出回 `task16-fix1-parent311.json` 及相邻 invocation/unittest 文件读取。
-707、86 与旧 688/67 是不同范围/对象的记录，不相加或重标成另一轮全量运行。
-这些本机文件不是已提交的跨机器证据；接手者不可访问时须明确该限制。
+The local evidence entry points are, under `files/ddd-alignment-execution/`,
+`task16-fix1-rereview.md`, `task16-report.md#task16-fix1`, and
+`task16-evidence/fix1/`, which keep the review source, the actual RED/GREEN, the 707-method minimum-version
+run, and the raw output. The coordinator also ran the 86 source/scoring methods on the same object with the existing Python 3.11.15:
+0 failures/errors/skipped, exit 0, 62.672 seconds, inputs unchanged; read the exact command/cwd/byte identities
+and raw output from `task16-fix1-parent311.json` and the adjacent invocation/unittest files.
+707, 86, and the old 688/67 are records of different scopes/objects and are not added up or relabeled as another full run.
+These local files are not committed cross-machine evidence; if whoever takes over cannot access them, that limitation must be stated explicitly.
 
-### 保留缺口与下一步
+### Remaining gaps and next steps
 
-本次只关闭离线实现及其四项审阅发现。来源 context、片段/hash、说话者不受认证；
-DOCX 仍是有界段落/表格子集，不代表任意 Office 兼容或工具资格。
-真实音频、真实服务失败、App/人工、平台、应用和整体功能等价仍为 not-run/open，
-音频 provider、模型、SDK、数据范围及发送授权缺项未被默认补齐。
-没有安装依赖、调用服务、推送、建 PR 或变更真实权限。
+This update closes only the offline implementation and its four review findings. Source context, fragments/hashes, and speakers are not authenticated;
+DOCX is still a bounded paragraph/table subset and does not imply arbitrary Office compatibility or tool qualification.
+Real audio, real service failure, App/manual work, platforms, applications, and overall functional equivalence remain not-run/open,
+and the missing audio provider, model, SDK, data scope, and sending authorization have not been filled in by default.
+No dependencies were installed, no services called, nothing pushed, no PR created, and no real permissions changed.
 
-下一步按[Task17](../docs/plan/2026-10-14-ddd-functional-alignment.md#task17)
-开展获准的本地关系图、SEQ/SWAS 与参数化演示导出，PDF/PPTX renderer 和实际格式验收
-继续单独设关卡；当前完整 ENH-16 和 Task12 前置未据此关闭。
+The next step, per [Task17](../docs/plan/2026-10-14-ddd-functional-alignment.md#task17),
+carries out the authorized local relationship diagrams, SEQ/SWAS, and parameterized presentation export; the PDF/PPTX renderer and actual format acceptance
+remain behind separate gates; the complete ENH-16 and the Task12 prerequisites are not closed by this.

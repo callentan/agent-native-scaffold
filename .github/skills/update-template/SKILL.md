@@ -1,46 +1,91 @@
 ---
 name: update-template
-description: Use when a template version changes, a project has owner edits against an old template, or explicitly selected BCs need proposals for versioned source scenarios.
+description: Use when a template version changes, a project has owner edits against an old template, or explicitly selected BCs need proposals for versioned source scenarios. Not for first-time onboarding of project materials (use project-onboarding).
 ---
 
-# 模板更新与多目标提案
+# Compare template versions and make multi-target proposals
 
-旧基线、当前所有者内容、新候选分别读取；**差异是提案，不是应用结果或传播授权**。人和 Agent 共用本方法，不依赖 prompt 或维护者 workflow。
+Read the old baseline, the current owner content, and the new candidate separately. **A difference is a proposal, not an applied result or an authorization to propagate.** Humans and agents share this method; it does not depend on prompts or maintainer workflows.
 
-## 输入
+## Inputs
 
-- 本次任务、允许的文件范围、读写权限和完成条件；[项目登记](../../../README.md#project)中的真实模板来源。
-- 实际旧基线、本地项目、新候选的本地根、可读文件与版本；本地未提交修改、主动删除、业务数据和原规则位置。
-- 多目标另需[登记契约](../../../docs/template-updates.md#registration)中的来源场景、允许文件、目标仓库/上下文、本地 checkout、准确版本及本次明确选择的目标。
-- [维护工具环境](../../../docs/development.md#maintenance-tools)和本次输出位置；缺输入不以 HEAD、分支、空目录或第一个目标替代。
+- Required:
+  - The task, its allowed file scope, read/write permissions, and completion conditions.
+  - The actual template source in the [project registration](../../../README.md#project).
+  - The local roots, readable files, and versions of the actual old baseline, local project, and new candidate.
+  - Local uncommitted changes, intentional deletions, business data, and original rule locations.
+  - The [maintenance tool environment](../../../docs/development.md#maintenance-tools) and this run's output location.
+- When applicable:
+  - For multi-target runs, as defined in the [registration contract](../../../docs/template-updates.md#registration): the source scenario, allowed files, target repositories/contexts, local checkouts, exact versions, and the targets explicitly selected for this run.
+- Never substitute HEAD, a branch, an empty directory, or the first target for a missing input.
 
-## 操作
+## Steps
 
-1. 先读 [AGENTS](../../../AGENTS.md)、任务与实际资料，核对工作目录、分支、commit、index/工作文件和已有修改。只读源不回写；不整仓覆盖、不移动业务布局，也不把历史分发清单当作当前版本的文件范围。
-2. 沿[工具契约](../../../docs/template-updates.md#api)核对三个根及实际原始字节；给了精确 Git/content 版本就验证，脏文件不能标成未经核对的 HEAD。默认/API 不写；仅显式新报告可落在所有受保护来源之外，已有报告不覆盖。
-3. 运行同一 Python core 取得 `changes/conflicts/preserved`，逐项读路径、旧/本地/候选的版本与摘要或明确缺席、操作和理由。二进制、BOM、换行与本地主动删除不归一化；不自动合并、选 ours/theirs 或复活所有者已删内容。
-4. 多目标按“来源场景 → 明确 BC → 允许文件 → 各自结果”检查；只读已存在的本地来源，不复制 model 或整仓。某目标 unavailable/conflict 不隐藏其他结果，也不能用少数成功宣称全批传播完成。
-5. 下表停点按受影响目标保留。若以后操作原生 Git/平台，另取得**具体目标、版本和动作**的当前授权；先重读源版本及确切提案。配置、提案、`apply` 字样或本方法都不批准 clone/fetch、改文件、commit/push、PR 或合并；本工具没有这些操作。
-6. 按 [verify-change](../verify-change/SKILL.md)核对实际结果/源保护，按 [record-handoff](../record-handoff/SKILL.md)链接提案与缺口；只记必要身份、摘要和诊断，不复制本地业务正文、秘密或完整聊天。
+1. Read [AGENTS](../../../AGENTS.md), the task, and the actual materials first. Check the working directory, branch, commit, index/working files, and existing changes.
+2. Following the [tool contract](../../../docs/template-updates.md#api), check the three roots and the actual raw bytes.
+   - When an exact Git/content version is given, verify it.
+   - Never label a dirty file as HEAD without verification.
+   - The default mode and the API do not write. Only an explicit new report may be written, and only outside all protected sources. Never overwrite an existing report.
+3. Run the same Python core (see Command example) to obtain `changes/conflicts/preserved`. For each item, read the path, the old/local/candidate versions with their digests (or explicit absence), the operation, and the reason.
+   - Do not normalize binaries, BOMs, line endings, or intentional local deletions.
+   - Do not auto-merge, pick ours/theirs, or resurrect content the owner deleted.
+4. Check multi-target runs in this order: source scenario → explicit BC → allowed files → per-target result.
+   - Read only existing local sources. Do not copy the model or the whole repository.
+   - A target that is unavailable or in conflict does not hide the other results.
+   - Never use a few successes to claim that the whole batch has propagated.
+5. Apply the stop points in Result handling per affected target.
+6. If native Git/platform operations follow later, obtain separate current authorization for the **specific target, version, and action**. Before acting, re-read the source version and the exact proposal.
+7. Use [verify-change](../verify-change/SKILL.md) to check actual results and source protection. Use [record-handoff](../record-handoff/SKILL.md) to link proposals and gaps.
+   - Record only the necessary identities, digests, and diagnostics.
+   - Do not copy local business text, secrets, or full chats.
 
-## 快速参考与停点
+## Command example
 
-| 观察 | 本次产出与下一步 |
-|---|---|
-| `no-change` / 0 | 实际已对齐或仅保留所有者变化；不是一次应用/传播成功 |
-| `proposed` / 0 | 可审阅的增/改/删提案；尚未修改目标 |
-| `conflict` / 1 | 保留冲突及全部身份；停止该目标合入，需所有者决定 |
-| `input-error` / 2、逐目标 `unavailable` | 保留缺根/版本/读取/登记/范围问题；停止该目标，补输入后重算 |
-| 权限/范围不明，或非空且未获准修改的目标/输出 | 停写，不跳过冲突后报完成，不另建应用或执行器解阻 |
-
-例如在仓库根、使用本次实际项目解释器：
+Run from the repository root with this run's actual project interpreter. This is a Windows example; on other hosts, substitute the actual interpreter, such as `.venv/bin/python`, and `/` separators.
 
 ```text
-.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --registration "<本次本地登记.yaml>" --target "<明确目标ID>"
+.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --registration "<local-registration.yaml>" --target "<explicit-target-id>"
 ```
 
-尖括号必须替换为实际输入；可重复 `--target`。三根模式、准确版本、16 类判定和新输出规则见[更新说明](../../../docs/template-updates.md)，不在本方法复制算法。
+- Replace every angle-bracket placeholder with an actual input.
+- `--target` may be repeated.
+- For the three-root mode, exact versions, the 16 decision classes, and new-output rules, see the [update guide](../../../docs/template-updates.md). This method does not duplicate the algorithm.
 
-## 常见错误
+## Result handling
 
-缺旧基线不是“模板从未有文件”；不可读不是删除；本地专有文件不是过期模板。报告退出 0、文件存在或 workflow YAML 可解析，都不证明业务验收、人工批准、客户端发现或外部 fan-out 已运行。
+Apply each row to the affected target.
+
+| Observation | Output and next step for this run |
+|---|---|
+| `no-change` / 0 | Already aligned, or only owner changes are preserved. Not a successful apply or propagation. |
+| `proposed` / 0 | Reviewable add/modify/delete proposals. The target has not been modified yet. |
+| `conflict` / 1 | Keep the conflicts and all identities. Stop merging into that target until the owner decides. |
+| `input-error` / 2, or per-target `unavailable` | Keep the missing-root/version/read/registration/scope problems. Stop that target and recompute once the inputs are supplied. |
+| Unclear permissions/scope, or a non-empty target/output not authorized for modification | Stop writing. Do not skip conflicts and then report completion. Do not build a separate application or executor to unblock. |
+
+## Guardrails
+
+- Never write back to read-only sources.
+- Do not overwrite the whole repository or move the business layout.
+- Do not treat a historical distribution manifest as the file scope of the current version.
+- Neither the configuration, a proposal, the word `apply`, nor this method approves clone/fetch, file changes, commit/push, PRs, or merges. This tool has none of these operations.
+- Do not misread inputs: a missing old baseline does not mean "the template never had the file"; unreadable is not deleted; a local-only file is not an outdated template.
+- A report exiting 0, a file existing, or workflow YAML parsing successfully does not prove that business acceptance, manual approval, client discovery, or an external fan-out has run.
+
+## Outputs
+
+- Per-target results → stdout by default, with nothing written; or one explicit new report outside all protected sources.
+- Links to proposals and gaps → the handoff record (record-handoff).
+- Targets → not modified by this run (see Guardrails).
+
+## Done when
+
+- Every selected target has its own result from Result handling, and no unavailable or conflicting target hides the others.
+- Actual results and source protection have been checked with verify-change.
+- Proposals and gaps are linked through record-handoff.
+
+## Stop conditions
+
+- Stop the affected target at each stop point in Result handling: `conflict`, `input-error` / `unavailable`, and unclear permissions/scope or an unauthorized non-empty target/output.
+- Stop any native Git/platform operation that lacks separate current authorization for its specific target, version, and action (Steps 6).
+- Then: handle the target as its Result handling row says; the other targets' results stay visible.

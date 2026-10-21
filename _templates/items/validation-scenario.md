@@ -9,83 +9,83 @@ targets:
   - target: PROJECT/CTX-NNN/UC-NNN#uc-nnn-ac-01
     criterionAnchor: criterion-01
 ---
-# TS-NNN：待填写业务验证场景
+# TS-NNN: TBD business validation scenario
 
-> 可选场景计划，当前未执行。先读[领域场景指引](../../verification/README.md#domain-scenarios)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `verification\TS-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、目标和锚点，核对目标所有者、实际落点及相对链接，保留已有记录后删除本提示。复制空表或解析成功不代表业务通过。
+> Optional scenario plan; not run yet. Read the [domain scenario guide](../../verification/README.md#domain-scenarios) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `verification/TS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, targets, and anchors, check the target owners, the actual location, and the relative links, keep existing records, and then delete this notice. Copying the blank form or parsing it successfully does not mean the business passed.
 
 <a id="basis"></a>
-## 依据与计划基线
+## Basis and plan baseline
 
-| 计划信息 | 内容 |
+| Plan information | Content |
 |---|---|
-| 业务范围与场景类型 | 待填写：上下文内／跨上下文／REQ 业务验收／QAS；不混作软件执行 |
-| 已知事实与可定位来源、日期或版本 | 待填写 |
-| 推导候选与来源限制 | 待填写；未确认政策不进入确定预期 |
-| 对象、要求与场景计划基线 | 待填写；分别定位，不只写当前 HEAD |
-| 计划记录者及需要的确认依据 | 待填写 |
+| Business scope and scenario type | TBD: Within context / Cross-context / REQ business acceptance / QAS; do not mix it up with a software run |
+| Known facts and locatable sources, dates, or versions | TBD |
+| Derived candidates and source limitations | TBD; unconfirmed policies do not enter definite expectations |
+| Object, requirement, and scenario plan baselines | TBD; locate each separately, not just the current HEAD |
+| Plan recorder and required confirmation basis | TBD |
 
-UC、RULE、INV、REQ、QAS 等可解析依据在 `upstream` 声明；具体被验证的 UC/REQ/INV/QAS 条目在 `targets` 声明，不能以一条泛化文件标题代替多个目标。
+Declare parseable bases such as UC, RULE, INV, REQ, and QAS in `upstream`; declare the specific UC/REQ/INV/QAS entries being verified in `targets`. A single generic file title cannot stand in for multiple targets.
 
 <a id="targets"></a>
-## 逐项目标判据
+## Criteria by target
 
-每条 `targets` 记录用 `criterionAnchor` 指向本文件的独立判据块。增加目标时增加判据块；不同目标不能共用一句“全部通过”。源条目正文仍归原所有者。
+Each `targets` entry uses `criterionAnchor` to point at an independent criterion block in this file. When you add a target, add a criterion block; different targets cannot share one "all passed" sentence. The source entry's text still belongs to its original owner.
 
 <a id="criterion-01"></a>
-### 判据 01
+### Criterion 01
 
-- 本目标前提与输入：待填写。
-- 本目标动作、观察与独立判定标准：待填写。
-- 对应步骤或实际测试标识：待填写；不存在就说明，不能猜测 runner。
-- 来源导航、未决条件与禁止副作用：待填写。
+- Preconditions and inputs for this target: TBD.
+- Actions, observations, and independent pass criterion for this target: TBD.
+- Corresponding steps or actual test identifier: TBD; if none exists, say so; do not guess the runner.
+- Source navigation, open conditions, and forbidden side effects: TBD.
 
 <a id="scenario"></a>
-## 场景准备与步骤
+## Scenario preparation and steps
 
-| 场景信息 | 内容 |
+| Scenario information | Content |
 |---|---|
-| 参与者、所用事实及其所有者 | 待填写 |
-| 前置状态、输入准备和清理约束 | 待填写 |
-| 步骤顺序及各判据观察点 | 待填写 |
-| 正常、边界、拒绝情形的覆盖与缺口 | 待填写 |
-| `.feature` 引用及其基线（适用时） | 尚未提供；可记拟议路径但不能写成现有文件链接 |
-| 实际环境、runner、命令与 cwd 来源 | 未配置；只按真实开发登记补充 |
-| 原始输出位置与访问限制 | 未配置 |
+| Participants, facts used, and their owners | TBD |
+| Initial state, input preparation, and cleanup constraints | TBD |
+| Step order and observation points for each criterion | TBD |
+| Coverage and gaps for normal, boundary, and rejection cases | TBD |
+| `.feature` reference and its baseline (when applicable) | Not provided yet; a proposed path may be recorded but not written as a link to an existing file |
+| Source of the actual environment, runner, command, and cwd | Not configured; fill in only from the real development registration |
+| Raw output location and access limitations | Not configured |
 
-已有 `.feature` 时仅引用其唯一 Gherkin 正文，不在本文件复制另一份。没有应用或 runner 时场景仍为计划；QAS 缺测量标准时保留缺口，不能产生虚构的通过判据。
+When a `.feature` file exists, only reference its single Gherkin body; do not copy another one into this file. Without an application or runner, the scenario remains a plan; when a QAS lacks a measurement criterion, keep the gap and do not produce a fictitious pass criterion.
 
 <a id="runs"></a>
-## 实际执行（与计划分开）
+## Actual runs (separate from the plan)
 
-本块是待执行记录，不是已发生的运行。如实际结果由 VT 持有，这里只链接其运行块，不抄写另一份结果。重复执行追加记录，保留旧基线。
+This block is a pending-run record, not a run that has happened. If a VT holds the actual result, only link its run block here; do not copy the result again. For repeat runs, append records and keep the old baselines.
 
 <a id="ts-nnn-run-01"></a>
-### TS-NNN-RUN-01：待执行
+### TS-NNN-RUN-01: Pending run
 
-| 实际执行信息 | 内容 |
+| Actual run information | Content |
 |---|---|
-| 日期、执行者及实际对象基线 | 未执行 |
-| 当时的要求与场景计划基线 | 未执行；执行时固定实际版本 |
-| 实际环境、cwd、命令或人工操作 | 未执行 |
-| 发现/执行/跳过数量及退出码（若适用） | 未执行，不预填零 |
-| 原始报告或唯一 VT 运行记录 | 无；尚未执行 |
+| Date, executor, and actual object baseline | Not run |
+| Requirement and scenario plan baselines at the time | Not run; pin the actual versions when run |
+| Actual environment, cwd, command, or manual operations | Not run |
+| Discovered/executed/skipped counts and exit code (if applicable) | Not run; do not prefill zero |
+| Raw report or the single VT run record | None; not run yet |
 
-| 本地判据（目标由 frontmatter 定位） | 实际观察 | 实际结果 | 未执行/跳过原因或失败差异 |
+| Local criterion (target located by frontmatter) | Actual observation | Actual result | Not-run/skip reason or failure difference |
 |---|---|---|---|
-| [判据 01](#criterion-01) | 未执行 | not-run | 尚无已确认执行对象、方法与环境 |
+| [Criterion 01](#criterion-01) | Not run | not-run | No confirmed run object, method, or environment yet |
 
 <a id="applicability"></a>
-## 当前适用性
+## Current applicability
 
-| 复核日期 | 原运行/判据导航及原基线 | 当前要求与对象基线 | 适用性及依据 |
+| Review date | Original run/criterion navigation and original baseline | Current requirement and object baselines | Applicability and basis |
 |---|---|---|---|
-| 待填写 | 尚无已执行记录 | 待填写 | 待复核；没有可复用结果 |
+| TBD | No run record yet | TBD | unverified; no reusable result |
 
-适用性独立于结果；规则变化后保留原记录，不把历史 `pass` 改成新基线通过。
+Applicability is independent of the result; after a rule change, keep the original record and do not turn a historical `pass` into a pass against the new baseline.
 
 <a id="questions"></a>
-## 未决与下一步
+## Open items and next steps
 
-- 未覆盖目标、缺少的前提或判据：待填写。
-- 需谁提供的规则、度量、对象或执行授权；必要时链接 BL：待填写。
-- 已完成的文档核对不能替代的业务执行：待填写，保持 `not-run` 及具体原因。
+- Uncovered targets and missing preconditions or criteria: TBD.
+- Rules, measures, objects, or run authorization needed and who must provide them; link a BL when necessary: TBD.
+- Business runs that the completed document checks cannot replace: TBD; keep them `not-run` with the specific reason.

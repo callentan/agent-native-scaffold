@@ -1,13 +1,21 @@
 ---
-description: 按实际约束整理必要的 ABB 或 ADR。
+description: Organize the necessary ABBs or ADRs according to actual constraints.
 ---
 
-# 设计架构
+# Design the architecture
 
-当前输入（由用户填写）：
-- 设计问题、范围与非目标：待填写。
-- 实际 SR、上下文/CAP、QAS、接口与已有 ABB/ADR 的原文、基线和确认依据：待填写。
-- 已选择的项目/架构、已知版本、未决事实与拟写位置：待填写。
-- 允许读取、拟稿或修订的范围与授权：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [specify-feature](../skills/specify-feature/SKILL.md)，使用其[必要架构与决策](../skills/specify-feature/SKILL.md#design-architecture)小节。本入口不代选技术栈或认证架构决定。
+- Design question, scope, and non-goals: TBD
+- Original text, baselines, and confirmation basis of the actual SR, contexts/CAP, QAS, interfaces, and existing ABB/ADR: TBD
+- Selected project/architecture and known versions: TBD
+- Open facts: TBD
+- Intended location: TBD
+- Scope and authorization for reading, drafting, or revising: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [necessary architecture and decisions](../skills/specify-feature/SKILL.md#design-architecture) section.
+3. This prompt does not choose a tech stack on anyone's behalf or certify architecture decisions.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

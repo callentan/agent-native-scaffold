@@ -49,8 +49,8 @@ def result_rows(source: Artifact, anchor: str,
     expected = {target.criterion_anchor for target in source.targets}
     results, gaps = {}, []
     prefix = f"{source.relative_path}#{anchor}"
-    labels = ("判据链接（目标由 frontmatter 定位）", "实际观察及原始报告定位",
-              "实际结果", "未执行/跳过原因或失败差异")
+    labels = ("Criterion link (target located by frontmatter)", "Actual observation and raw report location",
+              "Actual result", "Not-run/skip reason or failure difference")
     header, tables, previous = None, 0, 0
     for number, line in lines:
         if number != previous + 1:

@@ -1,9 +1,9 @@
-# 空白 companion；不是实际应用场景或执行证据。
-# 与 VT Markdown 同名、同目录；正文归本文件，目标/独立判据/证据归 VT。
-# 替换所有占位后再引用现存场景标识；不预设业务演员或安全关键标签。
-# 没有应用、步骤实现和 runner 时为 not-run，不把文本检查称为自动化通过。
-Feature: 待填写有来源的可观察行为
-  Scenario: 待填写唯一的场景名称
-    Given 待填写来源明确的前提
-    When 待填写来源明确的动作
-    Then 待填写来源明确且可独立判断的结果
+# Blank companion; not an actual application scenario or run evidence.
+# Same name and directory as the VT Markdown; the scenario text belongs here, while targets, independent criteria, and evidence belong to the VT.
+# Replace every placeholder before referencing an existing scenario identifier; do not presume business actors or safety-critical tags.
+# Without an application, step implementations, and a runner, the result is not-run; do not call a text check an automated pass.
+Feature: TBD: observable behavior with a source
+  Scenario: TBD: unique scenario name
+    Given TBD: precondition with a clear source
+    When TBD: action with a clear source
+    Then TBD: result with a clear source that can be judged independently

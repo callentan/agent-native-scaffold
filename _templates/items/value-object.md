@@ -7,41 +7,41 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# VO-NNN：待填写值对象候选
+# VO-NNN: TBD value object candidate
 
-> 可选战术资料，不预选语言类型。先读[战术资料指引](../../domain-model/README.md#tactical-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\VO-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留已有定义后删除本提示。
+> Optional tactical record; it does not preselect a programming-language type. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/VO-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing definition, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与候选依据
+## Sources and candidate basis
 
-- 已知业务含义及来源定位、版本：待填写。
-- 以值而非持续身份辨认的候选理由：待填写。
-- 未决问题及需要谁确认：待填写。
+- Known business meaning with source location and version: TBD.
+- Candidate reasons for recognizing it by value rather than by a persistent identity: TBD.
+- Open questions and who needs to confirm them: TBD.
 
-实际上游在 frontmatter 声明，正文说明值语义；类型名称或实现相等运算不是业务依据。
+Declare the actual upstream in the frontmatter; the body describes the value semantics. A type name or an implemented equality operator is not a business basis.
 
 <a id="value"></a>
-## 值与相等含义
+## Value and meaning of equality
 
-| 设计信息 | 内容 |
+| Design information | Content |
 |---|---|
-| 代表的业务值与使用范围 | 待填写 |
-| 构成值的要素、单位与含义 | 待填写 |
-| 判断两个值相同的依据 | 未提供 |
-| 允许范围、组合约束及 RULE/INV 来源 | 待填写原文导航 |
-| 精度、舍入、空值或规范化政策 | 未提供；不补技术默认值 |
-| 替换、不可变语义或转换的业务依据 | 待确认 |
+| Business value represented and scope of use | TBD |
+| Components of the value, units, and meaning | TBD |
+| Basis for deciding that two values are equal | Not provided |
+| Allowed range, combination constraints, and RULE/INV sources | TBD: navigation to the source text |
+| Precision, rounding, null, or normalization policy | Not provided; do not fill in technical defaults |
+| Business basis for replacement, immutability semantics, or conversion | To be confirmed |
 
 <a id="operations"></a>
-## 操作与使用边界
+## Operations and usage boundaries
 
-- 构造/转换的输入、业务结果及合法性依据：待填写。
-- 无效值如何被识别、不得发生的副作用：待填写；处理政策未知就记问题。
-- 使用者及需要协作的其他值/实体：待填写。
-- 序列化、存储或平台类型：未决定，不属于本表的默认承诺。
+- Inputs to construction/conversion, business results, and the basis for validity: TBD.
+- How invalid values are recognized, and side effects that must not occur: TBD; if the handling policy is unknown, record a question.
+- Users of the value and other values/entities it needs to collaborate with: TBD.
+- Serialization, storage, or platform type: Not decided; not a default commitment of this form.
 
 <a id="questions"></a>
-## 未决与演化
+## Open items and evolution
 
-- 尚未确定的值语义、限制与相关 BL：待填写。
-- 需谁补充什么、旧新基线与使用者影响：待填写。
+- Value semantics and limits not yet determined, and related BLs: TBD.
+- Who needs to supply what, old and new baselines, and impact on users: TBD.

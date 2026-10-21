@@ -7,48 +7,48 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# BL-NNN：待填写领域问题
+# BL-NNN: TBD domain question
 
-> 可选问题记录，不是已解决决定或实施 US。先读[来源与未决项](../../domain-model/README.md#sources)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\BL-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留已有问题与证据后删除本提示。
+> Optional question record; not a resolved decision or an implementation US. First read [sources and open items](../../domain-model/README.md#sources) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/BL-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing questions and evidence, and then delete this hint.
 
 <a id="question"></a>
-## 实际问题、冲突或缺口
+## Actual question, conflict, or gap
 
-- 需要回答的具体问题：待填写。
-- 已知事实及来源定位、日期或版本：待填写。
-- 相互冲突的陈述及各自来源（若适用）：待填写；无冲突不要制造冲突。
-- 推导候选与尚不确定的内容：待填写。
+- Specific question to answer: TBD.
+- Known facts with source location, date, or version: TBD.
+- Conflicting statements and their respective sources (if applicable): TBD; do not create a conflict where none exists.
+- Derived candidates and content that is still uncertain: TBD.
 
-关联工件上游由 frontmatter 声明；正文解释来源如何形成这个问题，不复制上游的状态清单。
+The frontmatter declares the upstream of related artifacts; the body explains how the sources give rise to this question and does not copy the upstream status list.
 
 <a id="impact"></a>
-## 影响与责任
+## Impact and responsibility
 
-| 问题信息 | 内容 |
+| Question information | Content |
 |---|---|
-| 受影响上下文、事实、规则与动作 | 待填写 |
-| 哪些任务或判据受阻及原因 | 待填写 |
-| 哪些已知工作可独立继续及依据 | 待填写 |
-| 能解决问题的责任人及其权限依据 | 未指定；需要实际责任人 |
-| 所需资料或决定 | 待填写 |
-| 期望答复时间及其来源（若有） | 未提供；到期不表示已解决 |
-| 处理进度 | todo；由任务所有者按实际更新，不等于 contentState 或验收结果 |
+| Affected contexts, facts, rules, and actions | TBD |
+| Which tasks or criteria are blocked, and why | TBD |
+| Which known work can continue independently, and on what basis | TBD |
+| Accountable owner who can resolve the question, and the basis of their authority | Not specified; an actual accountable owner is required |
+| Required materials or decisions | TBD |
+| Expected response date and its source (if any) | Not provided; reaching the date does not mean the question is resolved |
+| Handling progress | todo; the task owner updates it to reflect actual progress; it is not the same as contentState or an acceptance result |
 
 <a id="decision"></a>
-## 决定证据（尚无）
+## Decision evidence (none yet)
 
-| 决定信息 | 内容 |
+| Decision information | Content |
 |---|---|
-| 实际答复、取舍与理由 | 尚未取得 |
-| 具名决定者、权限与确认日期 | 尚未取得 |
-| 原始证据及被决定的基线 | 尚未取得 |
-| 应更新的工件及残留问题 | 待决定后核对，不自动改源 |
+| Actual answer, trade-offs, and rationale | Not yet obtained |
+| Named decision maker, authority, and confirmation date | Not yet obtained |
+| Original evidence and the baseline being decided | Not yet obtained |
+| Artifacts to update and remaining questions | Check after the decision; do not change sources automatically |
 
-没有可定位的决定证据不能以超时、排期、实现已有默认值或文档齐全为由关闭。进度可用 `todo / in-progress / blocked / review-ready / done`；`done` 必须有问题得到处理的依据，不代表相关业务验证通过。
+Without locatable decision evidence, do not close the item on the grounds of a timeout, scheduling, an existing implementation default, or complete documentation. Handling progress can be `todo / in-progress / blocked / review-ready / done`; `done` requires a basis showing that the question was handled, and does not mean that the related business verification passed.
 
 <a id="follow-up"></a>
-## 后续复核
+## Follow-up re-review
 
-- 新证据、原问题基线与影响变化：待填写，保留原问题历史。
-- 未执行或待复核的业务场景/VT：待填写。
-- 下一位责任人需要补什么：待填写。
+- New evidence, the original question baseline, and changes in impact: TBD; keep the history of the original question.
+- Business scenarios/VTs that were not run or are pending re-review: TBD.
+- What the next accountable owner needs to supply: TBD.

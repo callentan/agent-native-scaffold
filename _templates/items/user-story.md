@@ -7,44 +7,44 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# US-NNN：待填写
+# US-NNN: TBD
 
-> 可选交付表单，不是第二份需求。先读[交付指引](../../user-stories/README.md)与[元数据约定](../../domain-model/README.md#artifact-metadata)，按需复制到 `user-stories\US-NNN-<slug>.md`。已有维护请求或 issue 足够时不必创建 US。项目/上下文明确后替换所有占位，删除本提示并核对相对链接。
+> Optional delivery form; not a second copy of the requirements. Read the [delivery guide](../../user-stories/README.md) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `user-stories/US-NNN-<slug>.md` as needed. When an existing maintenance request or issue is sufficient, no US is needed. Once the project/context is clear, replace all placeholders, delete this notice, and check the relative links.
 
 <a id="task"></a>
-## 任务与范围
+## Task and scope
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 任务进度 | todo（未开始）；不同于 frontmatter 的内容状态 |
-| 来源阅读导航及采用理由 | 待填写：实际 SR、UC/INV、REQ 或 issue 的原文和基线；工件关系归 upstream |
-| 受益者与交付价值 | 待填写：只用来源中的角色与目标，没有参与者资料就列缺项 |
-| 本次交付目标 | 待填写，不复制需求正文 |
-| 本切片涉及的正常/替代/拒绝路径与不变量 | 待填写：阅读原验收的导航与切片理由，不另写一套 AC |
-| 包含的工作与修改位置 | 待填写 |
-| 不包含的工作 | 待填写 |
-| 依赖、前置输入和负责人 | 待填写 |
-| 完成条件来源 | 待填写：引用原始验收或任务约定 |
+| Task progress | todo (not started); distinct from the frontmatter content state |
+| Source reading navigation and rationale for adoption | TBD: original text and baseline of the actual SR, UC/INV, REQ, or issue; artifact relationships belong in upstream |
+| Beneficiaries and delivered value | TBD: use only roles and goals from the sources; without participant material, list it as a missing item |
+| Delivery goal for this story | TBD; do not copy the requirement text |
+| Normal/alternative/rejection paths and invariants in this slice | TBD: navigation to the original acceptance and the slicing rationale; do not write a separate set of ACs |
+| Included work and change locations | TBD |
+| Excluded work | TBD |
+| Dependencies, prerequisite inputs, and owners | TBD |
+| Source of completion conditions | TBD: cite the original acceptance or task agreement |
 
-`upstream` 声明实际来源，`contentState` 与确认记录归 frontmatter；上表不另存这些字段。基于 SR 的正式交付切片须核实 SR 及适用 UC/INV 的确认依据，只有 Approved 字样或 draft 来源不足以建立可实施承诺。已有独立维护请求不因此被强制转为 US。
+`upstream` declares the actual sources, and `contentState` and confirmation records belong in the frontmatter; the table above does not store these fields again. A formal delivery slice based on an SR must verify the confirmation basis of the SR and any applicable UC/INV; the word Approved alone or a draft source is not enough to establish an implementable commitment. An existing standalone maintenance request is not forced into a US because of this.
 
 <a id="checklist"></a>
-## 实施清单
+## Implementation checklist
 
-- [ ] 待填写：一个具体工作项及其输入。
-- [ ] 待填写：相关验证与记录工作。
+- [ ] TBD: one concrete work item and its inputs.
+- [ ] TBD: related verification and record work.
 
-清单只跟踪工作，不新增一套业务/软件验收。按价值和可验证范围拆分，不按固定技术层强拆；任务进度可改为 `in-progress`、`blocked`、`review-ready` 或 `done`，变更时留下实际依据。上游变化先复核切片和验证影响，不自动回退内容声明或覆盖旧结果。
+The checklist only tracks work; it does not add a new set of business/software acceptance criteria. Split by value and verifiable scope, not forcibly by fixed technical layers; task progress can change to `in-progress`, `blocked`, `review-ready`, or `done`, and each change leaves its actual basis. When upstream changes, first re-review the slice and its verification impact; do not automatically roll back content statements or overwrite old results.
 
 <a id="records"></a>
-## 记录入口
+## Record entry points
 
-| 内容 | 实际链接或缺项 |
+| Content | Actual link or missing item |
 |---|---|
-| 修改的工件、实现或审阅记录 | 待填写 |
-| VT、独立维护检查及原始结果 | 待填写，尚无执行记录 |
-| 开发日志与交接 | 待填写 |
-| 缺口、待复核及未执行项 | 待填写 |
-| 阻塞、范围变化依据与下一步 | 待填写 |
+| Changed artifacts, implementation, or review records | TBD |
+| VTs, standalone maintenance checks, and raw results | TBD; no run records yet |
+| Development log and handoff | TBD |
+| Gaps, items pending re-review, and items not run | TBD |
+| Blockers, basis for scope changes, and next steps | TBD |
 
-VT 直接回到 REQ/SR、必要设计或独立维护完成条件，US 不是必经层级。`done` 不自动表示需求已通过验收、合并或上线。
+VTs trace directly back to REQ/SR, necessary design, or standalone maintenance completion conditions; a US is not a mandatory layer. `done` does not automatically mean the requirement passed acceptance, was merged, or went live.

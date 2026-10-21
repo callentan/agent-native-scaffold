@@ -1,81 +1,249 @@
 ---
 name: define-requirements
-description: Use when business goals or rules are unclear, a domain model has gaps or drift, terms conflict across contexts, or a published interface, incoming ADR or Intended Use changes.
+description: Use when business goals or rules are unclear, a domain model has gaps or drift, terms conflict across contexts, a Published Interface or Intended Use changes, or an incoming ADR must be handled. Not for extracting candidates from existing documents or code (use reverse-engineer-domain) or for software requirements, design, and verification plans (use specify-feature).
 ---
 
-# 整理领域事实与业务需求
+# Clarify domain facts and stakeholder requirements
 
-先把业务含义和来源说清，再写可观察的业务验收。只建当前任务需要的模型与需求，不用技术模式填补未知事实。
+Use this method to clarify domain facts and write stakeholder requirements (REQs). Make the business meaning and its sources clear first, then write observable business acceptance criteria. Build only the models and requirements the current task needs, and never fill unknown facts with technical patterns.
 
-## 输入
+## Choose the activity
 
-- 用户提供的目标、使用者、范围、约束与来源；哪些已确认、哪些只是提案。
-- 现有[产品说明](../../../stakeholder-requirements/README.md#product)、领域模型、REQ 和本次变更依据。
-- 实际文件或已提供片段的定位、版本/日期、事实所有者与确认依据；本次希望得到的草稿或修订、允许读写的范围。缺原始定位或版本就记未知，不补造。
-- ADR、Intended Use、治理/风险资料只在本次任务实际提供且适用时读取，不是所有项目的前置条件。来源提取而非澄清业务含义时，使用 [reverse-engineer-domain](../reverse-engineer-domain/SKILL.md)。
+Each activity is a focused entry point into this one method. Run only the activity this session needs; you need not go through every activity each time.
 
-## 选择本次活动
+- New domain or incomplete facts → [Interview and iterative confirmation](#interview). This is the core flow that builds the product description, domain model, and REQs.
+- Existing model, or suspected model drift → [Knowledge crunching and model drift](#distill).
+- Incoming external vocabulary → [Glossary sync](#glossary-sync).
+- Incoming external commitments, or a Published Interface change → [Published Interface evolution](#published-interface).
+- Incoming external decision → [Incoming ADR](#incoming-adr).
+- Change to an existing Intended Use → [Intended Use revision](#intended-use) (optional).
+- Extraction from sources rather than clarification of business meaning → use [reverse-engineer-domain](../reverse-engineer-domain/SKILL.md) instead.
 
-新领域或事实不全用[访谈](#interview)；已有模型用[锤炼](#distill)；外部词汇、承诺或决策来件分别用[词汇对齐](#glossary-sync)、[发布接口](#published-interface)、[来件 ADR](#incoming-adr)或 [Intended Use 修订](#intended-use)。这些是同一方法的聚焦入口，不要求每次遍历全部活动。
+Before any activity, collect the Inputs and confirm the session mode (next two sections). Outputs and Stop conditions at the end apply to every activity.
 
-先确认本次是分析、拟稿还是获准修订；未获写入授权时只返回发现、问题或草稿。确认业务含义与允许写文件是两回事，均不能从角色、期限、代码或文档状态推断。
+## Inputs
+
+Collect for every activity:
+
+- The goals, users, scope, constraints, and sources the user provided, and which of them are confirmed and which are only proposals.
+- The existing [product description](../../../stakeholder-requirements/README.md#product), domain model, and REQs, and the basis for this change.
+- For each actual file or supplied excerpt: its location, version or date, fact owner, and confirmation basis. If the original location or version is missing, record it as unknown. Do not fabricate it.
+- The drafts or revisions wanted this time, and the allowed read and write scope.
+
+Read ADRs, Intended Use, and governance or risk materials only when this task actually provides them and they apply. They are not prerequisites for every project.
+
+Each activity lists its own additional inputs.
+
+## Session mode and confirmation
+
+1. Confirm whether this session is analysis, drafting, or an authorized revision.
+2. **Without write authorization, return only findings, questions, or drafts.**
+
+- Confirming business meaning and permission to write files are two separate things. Never infer either one from roles, deadlines, code, or document status.
+- Derivations, implementation constants, and high-confidence judgments are not business confirmation.
 
 <a id="interview"></a>
-## 访谈与迭代确认
+## Interview and iterative confirmation (core flow)
 
-1. 对照输入整理目标、用户、范围内外事项和来源，填入产品说明的对应栏。只问会改变当前行为或范围的缺项，逐轮回述新增事实、候选解释、冲突和待确认问题，记录实际答复者、依据与被确认基线；未取得答复不模拟专家。区分阻塞当前决定的问题与可留待后续的问题。纯技术或文档维护可说明业务建模不适用，直接使用明确任务，不制造 REQ。
-2. 在[共同术语](../../../domain-model/README.md#terms)说明业务含义与上下文；在[概念与关系](../../../domain-model/README.md#concepts)同时记录概念、状态含义及关系的方向、数量与成立条件。未知关系约束保持未决，不能只有名词清单。
-3. 在[上下文职责](../../../domain-model/README.md#contexts)写清负责、不负责、拥有的事实及只消费的外部事实；在[定向信息交换](../../../domain-model/README.md#exchanges)明确提供方 → 使用方、事实所有者及已知业务约定。不强拆服务，不默认聚合、仓储或其他战术设计。
-4. 按[规则栏](../../../domain-model/README.md#rules)分配稳定规则 ID 和锚点，写条件、边界、禁止行为及未知项；把事实来源、证据性质与局限、实际确认人与日期记入[来源栏](../../../domain-model/README.md#sources)。先有规则才可按 [INV 表单](../../../_templates/items/invariant.md#basis)说明推导；先澄清战略责任边界，再按需讨论[战术候选](../../../domain-model/README.md#tactical-forms)。推导、实现常量或高置信判断不等于业务确认。规则正文只维护一次；已有规则改变时先按 [verify-change 的影响检查](../verify-change/SKILL.md#impact)处理依赖。
-5. 需要正式业务需求时按[REQ 指引](../../../stakeholder-requirements/README.md#req-writing)使用 [REQ 表单](../../../_templates/items/stakeholder-requirement.md#basis)，说明来源、业务需要与范围，链接实际概念、上下文及规则。验收使用“前提与场景→动作→可观察结果→边界/禁止结果”的表单字段，每项分配带所属工件的完整稳定 ID 与锚点，如 `REQ-NNN-AC-01`；不复制规则正文，也不只写 `AC-01`。按需使用 [UC](../../../_templates/items/use-case.md) 或 [QAS](../../../_templates/items/quality-attribute-scenario.md)，参与者、后置条件、并发政策、指标与测量方法未提供时保持问题，不凭经验补齐。
-6. 在 REQ 的“变更与未决项”保留问题、影响及确认依据；更新[正式需求入口](../../../stakeholder-requirements/README.md#requirements)。将全部本次业务验收交给 [specify-feature](../specify-feature/SKILL.md)规划分层验证，不以软件检查替代业务验收。未经确认的 REQ 仍为草稿，不能代用户批准。
+Build the product description, domain model, and REQs that the task needs, confirming facts round by round with actual respondents.
+
+Inputs: the shared inputs, the open questions, and an actual respondent for each confirmation round.
+
+Steps:
+
+1. Check applicability. For purely technical or documentation maintenance, state that business modeling is not applicable. Work directly from the explicit task instead of the steps below. Do not manufacture REQs.
+2. Fill in the product description. Organize the goals, users, in-scope and out-of-scope matters, and sources against the inputs. Enter them in the corresponding sections of the [product description](../../../stakeholder-requirements/README.md#product).
+3. Confirm in rounds.
+   - Ask only about gaps that would change current behavior or scope.
+   - Separate questions that block current decisions from questions that can wait.
+   - In each round, restate the new facts, candidate interpretations, conflicts, and questions to be confirmed.
+   - In each round, record the actual respondent, the basis, and the confirmed baseline.
+4. Record terms and concepts.
+   - In [shared terms](../../../domain-model/README.md#terms), explain the business meaning and context.
+   - In [concepts and relationships](../../../domain-model/README.md#concepts), record the concepts and the meanings of their states. For each relationship, state its direction, multiplicity, and the conditions under which it holds.
+   - Keep unknown relationship constraints open. A bare list of nouns is not enough.
+5. Record context responsibilities and exchanges.
+   - In [context responsibilities](../../../domain-model/README.md#contexts), state what each context is and is not responsible for. Also state the facts it owns and the external facts it only consumes.
+   - In [directed information exchange](../../../domain-model/README.md#exchanges), state the provider → user direction, the fact owner, and known business agreements.
+   - Do not force a split into services. Do not assume aggregates, repositories, or other tactical design by default.
+6. Record rules and their sources.
+   - In the [rules section](../../../domain-model/README.md#rules), assign stable rule IDs and anchors. Write the conditions, boundaries, forbidden behavior, and unknowns.
+   - In the [sources section](../../../domain-model/README.md#sources), record the fact sources, the nature and limits of the evidence, and the actual confirmer and date.
+   - Maintain rule text in one place only. When an existing rule changes, first handle its dependencies with the [verify-change impact check](../verify-change/SKILL.md#impact).
+   - Describe a derivation with the [INV form](../../../_templates/items/invariant.md#basis) only after its rule exists.
+   - Clarify strategic responsibility boundaries first. Then discuss [tactical candidates](../../../domain-model/README.md#tactical-forms) as needed.
+7. Write a REQ when a formal stakeholder requirement is needed.
+   - Use the [REQ form](../../../_templates/items/stakeholder-requirement.md#basis) and follow the [REQ guide](../../../stakeholder-requirements/README.md#req-writing).
+   - State the source, business need, and scope. Link the actual concepts, contexts, and rules. Do not copy rule text.
+   - Write each acceptance criterion in the form's fields: preconditions and scenario → action → observable result → boundary or forbidden result.
+   - Give each acceptance criterion a full, stable ID that includes its owning artifact, plus an anchor, such as `REQ-NNN-AC-01`. Do not write just `AC-01`.
+   - Use a [UC](../../../_templates/items/use-case.md) or [QAS](../../../_templates/items/quality-attribute-scenario.md) as needed.
+   - When participants, postconditions, concurrency policies, metrics, or measurement methods are not provided, keep them as questions. Do not fill them in from experience.
+8. Close out the REQs.
+   - Keep questions, impact, and the confirmation basis in the REQ's "Changes and open items" section.
+   - Update the [formal requirements entry point](../../../stakeholder-requirements/README.md#requirements).
+   - Hand all of this session's business acceptance criteria to [specify-feature](../specify-feature/SKILL.md) for layered verification planning. Do not substitute software checks for business acceptance.
+
+Record and return: the updated product description and domain model sections, the REQs with their open items, and the acceptance criteria handed to specify-feature. For maintenance, return the statement of applicability.
+
+Stop points:
+
+- Without an answer, do not simulate the expert.
+- An unconfirmed REQ remains a draft. Do not approve it on the user's behalf.
+- For missing behavior sources, conflicting rules, or unclear responsibility boundaries, see Stop conditions.
 
 <a id="distill"></a>
-## 知识锤炼与模型漂移
+## Knowledge crunching and model drift
 
-- 以给定模型版本、专家陈述及实际使用线索比较语言、概念关系、规则、边界与已采用的战术资料；先列存根和未决项。区分文字歧义、业务变化与实现偏离，不能仅凭类名或目录判断模型错误。
-- 按 [领域工件审阅](../verify-change/SKILL.md#domain-review)返回有来源/位置、严重度理由、影响链和所需决定的发现。保留旧模型及冲突来源，提出候选解释、边界调整或 BL/ADR 建议；没有实际决定不重构架构、不全局改名，也不宣称模型健康或漂移已消除。
+Compare an existing model with current knowledge and report the drift as findings that need a decision.
+
+Inputs: the given model version, expert statements, actual usage clues, and the adopted tactical materials.
+
+Steps:
+
+1. List stubs and open items first.
+2. Using the given model version, expert statements, and actual usage clues, compare the language, concept relationships, rules, boundaries, and adopted tactical materials.
+3. For each difference, distinguish wording ambiguity, business change, and implementation deviation. Do not judge the model wrong from class names or directories alone.
+4. Following the [domain artifact review](../verify-change/SKILL.md#domain-review), write each finding with its source or location, severity rationale, impact chain, and the decision needed.
+5. Keep the old model and the conflicting sources. Propose candidate interpretations, boundary adjustments, or BL/ADR suggestions.
+
+Return: the findings and proposals from steps 4 and 5.
+
+Stop point: without an actual decision, do not restructure the architecture, rename globally, or claim that the model is healthy or the drift is eliminated.
 
 <a id="glossary-sync"></a>
-## 词汇对齐
+## Glossary sync
 
-1. 对照实际提供的本地/外部词汇版本，逐词列上下文、原定义与定位、已确认或未决的依据，区分同义、同名异义、仅外部、仅本地和未确认词。版本缺失时只作临时比较，明确无法确认的差异；未确认词不作为统一定义。
-2. 保留同名但不同上下文的含义，提出限定名称、映射、别名或弃用选项。沿规则、UC/REQ、接口和已知消费者列影响及需谁决定；不静默采用外部“标准词”，不全局替换。
-3. 只有具体选择和写入范围均获确认后才修订原词汇所有者，保留旧称、来源版本、弃用依据及历史引用；外部源更新另需授权。冲突或版本待补时交付对齐提案，不把比较完成写成语言已统一。
+Compare local and external glossaries and propose how to align them.
+
+Inputs: the actually provided local and external glossary versions, with each term's definitions and contexts.
+
+Steps:
+
+1. For each term, list its context, original definition and location, and its confirmed or open basis.
+2. Distinguish synonyms, homonyms (same name, different meaning), external-only terms, local-only terms, and unconfirmed terms.
+3. When a version is missing, make only a provisional comparison. State which differences cannot be confirmed.
+4. Keep the distinct meanings of same-named terms in different contexts. Propose qualified names, mappings, aliases, or deprecation options.
+5. List the impact along rules, UC/REQ, interfaces, and known consumers, and who needs to decide.
+6. Revise the original owning glossary only after both the specific choice and the write scope are confirmed. Keep the old names, source versions, deprecation basis, and historical references.
+
+Return: the term comparison, the options, the impact, and who needs to decide. When there are conflicts or missing versions, deliver an alignment proposal. Record only the confirmed glossary revision from step 6.
+
+Stop points:
+
+- Unconfirmed terms do not become unified definitions.
+- Do not silently adopt an external "standard term". Do not replace terms globally.
+- Updating an external source needs separate authorization.
+- When there are conflicts or missing versions, do not report a finished comparison as unified language.
 
 <a id="published-interface"></a>
-## Published Interface 演化
+## Published Interface evolution
 
-1. 明确本次是梳理承诺还是修订；读取提供的契约、模型/词汇、原版本、拟议差异和已知消费者。按 [PI 表单](../../../_templates/items/published-interface.md#direction)分清提供方 → 消费者、事实所有者与实际承诺，消费者需要不自动成为承诺。
-2. 比较元素含义、适用条件、缺失值与失败处理，记录潜在破坏性及消费方影响。语义改变不能仅因字段名不变就称兼容；原契约、消费者或错误政策缺失时标待确认，停止兼容保证和发布决定，不默认失败策略。
-3. 在[演化栏](../../../_templates/items/published-interface.md#evolution)提出版本、迁移/兼容窗口、撤销及通知方案。版本建议依据实际版本政策，已知破坏变化需提出相应升级；当前版本或政策未知时不编造版本号。通知草稿列对象、旧新基线、差异、影响和待确认事项，**拟稿不是发送**；实际通知、源修改与发布须分别获准并有原始记录。
+Document or revise what a Published Interface commits to its consumers, and propose how it evolves.
+
+Inputs: the supplied contract, model or glossary, original version, proposed differences, known consumers, and the actual versioning policy.
+
+Steps:
+
+1. Make clear whether this session documents existing commitments or revises them.
+2. Read the inputs. Using the [PI form](../../../_templates/items/published-interface.md#direction), separate the provider → consumer direction, the fact owner, and the actual commitments. A consumer's need does not automatically become a commitment.
+3. Compare element meanings, applicability conditions, missing values, and failure handling. Record potential breaking changes and consumer impact. Do not call a semantic change compatible just because field names are unchanged.
+4. In the [evolution section](../../../_templates/items/published-interface.md#evolution), propose the version, migration or compatibility window, withdrawal, and notification plan.
+   - Base version suggestions on the actual versioning policy.
+   - For known breaking changes, propose a corresponding version bump.
+5. Draft the notification. List the recipients, old and new baselines, differences, impact, and items to be confirmed.
+
+Record and return: the direction and commitments, the compatibility findings, the evolution proposal, and the notification draft.
+
+Stop points:
+
+- When the original contract, the consumers, or the error policy is missing, mark it as to be confirmed. Stop compatibility guarantees and release decisions. Do not assume a failure strategy.
+- When the current version or versioning policy is unknown, do not invent a version number.
+- **A draft is not a sent notification.** Actual notification, source changes, and release each require separate authorization and an original record.
 
 <a id="incoming-adr"></a>
-## 来件 ADR
+## Incoming ADR
 
-读取实际提供的 ADR 原文、版本/决定基线、提出者或决定者及本次处理目的；只有摘要、标题或“Accepted”字样不能认证决定。沿 [语义影响检查](../verify-change/SKILL.md#impact)列受影响规则、上下文、REQ/QAS、设计、发布接口、消费者与验证，以及冲突和需确认的适用范围。
+Assess the impact of an incoming external ADR on this project.
 
-产出影响发现、BL 或获准的[本地 ADR 提案](../../../_templates/items/architecture-decision.md)，注明待更新位置、责任人和通知草稿；外部 ADR 保持原所有者与历史。缺来件正文/基线或授权时停止依赖它的采纳与修改，仍可返回已知问题。不自动改外部 wiki、通知消费者或将来件决定泛化到本项目。
+Inputs: the actually provided ADR text, its version or decision baseline, its proposer or decider, and the purpose of handling it now.
+
+Steps:
+
+1. Read the inputs. A summary, a title, or the word "Accepted" alone cannot authenticate a decision.
+2. Following the [semantic impact check](../verify-change/SKILL.md#impact), list the affected rules, contexts, REQ/QAS, design, Published Interfaces, consumers, and verification. Also list conflicts and the applicable scope that needs confirmation.
+3. Produce impact findings, BLs, or an authorized [local ADR proposal](../../../_templates/items/architecture-decision.md). Note the locations to update, the accountable owners, and a notification draft.
+
+Record and return: the results of step 3. The external ADR keeps its original owner and history.
+
+Stop points:
+
+- When the incoming text or baseline, or the authorization, is missing, stop the adoption and the changes that depend on it. You may still return known issues.
+- Do not automatically edit external wikis, notify consumers, or generalize the incoming decision to this project.
 
 <a id="intended-use"></a>
-## Intended Use 修订（可选）
+## Intended Use revision (optional)
 
-只处理用户提供的**现有文件**：当前完整内容与基线、目标章节、拟议内容/理由、事实所有者和允许修改的范围；缺必要原文时先索取，不创建替代事实或要求普通项目补医疗/QMS 资料。
+Assess a proposed change to an existing Intended Use and route its scope and risk decisions to the accountable owners.
 
-比较目标、用户、使用环境、范围内外与约束；来源涉及患者、安全或监管时再核对相应变化。列受影响上下文、REQ/QAS、接口/消费者及验证，并引用实际提供的治理/风险依据。不确定的范围扩大或安全影响保留问题，按来源要求提交实际责任人及适用的风险/法规负责人复核；未给升级规则就请求其确定，不擅判风险可接受或代做风险分析。
+Inputs: handle only **existing files** provided by the user:
 
-产出章节级差异和影响/升级提案、需谁确认什么及被阻塞动作；没有责任人的适用范围和风险决定，不确认新用途、不改下游承诺。获准修订也须保留旧基线与尚未解决事项，不能由文档齐全推出合规或批准。
+- the current full content and its baseline
+- the target sections
+- the proposed content and rationale
+- the fact owner
+- the scope allowed to change
+- the governance or risk basis, when actually provided
 
-需要独立承载时按[用途表单](../../../_templates/items/intended-use.md)与[治理指引](../../../docs/governance.md#intended-use)记录来源、提案、实际决定及影响；已有原文仍由其所有者维护，表单不补缺失原文。风险资料仅用[风险控制引用](../../../_templates/items/risk-control.md)定位外部来源与残留缺口；未知环境、限制或负责政策阻塞相应确认，不默认医疗分类或新增审批链。
+Do not require ordinary projects to supply medical or QMS materials.
 
-## 产出与完成
+Steps:
 
-领域事实落在 `domain-model/README.md` 的现有栏目或其已链接模型；产品信息落在 `stakeholder-requirements/README.md`；按需创建 `stakeholder-requirements/REQ-NNN-<slug>.md`。独立领域工件、QAS 与 BL 按[现有落点](../../../domain-model/README.md#optional-forms)使用，ADR 按[架构指引](../../../architecture/README.md#decisions)落点；来件与 Intended Use 沿用提供文件的所有权和位置。表单只作来源，不把正式内容留在 `_templates`。
+1. When necessary source text is missing, request it first. Do not create substitute facts.
+2. Compare the goals, users, use environment, in-scope and out-of-scope matters, and constraints. When the source involves patients, safety, or regulation, also check the corresponding changes.
+3. List the affected contexts, REQ/QAS, interfaces and consumers, and verification. Cite the actually provided governance or risk basis.
+4. Keep uncertain scope expansion or safety impact as questions. As the source requires, submit them for review to the actual accountable owner and the applicable risk or regulatory owner. If no escalation rule is given, ask them to define one.
+5. When a standalone record is needed, use the [Intended Use form](../../../_templates/items/intended-use.md) and the [governance guide](../../../docs/governance.md#intended-use) to record sources, proposals, actual decisions, and impact. The owner still maintains the existing source text; the form does not fill in missing source text.
+6. For risk materials, use only the [risk control reference](../../../_templates/items/risk-control.md) to locate external sources and residual gaps.
 
-采用元数据时按[当前契约](../../../domain-model/README.md#artifact-metadata)保留身份、scope、内容状态和上游关系的单一归属；正文写依据、推导和问题，不再复制状态/关系表。scope 或 ID 缺失先留获准的普通笔记；旧轻量资料不强制迁移。确认、任务进度与执行结果分别记录。
+Record and return: section-level differences, impact and escalation proposals, who needs to confirm what, and the blocked actions. An authorized revision must still keep the old baseline and unresolved items.
 
-术语、概念与关系、规则、职责与定向交换有依据，验收可逐项定位，未决项与影响明确，即可交付需求草稿；不表示业务验收已执行。维护任务交付其适用性说明即可。
+Stop points:
 
-## 停止条件
+- Do not decide on your own that a risk is acceptable. Do not perform the risk analysis on the owners' behalf.
+- Without the accountable owner's decisions on applicable scope and risk, do not confirm the new use or change downstream commitments.
+- Unknown environments, limitations, or responsibility policies block the corresponding confirmation.
+- Do not assume a medical classification or add an approval chain.
+- Complete documentation does not imply compliance or approval.
 
-行为来源缺失、规则冲突或责任边界不明时停止受影响的细化，提出需确认的具体问题；可以保留已知部分和未决草稿，但不能推导默认政策、伪造确认或以期限压力补齐事实。
+## Outputs
+
+- Domain facts → the existing sections of `domain-model/README.md`, or the models it already links.
+- Product information → `stakeholder-requirements/README.md`.
+- New REQs → `stakeholder-requirements/REQ-NNN-<slug>.md`, as needed.
+- Standalone domain artifacts, QAS, and BLs → the [existing locations](../../../domain-model/README.md#optional-forms).
+- ADRs → where the [architecture guide](../../../architecture/README.md#decisions) places them.
+- Incoming materials and Intended Use → keep the ownership and location of the supplied files.
+
+For every output:
+
+- Use forms only as a starting point. Do not leave formal content in `_templates`.
+- When metadata is adopted, follow the [current contract](../../../domain-model/README.md#artifact-metadata) to keep a single home for identity, scope, content state, and upstream relationships. In the body, state the basis, derivation, and questions; do not copy a status or relationship table again.
+- When the scope or ID is missing, keep an authorized plain note first. Do not forcibly migrate old lightweight materials.
+- Record confirmation, task progress, and run results separately.
+
+## Done when
+
+- Requirement drafts can be delivered once all of these hold:
+  - terms, concepts and relationships, rules, responsibilities, and directed exchanges have a basis
+  - each acceptance criterion can be located
+  - open items and impact are explicit
+- Deliverable drafts do not mean that business acceptance has been run.
+- A maintenance task need only deliver its statement of applicability.
+
+## Stop conditions
+
+- When behavior sources are missing, rules conflict, or responsibility boundaries are unclear, stop the affected refinement.
+- Then raise the specific questions that need confirmation. You may keep the known parts and open drafts.
+- Do not derive default policies, forge confirmations, or fill in facts under deadline pressure.
+- Each activity also lists its own stop points.

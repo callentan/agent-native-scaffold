@@ -30,11 +30,10 @@ MAX_DOCX_RATIO = 100
 MAX_XML_DEPTH = 32
 MAX_XML_NODES = 10_000
 TIMESTAMP = re.compile(r"[0-9]{2}:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}")
-_LABEL = re.compile(r"^(rule|capability|use[ -]case|term|规则|能力|用例|术语)\s*[:：]", re.I)
-_LABEL_KINDS = {"rule": "rule", "规则": "rule", "capability": "capability", "能力": "capability",
-                "use case": "use-case", "use-case": "use-case", "用例": "use-case",
-                "term": "term", "术语": "term"}
-_UNCERTAIN = re.compile(r"\b(maybe|should|proposed|perhaps|unconfirmed)\b|待确认|可能|建议", re.I)
+_LABEL = re.compile(r"^(rule|capability|use[ -]case|term)\s*:", re.I)
+_LABEL_KINDS = {"rule": "rule", "capability": "capability",
+                "use case": "use-case", "use-case": "use-case", "term": "term"}
+_UNCERTAIN = re.compile(r"\b(maybe|should|proposed|perhaps|unconfirmed)\b", re.I)
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 _CT = "{http://schemas.openxmlformats.org/package/2006/content-types}"
 _REL = "{http://schemas.openxmlformats.org/package/2006/relationships}"
@@ -140,8 +139,8 @@ def _classify(text: str) -> tuple[str, str, list[str], str]:
         nature = "observed"
         reason = "Explicit source label; the classification records a statement, not business confirmation."
     else:
-        kind = ("rule" if re.search(r"(?<![\w-])(must|shall|never|required|cannot)(?![\w-])|必须|不得|禁止", text, re.I)
-                else "capability" if re.search(r"\b(can|allows|supports)\b|能够|支持", text, re.I)
+        kind = ("rule" if re.search(r"(?<![\w-])(must|shall|never|required|cannot)(?![\w-])", text, re.I)
+                else "capability" if re.search(r"\b(can|allows|supports)\b", text, re.I)
                 else "statement")
         nature = "inferred"
         reason = "Unlabelled text: lexical candidate classification is an inference, not a domain decision."

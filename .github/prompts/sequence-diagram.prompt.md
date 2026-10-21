@@ -1,13 +1,23 @@
 ---
-description: 根据实际场景和契约整理有来源的时序说明。
+description: Organize a source-backed sequence diagram from actual scenarios and contracts.
 ---
 
-# 时序说明
+# Sequence diagram
 
-当前输入（由用户填写）：
-- 场景范围、实际 UC/ABB 与相关规则的原文、基线和确认依据：待填写。
-- 已知参与者、生产/消费方向及事件/接口契约：待填写。
-- 成功/拒绝/错误路径、异步或交付约定的来源与缺项：待填写。
-- 现有 SEQ、拟写位置与本次授权：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [specify-feature](../skills/specify-feature/SKILL.md)，使用其[时序说明](../skills/specify-feature/SKILL.md#sequence-diagram)小节。本入口不推导消息系统或运行结果。
+- Scenario scope: TBD
+- Original text, baselines, and confirmation basis of the actual UC/ABB and related rules: TBD
+- Known participants and production/consumption direction: TBD
+- Event/interface contracts: TBD
+- Sources and gaps for success/rejection/error paths: TBD
+- Sources and gaps for asynchronous or delivery conventions: TBD
+- Existing SEQ and intended location: TBD
+- Authorization for this session: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [sequence diagram](../skills/specify-feature/SKILL.md#sequence-diagram) section.
+3. This prompt does not infer a messaging system or runtime results.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

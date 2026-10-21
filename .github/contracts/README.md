@@ -1,42 +1,42 @@
-# 维护工具的数据契约 v1
+# Maintenance-tool data contracts v1
 
-本目录定义工件元数据、可选 BC 配置、派生模型和实施报告的输入契约。这些是本仓的功能等价设计，**不是原六仓字段、文件格式或自动导入的兼容声明**。本页和同目录 schema 完整说明字段与示例，无需读取内部制作规格；工具调用与错误码见[工具说明](../utilities/README.md)。
+This directory defines the input contracts for artifact metadata, the optional BC configuration, the derived model, and implementation reports. They are this repository's functionally equivalent design, **not a compatibility claim for the fields, file formats, or automatic import of the original six repositories**. This page and the schemas in this directory fully describe the fields and examples, so the internal maker specifications are not needed; tool invocation and error codes are in the [tool notes](../utilities/README.md).
 
-原四份 schema 的 v1 语义保持不变；可选来源清单有独立的第五份 schema。均为 JSON Schema Draft 2020-12，必填 `schemaVersion: 1`，拒绝未知字段。`$ref` 仅使用文件内部的 JSON Pointer；`$schema` URI 是方言标识，不要求联网下载，也不依赖制作仓的测试或历史记录。
+The v1 semantics of the original four schemas remain unchanged; the optional source manifest has its own fifth schema. All of them are JSON Schema Draft 2020-12, require `schemaVersion: 1`, and reject unknown fields. `$ref` uses only JSON Pointers within the same file; the `$schema` URI only identifies the dialect, requires no network download, and does not depend on the maker repository's tests or history.
 
-可选的[模板更新登记](../../docs/template-updates.md#registration)另有窄路径/版本/文件契约与[空白数据表单](../../_templates/config/template-updates.yaml)，复用安全 YAML reader，不增加业务/结果 schema、命令 manifest 或授权字段。上述五份 schema 及其原 v1 语义不变。
+The optional [template-update registration](../../docs/template-updates.md#registration) has its own narrow path/version/file contract and [blank data form](../../_templates/config/template-updates.yaml); it reuses the safe YAML reader and adds no business/result schema, command manifest, or authorization field. The five schemas above and their original v1 semantics are unchanged.
 
-## 共用表示
+## Shared representations
 
-| 表示 | 约定 |
+| Representation | Convention |
 |---|---|
-| `id` / `projectId` / 上下文 `id` | ASCII 字母或数字开头，后续可含字母、数字、点、下划线、连字符；不含路径分隔符或空白 |
-| `scope` | 精确的 `project/context` 两段；不从目录名或当前应用猜测 |
-| 工件 `key` | `scope/id`，例如 `sample/CTX-001/SR-001` |
-| canonical 引用 | `scope/id#anchor`；目标、视图及报告的工件引用必须带锚点。`upstream` 也允许不带锚点的完整工件 key |
-| 锚点 | ASCII 字母开头，后续可含字母、数字、点、下划线、冒号、连字符；不含 `#` 或空白 |
-| `path` | 仓库相对路径，使用 `/`，允许中文和空格；不允许绝对路径、反斜杠、空段、`.` / `..` 中间段。单独的 `.` 可表示源根 |
-| 文件 `reference` | 仓库相对文件路径及可选 `#anchor`，不是可执行命令或网络下载指令 |
-| 固定对象 `baseline` | 完整的小写 Git 对象 ID（40 / 64 位），或 `sha256:` 加 64 位内容摘要；不接受 `HEAD`、分支名、缩写。Git 类型领域源必须用完整 Git 对象 ID |
-| 证据/确认 `baseline` | 非空、含非空白字符的对象或报告基线指针；schema 不认证其真实性。与主输入的固定对象格式分别定义，不能拿可选证据缺失替代主输入错误 |
-| 三种状态 | 内容声明是 `draft / confirmed / retired`；任务进度仍由任务所有者维护 `todo / in-progress / blocked / review-ready / done`；执行结果另记 `not-run / pass / fail / skipped`，互不转换 |
+| `id` / `projectId` / context `id` | Starts with an ASCII letter or digit, followed by letters, digits, dots, underscores, or hyphens; no path separators or whitespace |
+| `scope` | Exactly two segments, `project/context`; never guessed from directory names or the current application |
+| Artifact `key` | `scope/id`, for example `sample/CTX-001/SR-001` |
+| Canonical reference | `scope/id#anchor`; artifact references in targets, views, and reports must include an anchor. `upstream` also allows a full artifact key without an anchor |
+| Anchor | Starts with an ASCII letter, followed by letters, digits, dots, underscores, colons, or hyphens; no `#` or whitespace |
+| `path` | Repository-relative path using `/`; non-ASCII characters and spaces are allowed; absolute paths, backslashes, empty segments, and `.` / `..` intermediate segments are not allowed. A lone `.` may denote the source root |
+| File `reference` | Repository-relative file path with an optional `#anchor`; not an executable command or a network download instruction |
+| Fixed object `baseline` | A full lowercase Git object ID (40 / 64 hex digits), or `sha256:` followed by a 64-digit content digest; `HEAD`, branch names, and abbreviations are not accepted. Git-type domain sources must use a full Git object ID |
+| Evidence/confirmation `baseline` | A non-empty object or report baseline pointer containing non-whitespace characters; the schema does not authenticate it. It is defined separately from the fixed-object format of the primary input, and missing optional evidence cannot substitute for a primary-input error |
+| Three kinds of state | The content declaration is `draft / confirmed / retired`; task progress remains maintained by the task owner as `todo / in-progress / blocked / review-ready / done`; execution results are recorded separately as `not-run / pass / fail / skipped`; none of them converts into another |
 
-JSON Schema 的整数遵循 JSON 数值语义；布尔值、字符串不是整数。Markdown parser 进一步要求 YAML 解码结果的 `schemaVersion` 是真正的 Python `int` 且等于 1，拒绝 `true`、`"1"` 和 `1.0`，不作强制转换。
+Integers in JSON Schema follow JSON numeric semantics; booleans and strings are not integers. The Markdown parser further requires the YAML-decoded `schemaVersion` to be a genuine Python `int` equal to 1, and rejects `true`, `"1"`, and `1.0` without coercion.
 
-以下都是**结构示例**，不是已确认工件、配置或执行记录。示例 baseline 只展示固定对象格式；采用时须替换为本项目可读取的真实对象。这些示例不证明 scope、来源、报告或验收项存在。
+Everything below is a **structural example**, not a confirmed artifact, configuration, or execution record. Example baselines only show the fixed-object format; when adopting them, replace them with real objects readable in your project. These examples do not prove that any scope, source, report, or acceptance criterion exists.
 
 ## 1. Artifact frontmatter
 
-[artifact.schema.json](artifact.schema.json) 只拥有机器元数据；Markdown 正文仍拥有业务含义和判据。
+[artifact.schema.json](artifact.schema.json) owns only machine metadata; the Markdown body still owns business meaning and criteria.
 
-| 字段 | 必要性与含义 |
+| Field | Requirement and meaning |
 |---|---|
-| `schemaVersion`, `id`, `kind`, `scope`, `contentState` | 均必填。`kind` 的唯一正式枚举在 schema 的 `$defs.kind`，是封闭的 32 项集合；没有自定义插件 kind |
-| `upstream` | 可省略；完整来源引用的去重列表。只有真正省略时 parser 才返回空 tuple；`null`、对象、字符串或无效元素均报错 |
-| `targets` | 可省略；去重的结构化记录列表。每条必填 `target`、`criterionAnchor`，可选非空 `testId`；有值时不得丢弃 owner、锚点或测试标识 |
-| `confirmation` | `confirmed` 必须有；若提供则必填非空 `by`、`reference`、`baseline`。仅验证声明形状，不能认证人、权限或批准 |
+| `schemaVersion`, `id`, `kind`, `scope`, `contentState` | All required. The only formal enumeration of `kind` is `$defs.kind` in the schema, a closed set of 32 items; there are no custom plug-in kinds |
+| `upstream` | Optional; a deduplicated list of full source references. The parser returns an empty tuple only when the field is truly omitted; `null`, objects, strings, or invalid elements are errors |
+| `targets` | Optional; a deduplicated list of structured records. Each record requires `target` and `criterionAnchor`, with an optional non-empty `testId`; when present, the owner, anchor, and test identifier must never be dropped |
+| `confirmation` | Required for `confirmed`; if provided, non-empty `by`, `reference`, and `baseline` are required. Only the shape of the declaration is validated; it cannot authenticate the person, permissions, or approval |
 
-目标记录形如 `{"target": "sample/CTX-001/SR-001#sr-001-ac-01", "criterionAnchor": "criterion-01", "testId": "native::test_reject"}`。`criterionAnchor` 必须是当前文档正文中真实的显式锚点，不在代码围栏、注释或链接文字里。完全相同的目标记录拒绝；同一目标由不同测试/判据引用可以保留。目标的跨文件存在性、层次和覆盖不在该 parser 的检查范围内。
+A target record looks like `{"target": "sample/CTX-001/SR-001#sr-001-ac-01", "criterionAnchor": "criterion-01", "testId": "native::test_reject"}`. `criterionAnchor` must be a real explicit anchor in the current document body, not inside a code fence, a comment, or link text. Identical target records are rejected; the same target referenced by different tests/criteria may be kept. Cross-file existence, layer, and coverage of targets are outside this parser's checks.
 
 ````markdown
 ---
@@ -48,44 +48,44 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# REQ-001：结构示例
+# REQ-001: Structural example
 
 <a id="req-001-ac-01"></a>
-### REQ-001-AC-01：第一项
+### REQ-001-AC-01: First item
 
-这是本工件的独立判据示例，不是一次通过记录。
+This is an example of an independent criterion of this artifact, not a pass record.
 
 <a id="req-001-ac-02"></a>
-### REQ-001-AC-02：第二项
+### REQ-001-AC-02: Second item
 
-引用其他 ID 的正文不是额外验收项。
+Body text that references other IDs is not an additional acceptance criterion.
 ````
 
-parser 识别现有仓库模式：独占一行的 `<a id="..."></a>`（单/双引号均可），紧接所属工件的 ATX 标题 `### REQ-001-AC-01：...`；中间允许空行。锚点须为完整标题 ID 的小写形式。支持 `AC` 和设计验证 `VC`；不把全文 ID、链接、其他 owner 的标题、注释、缩进代码或反引号/波浪号代码围栏变成验收库存。它不是通用 Markdown 渲染器，不推导隐式标题锚点。
+The parser recognizes the existing repository pattern: an `<a id="..."></a>` on its own line (single or double quotes both work), immediately followed by the owning artifact's ATX heading `### REQ-001-AC-01: ...`; blank lines in between are allowed. The anchor must be the lowercase form of the full heading ID. Both `AC` and design-verification `VC` are supported; IDs anywhere in the text, links, other owners' headings, comments, indented code, and backtick/tilde code fences never become part of the acceptance inventory. It is not a general Markdown renderer and does not derive implicit heading anchors.
 
-上例返回的 `acceptance_ids` 为 `sample/CTX-001/REQ-001#req-001-ac-01` 和 `sample/CTX-001/REQ-001#req-001-ac-02`，不是 `AC-01`。每个 `Acceptance` 同时保留标题完整 ID、owner、锚点和标题/锚点的原文件行号。缺少对应锚点或锚点重复会报错。
+For the example above, `acceptance_ids` returns `sample/CTX-001/REQ-001#req-001-ac-01` and `sample/CTX-001/REQ-001#req-001-ac-02`, not `AC-01`. Each `Acceptance` also keeps the full heading ID, the owner, the anchor, and the original file line numbers of the heading and the anchor. A missing matching anchor or a duplicate anchor is an error.
 
-现有资料不搬移、不改号、不覆盖正文。只有 scope 已确认后才显式补充 frontmatter；parser 不批量转换旧文档或表单。没有 frontmatter 的普通资料仍可直接阅读，但显式交给此 parser 会得到 `MISSING_FRONTMATTER`，不会悄悄生成默认工件。
+Existing documentation is not moved, renumbered, or overwritten. Add frontmatter explicitly only after the scope is confirmed; the parser does not batch-convert old documents or forms. Ordinary documentation without frontmatter can still be read directly, but passing it explicitly to this parser yields `MISSING_FRONTMATTER`; no default artifact is silently generated.
 
 <a id="bc-configuration"></a>
-## 2. 可选 BC 配置
+## 2. Optional BC configuration
 
-[bc-config.schema.json](bc-config.schema.json) 是数据配置，不是 shell manifest。
+[bc-config.schema.json](bc-config.schema.json) is data configuration, not a shell manifest.
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `schemaVersion`, `projectId` | 数据版本、项目身份 |
-| `boundedContexts` | 非空列表，每条只有显式 `id`；scope 由项目和该 ID 组成，不再存一份可漂移的 scope |
-| `domainSources` | 列表；每条必填 `id`、`kind: local / git`、`root`、`path`、`baseline`、`readOnly` |
-| `developmentRegistration` | 指向既有开发登记的仓库相对路径和必需锚点；不复制命令、凭据或环境变量 |
+| `schemaVersion`, `projectId` | Data version and project identity |
+| `boundedContexts` | Non-empty list; each entry has only an explicit `id`; the scope is formed from the project and this ID, so no separate scope that could drift is stored |
+| `domainSources` | List; each entry requires `id`, `kind: local / git`, `root`, `path`, `baseline`, and `readOnly` |
+| `developmentRegistration` | Repository-relative path and required anchor pointing to the existing development registration; commands, credentials, and environment variables are not copied |
 
-`root` 保留显式源根：本地目录、已选 clone 根或 Git 仓库定位；`path` 单独保存其仓库内相对位置。`id` 是后续接入时稳定引用该源的短标识。schema 不连接 Git、不访问远端、不创建子模块，也不通过 `readOnly: false` 授予写入权限。实际路径、对象类型/可读性、来源 ID 冲突与登记是否匹配仍需后续来源接入检查。
+`root` keeps the explicit source root: a local directory, a selected clone root, or a Git repository location; `path` separately stores the relative location inside that repository. `id` is a short identifier that later onboarding uses to reference the source stably. The schema does not connect to Git, access remotes, or create submodules, and `readOnly: false` grants no write permission. The actual path, object type/readability, source ID conflicts, and whether the registration matches still require a later source-onboarding check.
 
-可用[本地领域源接入](../../docs/domain-sources.md)先只读核对这些原字段；不增加 schema
-或执行 manifest。既有来源的 register 只编辑明确的 BC 来源列表，不覆盖领域目录。
-可选 submodule 是另一项本地 materialization 操作，另需目标与 index 同意，完成后也不
-自动登记 BC。网络来源保持不可用/提案；准确 commit/原始文件摘要、根/路径分离和
-readOnly 语义与下方收集器相同，不从配置推导 clone、暂存、提交或写回权限。
+Use [local domain-source onboarding](../../docs/domain-sources.md) to check these original fields read-only first; it adds no schema
+or execution manifest. Registering an existing source only edits the explicit BC source list and never overwrites the domain directory.
+The optional submodule is a separate local materialization operation that additionally requires consent for the target and the index, and completing it does not
+register the BC automatically. Network sources stay unavailable/proposal-only; the exact commit/raw-file digest, the root/path separation, and the
+readOnly semantics are the same as for the collector below, and no clone, staging, commit, or write-back permission is derived from the configuration.
 
 ```yaml
 schemaVersion: 1
@@ -102,19 +102,19 @@ domainSources:
 developmentRegistration: docs/development.md#project-registration
 ```
 
-## 3. 派生 model
+## 3. Derived model
 
-[model.schema.json](model.schema.json) 只存引用，不复制业务正文、确认声明或实际结果。
+[model.schema.json](model.schema.json) stores only references; it does not copy business body text, confirmation declarations, or actual results.
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `schemaVersion`, `scope` | 版本和选定范围 |
-| `source` | 必需主输入的 `root` 与固定对象 `baseline`；不能降为“可选源未验证” |
-| `artifacts` | 每条必填 `key`、仓库相对 `path`、对象 `baseline`、`upstream`、`targets`；后两项使用与 frontmatter 相同的引用形状 |
-| `implementationReports` | `reference + baseline` 证据指针列表 |
-| `views` | 必须且只能有 `requirements`、`stories`、`architecture`、`sequences`、`verification`、`quality`、`governance`、`risk`、`release` 九个键；每项必填 `state`、`artifactRefs`、`evidenceRefs`、`gaps` |
+| `schemaVersion`, `scope` | Version and selected scope |
+| `source` | `root` and fixed-object `baseline` of the required primary input; cannot be downgraded to "optional source unverified" |
+| `artifacts` | Each entry requires `key`, a repository-relative `path`, an object `baseline`, `upstream`, and `targets`; the last two use the same reference shape as frontmatter |
+| `implementationReports` | List of `reference + baseline` evidence pointers |
+| `views` | Must have exactly the nine keys `requirements`, `stories`, `architecture`, `sequences`, `verification`, `quality`, `governance`, `risk`, and `release`; each requires `state`, `artifactRefs`, `evidenceRefs`, and `gaps` |
 
-`unverified` 必须是空引用和具体非空 gap；`partial` 必须有至少一条已知工件/证据引用以及具体 gap；`available` 无 gap 且保留至少一条来源引用（已知空源也用证据引用定位）。这些状态不表示业务验收、批准或发布。缺必需字段、非法引用或主对象基线格式是无效输入数据，不由 schema 转为九个空视图。
+`unverified` must have empty references and a specific non-empty gap; `partial` must have at least one known artifact/evidence reference plus a specific gap; `available` has no gap and keeps at least one source reference (a known empty source is also located with an evidence reference). These states do not mean business acceptance, approval, or release. Missing required fields, invalid references, or a malformed primary-object baseline are invalid input data; the schema does not turn them into nine empty views.
 
 ```yaml
 schemaVersion: 1
@@ -172,23 +172,23 @@ views:
     gaps: ["release source is unavailable"]
 ```
 
-本 schema 只校验视图数据的形状，不查找实际来源、不派生字段，也不核实范围/基线一致性或手改情况。调用者仍需核对真实来源和证据；schema-valid 不表示模型已经由导出器生成或经过运行验证。
+This schema validates only the shape of view data; it does not look up actual sources, derive fields, or verify scope/baseline consistency or hand edits. Callers must still check the real sources and evidence; schema-valid does not mean that the model was generated by the exporter or verified by a run.
 
 <a id="implementation-report"></a>
-## 4. 实施报告
+## 4. Implementation report
 
-[implementation-report.schema.json](implementation-report.schema.json) 把对象、来源、执行记录和适用性分开。
+[implementation-report.schema.json](implementation-report.schema.json) keeps the object, sources, execution records, and applicability separate.
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `schemaVersion`, `scope`, `object` | 版本、范围；`object` 必填源根 `root` 和固定对象 `baseline` |
-| `bcConfig`, `domainSources` | BC 配置的 `reference + baseline`；领域源逐条保存 `root + path + baseline` |
-| `artifactRefs` | 完整的 SR/US/ABB/VT 等 canonical 引用；ID 前缀不是额外 kind 枚举 |
-| `entries[].target` | 本条记录对应的完整验收引用 |
-| `entries[].codeRefs` | 仓库相对 `path`、固定对象 `baseline`，可选 `symbol` |
-| `entries[].testRefs` | 仓库相对 `path`、固定对象 `baseline`、非空 `testId`；不限制应用测试目录或语言 |
-| `entries[].execution` | `status` 和 `evidenceRefs`；pass/fail 必须有非空证据引用，not-run/skipped 必须有具体 `reason` |
-| `entries[].applicability` | 独立的 `state: unverified / applicable / not-applicable` 与具体 `reason`；不会从历史 pass 自动生成当前适用 |
+| `schemaVersion`, `scope`, `object` | Version and scope; `object` requires the source root `root` and the fixed-object `baseline` |
+| `bcConfig`, `domainSources` | `reference + baseline` of the BC configuration; each domain source stores `root + path + baseline` |
+| `artifactRefs` | Full canonical references to SR/US/ABB/VT and so on; ID prefixes are not an additional kind enumeration |
+| `entries[].target` | The full acceptance reference that this record covers |
+| `entries[].codeRefs` | Repository-relative `path`, fixed-object `baseline`, optional `symbol` |
+| `entries[].testRefs` | Repository-relative `path`, fixed-object `baseline`, non-empty `testId`; application test directories and languages are not restricted |
+| `entries[].execution` | `status` and `evidenceRefs`; pass/fail must have non-empty evidence references, and not-run/skipped must have a specific `reason` |
+| `entries[].applicability` | A separate `state: unverified / applicable / not-applicable` and a specific `reason`; current applicability is never generated automatically from a historical pass |
 
 ```yaml
 schemaVersion: 1
@@ -219,73 +219,73 @@ entries:
       reason: No execution evidence is available
 ```
 
-没有全局“通过”字段；空 entries 或空证据不能建立通过。即使 pass 的数据结构有效，仍须回证据核对实际对象、逐项目标、执行数量与结果；schema 不认证报告真实性，不执行测试，不回写只读源。改变本版本字段需要显式版本/契约变更，不静默兼容未知字段。
+There is no global "passed" field; empty entries or empty evidence cannot establish a pass. Even when the data structure of a pass is valid, you must still go back to the evidence to check the actual object, each target, the execution counts, and the results; the schema does not authenticate the report, run tests, or write back to read-only sources. Changing fields of this version requires an explicit version/contract change; unknown fields are never silently tolerated.
 
-### 4.1 收集范围和精确对象
+### 4.1 Collection scope and exact object
 
-`collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` 读取既有 VT，不引入另一个执行输入账本。`root` 必须是明确的本地 Git checkout 根，`object_sha` 必须是可读的完整 commit ID；拒绝 None、分支、短号、tag/tree/blob 和不可用对象，不回退 HEAD/index、不 fetch。报告的 `object.root` 为 `.`。
+`collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` reads existing VTs and introduces no separate execution-input ledger. `root` must be an explicit local Git checkout root, and `object_sha` must be a readable full commit ID; None, branches, short hashes, tag/tree/blob objects, and unavailable objects are rejected, with no fallback to HEAD/index and no fetch. The report's `object.root` is `.`.
 
-主 `bc-config.yaml`、正式工件及代码/测试文本从该 commit 的普通 blob 读取；当前工作文件、index 或另一个 HEAD 不替换它们。按配置的项目/上下文选择 scope：只有一个 BC 时可省略；多个时须明确传 `scope` / `--scope`，不能选第一项。先盘点该 scope 的全部 owner AC/VC，包括没有 VT 的项，再收集证据；无实际 scope 或无验收是输入错误。其他 scope 的上游只作来源，不自动增加交付项。
+The primary `bc-config.yaml`, formal artifacts, and code/test text are read from regular blobs of that commit; current working files, the index, or another HEAD never replace them. The scope is selected from the configured project/context: it may be omitted when there is only one BC; with several, `scope` / `--scope` must be passed explicitly, and the first one is never picked. All owner AC/VC of the scope are inventoried first, including items without a VT, and evidence is collected afterwards; no actual scope or no acceptance criteria is an input error. Upstream items from other scopes serve only as sources and never automatically add delivery items.
 
-配置的 `developmentRegistration` 必须在该对象中有真实文件/锚点。领域 `root` 为相对此 checkout 的明确本地目录（可用 `../领域源` 选择已获准的独立本地源），不展开环境变量，不接受 URL、UNC 或个人绝对路径；`path` 只相对这个源根解释。SHA256 基线用于一个文件的原始 bytes；完整 Git commit 用于同路径文件或目录，必须与本地实际文件集/字节一致。目录比较不跟随链接、不初始化 gitlink，Git 源只接受 commit。`readOnly` 保留原配置声明，false 也不授予写入权限；收集器始终不改源、index、config 或权限。与主对象重叠的领域文件也须与对象内的 bytes 相符。
+The configured `developmentRegistration` must point to a real file/anchor in that object. A domain `root` is an explicit local directory relative to this checkout (`../domain-source` can select an authorized standalone local source); environment variables are not expanded, and URLs, UNC paths, or personal absolute paths are not accepted; `path` is interpreted only relative to that source root. A SHA256 baseline applies to the raw bytes of one file; a full Git commit applies to a file or directory at the same path and must match the actual local file set/bytes. Directory comparison does not follow links or initialize gitlinks, and Git sources accept only commits. `readOnly` keeps the original configuration declaration, and false does not grant write permission either; the collector never changes sources, the index, config, or permissions. Domain files that overlap the primary object must also match the bytes inside the object.
 
-### 4.2 VT 文件与运行选择
+### 4.2 VT files and run selection
 
-`evidence_files` 是字符串列表，元素为 root 相对的 `verification/VT-001.md` 或 `verification/VT-001.md#vt-001-run-01`，不是包含复制状态的 JSON/YAML。文件须是该对象内同路径、同 owner/scope 的 VT。它可以在测试对象之后追加运行；当前文件及原始报告以各自实际字节摘要引用，绝不标作测试对象里的新 bytes。
+`evidence_files` is a list of strings whose elements are root-relative `verification/VT-001.md` or `verification/VT-001.md#vt-001-run-01`, not JSON/YAML containing copied states. Each file must be a VT at the same path and with the same owner/scope as in that object. Runs may be appended after the test object; the current file and the raw reports are referenced by their own actual byte digests and are never labeled as new bytes in the test object.
 
-无参数（CLI）或空列表（API）表示未选择运行，不隐式扫描当前 VT 来补结果。路径不存在/越界、重复选择、未知锚点均报输入错误。无片段的文件仅在恰有一个 owned run 时选中它；零运行保留逐目标 not-run，多运行必须选择锚点。不同选中运行若涉及同一目标，无论结果相同、冲突或基线不同都报歧义，不采用最新/最后/最有利结果，也不跨运行拼字段。
+No argument (CLI) or an empty list (API) means that no run is selected; the current VTs are not scanned implicitly to fill in results. A missing or out-of-root path, a duplicate selection, and an unknown anchor are all input errors. A file without a fragment selects its run only when it has exactly one owned run; zero runs keep each target not-run, and multiple runs require selecting an anchor. If different selected runs involve the same target, this is reported as ambiguous whether the results are identical, conflicting, or based on different baselines; the newest/last/most favorable result is never adopted, and fields are never stitched together across runs.
 
-只读取本 VT `runs` H2 内、属于本 owner 的 `vt-…-run-NN` 子标题；复用严格节边界及注释/围栏排除。H2/H1 同级或上级标题、示例代码、注释、文件名和 Approved 都不是运行。每个选中的 run 必须有原表单的四列逐判据结果，所有已声明 criterion 各有且只有一行，不要求在父标题前复制执行表。
+Only `vt-…-run-NN` subheadings inside this VT's `runs` H2 that belong to this owner are read, reusing the strict section boundaries and the comment/fence exclusions. Same-level or higher H2/H1 headings, example code, comments, file names, and Approved are not runs. Each selected run must have the original form's four-column per-criterion result table, with exactly one row for every declared criterion; the execution table does not need to be copied before the parent heading.
 
-收集支持以下**原表单字段的有限值语法**；不符合的既有记录明确报输入错误，不自动迁移或猜自然语言：
+Collection supports the following **limited value syntax for the original form fields**; existing records that do not conform are reported explicitly as input errors and are never migrated automatically or interpreted by guessing at natural language:
 
-| 原字段 | 支持的值 |
+| Original field | Supported values |
 |---|---|
-| 日期、执行者与方式 | `YYYY-MM-DD; recorder=具名记录者; mode=command` 或 `mode=manual`；仅定位声明，不认证身份 |
-| 实际对象基线 | 本次请求的完整 commit ID |
-| 当时的需求/设计/任务依据基线 | `scope/OWNER@baseline`，多个 owner 以 `;` 分隔；恰好覆盖此 VT 的目标所有者 |
-| 当时的 VT 基线 | 该 VT 的完整本地 commit 或对象内原始文件的 `sha256:`；不是当前新增运行后的摘要 |
-| 实际环境与工具版本 | 实际具名环境说明；不得为“未配置”等占位 |
-| 实际工作目录 | command 模式为对象中存在的相对目录或 `.`；manual 可说明非命令型检查 |
-| 实际命令或人工步骤/测试标识 | 实际命令文本或具体人工操作；只读，永不执行。command 的已执行目标须给出其真实 testId |
-| 退出码、发现/执行/跳过数量（适用时） | command：`exit=0; discovered=2; executed=2; skipped=0`。executed 不含 skipped，discovered 必须等于两者之和；不由这些总数推算 auto/manual 分量。manual 不要求此行或虚构数量 |
-| 原始报告与具体位置 | `[说明](相对本 VT 的文件路径#可选锚点) @ baseline`；多个以 `;` 分隔。只有未执行/跳过时可为 `not-run` |
-| 报告可访问性与限制 | 实际访问范围/限制说明 |
+| Date, executor, and mode | `YYYY-MM-DD; recorder=<named recorder>; mode=command` or `mode=manual`; only a locating declaration, not identity authentication |
+| Actual object baseline | The full commit ID requested for this collection |
+| Requirement/design/task basis baseline at the time | `scope/OWNER@baseline`, with multiple owners separated by `;`; must cover exactly the target owners of this VT |
+| VT baseline at the time | A full local commit of this VT, or the `sha256:` of the raw file within the object; not a digest taken after the current new run was added |
+| Actual environment and tool versions | An actual named environment description; must not be a placeholder such as `Not configured`, `Not provided`, `Not run`, `TBD`, or `Unknown` |
+| Actual working directory | In command mode, a relative directory that exists in the object, or `.`; manual mode may describe a non-command check |
+| Actual command or manual steps/test identifier | The actual command text or concrete manual operations; read-only and never executed. Targets executed in command mode must give their real testId |
+| Exit code and discovered/executed/skipped counts (when applicable) | command: `exit=0; discovered=2; executed=2; skipped=0`. executed excludes skipped, and discovered must equal the sum of the two; auto/manual splits are not derived from these totals. Manual mode does not require this row or invented counts |
+| Raw report and exact location | `[description](path-relative-to-this-VT#optional-anchor) @ baseline`; multiple entries separated by `;`. May be `not-run` only when the run was not run or was skipped |
+| Report accessibility and limitations | A description of the actual access scope and limitations |
 
-二列表格值沿用现有 reader，目前不能包含 `|`（包括转义形式）；用 `;` 分隔的 owner/报告列表不能在单项内再含分号。含空格路径的 Markdown 链接用 `[说明](<../reports/原始 报告.txt>)`。这是有限输入语法，不是任意 Markdown/本地 runner 报告的通用导入器。
+Two-column table values use the existing reader and currently cannot contain `|` (including in escaped form); a `;`-separated owner/report list cannot contain another semicolon within a single item. A Markdown link with spaces in its path uses `[description](<../reports/raw report.txt>)`. This is a limited input syntax, not a general importer for arbitrary Markdown or local runner reports.
 
-baseline 为原始 `sha256:` 或完整本地 Git commit（原始报告还接受 blob）。要求基线若不是 object_sha，须逐 owner 验证**整个文件 bytes 相同**；VT 基线须验证计划内容相同。VT 计划投影只排除真实 `runs`、`applicability` 两个 H2 节（含其子块），其他 frontmatter/正文/换行 bytes 必须一致。任何已声明 `criterionAnchor` 都不得位于被排除的子树内，即使本次该判据为 not-run；比较时明确返回 `INVALID_CRITERION`，不让判据随运行记录一起被丢弃。当前供应的 VT 同样与对象计划比较；修改目标、判据、方法或未被排除的内容不能借追加运行复用旧结果。
+A baseline is a raw `sha256:` or a full local Git commit (raw reports also accept a blob). If a requirement baseline is not object_sha, **identical whole-file bytes** must be verified per owner; the VT baseline must verify identical plan content. The VT plan projection excludes only the real `runs` and `applicability` H2 sections (including their child blocks); all other frontmatter/body/newline bytes must match. No declared `criterionAnchor` may lie inside an excluded subtree, even if that criterion is not-run this time; the comparison explicitly returns `INVALID_CRITERION` rather than letting the criterion be discarded together with the run records. The currently supplied VT is compared with the object's plan as well; changing targets, criteria, methods, or non-excluded content cannot reuse old results by appending a run.
 
-pass/fail 行须有独立、具体的观察及其原始报告链接；该链接必须对应本运行报告字段中已验证的路径/片段/基线。报告必须可读且非空，Markdown 片段为真实显式锚点，JSON/YAML 片段为顶层键，其他文件不支持片段。fail 还保留差异原因。command 中零发现、零实际执行、全跳过、无对应 testId 或纯成功字样均不能形成 pass/fail。混合 pass/fail 保留每项结果，不归并为全局通过。只有 pass、但 command 非零退出的自相矛盾记录拒绝。manual 使用实际具体步骤和逐项观察，不要求命令或捏造的数量。
+A pass/fail row must have an independent, specific observation with a link to its raw report; that link must correspond to a path/fragment/baseline already verified in this run's report field. The report must be readable and non-empty; a Markdown fragment must be a real explicit anchor, a JSON/YAML fragment must be a top-level key, and other files do not support fragments. A fail also keeps the reason for the difference. In command mode, zero discovered, zero actually executed, all skipped, no corresponding testId, or mere success wording cannot form a pass/fail. Mixed pass/fail keeps each result and is never merged into a global pass. A self-contradictory record with only passes but a non-zero command exit is rejected. Manual mode uses actual concrete steps and per-item observations, and requires no command or fabricated counts.
 
-command 的 `executed` 还必须不少于 pass/fail 行实际归属的**不同 testId 数量**，不足则为 `INVALID_EXECUTION`。同一个已定位测试覆盖多个独立判据只计一次；实际执行数多于已映射测试可以保留。skipped/not-run 不消耗此执行下限，manual 不套用命令运行计数；不能从命令文本中出现的测试名推算数量。
+In command mode, `executed` must also be at least the **number of distinct testIds** to which the pass/fail rows actually belong; otherwise it is `INVALID_EXECUTION`. One located test covering several independent criteria counts only once; an executed count higher than the number of mapped tests may be kept. skipped/not-run rows do not consume this execution minimum, and manual mode does not apply command run counts; counts cannot be derived from test names appearing in the command text.
 
-没有选中本目标的运行时，目标仍在 entries 中，执行为 not-run、空 evidenceRefs 和明确理由。选中的 not-run/skipped 保留其理由与原记录引用，不借另一目标的成功补位。收集结果仅说明读到了满足这些结构/基线条件的**源声明**；它不能证明外部事件确实发生，更不能认证人工批准。
+When no run is selected for a target, the target still appears in entries, with execution not-run, empty evidenceRefs, and an explicit reason. A selected not-run/skipped keeps its reason and the reference to the original record, and is never filled in with another target's success. The collection result only states that **source declarations** satisfying these structural/baseline conditions were read; it cannot prove that external events actually happened, let alone authenticate human approval.
 
-### 4.3 代码/测试文本定位与适用性
+### 4.3 Code/test text location and applicability
 
-支持普通 UTF-8 源文件中的独占行注释 `# implements: scope/OWNER#ac symbol=name`、`# verifies: scope/OWNER#ac testId=test_name`，也支持 `//` 注释前缀。下一条非空、非行注释文本须含给定的标识符及 `(`；标识符限 ASCII 字母/下划线开头的单一标识符。此窄规则是文本定位，不是语言解析、runner 发现或测试执行；不支持的 marker 明确报错。Markdown、JSON/YAML、表单、依赖目录不是代码标记输入。路径来自实际 Git blobs，不猜代码/测试目录或文件名。
+Supported markers are whole-line comments in ordinary UTF-8 source files, `# implements: scope/OWNER#ac symbol=name` and `# verifies: scope/OWNER#ac testId=test_name`; the `//` comment prefix is supported as well. The next non-empty text that is not a line comment must contain the given identifier followed by `(`; the identifier is limited to a single identifier starting with an ASCII letter or underscore. This narrow rule is text location, not language parsing, runner discovery, or test execution; unsupported markers are reported explicitly as errors. Markdown, JSON/YAML, forms, and dependency directories are not code-marker inputs. Paths come from actual Git blobs; code/test directories or file names are never guessed.
 
-标记必须引用实际完整 owner 验收；同短号的其他 scope 不满足本目标。VT 已声明 `testId` 时须与实际标记和位置一致。报告只保存路径、对象 baseline、显式 symbol/testId；无 marker 则引用为空，不从文件名推导实现。
+A marker must reference an actual, full owner acceptance criterion; the same short ID in another scope does not satisfy this target. When the VT has declared a `testId`, it must match the actual marker and location. The report stores only the path, the object baseline, and the explicit symbol/testId; without a marker the reference is empty, and implementation is never inferred from file names.
 
-默认适用性为 unverified。独立复核沿用 VT 的 `applicability` 原表：`原运行/结果及目标链接` 值为 `[运行](#vt-001-run-01) [判据](#allow)`；`当前对象、需求与 VT 基线` 为 `object=完整commit; requirement=scope/OWNER@baseline; vt=baseline`。日期/记录者使用 `YYYY-MM-DD; recorder=记录者`，适用性用“待复核／适用／不适用”，理由须具体。只有 run、criterion、对象及已验证的要求/计划基线均匹配的一行可支持对应状态；多个匹配复核行报歧义，其他对象的历史复核不沿用。它和执行结果独立，pass 或同 commit 不会自动产生 applicable。
+Default applicability is unverified. Independent re-review uses the VT's original `applicability` table: the `Original run/result and target link` value is `[Run](#vt-001-run-01) [Criterion](#allow)`; `Current object, requirement, and VT baselines` is `object=<full-commit>; requirement=scope/OWNER@baseline; vt=baseline`. `Review date and recorder` uses `YYYY-MM-DD; recorder=<recorder>`, `Applicability` uses `unverified` / `applicable` / `not-applicable`, and the rationale must be specific. Only a row whose run, criterion, object, and verified requirement/plan baselines all match can support the corresponding state; multiple matching re-review rows are reported as ambiguous, and historical re-reviews of other objects are not carried over. Applicability is independent of execution results; a pass or the same commit never automatically produces applicable.
 
-### 4.4 只读输出与 model 桥接
+### 4.4 Read-only output and model bridge
 
-API 和默认 CLI 不写文件。CLI 明确使用 `--root`、`--object`，可重复 `--evidence`；仅 `--output` 创建指定的新 `.json/.yaml/.yml`，父目录须已存在。拒绝覆盖任何已有位置，也不得占用对象文件、BC/领域/VT/原始报告或已声明的可选来源位置，即使该位置当前缺失。报告声明的领域 `root + path` 在基线校验前保护该位置及其子路径，不以 baseline 存在或有效为前提。`domainSources` 的位置声明不完整或不可安全解析、容器非法时，只读视图仍可保留 optional gap，但任何显式输出均须拒绝；不能把读取缺口变成写入许可。位置可完整解析但仅缺 baseline 时，仍可在不相交的新位置输出，不伪造有效来源。退出 0 表示成功收集（可全为 not-run），1 表示收集到逐项 fail，2 表示输入/输出错误；不把 CLI 的退出当作源 VT 的退出。
+The API and the default CLI do not write files. The CLI uses `--root` and `--object` explicitly and accepts repeated `--evidence`; only `--output` creates the specified new `.json/.yaml/.yml`, and the parent directory must already exist. Overwriting any existing location is refused, and the output must not take the object files, BC/domain/VT/raw-report locations, or declared optional-source locations, even if such a location is currently missing. The domain `root + path` declared by the report protects that location and its child paths before baseline validation, without requiring the baseline to exist or be valid. When a `domainSources` location declaration is incomplete or cannot be resolved safely, or the container is invalid, the read-only view can still keep an optional gap, but every explicit output must be refused; a read gap can never turn into write permission. When the location resolves completely and only the baseline is missing, output to a disjoint new location is still possible, without forging a valid source. Exit 0 means successful collection (possibly all not-run), 1 means a per-item fail was collected, and 2 means an input/output error; the CLI's exit is never treated as the exit of the source VT.
 
-报告可按既有 `model-sources.yaml` 的 `verification` 列表**另行显式选择**，无新的选择清单。adapter 验证报告 schema、scope、源引用基线与可重建性后，model 的 `implementationReports` 和 verification 视图只保存报告文件及其 baseline，不复制 entries、状态、观察或适用性。其他八视图及原有 verification 来源仍按既有选择读取；九视图缺源/gap 语义不变。报告没有 views，治理/风险/SEQ/QAS/release 引用不伪装成执行 evidenceRefs。构建报告不自动改来源清单。
+A report can be **selected separately and explicitly** in the `verification` list of the existing `model-sources.yaml`; there is no new selection manifest. After the adapter validates the report's schema, scope, source-reference baselines, and rebuildability, the model's `implementationReports` and verification view store only the report file and its baseline, without copying entries, states, observations, or applicability. The other eight views and the existing verification sources are still read according to the existing selection; the nine-view missing-source/gap semantics are unchanged. The report has no views, and governance/risk/SEQ/QAS/release references are never disguised as execution evidenceRefs. Building a report never changes the source manifest automatically.
 
 <a id="model-sources"></a>
-## 5. 可选 model 来源清单
+## 5. Optional model-source manifest
 
-[model-sources.schema.json](model-sources.schema.json) 与[空白来源表单](../../_templates/config/model-sources.yaml)只登记来源选择。采用时放在所选资料根的 `model-sources.yaml`，不新增第二份 BC/模型/执行清单。原四类契约、32 个 kind 和九视图不变。
+[model-sources.schema.json](model-sources.schema.json) and the [blank source form](../../_templates/config/model-sources.yaml) only register source selections. When adopted, the manifest lives at `model-sources.yaml` in the selected documentation root; no second BC/model/execution manifest is added. The original four contracts, the 32 kinds, and the nine views are unchanged.
 
-清单只有 `schemaVersion: 1` 与 `scopes`。后者是以明确 `project/context` 为键的 map；每个 scope 的值是九视图中所需视图的 map，每个视图对应非空的 `{path, baseline}` 列表。`scopes: {}` 是合法空表，不代表已登记真实项目；scope 值 `{}` 表示尚未选择任何视图源。重复 YAML key、同一视图重复路径或同一路径相互冲突的基线是配置错误，不作覆盖合并。
+The manifest has only `schemaVersion: 1` and `scopes`. The latter is a map keyed by explicit `project/context`; each scope's value is a map of the needed views among the nine, and each view maps to a non-empty list of `{path, baseline}`. `scopes: {}` is a valid empty map and does not mean that a real project has been registered; a scope value of `{}` means that no view source has been selected yet. Duplicate YAML keys, duplicate paths within one view, or conflicting baselines for the same path are configuration errors and are never merged by overriding.
 
-`path` 是 root 内的实际文件相对路径，允许中文和空格，拒绝网络/绝对路径、父级跳转、锚点、反斜杠、控制字符及首尾空白；解析后的 symlink/junction 也不能出界。`baseline` 是原始文件字节的 `sha256:` 摘要，或完整小写本地 Git commit/blob ID。commit 必须能在明确 checkout 根定位同一路径的普通 blob，blob 必须与当前所读字节完全一致；不能用分支、HEAD、短号、tag/tree、textconv 或联网替代。清单不是权限，不含 root/URL、命令、凭据、正文、结果、批准或写回开关。
+`path` is the relative path of an actual file inside the root; it allows non-ASCII characters and spaces, and rejects network/absolute paths, parent traversal, anchors, backslashes, control characters, and leading/trailing whitespace; a resolved symlink/junction cannot escape the root either. `baseline` is the `sha256:` digest of the raw file bytes, or a full lowercase local Git commit/blob ID. A commit must locate a regular blob at the same path from the explicit checkout root, and a blob must match the bytes currently read exactly; branches, HEAD, short hashes, tag/tree, textconv, or network access cannot substitute. The manifest is not a permission; it contains no root/URL, commands, credentials, body text, results, approvals, or write-back switches.
 
-结构示意如下；路径及 digest 均须由实际本地输入替换，不是已存在资料：
+The structure looks like this; the paths and digests must be replaced with actual local inputs and do not refer to existing documentation:
 
 ```yaml
 schemaVersion: 1
@@ -300,72 +300,72 @@ scopes:
         baseline: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 ```
 
-主 root、scope、schema、正式库存或主基线错误始终失败；供应了非法清单也失败，不能降为“缺可选来源”。合法清单中的可选文件缺失、不可读、格式错误或基线不可核实，只使所选视图 `unverified`，空 refs 并列具体来源 gap。合法但不完整来源为 `partial`；来源完整为 `available`。这些仅描述来源，不解释为通过或批准。
+Errors in the primary root, scope, schema, formal inventory, or primary baseline always fail; supplying an invalid manifest also fails and cannot be downgraded to "missing optional source". An optional file in a valid manifest that is missing, unreadable, or malformed, or whose baseline cannot be verified, only makes the selected view `unverified`, with empty refs and a specific source gap listed. A valid but incomplete source gives `partial`; a complete source gives `available`. These states describe only the sources and are never interpreted as a pass or approval.
 
-未提供清单、清单没有选定 scope、scope 没有某个 view 分别给出明确 gap。只要主库存中有该 scope，缺清单登记不阻塞主工件索引；不存在的主 scope 仍是输入错误，不能通过清单虚构。来源可以是已有正式 Markdown 工件或下节约定的已有 YAML/JSON 摘要，不要求为了导出复制一份模型正文。持久化派生 model 不能再作为来源。
+No manifest supplied, a manifest without the selected scope, and a scope without a given view each produce an explicit gap. As long as the primary inventory contains the scope, a missing manifest registration does not block the primary artifact index; a nonexistent primary scope is still an input error and cannot be invented through the manifest. Sources can be existing formal Markdown artifacts or existing YAML/JSON summaries as specified in the next section; there is no need to copy model body text for the export. A persisted derived model can never serve as a source again.
 
-### 5.1 已有来源的两种读取形状
+### 5.1 Two read shapes for existing sources
 
-优先选择原工件，不要为工具新抄一份业务模型。正式 Markdown 复用 artifact parser 和原显式锚点：来源版本用原始字节基线，内容声明留在元数据，含义与结果留在正文。视图保留实际 owner 的锚点、相关 `upstream` / `targets` 导航和文件基线。选中的工件及依赖没有该视图所需类别/章节时为 `partial`，不根据文件名补字段。
+Prefer the original artifacts; do not make a new copy of the business model for the tools. Formal Markdown reuses the artifact parser and the original explicit anchors: the source version uses a raw-byte baseline, the content declaration stays in the metadata, and meaning and results stay in the body. Views keep the actual owner's anchors, the related `upstream` / `targets` navigation, and file baselines. When the selected artifacts and their dependencies lack a category/section that the view needs, the view is `partial`; fields are never filled in from file names.
 
-| view | Markdown 所需来源及章节（只核对结构，不认证内容） |
+| view | Required Markdown sources and sections (structure is checked; content is not authenticated) |
 |---|---|
-| requirements | REQ、SR、UC；REQ/SR 的 owner AC，UC 的明确正文锚点 |
-| stories | US 的 `task`、`checklist` 和 SR 来源 |
-| architecture | ABB 的 `structure`、`interfaces`、`runtime` 与 ADR 的 `decision` |
-| sequences | SEQ 的 `basis`、`participants`、`paths`、`diagram`，UC 与 ABB 来源；时序、伙伴/异步含义回源阅读 |
-| verification | VT 的 `plan`、`targets`、`runs` 及其实际所属子运行块，与 REQ/SR；计划结构不证明已有实际运行 |
-| quality | QAS 的 `scenario`、`measurement`、实际 utility-tree 来源，以及 REQ、实际 TS/VT 目标；缺 QAS 或树源为 unverified，不复制树或场景正文 |
-| governance | review-record 的 `decision`；批准/waiver 含义仍归原记录 |
-| risk | risk-control 的 `analysis`、`control`、`residual` 与 REQ/VT 来源；不计算风险等级 |
-| release | development-log 的 `release`、`change-control`；生命周期/分类/版本仍归原发布记录 |
+| requirements | REQ, SR, UC; owner AC of REQ/SR, explicit body anchors of UC |
+| stories | US `task` and `checklist`, plus SR sources |
+| architecture | ABB `structure`, `interfaces`, and `runtime`, plus ADR `decision` |
+| sequences | SEQ `basis`, `participants`, `paths`, and `diagram`, plus UC and ABB sources; read the source for timing, partner, and async meaning |
+| verification | VT `plan`, `targets`, `runs` and their actual owned child run blocks, plus REQ/SR; the plan structure does not prove that an actual run exists |
+| quality | QAS `scenario` and `measurement`, the actual utility-tree source, plus REQ and actual TS/VT targets; a missing QAS or tree source gives unverified, and neither the tree nor the scenario body is copied |
+| governance | review-record `decision`; the meaning of approvals/waivers still belongs to the original record |
+| risk | risk-control `analysis`, `control`, and `residual`, plus REQ/VT sources; risk levels are not computed |
+| release | development-log `release` and `change-control`; lifecycle/classification/version still belong to the original release record |
 
-仅有章节或一段泛化正文不足以定位原汇总字段。直接 Markdown 还核对以下**原所有者中的表格值**（二列表格），没有就保留字段级 `partial` gap，不根据代码箭头、元数据状态、文件名或常用值推断。版本由实际对象 baseline 定位，ID/关系仍从 parser 取得；这些不是新的 frontmatter 字段，也不要求为导出复制一个模型。
+A section alone or a generic body paragraph is not enough to locate the original summary fields. Direct Markdown also checks the following **table values in the original owner** (two-column tables); when one is absent, a field-level `partial` gap is kept, and nothing is inferred from code arrows, metadata states, file names, or common values. The version is located by the actual object baseline, and IDs/relations still come from the parser; these are not new frontmatter fields and do not require copying a model for the export.
 
-| 来源位置 | 需要可定位的值（`/` 分隔可接受的原文标签） |
+| Source location | Values that must be locatable (`/` separates accepted original labels) |
 |---|---|
-| US `task` | `任务进度/status`，不拿 contentState 代替任务进度 |
-| ABB `runtime` | `language/实现语言`、`framework/框架`；未选定则缺项，不选默认栈 |
-| SEQ `paths` | `hasAsync/异步交互` 的明确 `true/false` 声明，不从 Mermaid 箭头推断 |
-| SEQ `participants` | 已有 integration-partner upstream；没有时需 `externalPartners/外部伙伴` 的明确来源说明，包括已知无伙伴 |
-| VT `runs` 下的本 owner `vt-…-run-NN` 子块 | 日期、notes、三个运行基线及明确 auto/manual 数量在各自子块读取；实际结果来自该块的逐判据多列表，不要求在 `runs` 标题前再抄一份 |
-| QAS `scenario` | 现有六要素表全部六个值；也接受 `stimulusSource/stimulus/environment/object/response/responseMeasure` 原字段标签 |
-| review-record `decision` | `status/审阅结论`、`notes/限制与说明`；读取声明不认证批准 |
-| risk-control `analysis` / `residual` | `preMitigationLevel/控制前风险`、`residualRiskLevel/残余风险`；不计算或接受风险 |
-| development-log `release` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease` 五个原字段值；变更控制仍通过其独立原文节定位 |
+| US `task` | `Task progress/status`; contentState never substitutes for task progress |
+| ABB `runtime` | `language/Implementation language`, `framework/Framework`; if not yet selected, the item is missing and no default stack is chosen |
+| SEQ `paths` | An explicit `true/false` declaration of `hasAsync/Asynchronous interaction`; never inferred from Mermaid arrows |
+| SEQ `participants` | An existing integration-partner upstream; without one, an explicit source statement for `externalPartners/External partners` is needed, including when it is known that there are no partners |
+| This owner's `vt-…-run-NN` child blocks under VT `runs` | The date, notes, the three run baselines, and explicit auto/manual counts are read in each child block; actual results come from that block's multi-column per-criterion table, and there is no need to copy them again before the `runs` heading |
+| QAS `scenario` | All six values of the existing six-element table; the original field labels `stimulusSource/stimulus/environment/object/response/responseMeasure` are accepted as well |
+| review-record `decision` | `status/Review conclusion`, `notes/Limitations and notes`; reading the declaration does not authenticate approval |
+| risk-control `analysis` / `residual` | `preMitigationLevel/Pre-mitigation risk`, `residualRiskLevel/Residual risk`; risk is neither computed nor accepted |
+| development-log `release` | The five original field values `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease`; change control is still located through its own separate original section |
 
-同一字段的重复/缺值、明确未知、缺原文节或必要关联均为具体 gap。计数为非负十进制，布尔只接受 `true/false`，已知的零和 false 不视为缺值。只有表头/分隔行不是内容；SEQ 图必须是其 `diagram` 节内真正闭合的 Mermaid 代码围栏，具有序列头和消息。HTML 注释、外层 literal fence 中的示例、未闭合围栏或普通说明不能补位；正文和图复用同一注释/围栏状态机，不再回扫原始文本猜图。非支持形状的已有文档保留具体缺口，不自动迁移。
+Duplicate or missing values for the same field, an explicitly unknown value or placeholder (such as `Unknown`, `Not provided`, `Not run`, or `TBD`), a missing original section, and a missing required relation are each a specific gap. Counts are non-negative decimals, booleans accept only `true/false`, and a known zero or false is not treated as missing. Header and separator rows alone are not content; a SEQ diagram must be a genuinely closed Mermaid code fence inside its `diagram` section, with a sequence header and messages. HTML comments, examples inside an enclosing literal fence, unclosed fences, or ordinary notes cannot fill the gap; the body and the diagram reuse the same comment/fence state machine, and raw text is never rescanned to guess at a diagram. Existing documents in unsupported shapes keep specific gaps and are not migrated automatically.
 
-直接 quality 可在同一清单视图中并列选择原 QAS Markdown 与已有 utility-tree YAML/JSON。树文件的顶层 `tree` 为 mapping/list，数据仍归该文件，导出只保留 `文件#tree + baseline`，不增加 kind 或抄树节点。空 `tree` 是已知来源的条目缺口（partial）；没有 QAS、没有树源、树不可读/格式错误/基线不可核实为 unverified、空 refs 和具体缺源原因。QAS 和树都可核实后，缺响应度量或部分场景才是 partial。也可直接引用已有 `quality.utilityTree` 证据指针；不要求为工具新造一份模型。
+Direct quality can select the original QAS Markdown and an existing utility-tree YAML/JSON side by side in the same manifest view. The tree file's top-level `tree` is a mapping/list, the data still belongs to that file, and the export keeps only `file#tree + baseline`, without adding a kind or copying tree nodes. An empty `tree` is an entry gap in a known source (partial); no QAS, no tree source, or a tree that is unreadable, malformed, or has an unverifiable baseline gives unverified, empty refs, and a specific missing-source reason. Only after both QAS and the tree can be verified does a missing response measure or a partial set of scenarios give partial. An existing `quality.utilityTree` evidence pointer can also be referenced directly; no new model needs to be built for the tools.
 
-树的普通业务节点可含 `root`、`path`，这些键本身不声明领域文件位置，也不限制或改名其中的 mapping/list/文本值。缺 baseline 也保护位置的特殊处理归实际 `domainSources` 条目上下文；上下文之外仍沿用完整 `root/path/baseline`、`reference` 或 `path + baseline` 的既有来源引用处理，不从两个业务键推断路径。
+Ordinary business nodes in the tree may contain `root` and `path`; these keys by themselves do not declare domain file locations, and they neither restrict nor rename the mapping/list/text values in them. The special handling that protects a location even without a baseline belongs to the context of actual `domainSources` entries; outside that context, the existing source-reference handling of complete `root/path/baseline`, `reference`, or `path + baseline` still applies, and no path is inferred from the two business keys.
 
-直接 VT 从真实 `runs` 二级章节内查找本 owner 的 `vt-…-run-NN` 锚点，并将锚点与紧随的真实标题关联（允许空行/注释）。只有该 H2 内的下级标题才是所属运行；终止章节的同级 H2/上级 H1 前的锚点不算子块，说明、代码或另一锚点也不能借用后面的标题。各子块仍以严格锚点边界隔离。读取原表单的“日期、执行者与方式”“报告可访问性与限制”、实际对象/当时要求/VT 三个基线，以及“判据链接（目标由 frontmatter 定位）／实际观察及原始报告定位／实际结果／未执行或跳过原因”四列。每个已声明 criterion 都需自己的结果行；重复、缺行、无效状态或未知 criterion 有源位置 gap。结果不抄进 model。
+Direct VT looks for this owner's `vt-…-run-NN` anchors inside the real `runs` level-2 section and associates each anchor with the real heading that immediately follows it (blank lines/comments allowed). Only lower-level headings inside that H2 are owned runs; an anchor before the same-level H2 or higher H1 that ends the section is not a child block, and notes, code, or another anchor cannot borrow a later heading. Child blocks are still isolated by strict anchor boundaries. It reads the original form's `Date, executor, and mode` and `Report accessibility and limitations`, the three baselines (actual object, requirement basis at the time, and VT), and the four columns `Criterion link (target located by frontmatter)` / `Actual observation and raw report location` / `Actual result` / `Not-run/skip reason or failure difference`. Every declared criterion needs its own result row; duplicate rows, missing rows, invalid states, or unknown criteria produce gaps with source locations. Results are not copied into the model.
 
-auto/manual 数量只能来自该运行块中明确的 `automatedCount/自动检查数量`、`manualCount/人工检查数量` 行，或原“退出码、发现/执行/跳过数量（适用时）”值中明确注明的这两项（例如“自动检查数量 0；人工检查数量 2”）。不能从总发现/执行数、结果行数或文件名推算。多个运行分别保留源锚点/基线；互补缺字段不能拼成完整运行，同对象/要求/VT 基线却结果冲突时保留两侧引用并标 partial 的冲突 gap。不同基线的完整历史记录可分别定位，不选最新、不合并成全局结果。
+Auto/manual counts can come only from explicit `automatedCount/Automated check count` and `manualCount/Manual check count` rows in that run block, or from these two items stated explicitly in the original `Exit code and discovered/executed/skipped counts (when applicable)` value (for example `Automated check count 0; Manual check count 2`). They cannot be derived from the total discovered/executed counts, the number of result rows, or file names. Multiple runs each keep their own source anchors/baselines; complementary missing fields cannot be stitched into a complete run, and when the object/requirement/VT baselines are the same but the results conflict, both references are kept and marked with a partial conflict gap. Complete historical records with different baselines can be located separately; the newest is not selected, and they are not merged into a global result.
 
-已有 YAML/JSON 汇总可直接选为来源。文件顶层包含下表对应的对象；允许同一文件有多个已知汇总，但**不是本工具派生的 model**。字段值仍由源维护，导出仅保存 `文件#汇总键 + baseline` 及下面的实际引用；不把 status/result/度量/安全分类抄进 model。JSON 使用同一个安全 YAML 数据读取器读取其兼容子集，拒绝重键、危险 tag 与循环别名。
+Existing YAML/JSON summaries can be selected directly as sources. The file's top level contains the objects listed in the table below; one file may hold several known summaries, but it is **not a model derived by this tool**. Field values are still maintained by the source, and the export stores only `file#summary-key + baseline` plus the actual references below; status/result/measures/safety classification are not copied into the model. JSON is read as its compatible subset by the same safe YAML data reader, which rejects duplicate keys, dangerous tags, and circular aliases.
 
-下表 `ref` 是已存在 owner/显式 anchor 的 canonical 引用，不是短 ID。`evidence` 是实际本地文件的 `{reference, baseline}`，baseline 同样必须能按原始字节或精确本地 Git 对象核实；Markdown fragment 为真实锚点，YAML/JSON fragment 为真实顶层键，其他文件只允许无 fragment 引用。数组的实际关系不会用 suffix/title 补齐。每个对象可另给 `evidenceRefs: [evidence]` 定位它已有的原始记录；这不是执行授权。
+In the table below, `ref` is a canonical reference to an existing owner/explicit anchor, not a short ID. `evidence` is the `{reference, baseline}` of an actual local file, and its baseline must likewise be verifiable by raw bytes or an exact local Git object; a Markdown fragment is a real anchor, a YAML/JSON fragment is a real top-level key, and other files allow only references without a fragment. Actual relations in arrays are never completed from a suffix/title. Each object may additionally give `evidenceRefs: [evidence]` to locate its existing original records; this is not an execution authorization.
 
-| view / 顶层键 | 必要的源字段（源数据，不是 manifest 字段） |
+| view / top-level key | Required source fields (source data, not manifest fields) |
 |---|---|
 | requirements / `srSummary` | `srVersion: text`, `entries: [{reqId: ref, srIds: [ref], ucId: ref, status: text, notes: text}]` |
 | stories / `storySummary` | `storyVersion: text`, `entries: [{srId: ref, usIds: [ref], status: text}]` |
 | architecture / `abbSummary` | `abbVersion/language/framework: text`, `blocks: [{abbId: ref, adrRef: ref}]`, `integrations: [ref]` |
-| sequences / `sequenceSummary` | `seqVersion: text`, `entries: [{seqId: ref, ucId: ref, title: text, hasAsync: boolean, externalPartners: [ref], status: text}]`；ABB/伙伴也沿 SEQ 原 `upstream` 定位 |
+| sequences / `sequenceSummary` | `seqVersion: text`, `entries: [{seqId: ref, ucId: ref, title: text, hasAsync: boolean, externalPartners: [ref], status: text}]`; ABB/partners are also located through the SEQ's original `upstream` |
 | verification / `verificationSummary` | `vtVersion/lastRunDate: text`, `entries: [{usId: ref, vtIds: [ref], result: text, automatedCount: nonnegative integer, manualCount: nonnegative integer, notes: text}]` |
-| quality / `quality` | `qasRefs: [ref]`, `utilityTree: evidence`, `testScenarios: [ref 或 evidence]`；不新造 `qasSummary`，没有 feature 工件身份时用文件证据，不发明 canonical ID |
-| governance / `governanceSummary` | `govVersion: text`, `entries: [{govId: ref, status: text, ref: evidence, notes: text}]`；已有 `reqIds/waiverRefs: [ref]` 也保留 |
+| quality / `quality` | `qasRefs: [ref]`, `utilityTree: evidence`, `testScenarios: [ref or evidence]`; no new `qasSummary` is created; when a feature has no artifact identity, file evidence is used and no canonical ID is invented |
+| governance / `governanceSummary` | `govVersion: text`, `entries: [{govId: ref, status: text, ref: evidence, notes: text}]`; existing `reqIds/waiverRefs: [ref]` are kept as well |
 | risk / `riskSummary` | `riskVersion: text`, `entries: [{riskId: ref, title: text, preMitigationLevel: text, rcIds: [ref], residualRiskLevel: text, reqIds: [ref], vtCoverage: [ref], status: text}]` |
-| release / `releaseStatus` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease: text`, `changeControlRef: evidence`；已有 `releaseRef: ref`、`bcRefs: [ref]` 也保留 |
+| release / `releaseStatus` | `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease: text`, `changeControlRef: evidence`; existing `releaseRef: ref` and `bcRefs: [ref]` are kept as well |
 
-缺少整个汇总对象或字段类型错误是可选源格式错误：`unverified`、空 refs。来源已提供但缺具体字段、null/空文本或缺必要关联条目时为 `partial`，gap 带源文件及完整字段路径，例如 `sequenceSummary.entries[0].externalPartners`；已知 ref 和来源指针继续保留。quality 的 QAS/utility-tree 是必需的来源组成，缺任一来源优先按 unverified 处理，不能降为普通字段 partial。显式空 `entries/blocks` 表示可核对的空汇总；`srIds/usIds/vtIds/testScenarios` 空列表报告缺关联，`externalPartners/integrations/rcIds/reqIds/vtCoverage` 显式空列表不推导不存在的对象。`false`、计数 `0` 是有效源值，但字符串布尔与布尔计数不是有效类型。引用的 owner/anchor、文件或基线无法核实时为 `unverified`，不保留无法确认的引用。
+A missing whole summary object or a wrong field type is an optional-source format error: `unverified` with empty refs. When the source is supplied but a specific field is missing, null, or empty text, or a required relation entry is missing, the result is `partial`, and the gap carries the source file and the full field path, for example `sequenceSummary.entries[0].externalPartners`; known refs and source pointers are kept. QAS and the utility tree are required source components of quality; a missing one is handled as unverified first and cannot be downgraded to an ordinary field-level partial. An explicitly empty `entries/blocks` denotes a verifiable empty summary; an empty `srIds/usIds/vtIds/testScenarios` list reports a missing relation, while an explicitly empty `externalPartners/integrations/rcIds/reqIds/vtCoverage` list never implies nonexistent objects. `false` and a count of `0` are valid source values, but string booleans and boolean counts are not valid types. When a referenced owner/anchor, file, or baseline cannot be verified, the result is `unverified`, and references that cannot be confirmed are not kept.
 
-同一视图有多个来源时，任一来源无法核实使该视图 `unverified` 并清空 refs；全部可核实但有结构缺项则为 `partial`。其他视图不受牵连。每个状态都只说明所选来源的结构/可定位性；完整文本、数值/异步含义、批准真实性和结果适用性仍须回到原所有者判断。
+When a view has several sources, any source that cannot be verified makes that view `unverified` and clears its refs; if all can be verified but there are structural gaps, the view is `partial`. Other views are not affected. Each state describes only the structure/locatability of the selected sources; the complete text, numeric/async meaning, authenticity of approvals, and applicability of results must still be judged against the original owner.
 
-### 5.2 显式引用实施报告
+### 5.2 Explicitly referencing implementation reports
 
-verification 来源还可选择 [v1 实施报告](#implementation-report)。仍使用同一个 `{path, baseline}` 选择项，baseline 必须与已生成报告的 bytes 相符，不复制执行条目进 manifest。adapter 只读重建报告核对其原对象/owned VT 引用；报告对象不可读、手改、scope 错配或原始记录漂移时，该可选视图为 unverified，并清空其报告引用。主库存的非法输入仍失败。
+Verification sources can also select a [v1 implementation report](#implementation-report). It still uses the same `{path, baseline}` selection item; the baseline must match the bytes of the generated report, and no execution entries are copied into the manifest. The adapter rebuilds the report read-only to check its original object/owned VT references; when the report's object is unreadable, the report was hand-edited, the scope mismatches, or the original records have drifted, that optional view is unverified and its report references are cleared. Invalid input in the primary inventory still fails.
 
-原有 verification 来源可与报告并列选择；model 只增加文件/基线指针，不将 entries、result 或 applicability 复制到视图，其他来源的 canonical/evidence/baseline 保持原语义。报告 `available` 不是 pass；未显式选择报告时 `implementationReports` 保持空数组。报告构建不会修改清单或源 model。
+Existing verification sources can be selected alongside the report; the model only adds file/baseline pointers and does not copy entries, result, or applicability into the view, and the canonical/evidence/baseline of the other sources keep their original semantics. A report being `available` is not a pass; when no report is selected explicitly, `implementationReports` stays an empty array. Building a report never modifies the manifest or the source model.

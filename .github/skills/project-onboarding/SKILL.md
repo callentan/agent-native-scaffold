@@ -1,31 +1,73 @@
 ---
 name: project-onboarding
-description: Use when joining an existing repository, adopting this skeleton, or starting with incomplete project information.
+description: Use when joining an existing repository, adopting this skeleton, or starting with incomplete project information. Not for comparing old, local, and new template versions (use update-template).
 ---
 
-# 项目接入
+# Onboard a project
 
-先分清已有内容、已确认输入和未决事项。人可直接按本方法操作，不需要 Agent 服务，也不需要先有应用。
+First separate existing content, confirmed inputs, and open items. Humans can follow this method directly; it needs neither an agent service nor an existing application.
 
-## 输入
+## Inputs
 
-- 当前任务的目标、范围、完成条件和授权；用户已确认的项目资料及来源。
-- 当前目录、Git 状态、已有 README、AGENTS、规则与资料位置；采用的模板来源（如已确认）。
+- Required:
+  - The current task's goal, scope, completion conditions, and authorization.
+  - Project materials the user has confirmed, with their sources.
+  - The current directory, Git status, and existing README, AGENTS, rules, and material locations.
+- When applicable:
+  - The adopted template source, if confirmed.
 
-## 操作
+## Steps
 
-1. 核对实际工作目录、分支、commit、暂存区和未提交范围；读取[项目登记](../../../README.md#project)及现有规则。区分原有内容与本次拟合入内容，保留所有者标记、规则位置和无关修改。逐项比较差异，不整仓覆盖或搬移代码。
-2. 只把已确认的名称、阶段、范围摘要与来源版本填入项目登记；未知阶段不猜，版本无依据就保持原占位。目标、用户、范围与约束详情归[产品说明](../../../stakeholder-requirements/README.md#product)，不在 README 另存一份。
-3. 把缺项按所影响的阶段登记：影响当前资料或业务决定的问题，写入产品说明的未决栏并注明阻塞范围；只影响以后编码的输入，留在[开发登记](../../../docs/development.md#project-registration)及[缺项栏](../../../docs/development.md#troubleshooting)。纯文档任务可以继续，不能为展示“已完成”补造信息。
-4. 涉及业务时沿[领域来源](../../../domain-model/README.md#sources)核对事实，再使用 [define-requirements](../define-requirements/SKILL.md)；需要可选本地领域源时另读[登记与 materialization 的区别](../../../docs/domain-sources.md#operations)。技术或文档维护可说明业务建模不适用。接入本身不初始化代码、不安装依赖、不选择技术栈。只有用户选择项目、技术栈、位置并授权，且[真实开发输入](../../../docs/development.md#creation-inputs)齐备后，才另行进入实施。
-5. 核对本次登记和链接，说明哪些字段仍未确认。用[日志表单](../../../_templates/items/development-log.md#session)记录任务与 Git 范围，在“本次变化”“实际结果入口”“阻塞与下一步”留下有效交接；按 [record-handoff](../record-handoff/SKILL.md)收尾，不用完整聊天代替记录。
+1. Check the actual working directory, branch, commit, index (staging area), and uncommitted scope. Read the [project registration](../../../README.md#project) and the existing rules.
+   - Distinguish existing content from content proposed for this merge.
+   - Compare differences item by item.
+2. Enter only confirmed names, stage, scope summary, and source version in the project registration.
+   - Do not guess an unknown stage.
+   - When a version has no basis, keep the original placeholder.
+   - Details of goals, users, scope, and constraints belong in the [product description](../../../stakeholder-requirements/README.md#product). Do not keep a second copy in the README.
+3. Record each gap under the stage it affects.
+   - Questions that affect current materials or business decisions → the open-items section of the product description, with the blocked scope noted.
+   - Inputs that only affect later coding → the [development registration](../../../docs/development.md#project-registration) and its [gaps section](../../../docs/development.md#troubleshooting).
+   - Documentation-only tasks may continue.
+4. Decide whether business modeling applies.
+   - When business matters are involved, check facts against the [domain sources](../../../domain-model/README.md#sources), then use [define-requirements](../define-requirements/SKILL.md).
+   - When an optional local domain source is needed, also read [the difference between registration and materialization](../../../docs/domain-sources.md#operations).
+   - For technical or documentation maintenance, state that business modeling is not applicable.
+5. Check this session's registrations and links, and state which fields remain unconfirmed.
+6. Close out with [record-handoff](../record-handoff/SKILL.md).
+   - Use the [log form](../../../_templates/items/development-log.md#session) to record the task and Git scope.
+   - Leave a usable handoff under "Changes in this session", "Actual result entry points", and "Blockers and next steps".
+   - A full chat transcript does not replace the record.
 
-## 产出与完成
+## Guardrails
 
-正式内容按需落在根 `README.md`、`stakeholder-requirements/README.md`、`docs/development.md` 和 `logs/YYYY-MM-DD-<task>-<session>.md`，已有项目沿用其实际资料位置。日志字段见[日志指引](../../../logs/README.md#recording)。
+- Keep owner markers, rule locations, and unrelated changes. Do not overwrite the whole repository or move code.
+- Never fabricate information to make something look "done".
+- Onboarding itself does not initialize code, install dependencies, or choose a tech stack.
+- Move on to implementation separately, and only after the user has chosen the project, tech stack, and location, has granted authorization, and the [actual development inputs](../../../docs/development.md#creation-inputs) are complete.
 
-已知信息有来源、原有内容保留、当前与后续阶段缺项分开且下一步明确，即可完成本次接入；这不表示开发环境已配置或业务验收已通过。
+## Outputs
 
-## 停止条件
+Formal content goes, as needed, to:
 
-资料不可读、行为事实冲突、合入冲突或授权不足时，保留现状，列出具体路径、问题和需谁确认什么，停止受影响的写入。缺技术栈只阻塞需要它的编码工作，不阻塞输入齐备的文档维护。
+- Confirmed project registration → the root `README.md`.
+- Product details and current-stage open items → `stakeholder-requirements/README.md`.
+- Coding-stage inputs and gaps → `docs/development.md`.
+- Handoff → `logs/YYYY-MM-DD-<task>-<session>.md`. For log fields, see the [log guide](../../../logs/README.md#recording).
+
+Existing projects keep their actual material locations.
+
+## Done when
+
+- Known information has sources.
+- Existing content is preserved.
+- Gaps for the current and later stages are kept separate.
+- The next step is clear.
+
+This does not mean the development environment is configured or business acceptance has passed.
+
+## Stop conditions
+
+- Stop the affected writes when materials are unreadable, behavioral facts conflict, a merge conflicts, or authorization is insufficient.
+- Then: keep the current state, and list the specific paths, the problems, and who must confirm what.
+- A missing tech stack blocks only the coding work that needs it, not documentation maintenance whose inputs are complete.

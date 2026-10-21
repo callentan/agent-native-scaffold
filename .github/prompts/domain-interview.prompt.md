@@ -1,12 +1,21 @@
 ---
-description: 在目标、规则或责任边界不清时进行领域访谈与迭代确认。
+description: Run a domain interview with iterative confirmation when goals, rules, or responsibility boundaries are unclear.
 ---
 
-# 领域访谈
+# Domain interview
 
-当前输入（由用户填写）：
-- 目标、参与者、范围与非目标：待填写。
-- 已有事实、实际来源/片段与版本、确认依据和未决问题：待填写。
-- 希望得到的草稿或修订、允许读写的路径与授权：待填写；未授权写入则只返回草稿。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [define-requirements 的访谈与迭代确认](../skills/define-requirements/SKILL.md#interview)，按该小节处理本次输入；方法正文与停止条件以该文件为准。
+- Goal, participants, scope, and non-goals: TBD
+- Existing facts: TBD
+- Actual sources/excerpts and their versions: TBD
+- Confirmation basis and open questions: TBD
+- Desired draft or revision: TBD
+- Permitted read/write paths and authorization: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [define-requirements](../skills/define-requirements/SKILL.md) in full, then handle this input according to its [interview and iterative confirmation](../skills/define-requirements/SKILL.md#interview) section.
+3. Without write authorization, return a draft only.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

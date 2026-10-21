@@ -2,14 +2,45 @@
 applyTo: "src/**,app/**,apps/**,lib/**,packages/**,services/**"
 ---
 
-# 沿用真实项目的编码约定
+# Follow the real project's coding conventions
 
-模式只是初始匹配，不穷举代码位置。修改任何真实代码时都显式读本规则；未匹配的项目目录同样适用，不强制迁入 `src\`。
+Read these rules explicitly whenever you modify any real code. Follow the actual project's conventions, and implement only what the task and confirmed behavior sources cover.
 
-- 先读实际语言/工具版本、原生布局、邻近实现与 formatter/linter/测试配置；命名、大小写、异常、异步、资源释放和测试位置以该项目为准，不套统一语言模板。
-- 实现只覆盖任务与已确认的行为来源；保持领域术语、责任和接口语义，不因实现方便补并发、失效、重试或边界政策。结构约束另按[架构规则](architecture.instructions.md)读取。
-- 明确输入、输出、错误与禁止副作用，避免吞错或用空实现/固定成功返回值伪装完成。变化以可复现问题和最小相关 diff 为边界，保留用户代码及无关格式。
-- 脚手架脚本须在 Windows、Linux、macOS 提供相同行为。路径来自明确参数、项目相对资源或标准临时目录，不硬编码个人目录、盘符或虚拟环境布局。必要的 OS 适配封装在文件锁/启动边界，不改变 DDD 含义。检查器服务工件结构、引用与覆盖，不引入固定盘检测、原生目录句柄审计或恶意并发文件替换防护作为运行前提；保留明确错误、不覆盖已有输出等基本保护。
-- 用项目既有注释、测试注解/标识或任务记录定位完整 owner-qualified 验收与真实代码位置，不只标无主 `AC-01`；不新增追溯 SDK，也不复制一套需求/状态进代码。
-- 依赖/API 用法以当前项目与版本为据；没有选定版本或安装授权时停在缺项，不自动升级/安装。构建、检查、测试须使用[实际登记](../../docs/development.md#project-registration)的命令、cwd 和输出位置。
-- 测试遵循[测试规则](tests.instructions.md)，安全边界遵循[安全规则](security.instructions.md)。记录真实检查范围、退出码与逐项结果；文件名、零发现或未执行不能证明实现正确。
+## Scope of these rules
+
+- The `applyTo` patterns are only an initial match and do not enumerate every code location.
+- The rules apply equally to project directories that do not match. Code does not have to be moved into `src/`.
+
+## Read first
+
+- First read the actual language/tool versions, native layout, nearby implementation, and formatter/linter/test configuration.
+- Follow that project for naming, casing, exceptions, async, resource disposal, and test locations. Do not apply a one-size-fits-all language template.
+- Read structural constraints separately in the [architecture rules](architecture.instructions.md). Follow the [test rules](tests.instructions.md) for tests and the [security rules](security.instructions.md) for security boundaries.
+
+## Implementation
+
+- Implement only what the task and confirmed behavior sources cover.
+- Keep domain terms, responsibilities, and interface semantics. Do not add concurrency, expiry, retry, or boundary policies for implementation convenience.
+- Make inputs, outputs, errors, and forbidden side effects explicit.
+- Do not swallow errors. Do not disguise unfinished work with empty implementations or hard-coded success return values.
+- Bound each change by a reproducible problem and the smallest relevant diff. Keep user code and unrelated formatting.
+
+## Portable scripts and checkers
+
+- Scaffold scripts must behave identically on Windows, Linux, and macOS.
+- Take paths from explicit arguments, project-relative resources, or the standard temporary directory. Do not hard-code personal directories, drive letters, or virtual environment layouts.
+- Encapsulate necessary OS adaptation at the file-lock/startup boundary, without changing DDD meaning.
+- Checkers serve artifact structure, references, and coverage. Do not make fixed-drive detection, native directory-handle auditing, or protection against malicious concurrent file replacement a prerequisite for running them.
+- Keep basic protections, such as explicit errors and never overwriting existing output.
+
+## Traceability
+
+- Use the project's existing comments, test annotations/identifiers, or task records to locate the full owner-qualified acceptance criterion and the real code location. Do not tag only an ownerless `AC-01`.
+- Do not add a traceability SDK, and do not copy a set of requirements/statuses into the code.
+
+## Dependencies, builds, and evidence
+
+- Base dependency/API usage on the current project and its versions.
+- Without a selected version or authorization to install, stop at the gap. Do not upgrade or install automatically.
+- Builds, checks, and tests must use the commands, cwd, and output locations in the [actual registration](../../docs/development.md#project-registration).
+- Record the real check scope, exit code, and per-item results. A file name, zero discoveries, or a not-run state cannot prove the implementation correct.

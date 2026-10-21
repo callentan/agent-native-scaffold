@@ -81,7 +81,7 @@ class PortabilityTests(unittest.TestCase):
                        for hook in ("pre-commit", "commit-msg"))
         self.assertGreaterEqual(len(scripts), 18)
         with temporary_workspace() as name:
-            directory = Path(name) / "DDD 项目 with spaces"
+            directory = Path(name) / "DDD проект € with spaces"
             directory.mkdir()
             for script in scripts:
                 with self.subTest(script=script.name):

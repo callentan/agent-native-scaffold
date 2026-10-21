@@ -7,60 +7,60 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# PI-NNN：待填写发布接口的业务承诺
+# PI-NNN: TBD business commitments of a Published Interface
 
-> 可选业务契约草稿，不是接口实现或发布批准。先读[集成资料指引](../../domain-model/README.md#integration-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\PI-NNN-<slug>.md`；确认并替换 `PROJECT/CTX-NNN`、ID、标题和锚点，修正相对链接，保留旧承诺及其版本后删除本提示。
+> Optional draft business contract; not an interface implementation or an approval to publish. First read the [integration forms guide](../../domain-model/README.md#integration-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/PI-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep earlier commitments and their versions, and then delete this hint.
 
 <a id="basis"></a>
-## 来源与认识边界
+## Sources and knowledge boundaries
 
-- 已知事实及来源定位、日期或版本：待填写。
-- 拟议承诺与推导依据：待填写；不能把消费者需要自动当作提供方承诺。
-- 未决问题及需要谁确认：待填写。
+- Known facts with source location, date, or version: TBD.
+- Proposed commitments and the basis for deriving them: TBD; a consumer's need cannot automatically be treated as a provider commitment.
+- Open questions and who needs to confirm them: TBD.
 
-可解析上游归 frontmatter；正文解释承诺的语义与依据，不认证批准者。
+Parsable upstream belongs in the frontmatter; the body explains the semantics and basis of the commitments and does not certify approvers.
 
 <a id="direction"></a>
-## 所有权与方向
+## Ownership and direction
 
-| 责任信息 | 内容 |
+| Responsibility information | Content |
 |---|---|
-| 提供方 → 消费者 | 待填写 |
-| 被提供事实的所有者 | 待填写 |
-| 允许消费者使用的范围与禁止修改事项 | 待填写 |
-| 提供方与消费者的业务责任人 | 未指定 |
-| 当前语义版本及其来源 | 未提供；不预填 1.0.0 或兼容保证 |
+| Provider → consumer | TBD |
+| Owner of the provided facts | TBD |
+| Scope consumers may use, and what they must not modify | TBD |
+| Accountable business owners on the provider and consumer sides | Not specified |
+| Current semantic version and its source | Not provided; do not prefill 1.0.0 or a compatibility guarantee |
 
 <a id="promises"></a>
-## 承诺元素
+## Commitment elements
 
-只列有模型依据的元素。拟议内容与已承诺内容的证据分开；没有证据就明确尚未承诺。
+List only elements backed by the model. Keep the evidence for proposed content separate from the evidence for committed content; without evidence, state explicitly that nothing has been committed yet.
 
-| 元素及原文导航 | 含义、适用条件与边界 | 提供方实际承诺及证据／仍待确认内容 |
+| Element and navigation to the source text | Meaning, applicable conditions, and boundaries | Actual provider commitment and evidence / content still to be confirmed |
 |---|---|---|
-| 待填写 | 待填写 | 尚无承诺证据 |
+| TBD | TBD | No commitment evidence yet |
 
-| 消费者导航 | 所需元素、语义与使用场景 | 消费方确认依据或缺口 |
+| Consumer navigation | Required elements, semantics, and usage scenarios | Basis of consumer confirmation, or gaps |
 |---|---|---|
-| 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD |
 
-协议、端点、传输格式、存储和交付保证不是本表的默认值。没有来源时记录为未知，不能用技术惯例补齐。
+Protocols, endpoints, wire formats, storage, and delivery guarantees are not defaults of this form. Without a source, record them as unknown; do not fill them in from technical conventions.
 
 <a id="evolution"></a>
-## 兼容性与变更提案
+## Compatibility and change proposals
 
-| 变更信息 | 内容 |
+| Change information | Content |
 |---|---|
-| 原承诺与提议内容的基线/差异 | 待填写 |
-| 语义破坏性、理由及受影响消费者 | 待分析；影响不清不能声明兼容 |
-| 语义版本变更提案及其依据 | 待确认；记录当前值与提议值，不自动发布 |
-| 迁移、兼容窗口、撤销与失败政策 | 未提供 |
-| 通知草稿的对象、内容与依据 | 待拟议；不是已发送通知 |
-| 所需批准人与授权边界 | 未指定；未经授权不改外部源、不通知、不发布 |
+| Baseline/difference between the original commitment and the proposed content | TBD |
+| Whether the change breaks semantics, the rationale, and affected consumers | To be analyzed; do not declare compatibility while the impact is unclear |
+| Semantic version change proposal and its basis | To be confirmed; record the current and proposed values, and do not publish automatically |
+| Migration, compatibility window, revocation, and failure policies | Not provided |
+| Recipients, content, and basis of the notification draft | To be proposed; not a notification that has been sent |
+| Required approvers and authorization boundaries | Not specified; without authorization, do not change external sources, send notifications, or publish |
 
 <a id="questions"></a>
-## 缺口与下一步
+## Gaps and next steps
 
-- 未建模元素、未知消费者、版本或失败政策及其影响：待填写。
-- 需谁提供何种决定/证据，相关 BL：待填写。
-- 实际批准或通知若以后发生，引用原记录与基线，不以本草稿代替。
+- Unmodeled elements, unknown consumers, version or failure policies, and their impact: TBD.
+- Who needs to provide which decision/evidence, and related BLs: TBD.
+- If actual approval or notification happens later, reference the original record and baseline; this draft does not stand in for them.

@@ -2,14 +2,50 @@
 applyTo: "**/test/**,**/tests/**,**/Tests/**,**/*.test.*,**/*.spec.*,**/*_test.*,**/test_*.*"
 ---
 
-# 测试变更约定
+# Test change conventions
 
-这些逗号分隔的路径/名称模式只是初始匹配范围，不覆盖所有语言或项目命名，也不规定代码或测试目录。接入真实项目时据实扩展 `applyTo`；**修改任何测试都要显式读取本规则，即使自动匹配没有触发。**
+**Read these rules explicitly whenever you modify any test, even if automatic matching did not trigger.** Tests start from the full acceptance scope, and only actual runs count as evidence.
 
-- 保留项目实际测试布局与既有风格；先读目标验收、对应 VT 和 [verify-change](../skills/verify-change/SKILL.md)，从完整范围检查缺口，不只挑已有测试。
-- 测试对应具体行为、边界和禁止副作用，使用完整验收 ID；需求变更先复核来源与预期，不靠改断言或删目标隐藏差异。
-- 命令、工具、环境与 cwd 以[真实开发登记](../../docs/development.md#project-registration)及实际项目为准，不假设 runner，不编造构建/测试命令。
-- 只记录实际执行与逐项证据；零发现、全跳过或退出零不能单独证明验收通过。缺对象/环境则写 `not-run` 和原因，文档检查不代替业务或软件运行。
-- 维护工具的回归保持实际文件、本地 Git 对象与当前解释器的 subprocess 正反例，参数列表、显式 cwd、`shell=False`；不 mock Git stdout，不从待测实现计算期望身份、数量或状态。只在无法安全制造 OS 失败时注入明确的 I/O 边界，并区分实测与注入结果。
-- 夹具使用标准临时目录，不要求 checkout 下的固定 `.venv` 或解释器安装目录可写；按宿主解析临时目录的规范路径。通用脚本行为须在 Windows、Linux、macOS 的 CI 中执行；只对确实平台专属的适配细节区分用例，不用整类跳过隐藏功能缺失。CLI 应能从其他 cwd 启动，覆盖空格、中文路径与非默认环境位置。
-- [正式工件检查](../utilities/README.md#artifact-checker)的 `checked_count/attempted_count` 不是测试发现/执行/跳过数。回归记录须另列 runner 数量并拒绝零发现、全跳过的“成功”；检查前后比较输入原始字节，报告输出单列。制作仓测试不随下游候选分发，也不成为下游检查器的运行前提。
+## Scope of these rules
+
+- These comma-separated path/name patterns are only an initial match. They do not cover every language or project naming scheme, and they do not prescribe code or test directories.
+- Extend `applyTo` to fit the real project when adopting it.
+
+## Before changing tests
+
+- Keep the project's actual test layout and existing style.
+- First read the target acceptance criteria, the corresponding VT, and [verify-change](../skills/verify-change/SKILL.md).
+- Check gaps across the full scope instead of picking only existing tests.
+
+## Test content
+
+- Map each test to specific behaviors, boundaries, and forbidden side effects, and use full acceptance IDs.
+- When requirements change, re-review the source and expected outcome first. Do not hide differences by changing assertions or deleting targets.
+
+## Commands and evidence
+
+- Take commands, tools, environment, and cwd from the [actual development registration](../../docs/development.md#project-registration) and the actual project. Do not assume a runner or invent build/test commands.
+- Record only actual runs and per-item evidence. Zero discoveries, all-skipped, or a zero exit code alone cannot prove that acceptance passed.
+- When the object or environment is missing, write `not-run` with the reason.
+- Document checks do not replace business or software runs.
+
+## Maintenance-tool regression tests
+
+- In regression tests for the maintenance tools, keep positive and negative subprocess cases that use real files, local Git objects, and the current interpreter. Run them with argument lists, an explicit cwd, and `shell=False`.
+- Do not mock Git stdout. Do not compute expected identities, counts, or states from the implementation under test.
+- Inject an explicit I/O boundary only where an OS failure cannot be produced safely. Distinguish actually observed results from injected ones.
+
+## Fixtures and platforms
+
+- Fixtures use the standard temporary directory. They must not require a fixed `.venv` under the checkout or the interpreter installation directory to be writable.
+- Resolve the canonical path of the temporary directory on the host.
+- Generic script behavior must run in CI on Windows, Linux, and macOS. Separate cases only for genuinely platform-specific adaptation details.
+- Do not hide missing functionality by skipping whole categories.
+- CLIs should be launchable from another cwd and cover spaces, non-ASCII paths, and non-default environment locations.
+
+## Checker counts and regression records
+
+- The `checked_count/attempted_count` of the [formal artifact check](../utilities/README.md#artifact-checker) are not test discovered/executed/skipped counts.
+- Regression records must list runner counts separately and reject a "success" with zero discoveries or all tests skipped.
+- Compare the raw bytes of inputs before and after the check, and list report output separately.
+- Maker-repository tests are not distributed with downstream candidates and are not a prerequisite for running the downstream checker.

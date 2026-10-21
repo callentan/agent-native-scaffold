@@ -1,12 +1,21 @@
 ---
-description: 只读核对开放问题、BL 的决定依据及残留影响。
+description: Check open questions, the decision basis of BLs, and residual impact read-only.
 ---
 
-# 审阅开放问题
+# Review open questions
 
-当前输入（由用户填写）：
-- 实际问题/BL 路径、原问题基线与审阅范围：待填写。
-- 责任人、已提供的决定/处理证据及相关工件：待填写。
-- 希望得到的缺口或关闭建议：待填写；默认只读，不更新进度或关闭条目。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [verify-change 的开放问题与 BL 审阅](../skills/verify-change/SKILL.md#backlog-review)，模式、发现字段与停止条件以该文件为准。
+- Actual question/BL paths: TBD
+- Original question baseline: TBD
+- Review scope: TBD
+- Accountable owner: TBD
+- Provided decision/handling evidence and related artifacts: TBD
+- Desired gaps or closure recommendations: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [open question and BL review](../skills/verify-change/SKILL.md#backlog-review) section.
+3. Work read-only by default, without updating progress or closing items.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

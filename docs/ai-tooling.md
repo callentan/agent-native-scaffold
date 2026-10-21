@@ -1,69 +1,69 @@
-# AI 工具使用与有界评价
+# AI tool use and bounded evaluation
 
-本页适用于项目决定保留 AI 或其他辅助工具使用依据的情况，不强制每次小维护建立资格文件。不指定模型、供应商、技术栈或获准用途；工具名称、付费版本、角色或通过的 parser 都不是资格决定。
+This page applies when a project decides to keep a basis for its use of AI or other assistive tools; it does not require a qualification file for every small maintenance task. It does not specify models, vendors, tech stacks, or authorized uses; a tool name, paid edition, role, or passing parser is not a qualification decision.
 
 <a id="adoption"></a>
-## 采用与记录边界
+## Adoption and recording boundaries
 
-需要独立评价记录时用[工具资格与使用表单](../_templates/items/tool-qualification.md)，默认落在 `verification\TQ-NNN-<slug>.md`。需要独立审阅或 waiver 时使用[已有审阅表单与决定指引](governance.md#decisions)，不是新增角色流水线。资料核对沿 [verify-change](../.github/skills/verify-change/SKILL.md)，改文档沿 [implement-task](../.github/skills/implement-task/SKILL.md)，交接沿 [record-handoff](../.github/skills/record-handoff/SKILL.md)；完整方法仍只在这些文件维护。
+When a standalone evaluation record is needed, use the [tool qualification and use form](../_templates/items/tool-qualification.md); its default location is `verification/TQ-NNN-<slug>.md`. When an independent review or a waiver is needed, use the [existing review form and decision guidance](governance.md#decisions) rather than a new role pipeline. Check material with [verify-change](../.github/skills/verify-change/SKILL.md), change documents with [implement-task](../.github/skills/implement-task/SKILL.md), and hand off with [record-handoff](../.github/skills/record-handoff/SKILL.md); the complete methods are maintained only in those files.
 
-应区分四件事：
+Distinguish four things:
 
-| 信息 | 所需依据 |
+| Information | Required basis |
 |---|---|
-| 拟议用途 | 本次任务、对象、输入类别、允许/排除范围和已知问题；不等于已授权 |
-| 已评价的有限行为 | 实际工具/版本、配置、环境、评价输入/判据、执行步骤与原始观察/报告基线 |
-| 声明的使用授权 | 可定位的具名决定、责任/权限依据、允许范围、限制和被决定基线；文本仍不认证身份 |
-| 当前适用性 | 当前对象/用途/版本/配置与原评价、原决定的比较及重新评价需要；不从历史结果自动继承 |
+| Proposed use | The current task, object, input categories, allowed/excluded scope, and known issues; this is not authorization |
+| Evaluated limited behavior | The actual tool/version, configuration, environment, evaluation inputs/criteria, run steps, and the baseline of the raw observations/report |
+| Declared authorization to use | A locatable named decision, the basis of accountability/authority, the allowed scope, limitations, and the decided baseline; the text still does not authenticate identity |
+| Current applicability | A comparison of the current object/use/version/configuration with the original evaluation and original decision, and any need for re-evaluation; it is not inherited automatically from historical results |
 
-工具可能给出错误解释或不稳定输出，评价应覆盖本任务实际依赖的正常、缺项、冲突、拒绝及禁止副作用边界。只记录真正执行的输入、方法和观察；没有环境/评价证据/决定者时保留 draft 和精确缺口，不能把演示、模型自评或表单完整写成 qualified。文档工具检查、业务执行和人工决定分别取证。
+Tools may give wrong explanations or unstable output, so the evaluation should cover the normal, missing-input, conflict, refusal, and forbidden-side-effect boundaries that this task actually relies on. Record only the inputs, methods, and observations that were actually run. Without an environment, evaluation evidence, or a decision maker, keep the record in draft with the precise gaps; do not record a demo, a model's self-assessment, or a completed form as qualified. Collect evidence separately for documentation tool checks, business execution, and human decisions.
 
 <a id="minimal-record"></a>
-## 最小必要记录
+## Minimal necessary record
 
-在已有任务/日志或工具记录中保存足够接手的指针即可；不重复拥有原结果。
+Keeping enough pointers for a handoff in the existing task/log or tool record is sufficient; do not duplicate ownership of the original results.
 
-| 要素 | 保存什么 |
+| Element | What to keep |
 |---|---|
-| 任务与时间 | 实际请求/任务入口、本次日期或时间及记录范围 |
-| 对象与来源 | 真实文件/章节或 owner-qualified ID、对象和输入基线、可访问性 |
-| 工具与配置 | 实际工具名称/版本、可得的模型标识、影响行为的配置/方法基线与环境；未暴露的服务版本写未知，不猜 |
-| 用途与数据边界 | 本次用途、允许输入类别、范围内外和禁止副作用；只记录必要元信息 |
-| 评价与结果 | 实际判据/步骤、检查范围/数量（适用时）、VT/原始报告及其基线入口；未执行写 not-run |
-| 决定与责任 | 实际决定原文、具名角色/人员声明、授权范围与基线；没有就列缺口 |
-| 后续需要 | 限制、未决输入、当前适用性与需补充评价/决定的条件 |
+| Task and time | The actual request/task entry point, the date or time of this use, and the scope of the record |
+| Object and source | The real file/section or owner-qualified ID, the object and input baselines, and accessibility |
+| Tool and configuration | The actual tool name/version, the model identifier where available, the behavior-affecting configuration/method baseline, and the environment; write Unknown for a service version that is not exposed instead of guessing |
+| Use and data boundaries | The current use, allowed input categories, what is in and out of scope, and forbidden side effects; record only the necessary metadata |
+| Evaluation and result | The actual criteria/steps, the check scope/count (when applicable), and entry points to the VT/raw report and their baselines; write `not-run` for anything not run |
+| Decision and accountability | The original text of the actual decision, the named role/person declaration, and the authorization scope and baseline; list a gap if any of these is missing |
+| Follow-up needs | Limitations, open inputs, current applicability, and the conditions that call for further evaluation/decisions |
 
-不要求保存完整 prompt/聊天、访问令牌、凭据、患者或生产数据；不为说明工具使用而复制敏感交互。若确实需要某段输入作为评价证据，先核对数据授权并使用最小必要、脱敏或自有合成材料，说明它不能代表真实业务样本。用量/费用只引用实际提供的统计口径和账单，缺值不从文字长度、工具次数或模型名估算。
+Saving full prompts/chats, access tokens, credentials, patient data, or production data is not required; do not copy sensitive interactions just to document tool use. If a specific input is genuinely needed as evaluation evidence, first check the data authorization, use minimal necessary, de-identified, or self-owned synthetic material, and state that it does not represent real business samples. For usage/cost, cite only the measurement definitions and bills actually provided; do not estimate missing values from text length, number of tool calls, or model names.
 
 <a id="interaction-ledger"></a>
-## 可选的最小交互账本
+## Optional minimal interaction ledger
 
-维护者可用[本地账本工具](../.github/utilities/README.md#interaction-ledger)记录明确提供的最小元信息；空白表单在 [`_templates/reports/ai-interaction-log.csv`](../_templates/reports/ai-interaction-log.csv)。它不是必需的会话归档、应用服务或资格系统。每次追加都要显式给出现存本地 CSV 路径及记录字段；工具不会搜索环境、个人配置、会话文件、账单或日志，不联网，也不执行字段中的命令或引用。
+Maintainers can use the [local ledger tool](../.github/utilities/README.md#interaction-ledger) to record minimal metadata that was explicitly provided; the blank form is [`_templates/reports/ai-interaction-log.csv`](../_templates/reports/ai-interaction-log.csv). It is not a required session archive, application service, or qualification system. Every append must explicitly give the path of an existing local CSV and the record fields; the tool does not search the environment, personal configuration, session files, bills, or logs, does not access the network, and does not execute commands or references found in fields.
 
-记录只存：版本 1、稳定记录 ID、带时区 ISO 8601 时间、工具名/版本、任务与对象引用/基线、最多 512 字符的操作摘要、可选决定/证据引用，以及可选的明确用量值、单位和货币。引用按普通文本保存，不自动打开、解析或认证；缺失引用在 CSV 中为空并汇总为未知。决定字段只保存来源指针，没有决定结果/批准字段；写入“Approved”等文本也不是批准或资格证明。账本只反映调用者提供的数据，不认证工具身份、实际使用、来源或授权。
+A record stores only: version 1, a stable record ID, an ISO 8601 time with time zone, the tool name/version, task and object references/baselines, an operation summary of at most 512 characters, optional decision/evidence references, and optional explicit usage values, units, and currency. References are stored as plain text and are not automatically opened, parsed, or authenticated; a missing reference is empty in the CSV and summarized as unknown. The decision field stores only a source pointer; there is no decision outcome/approval field, and writing text such as "Approved" is not proof of approval or qualification. The ledger reflects only the data the caller provides and does not authenticate tool identity, actual use, sources, or authorization.
 
-用量值使用非负、有限、十进制普通写法（不接受负数、NaN、Infinity 或指数记法），原始字符和小数位逐字保留；单位不推断，未知用量保持空值而不是 `0`。汇总仅对工具、版本、单位及货币完全一致的已知记录做精确十进制求和，按稳定顺序另列未知数量；不同单位/币种不合并，不生成“成本”“节省”或资格结论。币种代码是调用者提供的标签，不由工具查表校验。账本和 CSV 只应被当作数据读取；CSV 引号不防止电子表格公式解释，因此不应把不可信单元格当可执行公式打开。
+Usage values use non-negative, finite, plain decimal notation (negative numbers, NaN, Infinity, and exponent notation are rejected), and the original characters and decimal places are kept verbatim; units are not inferred, and unknown usage stays empty rather than `0`. The summary computes exact decimal sums only over known records whose tool, version, unit, and currency match exactly, and lists unknown counts separately in a stable order; different units/currencies are not combined, and no "cost", "savings", or qualification conclusion is generated. Currency codes are caller-provided labels; the tool does not validate them against a lookup table. Treat the ledger and the CSV only as data; CSV quoting does not prevent spreadsheet formula interpretation, so do not open untrusted cells as executable formulas.
 
-追加前会验证固定表头、版本和全部现存行；坏 CSV、重复已有 ID、冲突 ID、无效时间/用量均明确拒绝，绝不重建、截断或跳过历史。相同 ID 与完全相同的值是无改动重放。所有写操作（追加及显式摘要文件）都须由调用者显式传 `attest_local_storage=True` 或 CLI `--attest-local-storage`；缺省会以 `WRITE_ATTESTATION_REQUIRED` 拒绝且不创建锁/输出。该值只是调用者对所选路径为单机本地、非网络/非云同步存储的声明，不认证调用者身份、OS 实际盘型或存储供应商，也不构成耐久保证；不要为 OneDrive 等同步位置作此声明。不以 Windows 盘符或固定盘类型判定可用性，不探测环境/注册表/供应商来猜测同步状态。
+Before appending, the tool validates the fixed header, the version, and all existing rows. A malformed CSV, duplicate IDs among existing rows, conflicting IDs, and invalid times/usage are all rejected explicitly; history is never rebuilt, truncated, or skipped. The same ID with exactly the same values is a no-change replay. Every write operation (appends and explicit summary files) requires the caller to pass `attest_local_storage=True` explicitly, or `--attest-local-storage` on the CLI; by default the operation is rejected with `WRITE_ATTESTATION_REQUIRED` and no lock/output is created. This value is only the caller's declaration that the selected path is on single-machine local storage that is neither network nor cloud-synced storage; it does not authenticate the caller's identity, the actual OS disk type, or the storage vendor, and it is not a durability guarantee. Do not make this declaration for synced locations such as OneDrive. Availability is not decided by Windows drive letter or fixed-disk type, and the tool does not probe the environment/registry/vendor to guess sync status.
 
-默认无输出摘要只读取一次账本，不取锁、不创建 `.lock` 或其他文件；格式损坏或半行的源返回 CSV 输入错误，不把半行当完整统计。显式 `--output` 是写操作：要求上述 caller attestation，在源锁内读取一次并以标准库 exclusive create 新建输出，不覆盖已有内容。部分写入或创建后失败返回 recovery 信息，不自动删除、回滚或宽泛清理。工具不防御恶意并发路径替换，也不声称提供 OS sandbox。
+By default, a summary without output reads the ledger once, takes no lock, and creates no `.lock` or other files; a source with corrupted formatting or a partial line returns a CSV input error instead of counting the partial line as complete. An explicit `--output` is a write operation: it requires the caller attestation above, reads the source once under the source lock, and creates the output with the standard library's exclusive create, without overwriting existing content. A partial write or a failure after creation returns recovery information, without automatic deletion, rollback, or broad cleanup. The tool does not defend against malicious concurrent path replacement and does not claim to provide an OS sandbox.
 
-读写支持 Windows、Linux、macOS 上调用者明确选择的本地普通文件；目录不必位于仓库、虚拟环境或固定盘符下。网络或云同步位置的跨主机协调不在支持范围，调用者不应对其作 local-storage attestation。追加使用相邻 `.lock` 文件，Windows 由 `msvcrt`、Linux/macOS 由 `fcntl` 实现本机进程间排他锁；锁侧车保留。未遵循锁的外部编辑仍可能发生；追加在锁内写入前核对账本字节未变，变化时返回 `OWNER_BYTES_CHANGED` 且不写入，不能据此承诺任意文件系统或恶意进程下的隔离。
+Reads and writes support local regular files explicitly chosen by the caller on Windows, Linux, and macOS; the directory need not be inside a repository or virtual environment or on a fixed drive letter. Cross-host coordination for network or cloud-synced locations is out of scope, and callers should not make a local-storage attestation for them. Appends use an adjacent `.lock` file; an exclusive inter-process lock on the local machine is implemented with `msvcrt` on Windows and `fcntl` on Linux/macOS, and the lock sidecar is kept. External edits that do not honor the lock can still happen. Before writing under the lock, an append checks that the ledger bytes are unchanged; if they changed, it returns `OWNER_BYTES_CHANGED` without writing. This cannot be taken as a promise of isolation on arbitrary file systems or against malicious processes.
 
-追加或新摘要输出发生 I/O 失败时，工具不自动删除/回滚未知所有者字节；错误会给出恢复标志和预期/观察到的字节数。遇到 `recovery_required` 时先保留文件、手工检查末行/部分新输出，再决定恢复或重试。显式 `--output` 只允许新建一个父目录已存在的 `.json` 文件，不覆盖已有输出、日志或模板。目标 OS/文件系统语义不受支持时会明确失败。
+When an I/O failure occurs during an append or a new summary output, the tool does not automatically delete or roll back unknown owner bytes; the error reports a recovery flag and the expected/observed byte counts. On `recovery_required`, keep the file and manually inspect the last line/partial new output before deciding whether to recover or retry. An explicit `--output` only allows creating a new `.json` file whose parent directory already exists, and does not overwrite existing outputs, logs, or templates. The tool fails explicitly when the target OS/file-system semantics are not supported.
 
-没有实际账单、供应商数据或受权使用统计时，不报告真实收费/用量、节省或服务效果。此工具没有供应商计价接口，也不替代 VT 执行证据、具名审阅决定、工具资格、审批或交接。引用指针仍须沿原始 owner 记录读取。
+Without actual bills, vendor data, or authorized usage statistics, do not report real charges/usage, savings, or service effectiveness. This tool has no vendor pricing interface and does not replace VT run evidence, named review decisions, tool qualification, approval, or handoff. Referenced pointers must still be followed to the original owner records.
 
 <a id="requalification"></a>
-## 版本、用途与基线改变
+## Changes to version, use, or baseline
 
-工具或模型版本、影响行为的配置/方法、环境、数据类别、使用场景、对象/要求基线或责任政策改变时，原评价只对原范围成立。保留旧记录、决定与原始报告；新评价追加独立记录或新文件并链接原基线，不重写旧结果。
+When the tool or model version, behavior-affecting configuration/method, environment, data category, usage scenario, object/requirement baseline, or accountability policy changes, the original evaluation holds only for its original scope. Keep the old records, decisions, and raw reports; add the new evaluation as a separate record or new file that links the original baseline, and do not rewrite old results.
 
-先说明哪些行为与授权可能不再适用，列需重做的评价、责任人和未决输入；未取得所需证据前不继承旧资格。未知服务版本也不能默认与上次相同。具体重新评价和决定按项目真实责任约定处理，不从本表推导强制审批顺序。
+First state which behaviors and authorizations may no longer apply, and list the evaluations to redo, the accountable owners, and the open inputs; do not inherit the old qualification until the required evidence has been obtained. An unknown service version cannot be assumed to be the same as last time either. Handle the specific re-evaluation and decisions according to the project's real accountability arrangements; do not derive a mandatory approval order from this page.
 
 <a id="limits"></a>
-## 不能由记录证明的事项
+## What records cannot prove
 
-`confirmation` 只按[现有契约](../.github/contracts/README.md)保存本记录的确认声明，不能认证审阅人、实际工具权限或风险接受。工具评价的合成成功样本不代表所有输入可靠；独立人工审阅必须有实际人员和记录，Agent 自审不能替代。
+`confirmation` only stores this record's confirmation declaration per the [existing contract](../.github/contracts/README.md); it cannot authenticate the reviewer, actual tool permissions, or risk acceptance. Successful synthetic samples in a tool evaluation do not mean that all inputs are reliable; an independent human review requires actual people and records, and an Agent self-review cannot replace it.
 
-授权记录与实际执行权限是两回事。角色、trailer、文本规则或 read-only 字段不配置 ACL、sandbox、网络策略、客户端或 CI 门禁。来源访问、执行、写回、安装、外部传输与发布仍各自需要授权；缺项处理见[治理边界](governance.md#limits)。
+An authorization record and actual execution permission are two different things. Roles, trailers, text rules, or read-only fields do not configure ACLs, sandboxes, network policies, clients, or CI gates. Source access, execution, write-back, installation, external transfer, and release each still need their own authorization; for handling missing items, see [governance boundaries](governance.md#limits).

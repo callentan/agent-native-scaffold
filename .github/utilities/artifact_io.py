@@ -484,7 +484,7 @@ def _body_entries(
     body: str, path: Path, start: int, artifact_id: str, owner: str,
 ) -> tuple[tuple[Anchor, ...], tuple[Acceptance, ...]]:
     heading = re.compile(
-        r" {0,3}#{1,6}[ \t]+(" + re.escape(artifact_id) + r"-(?:AC|VC)-[0-9]+)(?=$|[ \t:：])"
+        r" {0,3}#{1,6}[ \t]+(" + re.escape(artifact_id) + r"-(?:AC|VC)-[0-9]+)(?=$|[ \t:])"
     )
     anchors: dict[str, Anchor] = {}
     acceptances: list[Acceptance] = []

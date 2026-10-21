@@ -1,31 +1,31 @@
-## 任务依据
+## Task basis
 
-- 请求、issue、US 或相关工件链接：待填写
-- 本次目标与完成条件来源：待填写
-- 分支、变更基线及相关需求/VT 基线：待填写
+- Request, issue, US, or related artifact links: TBD
+- Source of this change's goal and completion criteria: TBD
+- Branch, change baseline, and related requirement/VT baselines: TBD
 
-## 修改范围
+## Scope of changes
 
-- 实际修改及原因：待填写
-- 非目标、保留的原有改动：待填写
-- 受影响的规则、需求、设计或任务链接：待填写
+- Actual changes and reasons: TBD
+- Non-goals and pre-existing changes kept: TBD
+- Links to affected rules, requirements, designs, or tasks: TBD
 
-## 实际验证
+## Actual verification
 
-只填写确实执行的操作并引用原始记录；未执行写 `not-run` 和原因。不把文档检查当作业务或软件行为执行，也不把旧基线的结果当作当前结果。
+Fill in only operations that were actually performed, and cite the raw records; for anything not run, write `not-run` and the reason. Do not treat document checks as business or software behavior runs, and do not treat results from an old baseline as current results.
 
-| 检查与层次 | 实际命令或人工步骤 | 实际工作目录与对象基线 | 结果记录/原始报告链接 | 当前适用性与限制 |
+| Check and layer | Actual command or manual steps | Actual working directory and object baseline | Result record/raw report link | Current applicability and limitations |
 |---|---|---|---|---|
-| 待填写 | 未执行 | 待填写 | 暂无记录 | 待复核 |
+| TBD | Not run | TBD | No record yet | Pending re-review |
 
-- 未执行或不适用的检查及具体原因：待填写
-- 覆盖缺口、悬空引用、待复核项：待填写
-- 日志或交接入口：待填写
+- Checks not run or not applicable, with specific reasons: TBD
+- Coverage gaps, dangling references, and items pending re-review: TBD
+- Log or handoff entry point: TBD
 
-## 未知事项与需要的决定
+## Unknowns and decisions needed
 
-- 未决业务事实、环境或报告访问限制：待填写
-- 风险、阻塞及下一步：待填写
-- 需要维护者确认的事项：待填写
+- Open business facts, environment, or report-access limitations: TBD
+- Risks, blockers, and next steps: TBD
+- Items that need maintainer confirmation: TBD
 
-本表未预置验收通过、批准或发布结论；上述占位须按事实填写。
+This template does not pre-fill any acceptance pass, approval, or release conclusion; fill in the placeholders above with facts.

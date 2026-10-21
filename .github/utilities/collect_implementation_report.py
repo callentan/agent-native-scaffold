@@ -46,15 +46,15 @@ def _field(source: Artifact, anchor: str, label: str) -> str:
 def _detail(value: str) -> bool:
     plain = re.sub(r"[*_`]", "", value).strip()
     return (_meaningful(plain) and not re.fullmatch(
-        r"(?:approved|success(?:ful)?|passed|failed|failure|done|成功|已通过|通过|已批准)[。.!！\s]*", plain, re.I)
-        and not re.match(r"^(?:未提供|未配置|未执行|待填写|未知|unknown|unverified)(?:$|[：:，,；; ])", plain, re.I))
+        r"(?:approved|success(?:ful)?|pass(?:ed)?|failed|failure|done)[.!\s]*", plain, re.I)
+        and not re.match(r"^(?:not provided|not configured|not run|TBD|unknown|unverified)(?:$|[:,; ])", plain, re.I))
 
 
 def _record_date(value: str, source: Artifact, *, mode: bool) -> str | None:
     match = re.fullmatch(_DATE + (r"; mode=(command|manual)" if mode else ""), value)
     try:
         if (not match or not match[2].strip()
-                or re.fullmatch(r"unknown|unverified|none|n/?a|未提供|未执行|待填写|未知", match[2].strip(), re.I)):
+                or re.fullmatch(r"unknown|unverified|none|n/?a|not provided|not run|TBD", match[2].strip(), re.I)):
             raise ValueError
         date.fromisoformat(match[1])
     except ValueError as error:
@@ -241,7 +241,7 @@ class _Collection:
         return name + ("#" + fragment if separator else "")
 
     def reports(self, source: Artifact, anchor: str, executed: bool) -> list[dict]:
-        value = _field(source, anchor, "原始报告与具体位置")
+        value = _field(source, anchor, "Raw report and exact location")
         if not executed and value == "not-run":
             return []
         refs = []
@@ -272,7 +272,8 @@ class _Collection:
 
     def applicability(self, source: Artifact, anchor: str, target) -> dict:
         default = {"state": "unverified", "reason": "No independent applicability record matches this target, run and bases."}
-        labels = ("复核日期与记录者", "原运行/结果及目标链接", "当前对象、需求与 VT 基线", "适用性", "理由、影响与待重查事项")
+        labels = ("Review date and recorder", "Original run/result and target link",
+                  "Current object, requirement, and VT baselines", "Applicability", "Rationale, impact, and items to recheck")
         header, matches, previous = None, [], 0
         for number, line in section_lines(source, "applicability"):
             if number != previous + 1:
@@ -298,10 +299,10 @@ class _Collection:
             self.at_basis(self.owners[basis[2]], basis[3])
             self.at_basis(self.paths[source.relative_path], basis[4], plan=True)
             _record_date(cells[0], source, mode=False)
-            states = {"待复核": "unverified", "适用": "applicable", "不适用": "not-applicable"}
-            if cells[3] not in states or not _detail(cells[4]):
+            state = cells[3].strip("`")
+            if state not in ("unverified", "applicable", "not-applicable") or not _detail(cells[4]):
                 raise ArtifactInputError("INVALID_APPLICABILITY", source.path, number, "State and independent reason are required")
-            matches.append({"state": states[cells[3]], "reason": cells[4]})
+            matches.append({"state": state, "reason": cells[4]})
         if len(matches) > 1:
             raise ArtifactInputError("AMBIGUOUS_APPLICABILITY", source.path, 1, "Multiple matching applicability rows; no last-wins rule")
         return matches[0] if matches else default
@@ -310,27 +311,27 @@ class _Collection:
         original = self.paths[source.relative_path]
         if plan_bytes(source, raw) != plan_bytes(original, self.object.read(source.relative_path)):
             raise ArtifactInputError("PLAN_MISMATCH", source.path, 1, "Supplied evidence changes the exact object's plan")
-        if _field(source, anchor, "实际对象基线") != self.object.sha:
+        if _field(source, anchor, "Actual object baseline") != self.object.sha:
             raise ArtifactInputError("OBJECT_MISMATCH", source.path, 1, "Run belongs to another tested object")
-        bases = self.requirements(_field(source, anchor, "当时的需求/设计/任务依据基线"), source)
-        plan = _field(source, anchor, "当时的 VT 基线")
+        bases = self.requirements(_field(source, anchor, "Requirement/design/task basis baseline at the time"), source)
+        plan = _field(source, anchor, "VT baseline at the time")
         self.at_basis(original, plan, plan=True)
         rows, gaps = result_rows(source, anchor)
         if gaps:
             raise ArtifactInputError("INVALID_RUN", source.path, 1, "; ".join(gaps))
-        mode = _record_date(_field(source, anchor, "日期、执行者与方式"), source, mode=True)
+        mode = _record_date(_field(source, anchor, "Date, executor, and mode"), source, mode=True)
         executed = any(row["status"] in ("pass", "fail") for row in rows.values())
-        steps = _field(source, anchor, "实际命令或人工步骤/测试标识")
+        steps = _field(source, anchor, "Actual command or manual steps/test identifier")
         if executed:
-            for label in ("实际环境与工具版本", "报告可访问性与限制", "实际命令或人工步骤/测试标识"):
+            for label in ("Actual environment and tool versions", "Report accessibility and limitations", "Actual command or manual steps/test identifier"):
                 if not _detail(_field(source, anchor, label)):
                     raise ArtifactInputError("INVALID_RUN", source.path, 1, f"{anchor}: missing actual {label}")
         if mode == "command" and executed:
-            cwd = _relative(_field(source, anchor, "实际工作目录"), source.path, directory=True)
+            cwd = _relative(_field(source, anchor, "Actual working directory"), source.path, directory=True)
             if not self.object.directory(cwd):
                 raise ArtifactInputError("INVALID_EXECUTION", source.path, 1, "Execution cwd is not in the tested object")
             counts = re.fullmatch(r"exit=(-?[0-9]+); discovered=([0-9]+); executed=([0-9]+); skipped=([0-9]+)",
-                                  _field(source, anchor, "退出码、发现/执行/跳过数量（适用时）"))
+                                  _field(source, anchor, "Exit code and discovered/executed/skipped counts (when applicable)"))
             if not counts:
                 raise ArtifactInputError("INVALID_EXECUTION", source.path, 1, "Explicit exit/discovered/executed/skipped counts required")
             exit_code, discovered, done, skipped = map(int, counts.groups())

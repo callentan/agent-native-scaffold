@@ -38,17 +38,17 @@ class ArtifactIOTests(unittest.TestCase):
         return error
 
     def test_read_retains_identity_source_body_and_absolute_location(self) -> None:
-        body = '# REQ-001：本地来源\n\n<a id="req-001-ac-01"></a>\n### REQ-001-AC-01：判据\n'
-        path = write_metadata(self.root, metadata(), body, "资料 with spaces/REQ-001.md")
+        body = '# REQ-001: Local source\n\n<a id="req-001-ac-01"></a>\n### REQ-001-AC-01: Criterion\n'
+        path = write_metadata(self.root, metadata(), body, "данные € with spaces/REQ-001.md")
         original = path.read_bytes()
         before = Path.cwd()
-        artifact = parse_artifact(Path("资料 with spaces/REQ-001.md"), self.root)
+        artifact = parse_artifact(Path("данные € with spaces/REQ-001.md"), self.root)
         self.assertEqual(artifact.key, "sample/CTX-001/REQ-001")
         self.assertEqual(artifact.id, "REQ-001")
         self.assertEqual(artifact.scope, "sample/CTX-001")
         self.assertEqual(artifact.content_state, "draft")
         self.assertEqual(artifact.path, path.resolve())
-        self.assertEqual(artifact.relative_path, "资料 with spaces/REQ-001.md")
+        self.assertEqual(artifact.relative_path, "данные € with spaces/REQ-001.md")
         self.assertEqual(artifact.location.path, path.resolve())
         self.assertEqual(artifact.location.line, 1)
         self.assertEqual(artifact.body_start_line, 8)
@@ -62,27 +62,27 @@ class ArtifactIOTests(unittest.TestCase):
 
     def test_only_owner_headings_with_stable_anchors_are_acceptances(self) -> None:
         body = (
-            "# REQ-001：Owner\n"
+            "# REQ-001: Owner\n"
             "Referenced REQ-998-AC-01 and [REQ-999-AC-01](elsewhere.md#req-999-ac-01).\n\n"
             '<a id="req-001-ac-01"></a>\n'
-            "### REQ-001-AC-01：First\n\n"
+            "### REQ-001-AC-01: First\n\n"
             "```markdown\n"
             '<a id="req-001-ac-88"></a>\n'
-            "### REQ-001-AC-88：not an item\n"
+            "### REQ-001-AC-88: not an item\n"
             "```\n"
             "~~~~ markdown\n"
             '<a id="req-001-ac-89"></a>\n'
-            "### REQ-001-AC-89：also code\n"
+            "### REQ-001-AC-89: also code\n"
             "~~~\n"
             "~~~~\n"
             "<!--\n"
             '<a id="req-001-ac-90"></a>\n'
-            "### REQ-001-AC-90：comment\n"
+            "### REQ-001-AC-90: comment\n"
             "-->\n\n"
             '<a id="req-001-ac-02"></a>\n'
             "### REQ-001-AC-02: Second\n\n"
             '<a id="req-999-ac-03"></a>\n'
-            "### REQ-999-AC-03：other owner\n"
+            "### REQ-999-AC-03: other owner\n"
         )
         path = write_metadata(self.root, metadata(), body)
         artifact = parse_artifact(path, self.root)
@@ -227,12 +227,13 @@ class ArtifactIOTests(unittest.TestCase):
         for newline in ("\n", "\r\n"):
             for bom in (False, True):
                 with self.subTest(newline=repr(newline), bom=bom):
+                    # A multi-byte non-ASCII title proves decoding keeps non-ASCII text intact.
                     path = write_metadata(
-                        self.root, metadata(), "# REQ-001：中文\n",
+                        self.root, metadata(), "# REQ-001: данные Ω €\n",
                         newline=newline, bom=bom,
                     )
                     artifact = parse_artifact(path, self.root)
-                    self.assertEqual(artifact.body, f"# REQ-001：中文{newline}")
+                    self.assertEqual(artifact.body, f"# REQ-001: данные Ω €{newline}")
                     self.assertEqual(artifact.source, path.read_bytes().decode("utf-8-sig"))
                     self.assertEqual(artifact.body_start_line, 8)
 
@@ -342,8 +343,8 @@ class ArtifactIOTests(unittest.TestCase):
         self.assertIn("criterion", error.message)
 
     def test_rejects_missing_or_wrong_acceptance_anchor(self) -> None:
-        for body in ("### REQ-001-AC-01：missing\n",
-                     '<a id="req-999-ac-01"></a>\n### REQ-001-AC-01：wrong owner\n'):
+        for body in ("### REQ-001-AC-01: missing\n",
+                     '<a id="req-999-ac-01"></a>\n### REQ-001-AC-01: wrong owner\n'):
             with self.subTest(body=body):
                 self.assert_input_error(write_metadata(self.root, metadata(), body),
                                         "MISSING_ACCEPTANCE_ANCHOR")
@@ -570,7 +571,7 @@ def _kind_case(kind: str):
         artifact = parse_artifact(path, self.root)
         self.assertEqual(artifact.kind, kind)
         self.assertEqual(artifact.key, "sample/CTX-001/REQ-001")
-        self.assertEqual(artifact.body, "# REQ-001：本地夹具\n\n")
+        self.assertEqual(artifact.body, "# REQ-001: Local fixture\n\n")
     return test
 
 

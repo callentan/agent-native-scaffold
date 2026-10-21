@@ -1,114 +1,114 @@
-# 六仓功能对齐：增强规格
+# Six-repository functional alignment: enhancement specification
 
-**Task8 复核记录（2026-10-16）：** 原 T8-I1/I2/I3 和后续 T8-F1-N1 均已修正并完成限定复审，最新修正对象为 `9a3055a`。不同对象的 395 全套、153 个受影响方法与 94 个模型方法结果分别保留，入口见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task8-review)。
+**Task8 re-review record (2026-10-16):** The original T8-I1/I2/I3 and the later T8-F1-N1 have all been fixed and passed a scoped re-review; the latest fixed object is `9a3055a`. The results for different objects (the full suite of 395, the 153 affected methods, and the 94 model methods) are kept separately; see the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task8-review).
 
-**状态：** 任务 1–11、Task15–18 的限定本地交付/复核状态见各自任务与报告；当前九方法、二十二 prompts、三模式。Task12 已完成精确文件级候选、maker-only copy/verify、候选隔离回归与最低 Python retained+new 全套，且 fix-wave 独立限定复审已关闭原发现；局部证据入口见[制作侧验收记录](../../verification/ddd-alignment.md)和[Task12 交接](../../logs/2026-10-19-task12-candidate.md)。该候选不是 release 或 full parity。当前用户目标为 ready-to-use 本地脚手架，不要求真实展示演练作为此本地 readiness 的前置；新鲜精确 manifest candidate 已单独复制/核验，见[Task13/ready-scope 交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。Task13 已选择并复制 Flagsmith/OpenFeature 技术 POC 到隔离 `poc/flagsmith`；unit/build/controlled-browser 子范围通过，但 POC 不是接入业务系统的真实应用，live Flagsmith、代码生成/维护、实际参与者/client/platform evidence 仍不足；详见[同一交接](../../logs/2026-10-19-task13-flagsmith-poc.md)。Task14 不得在逐行矩阵和适用外部门禁未决时宣称整体等价。Task16 实际音频、Task17 的 PDF/PPTX 二进制格式、Task18 的真实 provider/billing/usage 均保持 `not-run` 或 unavailable；人/App/客户端原生发现、托管 CI/required checks、平台与发布也未执行。候选和本地测试不继承旧 P3 结果，不关闭 ENH-01–18 全部适用项或 overall parity。维护工具/合约的详尽范围仍见本规格和计划；不自动更改权限、CI 门禁或远端。
+**Status:** For the scoped local delivery/re-review status of Tasks 1–11 and Task15–18, see each task and its report; there are currently nine methods, twenty-two prompts, and three modes. Task12 has completed the exact file-level candidate, the maker-only copy/verify, the candidate-isolation regression, and the minimum-Python retained+new full suite, and the independent scoped fix-wave re-review has closed the original findings; for the local evidence, see the [maker-side acceptance record](../../verification/ddd-alignment.md) and the [Task12 handoff](../../logs/2026-10-19-task12-candidate.md). That candidate is not a release and not full parity. The user's current goal is a ready-to-use local scaffold, and a real showcase exercise is not required as a precondition for this local readiness; a fresh exact manifest candidate has been copied/verified separately, see the [Task13/ready-scope handoff](../../logs/2026-10-19-task13-flagsmith-poc.md). Task13 selected a Flagsmith/OpenFeature technical POC and copied it into the isolated `poc/flagsmith`; the unit/build/controlled-browser sub-scopes passed, but the POC is not a real application integrated with a business system, and evidence for live Flagsmith, code generation/maintenance, and actual participants/client/platform is still insufficient; see the [same handoff](../../logs/2026-10-19-task13-flagsmith-poc.md). Task14 must not claim overall equivalence while the line-by-line matrix and the applicable external gates remain open. Task16 actual audio, Task17 PDF/PPTX binary formats, and Task18 real provider/billing/usage all remain `not-run` or unavailable; human/App/client native discovery, hosted CI/required checks, platform, and release have not been run either. The candidate and the local tests do not inherit the old P3 results and do not close all applicable ENH-01–18 items or overall parity. The detailed scope of the maintenance tools/contracts remains in this specification and the plan; permissions, CI gates, and remotes are not changed automatically.
 
-**Task16 fix1（限定复审已完成）：** 对 `9942e70` 的独立审阅提出 T16-I1/I2/I3/M1，
-本轮先以真实回归得到 RED，再修正完整源单元、共享 Markdown context、
-envelope/格式坐标一致性及无 grid 表格宽度；没有改正式 schema、source guard、
-lock、角色或音频 provider。原 688 结果保留原基线，新增检查/最低版本结果回
-[fix1 交接](../../logs/2026-10-15-ddd-alignment.md#task16-fix1)读取。
-修正 `97d35aa` 已由原 reviewer 限定复审确认四项均已处理，无新的相关发现；
-[复审交接](../../logs/2026-10-15-ddd-alignment.md#task16-review)保留范围与证据入口。
-这只关闭离线实现的本次审阅，ENH-16 和实际音频仍未整体关闭。
+**Task16 fix1 (scoped re-review completed):** The independent review of `9942e70` raised T16-I1/I2/I3/M1.
+This round first obtained RED with real regressions, then fixed complete source units, the shared Markdown context,
+envelope/format-coordinate consistency, and the width of tables without a grid; it did not change the formal schema, source guard,
+lock, roles, or audio provider. The original 688 results keep their original baseline; read the new check/minimum-version results in the
+[fix1 handoff](../../logs/2026-10-15-ddd-alignment.md#task16-fix1).
+The original reviewer's scoped re-review confirmed that fix `97d35aa` addressed all four items, with no new related findings;
+the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task16-review) keeps the scope and the evidence entry point.
+This closes only this review of the offline implementation; ENH-16 and actual audio are still not closed as a whole.
 
-**Task15 fix1（2026-10-16）：** 初审四项经限定修正后，I1/I2/M1 已由独立复审确认处理；
-原 I3 的注释续行缺口随后进入 fix2。修正保护首次接入前已暂存的 metadata 删除、精确配置
-取得/规划 bytes，以及 Git 命令前的本地 include/metadata 读取边界，并拒绝 checkout
-占用 `.gitmodules`。I3 只作安全拦截的本地边界检查，未实际访问 UNC/网络；
-原 579/55 记录保留，入口见[本轮交接](../../logs/2026-10-15-ddd-alignment.md#task15-fix1)。
+**Task15 fix1 (2026-10-16):** After scoped fixes to the four items from the initial review, an independent re-review confirmed that I1/I2/M1 were addressed;
+the comment-continuation gap from the original I3 then moved into fix2. The fix protects metadata deletions already staged before the first onboarding, the exact configuration
+bytes as obtained/planned, and the local include/metadata read boundary before Git commands, and rejects a checkout
+that occupies `.gitmodules`. I3 was only a local boundary check of the safety interception and did not actually access UNC paths or the network;
+the original 579/55 records are kept; see [this round's handoff](../../logs/2026-10-15-ddd-alignment.md#task15-fix1).
 
-**Task15 fix2：** 复审已确认 I1/I2/M1 为 ADDRESSED，仅原 I3 的注释/continuation 交互
-进入本轮。修正保留物理注释边界，安全 RED/GREEN 后只执行 3.11 受影响来源套件
-97 方法、0 跳过；未重跑 611 全套/schema/collector。I3 的局部修正已完成限定复核，
-无遗留本任务发现，见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task15-review)。
+**Task15 fix2:** The re-review confirmed I1/I2/M1 as ADDRESSED; only the comment/continuation interaction from the original I3
+entered this round. The fix keeps physical comment boundaries; after a safe RED/GREEN it ran only the affected source suite on 3.11:
+97 methods, 0 skipped; the full suite of 611/schema/collector was not rerun. The local fix for I3 has completed a scoped re-review,
+with no remaining findings for this task; see the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task15-review).
 
-**Task10 第 1 轮修正（2026-10-16）：** 原审阅提出的最低版本原生消息参数、所选 venv 回退和部分写入记账问题已作窄修正并经限定复审确认；另补实际发现的 `<3.13` 条件传递依赖，不升级原六项 pins。真实 Windows 3.11/3.13 结果与恢复边界见[修正交接](../../logs/2026-10-15-ddd-alignment.md#task10-fix1)。旧实现结果保留原基线，不关闭 POSIX/托管 CI 或整个 ENH-10。
+**Task10 round 1 fixes (2026-10-16):** The issues raised by the original review (minimum-version native message parameters, fallback of the selected venv, and partial-write bookkeeping) received narrow fixes confirmed by a scoped re-review; the conditional transitive dependency for `<3.13` that was actually found was also added, without upgrading the original six pins. For the real Windows 3.11/3.13 results and the recovery boundary, see the [fix handoff](../../logs/2026-10-15-ddd-alignment.md#task10-fix1). The old implementation results keep their original baseline and do not close POSIX/hosted CI or ENH-10 as a whole.
 
-**Task10 复审与第 2 轮（2026-10-16）：** 原 I1/I2/M1、条件 lock 和后续 Minor T10-F1-N1 均已处理并完成限定复审。最新修正 `0265774` 阻止启动拒绝后的报告导入，有效环境的输出保护保持；结果与边界见[复审交接](../../logs/2026-10-15-ddd-alignment.md#task10-review)。不同运行保持各自对象，不扩大为托管平台、业务或身份认证结论。
+**Task10 re-review and round 2 (2026-10-16):** The original I1/I2/M1, the conditional lock, and the later Minor T10-F1-N1 have all been addressed and passed a scoped re-review. The latest fix `0265774` blocks report import after a startup rejection, while output protection for valid environments is kept; for results and boundaries, see the [re-review handoff](../../logs/2026-10-15-ddd-alignment.md#task10-review). Different runs keep their own objects and are not expanded into conclusions about hosted platforms, business, or identity authentication.
 
-原 P1/P2/P3 实现基线为 `453189135af07f8ba5ab65dd4dd58879b8741c17`，规划修订为 `f9aab56`。本轮按用户要求将 README 排版单独提交为 `1a6f594` 后开始，起点工作树干净；不再把这两处排版视为未提交。原 P1/P2 的 38 文件与[原 P3 未完成项](../plan/roadmap.md#actual-acceptance)继续保留，不被新实施状态抹掉。
+The original P1/P2/P3 implementation baseline is `453189135af07f8ba5ab65dd4dd58879b8741c17`, and the planning revision is `f9aab56`. At the user's request, this round started after the README formatting was committed separately as `1a6f594`, with a clean working tree at the start; these two formatting changes are no longer treated as uncommitted. The original 38 P1/P2 files and the [original P3 outstanding items](../plan/roadmap.md#actual-acceptance) remain and are not erased by the new implementation status.
 
-## 1. 范围与参考基线
+## 1. Scope and reference baselines
 
-只对齐以下六仓的**现有功能**，不复制其源码、业务内容、品牌或六仓部署形态。本轮通过只读 Git 获取并核对这些完整 commit，逐文件分类与能力证据见[六仓能力矩阵](../research/ddd-capability-matrix.md)；原有[历史来源登记](../research/source-register.md)保留为历史观察。
+Align only with the **existing functionality** of the six repositories below, without copying their source code, business content, branding, or six-repository deployment shape. This round obtained and checked these full commits through read-only Git; for the per-file classification and capability evidence, see the [six-repository capability matrix](../research/ddd-capability-matrix.md). The earlier [historical source register](../research/source-register.md) is kept as historical observations.
 
-| 参考仓库 | 固定 commit | 关注职责 |
+| Reference repository | Pinned commit | Responsibilities of interest |
 |---|---|---|
-| ddd-bc | `bac263bea39988214b82cafb48f27e3a2136c534` | BC 工程约定、配置、领域输入与实现边界 |
-| ddd-bc-prompts | `08f8219397d6fe6d000312f5956a493b1b28cc84` | SR/US/ABB/VT 派生、代码生成及维护工作流 |
-| ddd-bc-templates | `00705aef6c70f855ef95588b0137cf7f2387efb0` | 实现侧工件表单 |
-| ddd-subdomain | `e115ad4d03ac53359c608ce7d32262a508561496` | 领域工程、校验、hooks、传播与治理记录 |
-| ddd-subdomain-prompts | `1aa44fd89f27d2913f72309d0ea4c8c7c60ed59c` | 访谈、建模、反向提取、评审与变更活动 |
-| ddd-subdomain-templates | `59f98e352a150f99290a3855092298dbe11e0615` | 领域结构、模型和验证场景表单 |
+| ddd-bc | `bac263bea39988214b82cafb48f27e3a2136c534` | BC engineering conventions, configuration, domain inputs, and implementation boundaries |
+| ddd-bc-prompts | `08f8219397d6fe6d000312f5956a493b1b28cc84` | SR/US/ABB/VT derivation, code generation, and maintenance workflows |
+| ddd-bc-templates | `00705aef6c70f855ef95588b0137cf7f2387efb0` | Implementation-side artifact forms |
+| ddd-subdomain | `e115ad4d03ac53359c608ce7d32262a508561496` | Domain engineering, checks, hooks, propagation, and governance records |
+| ddd-subdomain-prompts | `1aa44fd89f27d2913f72309d0ea4c8c7c60ed59c` | Interview, modeling, reverse extraction, review, and change activities |
+| ddd-subdomain-templates | `59f98e352a150f99290a3855092298dbe11e0615` | Domain structure, model, and validation-scenario forms |
 
-任务 1 必须逐文件冻结能力矩阵，将原仓已有功能与本计划新增的自动化分别登记。统一使用 Python 是实现策略，不证明导出、自动追溯或三方更新各自都有原仓脚本对应。历史摘要、实例 repo 的使用情况和上游路线图不能冒充六仓已经实现的能力。读取受限时记录具体缺项，停止依赖它的等价判定；不猜测文件内容或追随新的 HEAD。
+Task 1 must freeze the capability matrix file by file, registering the functionality that already exists in the original repositories separately from the automation newly added by this plan. Using Python throughout is an implementation strategy; it does not prove that export, automatic traceability, or three-way update each has a counterpart script in the original repositories. Historical summaries, how instance repos are used, and upstream roadmaps must not pose as capabilities the six repositories already implement. When reading is restricted, record the specific missing items and stop any equivalence judgment that depends on them; do not guess file contents or follow a new HEAD.
 
-本轮盘点覆盖 252 个 Git entries、195 个 blobs；185 个文件全文读取，10 个 roadmap 文件按范围阅读并标为提案，目录/gitlink 只登记元数据。新增承接的是来源中已存在的 QAS/战术工件、SEQ/Gherkin/SWAS、词汇与发布接口演化、可选领域源接入、输入适配、图/文档/演示导出和交互账本；不是把它们伪装成原计划已经覆盖。
+This round's inventory covers 252 Git entries and 195 blobs: 185 files were read in full, 10 roadmap files were read within scope and marked as proposals, and directories/gitlinks were registered as metadata only. The newly adopted scope is what already exists in the sources: QAS/tactical artifacts, SEQ/Gherkin/SWAS, glossary and Published Interface evolution, optional domain-source onboarding, input adapters, diagram/document/presentation export, and the interaction ledger. These are not disguised as already covered by the original plan.
 
-`DM-Subdomain`、`DeviceRegistry-BC` 只可提供已授权的研究线索，不是本增强的交付清单或应用底座。Tantu CLI、通用执行引擎、自动批准/合并、状态数据库、Web 平台和专用技术栈不纳入本规格。
+`DM-Subdomain` and `DeviceRegistry-BC` may provide only authorized research leads; they are not the deliverables list or the application base of this enhancement. The Tantu CLI, a general execution engine, automatic approval/merge, a state database, a web platform, and a dedicated tech stack are out of scope for this specification.
 
 <a id="requirements"></a>
-## 2. 增强验收项
+## 2. Enhancement acceptance criteria
 
-本维护请求直接作为依据，不在空白模板中制造产品 REQ/SR。`ENH-*` 是本增强的验收标识。
+This maintenance request serves directly as the basis; no product REQ/SR is manufactured in the blank templates. `ENH-*` are the acceptance identifiers of this enhancement.
 
-| ID | 要求与可观察完成条件 |
+| ID | Requirement and observable completion condition |
 |---|---|
-| ENH-01 | 六仓固定版本的全部文件有分类；每个现有能力有来源、当前差距、目标等价方式、任务及验证证据。路线图、重复入口和实例内容单列。任何未核验或未接受的差异都不能计为已对齐 |
-| ENH-02 | 工件身份、作用域、来源、关系、内容状态、任务进度与执行结果有明确契约；新结构可从现有单上下文 Markdown 无损演进，不搬移/覆盖已有资料 |
-| ENH-03 | 支持 subdomain/context、capability、UC、INV、业务验证场景与 BL 未决项；规则、来源、关系和职责可定位，多上下文同号不混淆，未知事实保持未知 |
-| ENH-04 | 访谈、建模、领域评审、反向提取及影响分析可按共享方法完成。反向提取带源定位、证据置信度和确认状态，不因代码存在把行为认定为批准的业务事实 |
-| ENH-05 | SR、可选 US、ABB/ADR、VT 的派生、评审、初始代码生成及既有代码修改有分别可执行的契约；缺输入、非空目标冲突和未执行测试明确报告，不缩小验收或强制经过 US |
-| ENH-06 | BC 配置能定位身份、上下文、固定领域输入、读写性质及命令登记；`model.yaml` 是带来源基线的派生索引，不成为第二份领域事实，错误路径/版本和手改视图可检测 |
-| ENH-07 | 仓库内可重复执行工件校验，覆盖元数据、必要结构、ID、占位、链接和输入错误；明确退出码、检查数量和对象基线，空骨架不被称为业务验收通过 |
-| ENH-08 | 从完整交付验收盘点 VT，反查每个目标，精确发现漏项、悬空/同号异主和失效基线；支持规则变化的影响清单，机械检查与人工语义判定分开 |
-| ENH-09 | 工具资格、人工审阅与交互摘要的记录可追溯；内容声明不能认证审阅人或自动批准。仅当六仓现有文件确有专用领域/风险工件时，按能力矩阵补充可选对应表单，不宣称法规符合性 |
-| ENH-10 | 可选 Git hooks 和 CI 调用同一校验器；显式基线无法解析必须失败，不回退 main/master/暂存区制造空检查。禁用 hook 不等于绕过服务端必需检查，后者须实际平台配置 |
-| ENH-11 | 模板版本更新支持旧基线/项目本地/新候选三方比较，多目标传播有明确登记、差异和冲突结果；默认只产提案，获授权的原生 Git/平台流程才能写入或建 PR，不覆盖业务事实 |
-| ENH-12 | 实施摘要连接 BC、领域来源、SR/US/ABB/VT、真实代码/测试标识及结果基线；报告不自行认证通过或回写只读领域源 |
-| ENH-13 | 干净候选按文件清单分发。模板正文、可选工具及其依赖与测试分别说明；研究、计划、制作日志、内部来源、演练数据和 Git 历史不进入候选 |
-| ENH-14 | 固定文档正反例、真实 App 工作流、新会话接手和经授权的代码生成/传播演练均有范围明确的结果；未运行项保持未验证，原 P3 的人工与客户端缺项不被继承为通过 |
-| ENH-15 | 可选领域源接入支持明确仓库/版本/实际路径、只读/本地所有权和占位冲突检查；以 Python 提供预检与明确执行，不默认创建子模块、提交或推送 |
-| ENH-16 | 本地 Markdown/plain text、明确转录格式和 DOCX，以及经单独批准的音频输入能形成带来源定位/置信度的候选工件；文档定位至少保留段落/表格或等价源位置，支持来源关联和不确定性，不自动批准。缺可选解析器/依赖时明确不可用，不发送资料或伪造转录；DOCX 未实际运行时本项保持 `not-run`，音频服务仍单独授权 |
-| ENH-17 | 来源可追溯的关系图、SEQ、SWAS 及 `render_presentation(inputs, format)` 参数化演示输出可从指定输入生成；演示是必需的等价能力，不得靠 allowlist 排除；无数据显示 empty，不注入 demo；本地输出明确、无个人路径，PDF/PPTX 依赖与实际格式检查仍须按授权执行 |
-| ENH-18 | AI 交互与用量摘要可按明确范围/工具/时间记录并形成可核对统计；无真实用量不编造计费/资格结果，不保存完整敏感对话，不用账本替代审批或执行证据 |
+| ENH-01 | Every file in the pinned versions of the six repositories is classified; each existing capability has a source, current gap, target equivalence approach, task, and verification evidence. Roadmaps, duplicate entry points, and instance content are listed separately. No difference that is unchecked or not accepted may be counted as aligned |
+| ENH-02 | Artifact identity, scope, source, relationships, content state, task progress, and run results have explicit contracts; the new structure can evolve losslessly from the existing single-context Markdown without moving/overwriting existing materials |
+| ENH-03 | Supports subdomain/context, capability, UC, INV, business validation scenarios, and BL open items; rules, sources, relationships, and responsibilities are locatable, identical numbers across contexts are not confused, and unknown facts stay unknown |
+| ENH-04 | Interview, modeling, domain review, reverse extraction, and impact analysis can be completed with the shared methods. Reverse extraction carries source locations, evidence confidence, and confirmation state, and does not treat a behavior as an approved business fact just because code exists |
+| ENH-05 | Derivation and review of SR, optional US, ABB/ADR, and VT, initial code generation, and modification of existing code each have a separately executable contract; missing inputs, non-empty target conflicts, and tests not run are reported explicitly, without narrowing acceptance or forcing a path through US |
+| ENH-06 | BC configuration can locate the identity, contexts, pinned domain inputs, read/write nature, and command registration; `model.yaml` is a derived index with source baselines and does not become a second copy of the domain facts, and wrong paths/versions and hand-edited views are detectable |
+| ENH-07 | Artifact checks can be run repeatedly within the repository, covering metadata, required structure, IDs, placeholders, links, and input errors; exit codes, check counts, and object baselines are explicit, and an empty skeleton is not called a passed business acceptance |
+| ENH-08 | Inventory VTs from the complete set of delivery acceptance criteria and check each target in reverse, precisely finding omissions, dangling/same-ID-different-owner references, and stale baselines; support impact lists for rule changes, keeping mechanical checks separate from human semantic judgment |
+| ENH-09 | Records of tool qualification, human review, and interaction summaries are traceable; content declarations cannot authenticate a reviewer or approve automatically. Only where existing files in the six repositories really contain dedicated domain/risk artifacts are optional corresponding forms added according to the capability matrix, without claiming regulatory compliance |
+| ENH-10 | Optional Git hooks and CI call the same checker; an explicit baseline that cannot be resolved must fail, without falling back to main/master/the index to manufacture an empty check. Disabling a hook does not mean bypassing server-side required checks, which need actual platform configuration |
+| ENH-11 | Template version updates support a three-way comparison of old baseline/project local/new candidate, and multi-target propagation has explicit registration, diff, and conflict results; by default only proposals are produced, only an authorized native Git/platform process may write or create a PR, and business facts are not overwritten |
+| ENH-12 | The implementation summary links the BC, domain sources, SR/US/ABB/VT, real code/test identifiers, and result baselines; the report does not certify a pass by itself or write back to read-only domain sources |
+| ENH-13 | A clean candidate is distributed by file manifest. The template body, optional tools, and their dependencies and tests are described separately; research, plans, maker logs, internal sources, exercise data, and Git history do not enter the candidate |
+| ENH-14 | Fixed positive/negative document examples, a real App workflow, new-session takeover, and authorized code generation/propagation exercises all have clearly scoped results; items not run stay unverified, and the original P3 manual and client gaps are not inherited as passed |
+| ENH-15 | Optional domain-source onboarding supports an explicit repository/version/actual path, read-only/local ownership, and placeholder-conflict checks; Python provides a preflight and explicit execution, and does not create submodules, commit, or push by default |
+| ENH-16 | Local Markdown/plain text, explicit transcript formats, and DOCX, plus separately approved audio input, can produce candidate artifacts with source locations/confidence; document locations keep at least the paragraph/table or an equivalent source position, support source association and uncertainty, and are not approved automatically. When an optional parser/dependency is missing, report it explicitly as unavailable, without sending materials or faking a transcript; while DOCX has not actually been run this item stays `not-run`, and audio services still need separate authorization |
+| ENH-17 | Source-traceable relationship diagrams, SEQ, SWAS, and parameterized presentation output via `render_presentation(inputs, format)` can be generated from specified inputs; the presentation is a required equivalent capability and must not be excluded through an allowlist; no data shows empty, and no demo data is injected; local output is explicit and contains no personal paths, and PDF/PPTX dependencies and actual format checks still run only as authorized |
+| ENH-18 | AI interaction and usage summaries can be recorded by explicit scope/tool/time and produce verifiable statistics; without real usage, no billing/qualification result is invented, complete sensitive conversations are not stored, and the ledger does not replace approval or run evidence |
 
-## 3. 设计约定
+## 3. Design conventions
 
-### 3.1 唯一事实源与结构
+### 3.1 Single source of truth and structure
 
-保留现有顶层资料目录；轻量项目可继续用 `domain-model\README.md`。确需多个领域时，正式资料按 `domain-model\subdomains\<slug>\contexts\<slug>\` 组织；不预填真实 SD/CTX，不要求业务边界等于服务或代码层。
+Keep the existing top-level material directories; lightweight projects can keep using `domain-model/README.md`. When multiple domains are genuinely needed, organize formal materials as `domain-model/subdomains/<slug>/contexts/<slug>/`; do not prefill real SD/CTX, and do not require business boundaries to equal services or code layers.
 
-完整功能路径还提供可选 QAS、context map、published interface、aggregate、entity、value object、factory、domain service、policy、domain event、integration partner、Intended Use/风险引用和架构规格/SEQ 表单。按当前任务选用，不强制每个维护事项完成全套战术或监管工件。专用字段只记录责任人给定的来源和决定，不声明合规。
+The full-functionality path also provides optional forms for QAS, context map, Published Interface, aggregate, entity, value object, factory, domain service, policy, domain event, integration partner, Intended Use/risk references, and architecture specification/SEQ. Choose them per current task; no maintenance item is forced to complete the full set of tactical or regulatory artifacts. Dedicated fields record only sources and decisions given by the accountable owner and do not declare compliance.
 
-领域/软件场景的 `.feature` 保留可执行 Gherkin 正文，Markdown 保存目标、元数据、判据与文件引用，不复制两份场景正文；没有 runner/应用时保持计划 not-run。sequence、QAS、风险与 release 等桥接字段用工件/证据引用表示，不搬运业务正文进 `model.yaml`。
+For domain/software scenarios, the `.feature` file keeps the executable Gherkin body, while Markdown keeps the targets, metadata, criteria, and file references, so the scenario body is never duplicated; without a runner/application, the plan stays not-run. Bridge fields such as sequence, QAS, risk, and release are expressed as artifact/evidence references, and business content is not moved into `model.yaml`.
 
-工件 Markdown 正文拥有业务含义、规则和验收。正式工件的 YAML frontmatter 拥有机器身份、作用域、声明状态及上游/目标关系；原表单中重复表达这些元数据的状态/关系栏改为引用或删除。VT 的正文按 `criterionAnchor` 保存逐项判据，frontmatter 的目标记录只定位对应来源与判据。反向索引从这些关系派生，不再手写另一份映射。
+The artifact's Markdown body owns business meaning, rules, and acceptance. A formal artifact's YAML frontmatter owns machine identity, scope, declared state, and upstream/target relationships; status/relationship fields in the original forms that duplicate this metadata are changed into references or removed. A VT body keeps each criterion under its `criterionAnchor`, and the target records in frontmatter only locate the corresponding source and criterion. Reverse indexes are derived from these relationships; no separate mapping is hand-written.
 
-统一机器身份为 `scope/id#anchor`；`scope` 由项目与上下文组成，例如演练中的 `sample/CTX-001/SR-001#sr-001-ac-02`。同一个 scope 下重复 ID 是错误，不同 scope 的同号工件允许存在。现有 REQ/SR 验收 ID 和锚点保留，不用改号掩盖历史。
+The unified machine identity is `scope/id#anchor`; `scope` consists of the project and the context, for example `sample/CTX-001/SR-001#sr-001-ac-02` in the exercise. A duplicate ID within the same scope is an error; artifacts with the same number in different scopes are allowed. Existing REQ/SR acceptance IDs and anchors are kept; renumbering is not used to hide history.
 
-声明内容状态为 `draft | confirmed | retired`，任务进度仍为 `todo | in-progress | blocked | review-ready | done`。实际结果为 `not-run | pass | fail | skipped`，当前适用性独立记录。确认记录必须指向具名来源和被确认基线；存在声明或链接不等于已核实人工身份。
+The declared content state is `draft | confirmed | retired`, and task progress remains `todo | in-progress | blocked | review-ready | done`. The actual result is `not-run | pass | fail | skipped`, and current applicability is recorded independently. A confirmation record must point to a named source and the confirmed baseline; the presence of a declaration or link does not mean a human identity has been verified.
 
-### 3.2 BC 配置与派生模型
+### 3.2 BC configuration and derived model
 
-`bc-config.yaml` 是**可选的数据配置**，不是项目执行 manifest。字段为 `schemaVersion`、`projectId`、`boundedContexts`、`domainSources` 和开发登记的引用。每个领域来源明确 `kind`、`root`、仓库内相对 `path`、固定 `baseline`、`readOnly`；不把挂载根和仓库内路径拼成猜测，不保存凭据或复制开发命令。
+`bc-config.yaml` is **optional data configuration**, not a project execution manifest. Its fields are `schemaVersion`, `projectId`, `boundedContexts`, `domainSources`, and a reference to the development registration. Each domain source states its `kind`, `root`, repository-relative `path`, pinned `baseline`, and `readOnly`; the mount root and the in-repository path are never combined by guesswork, and no credentials are stored or development commands copied.
 
-`model.yaml` 只保存 `schemaVersion`、`scope`、来源对象基线、工件位置/ID/关系和实施摘要引用。正文不复制进去；内容声明仍回 Markdown，结果仍回 VT/真实报告。导出器采用确定顺序，保留完整原 ID，不在读取时联网或更新外部仓库。
+`model.yaml` stores only `schemaVersion`, `scope`, source object baselines, artifact locations/IDs/relationships, and implementation-summary references. Body content is not copied into it; content declarations still live in Markdown, and results still live in VTs/real reports. The exporter uses a deterministic order, keeps complete original IDs, and does not access the network or update external repositories while reading.
 
-2026-10-15 恢复执行后，用户明确选择可选的 `model-sources.yaml` 登记视图来源。Task7 采用 `schemaVersion: 1`、`scopes: {project/context: {view: [{path, baseline}]}}` 的[独立来源契约](../../.github/contracts/README.md#model-sources)及[空表](../../_templates/config/model-sources.yaml)。只读取 root 内的实际文件与原始 SHA256/精确本地 Git commit/blob，拒绝网络、跳转、重键、冲突基线和派生 model 自引用；不复制正文、结果或批准状态，不授予执行/写回权限。本制作仓没有正式项目清单。
+After execution resumed on 2026-10-15, the user explicitly chose the optional `model-sources.yaml` to register view sources. Task7 adopts the [standalone source contract](../../.github/contracts/README.md#model-sources) with `schemaVersion: 1` and `scopes: {project/context: {view: [{path, baseline}]}}`, together with its [blank form](../../_templates/config/model-sources.yaml). It reads only actual files inside the root, identified by raw SHA256 or an exact local Git commit/blob, and rejects network access, parent-directory traversal, duplicate keys, conflicting baselines, and self-references to the derived model; it copies no body content, results, or approval states and grants no execution/write-back permission. This maker repository has no formal project manifest.
 
-具体已有 Markdown 章节与 YAML/JSON 源字段形状归契约说明维护，不改变下面的九视图输出 schema。完整主库存先核对，选定 scope 不从目录推断；直接 Markdown 可合并多个显式来源，汇总源只保留 source 字段的实际导航。缺清单、缺 scope 登记、缺 view 与非法配置分别处理。实际 APIs/CLI、源身份和漂移码见[工具说明](../../.github/utilities/README.md#model-export)，测试/自审不是独立复核或业务验证。
+The concrete shapes of existing Markdown sections and YAML/JSON source fields are maintained in the contract notes and do not change the nine-view output schema below. The complete main inventory is checked first, and the selected scope is not inferred from directories; direct Markdown may merge multiple explicit sources, while summary sources keep only the actual navigation of the source field. A missing manifest, a missing scope registration, a missing view, and invalid configuration are each handled separately. For the actual APIs/CLI, source identity, and drift codes, see the [tool notes](../../.github/utilities/README.md#model-export); tests/self-review are not independent re-review or business verification.
 
-Task7 第 1 轮修正按下表的原语义补足 QAS/utility-tree 缺源判断、全部已解析嵌套声明的输出保护、真实 Mermaid 围栏归属、VT 子运行块/逐判据结果，以及 impact API 的必需 base。运行记录不挪到父标题前，不跨运行拼字段或推算数量；原四份 schema、32 kind 和九视图不变。实现和回归不自行关闭限定复审。
+The Task7 round 1 fixes follow the original semantics of the table below to complete: the missing-source judgment for QAS/utility-tree, output protection for all parsed nested declarations, attribution of real Mermaid fences, VT child run blocks/per-criterion results, and the required base for the impact API. Run records are not moved ahead of their parent heading, fields are not stitched together across runs, and counts are not inferred; the original four schemas, 32 kinds, and nine views are unchanged. Implementation and regression tests do not by themselves close the scoped re-review.
 
-#### 3.2.1 视图桥接契约
+#### 3.2.1 View bridge contract
 
-九视图只在派生 model 中保存；实施报告沿用独立 v1 的 `entries[].execution/applicability`，没有根级 execution/views。报告另行显式选择为 verification 来源后，model 只保存经基线/可重建性核对的报告引用，不复制执行条目。跨仓来源的 `views` map 固定键为
-`requirements`、`stories`、`architecture`、`sequences`、`verification`、
-`quality`、`governance`、`risk`、`release`。每个视图必须具有以下形状；视图
-只保存引用和可定位缺口，不复制领域正文、审批声明或实际结果：
+The nine views are stored only in the derived model; the implementation report keeps the standalone v1 `entries[].execution/applicability` and has no root-level execution/views. Once a report is separately and explicitly selected as a verification source, the model stores only report references that passed baseline/rebuildability checks, without copying run entries. The fixed keys of the cross-repository `views` map are
+`requirements`, `stories`, `architecture`, `sequences`, `verification`,
+`quality`, `governance`, `risk`, and `release`. Every view must have the following shape; a view
+stores only references and locatable gaps, without copying domain content, approval declarations, or actual results:
 
 ```yaml
 views:
@@ -123,102 +123,103 @@ views:
       - specific reason string
 ```
 
-`state` 只表示来源的可读性和完整性：`available` 表示该视图所需来源可读且
-完整，`partial` 表示来源可读但有字段/条目缺失，`unverified` 表示可选来源
-缺失、来源不可读或证据基线不能核实。它永远不是 `passed`、`approved` 或
-任何实际结果。`artifactRefs` 使用唯一的 `scope/id#anchor` canonical key；
-`evidenceRefs` 必须同时保留 `reference` 与 `baseline` 指针。可选来源缺失时
-仍输出该视图，使用 `unverified`、空引用集合和具体 `gaps` 原因，不能伪造
-数据或省略视图。领域正文仍归领域工件，真实结果仍归 VT/运行报告/治理或
-风险记录的原所有者。
+`state` expresses only the readability and completeness of the sources: `available` means the sources the view needs are readable and
+complete, `partial` means the sources are readable but fields/entries are missing, and `unverified` means an optional source
+is missing, a source is unreadable, or the evidence baseline cannot be verified. It is never `passed`, `approved`, or
+any actual result. `artifactRefs` uses the unique `scope/id#anchor` canonical key;
+`evidenceRefs` must keep both the `reference` and the `baseline` pointer. When an optional source is missing,
+the view is still output, with `unverified`, an empty reference set, and specific `gaps` reasons; data must not be faked
+and the view must not be omitted. Domain content still belongs to the domain artifacts, and real results still belong to their original owners: the VT/run reports/governance or
+risk records.
 
-| 视图 | 源字段映射 | `artifactRefs` 的内容 | `evidenceRefs` 的内容 | 缺失/不完整规则 |
+| View | Source field mapping | Contents of `artifactRefs` | Contents of `evidenceRefs` | Missing/incomplete rule |
 |---|---|---|---|---|
-| `requirements` | `srSummary.srVersion`、`srSummary.entries[].reqId/srIds/ucId/status/notes` | REQ、SR、UC 的 `scope/id#anchor` | SR/REQ 源路径与固定对象、报告基线 | 缺 `srSummary` 写 `unverified`，gap 为“`srSummary` source is absent”；版本或条目不全写 `partial` 并说明缺少字段 |
-| `stories` | `storySummary.storyVersion`、`storySummary.entries[].srId/usIds/status` | SR、US 的 canonical key | 故事源路径与对象/报告基线 | 缺 `storySummary` 写 `unverified` 并指出“SR→US bridge is unavailable”；条目缺状态写 `partial` |
-| `architecture` | `abbSummary.abbVersion/language/framework/blocks/integrations`，含 `adrRef` | ABB、ADR、集成伙伴的 canonical key | ABB/ADR/接口源路径与版本或 Git 基线 | 缺 ABB 或 ADR 源写 `unverified` 并说明缺哪类；只读到部分 blocks 写 `partial` |
-| `sequences` | `sequenceSummary.seqVersion`、`sequenceSummary.entries[].seqId/ucId/title/hasAsync/externalPartners/status` | SEQ、UC、ABB、伙伴的 canonical key | SEQ 文件与来源对象/生成报告基线 | 缺 `sequenceSummary` 写 `unverified` 并说明 runtime sequence source is unavailable；版本/参与者不完整写 `partial` |
-| `verification` | `verificationSummary.vtVersion/lastRunDate`、`verificationSummary.entries[].usId/vtIds/result/automatedCount/manualCount/notes` | US、VT、REQ/SR 的 canonical key | VT 文件、运行报告与其对象/要求基线 | 缺验证源写 `unverified` 并说明 evidence source is unavailable；`result` 只引用原记录，不由视图改写 |
-| `quality` | QAS/utility-tree 工件与其 `testScenarios` 引用；源 `model.yaml` 没有另造 `qasSummary` 字段 | QAS、REQ、TS/feature 的 canonical key | QAS/utility-tree/场景文件与版本或报告基线 | 缺 QAS/utility-tree 写 `unverified`，gap 具体说明 quality source is missing；只读到部分场景写 `partial` |
-| `governance` | `governanceSummary.govVersion`、`governanceSummary.entries[].govId/status/ref/notes` | GOV、REQ、waiver 的 canonical key | governance catalog、REQ/waiver 与基线指针 | 缺治理源写 `unverified` 并说明 governance source is unavailable；`status` 不转成审批结论 |
-| `risk` | `riskSummary.riskVersion`、`riskSummary.entries[].riskId/title/preMitigationLevel/rcIds/residualRiskLevel/reqIds/vtCoverage/status` | RISK、RC、REQ、VT 的 canonical key | 风险/控制源、VT 报告与各自基线 | 缺风险源写 `unverified` 并说明 risk source is unavailable；字段不全写 `partial`，不推导残余风险 |
-| `release` | `releaseStatus.lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease/changeControlRef` | release/change-control/相关 BC 的 canonical key | release/change-control 记录与版本/对象基线 | 缺 release 记录写 `unverified` 并说明 release source is unavailable；生命周期字段空缺写 `partial`，不表示已发布 |
+| `requirements` | `srSummary.srVersion`, `srSummary.entries[].reqId/srIds/ucId/status/notes` | `scope/id#anchor` of REQ, SR, and UC | SR/REQ source paths and pinned object/report baselines | If `srSummary` is missing, write `unverified` with the gap "`srSummary` source is absent"; if the version or entries are incomplete, write `partial` and state the missing fields |
+| `stories` | `storySummary.storyVersion`, `storySummary.entries[].srId/usIds/status` | Canonical keys of SR and US | Story source paths and object/report baselines | If `storySummary` is missing, write `unverified` and state "SR→US bridge is unavailable"; if an entry lacks a status, write `partial` |
+| `architecture` | `abbSummary.abbVersion/language/framework/blocks/integrations`, including `adrRef` | Canonical keys of ABB, ADR, and integration partners | ABB/ADR/interface source paths and version or Git baselines | If the ABB or ADR source is missing, write `unverified` and state which kind is missing; if only some blocks are read, write `partial` |
+| `sequences` | `sequenceSummary.seqVersion`, `sequenceSummary.entries[].seqId/ucId/title/hasAsync/externalPartners/status` | Canonical keys of SEQ, UC, ABB, and partners | SEQ files and source object/generated report baselines | If `sequenceSummary` is missing, write `unverified` and state that the runtime sequence source is unavailable; if the version/participants are incomplete, write `partial` |
+| `verification` | `verificationSummary.vtVersion/lastRunDate`, `verificationSummary.entries[].usId/vtIds/result/automatedCount/manualCount/notes` | Canonical keys of US, VT, and REQ/SR | VT files, run reports, and their object/requirement baselines | If the verification source is missing, write `unverified` and state that the evidence source is unavailable; `result` only references the original record and is not rewritten by the view |
+| `quality` | QAS/utility-tree artifacts and their `testScenarios` references; the source `model.yaml` has no separately invented `qasSummary` field | Canonical keys of QAS, REQ, and TS/feature | QAS/utility-tree/scenario files and version or report baselines | If QAS/utility-tree is missing, write `unverified` with a gap that specifically states the quality source is missing; if only some scenarios are read, write `partial` |
+| `governance` | `governanceSummary.govVersion`, `governanceSummary.entries[].govId/status/ref/notes` | Canonical keys of GOV, REQ, and waivers | Governance catalog, REQ/waiver, and baseline pointers | If the governance source is missing, write `unverified` and state that the governance source is unavailable; `status` is not converted into an approval conclusion |
+| `risk` | `riskSummary.riskVersion`, `riskSummary.entries[].riskId/title/preMitigationLevel/rcIds/residualRiskLevel/reqIds/vtCoverage/status` | Canonical keys of RISK, RC, REQ, and VT | Risk/control sources, VT reports, and their respective baselines | If the risk source is missing, write `unverified` and state that the risk source is unavailable; if fields are incomplete, write `partial` and do not derive residual risk |
+| `release` | `releaseStatus.lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease/changeControlRef` | Canonical keys of release/change-control/related BCs | Release/change-control records and version/object baselines | If the release record is missing, write `unverified` and state that the release source is unavailable; if lifecycle fields are empty, write `partial`, which does not mean released |
 
-必需输入是当前 `root`、支持的 schema 版本、选定 `scope`、该范围的正式工件及其明确对象基线；不存在/不可读、非法 YAML/schema、越界路径、重复键/ID、未登记的派生文件手改或基线不符均为输入错误。不能把这些错误降成“可选来源缺失”。
+The required inputs are the current `root`, a supported schema version, the selected `scope`, the formal artifacts of that scope, and their explicit object baselines. A nonexistent/unreadable input, invalid YAML/schema, an out-of-bounds path, duplicate keys/IDs, unregistered hand edits to derived files, or a baseline mismatch is an input error. These errors must not be downgraded to "optional source missing".
 
-九个 `views` 的外部/汇总来源均为可选视图输入：不存在、不可读、摘要格式不满足该视图约定或其基线无法核实时，固定输出该视图的 `unverified`、空引用集合和具体原因；不得省略该视图或终止其他可核对视图。已读到合法来源但只缺部分条目时为 `partial`，保留已经核对的引用并逐项列 gap。若主根/工件本身无法建立可信基线则仍按上一段失败，而不是把整个输入解释为九个空视图。
+The external/summary sources of all nine `views` are optional view inputs: when one does not exist, is unreadable, has a summary format that does not meet the view's convention, or has a baseline that cannot be verified, always output that view with `unverified`, an empty reference set, and a specific reason; do not omit the view or abort the other checkable views. When a valid source was read but only some entries are missing, the state is `partial`; keep the references already checked and list each gap. If the main root/artifacts themselves cannot establish a trustworthy baseline, still fail as described in the previous paragraph, instead of interpreting the whole input as nine empty views.
 
-导出与检查分开：默认只检查，显式导出到允许的本地目标才写文件。上述必需输入错误必须失败；可选视图缺项按固定 `unverified/partial` 规则输出，不吞错或自动“修正”权威文件。
+Export and checking are separate: by default only checking runs, and files are written only on explicit export to an allowed local target. The required-input errors above must fail; missing optional-view items are output according to the fixed `unverified/partial` rules, without swallowing errors or automatically "fixing" authoritative files.
 
-### 3.3 方法与工具边界
+<a id="method-tool-boundaries"></a>
+### 3.3 Method and tool boundaries
 
-增强原六个共享方法，不复制人工版流程。新增 `reverse-engineer-domain`、`generate-code`、`update-template` 三个活动方法；三个现有 agents 仅连接适用方法。词汇对齐/发布接口、知识锤炼、ADR 来件、Intended Use 变更、只读 query、backlog/追溯和 SWAS/SEQ 各有明确输入/产出入口，按职责复用这九个方法，不为每个 prompt 新建角色或流程引擎。
+Enhance the original six shared methods without duplicating a manual version of the process. Add three activity methods: `reverse-engineer-domain`, `generate-code`, and `update-template`; the three existing agents connect only to the applicable methods. Glossary sync/Published Interface, knowledge crunching, incoming ADRs, Intended Use changes, read-only query, backlog/traceability, and SWAS/SEQ each have explicit input/output entry points and reuse these nine methods by responsibility; no new role or process engine is created for each prompt.
 
-工具位于 `.github\utilities\`，默认做本地读/检查/导出/差异提案；输入解析、正式工件检查、覆盖/影响、模型视图、实施摘要、本地 hook 接入、[只读更新提案](../template-updates.md)和[本地来源接入](../domain-sources.md)已完成本次范围复核。显式 apply 仅维护选定 BC 来源列表，或另经 index 同意创建准确本地子模块，不回写源或请求网络。Task16 的[离线来源候选/评分](../source-extraction.md)已完成本次限定复审，没有实际音频适配器；Task17 的[来源驱动本地导出](../document-exports.md)及 fix1 已完成限定复审；Task18 显式 CSV 账本及 fix1/fix2 已完成限定复审，原四项 Important 均已处理、无新问题。Task18 targeted 30/30，minimum Python 3.11.15 817/817；reviewer 没有重跑，依据为作者最终收据及父会话47项输入哈希核验。中间一份两测试收据存在计数/原始输出不一致，最终依据仍是后续30/30与817/817收据。Minor `summarize_usage(lock_timeout=...)` 作为未发布 API 兼容意见 deferred。真实账单/供应商数据、PDF/PPTX 与实际二进制格式 gates 未运行。Task6 的 base 只附加精确历史比较，验证目标仍为完整当前工作文件；实际发现/计数/JSON 边界见[工具契约](../../.github/utilities/README.md#artifact-checker)。Task10 的[私有 index 快照适配](../../.github/utilities/README.md#native-hooks)复用这些规则，没有把原工作树 API 改成暂存检查。没有全局安装包、统一 skeleton 命令、运行循环、守护进程或状态数据库。Python 3.11+；标准库 `unittest`；YAML 使用 `PyYAML==6.0.2`，JSON Schema 使用 `jsonschema==4.23.0`。任务 2 已先建 manifest，再在项目 `.venv` 实际恢复并锁定传递依赖；Task10 补齐实际核对的最低版本条件项，没有安装全局、媒体或云端包。
+The tools live in `.github/utilities/` and by default perform local reading/checking/export/diff proposals. Input parsing, formal artifact checks, coverage/impact, model views, implementation summaries, local hook onboarding, [read-only update proposals](../template-updates.md), and [local source onboarding](../domain-sources.md) have completed this round's scoped re-review. An explicit apply only maintains the source list of a selected BC, or, with separate index consent, creates an exact local submodule; it does not write back to sources or make network requests. Task16's [offline source candidates/scoring](../source-extraction.md) has completed this round's scoped re-review, with no actual audio adapter; Task17's [source-driven local export](../document-exports.md) and its fix1 have completed scoped re-review; Task18's explicit CSV ledger and its fix1/fix2 have completed scoped re-review, all four original Important items have been addressed, and there are no new issues. Task18 targeted 30/30, minimum Python 3.11.15 817/817; the reviewer did not rerun them, relying on the author's final receipts and the parent session's hash verification of 47 inputs. One intermediate two-test receipt had a count/raw-output inconsistency; the final basis remains the later 30/30 and 817/817 receipts. The Minor `summarize_usage(lock_timeout=...)` item is deferred as a compatibility comment on an unreleased API. Real billing/vendor data, PDF/PPTX, and actual binary-format gates have not been run. Task6's base only adds an exact historical comparison; the verification target is still the complete current working files; for the actual discovery/count/JSON boundaries, see the [tool contract](../../.github/utilities/README.md#artifact-checker). Task10's [private index snapshot adapter](../../.github/utilities/README.md#native-hooks) reuses these rules and did not turn the original working-tree API into a staged check. There is no globally installed package, unified skeleton command, run loop, daemon, or state database. Python 3.11+; standard-library `unittest`; YAML uses `PyYAML==6.0.2`, and JSON Schema uses `jsonschema==4.23.0`. Task 2 first created the manifest, then actually restored and locked the transitive dependencies in the project `.venv`; Task10 added the actually checked minimum-version conditional items, without installing global, media, or cloud packages.
 
-校验、导出、报告收集、更新比较和 hook 处理的可重复逻辑统一写在 Python 中，本地与 CI 直接调用同一套脚本，不交付必需的 `.ps1` 包装层，也不要求额外的 PowerShell 7 运行时。使用 `pathlib.Path`、参数列表和显式 cwd；调用子进程使用 `shell=False`，失败保留实际输出与退出码。PowerShell 可以是用户当前的 Windows 终端，但不再承载另一套维护逻辑。
+The repeatable logic for checking, export, report collection, update comparison, and hook handling is written uniformly in Python; local runs and CI call the same scripts directly, no mandatory `.ps1` wrapper layer is shipped, and no extra PowerShell 7 runtime is required. Use `pathlib.Path`, argument lists, and an explicit cwd; invoke subprocesses with `shell=False`, and keep the actual output and exit code on failure. PowerShell can be the user's current Windows terminal, but it no longer carries a separate set of maintenance logic.
 
-Git hook 的入口使用 Python，CI 保留原生 YAML 来声明触发、环境和 Python 调用。只有宿主确实要求时才添加最薄的启动适配，不复制校验/更新逻辑；在 Git for Windows 的实际提交试验中验证解释器、含空格路径、暂存内容与失败传播，再声明支持。Markdown、prompts 和 skills 仍承载方法与需要判断的活动，不因统一脚本语言而改写为 Python 执行流程。
+Git hook entry points use Python, and CI keeps native YAML to declare triggers, environments, and Python invocations. Add the thinnest launch adapter only when the host truly requires it, without duplicating check/update logic; before declaring support, verify the interpreter, paths containing spaces, staged content, and failure propagation in an actual commit trial with Git for Windows. Markdown, prompts, and skills still carry the methods and the activities that require judgment; they are not rewritten as Python execution flows just because the script language is unified.
 
-维护者的工具回归 workflow 与下游的资料校验 workflow 分开。前者运行不分发的 tools tests；后者只调用候选内的工具/contracts 和项目工件，不能引用被排除的制作 tests、研究或演练文件。模板传播 workflow 也属于维护者侧，不默认复制给每个业务项目。
+The maintainers' tool-regression workflow is separate from the downstream material-check workflow. The former runs the tools tests, which are not distributed; the latter calls only the tools/contracts inside the candidate and the project artifacts, and must not reference the excluded maker tests, research, or exercise files. The template-propagation workflow also belongs to the maintainer side and is not copied to every business project by default.
 
-来源适配、音频转录、PDF/PPTX 等依赖单列为可选，不加入所有用户必装的核心环境。先做本地文本/转录、确定性图与候选报告；外部服务、SDK、渲染器和数据发送在对应任务中确认后才配置。原仓硬编码的管理 PPT 内容不复制，只提供参数化的同类输出能力。缺依赖返回明确输入/环境错误，不改用未批准的在线服务。
+Dependencies for source adapters, audio transcription, PDF/PPTX, and the like are listed separately as optional and are not added to the core environment that every user must install. Local text/transcripts, deterministic diagrams, and candidate reports come first; external services, SDKs, renderers, and data sending are configured only after confirmation in the corresponding task. The management PPT content hard-coded in the original repositories is not copied; only a parameterized output capability of the same kind is provided. A missing dependency returns an explicit input/environment error, without switching to an unapproved online service.
 
-### 3.4 检查与副作用
+### 3.4 Checks and side effects
 
-校验器退出码：`0` 为该文档工具检查无发现，`1` 为发现文档/追溯违反项，`2` 为输入、配置、版本或基线不可读。输出含实际检查数、排除项与对象基线；没有正式工件时报告 `empty`，即使退出 0 也不称需求或应用通过。
+Checker exit codes: `0` means this documentation-tool check found nothing, `1` means documentation/traceability violations were found, and `2` means the input, configuration, version, or baseline is unreadable. The output includes the actual check count, the exclusions, and the object baseline; with no formal artifacts it reports `empty`, and even with exit 0 it does not call the requirements or the application passed.
 
-`CheckReport.status` 为 `clean | invalid | input-error | empty`，`Finding` 的 code 与路径/行/目标分开。脚本层只捕获已定义的输入错误并映射到退出 2，不用宽泛异常捕获返回成功报告。`clean`/`empty` 均不表示业务验收通过。
+`CheckReport.status` is `clean | invalid | input-error | empty`, and a `Finding`'s code is kept separate from its path/line/target. The script layer catches only defined input errors and maps them to exit 2; it never uses a broad exception catch to return a success report. Neither `clean` nor `empty` means business acceptance passed.
 
-只检查：格式、声明关系、可定位性、基线及约定的机械条件。它不能推断所有业务语义、认证专家批准或证明软件执行。规则影响报告列候选依赖和原因，最终语义判断仍由共享方法和责任人完成。
+Only these are checked: format, declared relationships, locatability, baselines, and the agreed mechanical conditions. The checker cannot infer all business semantics, authenticate expert approval, or prove software execution. A rule-impact report lists candidate dependencies and reasons; the final semantic judgment is still made through the shared methods and by the accountable owner.
 
-所有既有文件修改、hook 安装、CI 必需检查、跨仓写入、PR、发布和权限变更分别授权。传播默认提案模式；配置 `apply` 不等于获得授权。没有审阅或凭据时可交付干净差异提案，但不能登记已完成远端传播。
+Every modification of existing files, hook installation, CI required check, cross-repository write, PR, release, and permission change is authorized separately. Propagation defaults to proposal mode; configuring `apply` does not mean authorization has been granted. Without review or credentials, a clean diff proposal can be delivered, but completed remote propagation must not be recorded.
 
-### 3.5 实施接口（任务中的测试使用这些名字）
+### 3.5 Implementation interfaces (the tests in the tasks use these names)
 
-| 模块与接口 | 输入与输出契约 |
+| Module and interface | Input and output contract |
 |---|---|
-| `artifact_io.parse_artifact(path, root)` | 读取本地正式 Markdown，返回 `Artifact`；含 `key`、`kind`、`scope`、`content_state`、`upstream`、`targets`、`acceptance_ids`、原文件定位。非法 YAML/路径/版本抛 `ArtifactInputError`，不返回空对象 |
-| `check_artifacts.run_check(root, base_sha=None)` | `base_sha=None` 执行完整扫描；给定时必须读取该精确 Git 对象及目标快照。返回 `CheckReport`：`status`、`findings`、`checked_count`、`baseline`、`excluded` |
-| `check_traceability.trace_report(root, delivery_ids)` | 从明确完整的验收清单核对目标与判据，返回 `CheckReport`；每项 `Finding` 有 `code`、`path`、`line`、`owner`、`target`、`message` |
-| `export_model.export_view(root, scope)` | 返回 JSON 可序列化字典及约定的 `views` map，不写文件；来源散列与工件关系确定排序。脚本层检查/显式写入另行处理 |
-| `export_model.check_model(root, scope, model_path)` | 校验并重算显式本地模型，返回 `CheckReport`；来源身份变化和手改视图分别报告，不自动修复 |
-| `check_traceability.impact_report(root, base_sha, task_ids=())` | 精确 commit 与当前快照的 canonical 传递依赖候选；保留旧新身份、源位置和理由，不是语义批准 |
-| `collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` | 从精确本地 commit 盘点完整 BC 验收，读取显式既有 VT 文件/owned run 及原始报告；单 BC 保持三参数 API，多 BC 须选 scope。缺证据为逐目标 not-run，冲突/基线错误失败；不运行应用、复制结果账本或写回来源 |
-| `plan_template_update.plan_update(base, local, candidate)` | 返回 `UpdatePlan`，包含 `changes`、`conflicts`、`preserved`；三方目录不写入。修改与删除均只给提案，缺旧基线是错误 |
-| `setup_domain_source.inspect_domain_source(root, source_config)` | 按原 BC 来源字段核对准确本地根/相对路径/固定基线，返回 ready/conflict/unavailable、实际目标与拟操作；始终只读，无网络、fetch、hooks/filters 或 cwd 变更 |
-| `setup_domain_source.apply_domain_source(root, source_config, *, operation, config_path, expected, owned=False, target=None, index_consent=False)` | register 仅维护明确既有 BC 的来源列表；可选本地 submodule 另需准确 target 与独立 index 同意，不自动登记 BC；漂移/所有者冲突停止，部分状态保留手工恢复，不 commit/push |
-| `extract_source.extract_candidates(source, kind)` | 明确绝对本地文件，返回原始 bytes 身份/读取计数及候选列表；保留原行、turn/time 或有界 DOCX 段落/表格位置。未知/损坏/超限显式错误，不写正式事实 |
-| `score_candidates.score_candidates(items)` | 固定候选 list 的形状/摘录一致性检查及公开因素评分，深复制且保留重复/相反来源；不认证来源或作接受决定 |
-| `transcribe_audio.transcribe_audio(source, *, service=None, model=None, data_scope=None, operation=None, output=None, authorized=False)` | 当前为授权/缺项/适配器不可用拒绝；没有实际调用路径、环境密钥发现、数据发送或假 transcript，真实音频验收仍 not-run |
+| `artifact_io.parse_artifact(path, root)` | Reads a local formal Markdown file and returns an `Artifact` with `key`, `kind`, `scope`, `content_state`, `upstream`, `targets`, `acceptance_ids`, and the original file location. Invalid YAML/path/version raises `ArtifactInputError` instead of returning an empty object |
+| `check_artifacts.run_check(root, base_sha=None)` | With `base_sha=None`, runs a full scan; when given, must read that exact Git object and the target snapshot. Returns a `CheckReport`: `status`, `findings`, `checked_count`, `baseline`, `excluded` |
+| `check_traceability.trace_report(root, delivery_ids)` | Checks targets and criteria against an explicit, complete acceptance list and returns a `CheckReport`; each `Finding` has `code`, `path`, `line`, `owner`, `target`, `message` |
+| `export_model.export_view(root, scope)` | Returns a JSON-serializable dictionary including the agreed `views` map, without writing files; source hashes and artifact relationships are sorted deterministically. Script-layer checks/explicit writes are handled separately |
+| `export_model.check_model(root, scope, model_path)` | Validates and recomputes an explicit local model and returns a `CheckReport`; source-identity changes and hand-edited views are reported separately and are not fixed automatically |
+| `check_traceability.impact_report(root, base_sha, task_ids=())` | Canonical transitive-dependency candidates between an exact commit and the current snapshot; keeps old and new identities, source locations, and reasons, and is not a semantic approval |
+| `collect_implementation_report.build_report(root, object_sha, evidence_files, *, scope=None)` | Inventories the complete BC acceptance from an exact local commit and reads explicit existing VT files/owned runs and raw reports; a single BC keeps the three-argument API, and multiple BCs require choosing a scope. Missing evidence is per-target not-run, and conflicts/baseline errors fail; it does not run the application, copy a result ledger, or write back to sources |
+| `plan_template_update.plan_update(base, local, candidate)` | Returns an `UpdatePlan` containing `changes`, `conflicts`, and `preserved`; none of the three directories is written. Modifications and deletions are only proposed, and a missing old baseline is an error |
+| `setup_domain_source.inspect_domain_source(root, source_config)` | Checks the exact local root/relative path/pinned baseline against the original BC source fields and returns ready/conflict/unavailable, the actual target, and the proposed operation; always read-only, with no network, fetch, hooks/filters, or cwd change |
+| `setup_domain_source.apply_domain_source(root, source_config, *, operation, config_path, expected, owned=False, target=None, index_consent=False)` | register only maintains the source list of an explicitly existing BC; the optional local submodule additionally needs an exact target and separate index consent, and does not register a BC automatically; drift/owner conflicts stop the operation, partial state is left for manual recovery, and nothing is committed/pushed |
+| `extract_source.extract_candidates(source, kind)` | Takes an explicit absolute local file and returns the raw-bytes identity/read count and a candidate list; keeps original lines, turn/time, or bounded DOCX paragraph/table positions. Unknown/corrupt/over-limit input is an explicit error, and no formal facts are written |
+| `score_candidates.score_candidates(items)` | Shape/excerpt consistency checks and disclosed-factor scoring for a fixed candidate list; deep-copies and keeps duplicate/contradicting sources; does not authenticate sources or make acceptance decisions |
+| `transcribe_audio.transcribe_audio(source, *, service=None, model=None, data_scope=None, operation=None, output=None, authorized=False)` | Currently refuses with an authorization/missing-item/adapter-unavailable result; there is no actual call path, environment-key discovery, data sending, or fake transcript, and real audio acceptance remains not-run |
 
-`Artifact`、`Finding`、`CheckReport`、`UpdatePlan` 为窄用途 dataclass，定义在对应模块，不另建通用领域/执行框架。测试辅助函数只在工具 tests 内维护。
+`Artifact`, `Finding`, `CheckReport`, and `UpdatePlan` are narrow-purpose dataclasses defined in their respective modules; no general domain/execution framework is built. Test helper functions are maintained only inside the tools tests.
 
-新正式工件的 frontmatter 必填 `schemaVersion`、`id`、`kind`、`scope`、`contentState`；`upstream` 与 `targets` 缺省为空列表。每条目标记录含完整 `target`、`criterionAnchor` 和可选 `testId`，目标以 owner 的验收锚点定位，判据锚点必须存在于当前 VT 正文。正文标题/验收锚点是可检索的独立目标，不从全文随意出现的 ID 字符串倒推验收库存。
+The frontmatter of a new formal artifact requires `schemaVersion`, `id`, `kind`, `scope`, and `contentState`; `upstream` and `targets` default to empty lists. Each target record contains a complete `target`, a `criterionAnchor`, and an optional `testId`; the target is located by the owner's acceptance anchor, and the criterion anchor must exist in the current VT body. Body headings/acceptance anchors are independently searchable targets; the acceptance inventory is not reverse-engineered from ID strings that happen to appear anywhere in the text.
 
-`kind` 在 schema v1 中是一个封闭集合，恰好支持以下 32 个值：
-`domain-model`、`subdomain`、`bounded-context`、`capability`、`use-case`、
-`invariant`、`validation-scenario`、`backlog-item`、
-`stakeholder-requirement`、`software-requirement`、`user-story`、
-`architecture-building-block`、`architecture-decision`、`verification-test`、
-`review-record`、`tool-qualification`、`development-log`、
-`quality-attribute-scenario`、`context-map`、`published-interface`、
-`aggregate`、`entity`、`value-object`、`factory`、`domain-service`、`policy`、
-`domain-event`、`integration-partner`、`intended-use`、`risk-control`、
-`architecture-specification`、`sequence-diagram`。未知 kind 必须报输入错误；
-不提供通用扩展机制。规则可以保留为领域文档中的稳定 RULE 锚点，不强建
-另一份规则正文。`upstream` 是完整来源引用的字符串列表；目标是上述结构
-的记录列表。`confirmed` 内容还需 `confirmation` 的 `by`、`reference`、
-`baseline`，校验器只核对声明结构，不认证该决定的身份/权限。
+In schema v1, `kind` is a closed set that supports exactly the following 32 values:
+`domain-model`, `subdomain`, `bounded-context`, `capability`, `use-case`,
+`invariant`, `validation-scenario`, `backlog-item`,
+`stakeholder-requirement`, `software-requirement`, `user-story`,
+`architecture-building-block`, `architecture-decision`, `verification-test`,
+`review-record`, `tool-qualification`, `development-log`,
+`quality-attribute-scenario`, `context-map`, `published-interface`,
+`aggregate`, `entity`, `value-object`, `factory`, `domain-service`, `policy`,
+`domain-event`, `integration-partner`, `intended-use`, `risk-control`,
+`architecture-specification`, and `sequence-diagram`. An unknown kind must be reported as an input error;
+no general extension mechanism is provided. Rules can remain stable RULE anchors in domain documents, without forcing
+a separate rules body. `upstream` is a list of strings holding complete source references; targets are a list of records
+with the structure above. `confirmed` content also requires `confirmation` with `by`, `reference`, and
+`baseline`; the checker verifies only the declared structure and does not authenticate the identity/authority behind the decision.
 
-## 4. 授权关卡与完成判定
+## 4. Authorization gates and completion criteria
 
-1. **能力关卡：** 六仓逐文件矩阵核对后，规格遗漏项必须进入有来源的变更；不能把未知写成不需要。
-2. **契约关卡：** 元数据、数据 schema、现有 Markdown 合入方式及来源读写边界审阅后，才开始依赖它们的工具实现。不能先写解析器再倒推文档格式。
-3. **工具关卡：** manifest 建立后才能恢复依赖；工具环境与下游应用开发登记分开，读取资料不要求先安装 Python 包。
-4. **应用验收关卡：** 代码生成的实际工程、技术栈、位置与执行方式在任务 13 执行前由用户确认。工具采用 Python 不代表下游应用也选 Python；本轮没有授权创建演练应用。
-5. **平台关卡：** 自动传播、hooks 安装、远端 PR、CI 必需检查及发布按具体操作授权；无授权时对应结果为未执行，不因此降低 ENH-10/11/14 的标准。
+1. **Capability gate:** After the per-file matrix of the six repositories is checked, items missing from the specification must enter a sourced change; unknown must not be recorded as not needed.
+2. **Contract gate:** Tool implementation that depends on the metadata, data schemas, the way existing Markdown is merged in, and the source read/write boundaries starts only after they have been reviewed. Do not write a parser first and then reverse-engineer the document format from it.
+3. **Tool gate:** Dependencies may be restored only after the manifest exists; the tool environment is kept separate from the downstream application's development registration, and reading the materials does not require installing Python packages first.
+4. **Application acceptance gate:** The actual project, tech stack, location, and execution mode for code generation are confirmed by the user before Task 13 runs. Tools using Python does not mean the downstream application also chooses Python; this round has no authorization to create an exercise application.
+5. **Platform gate:** Automatic propagation, hook installation, remote PRs, CI required checks, and releases are authorized per specific operation; without authorization the corresponding result is not run, and the ENH-10/11/14 standard is not lowered because of it.
 
-“六仓功能等价”只有在 ENH-01 的每个现有能力行有完成证据或责任人接受的明确替代方式，且 ENH-02 至 ENH-18 的适用项均通过时才可声明。原格式兼容、任意语言应用验证、法规符合性及全部 Agent 支持不在该声明内。外部 ADR/风险实例和不同消费 gitlink 版本的运行组合只登记为依赖，不以六仓源码盘点宣称已验证它们。
+"Six-repository functional equivalence" may be claimed only when every existing-capability row of ENH-01 has completion evidence or an explicit alternative accepted by the accountable owner, and all applicable items of ENH-02 to ENH-18 have passed. Original-format compatibility, application verification in any language, regulatory compliance, and support for all Agents are not part of that claim. External ADR/risk instances and run combinations of different consuming gitlink versions are registered only as dependencies; the six-repository source inventory is not used to claim they are verified.
 
-实施顺序、文件职责和逐任务检查见[增强计划](../plan/2026-10-14-ddd-functional-alignment.md)。
+For the implementation order, file responsibilities, and per-task checks, see the [enhancement plan](../plan/2026-10-14-ddd-functional-alignment.md).

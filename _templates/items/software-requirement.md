@@ -7,68 +7,68 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# SR-NNN：待填写
+# SR-NNN: TBD
 
-> 空白表单，不是已确认软件规格。先读[软件要求指引](../../software-requirements/README.md#sr-writing)与[元数据约定](../../domain-model/README.md#artifact-metadata)，按需复制到 `software-requirements\SR-NNN-<slug>.md`。只有项目/上下文明确后才替换 `PROJECT/CTX-NNN`、编号、标题与锚点；删除本提示并核对实际落点的相对链接，不迁移旧资料。
+> Blank form; not a confirmed software specification. Read the [software requirement guide](../../software-requirements/README.md#sr-writing) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `software-requirements/SR-NNN-<slug>.md` as needed. Replace `PROJECT/CTX-NNN`, the ID, the title, and anchors only after the project/context is clear; delete this notice and check the relative links from the actual location; do not migrate old material.
 
 <a id="basis"></a>
-## 依据、上下文与范围
+## Basis, context, and scope
 
-| 字段 | 内容 |
+| Field | Content |
 |---|---|
-| 来源阅读导航、基线与推导理由 | 待填写：实际 REQ/UC/INV/CAP/QAS 的原文、版本及哪些事实支持本规格 |
-| 独立维护任务依据（适用时） | 待填写：实际请求/issue 的位置、完成条件和授权；不编造工件身份 |
-| 所属上下文与业务边界 | 待填写 |
-| 相关领域概念与规则的解释 | 待填写：原文导航及适用性，不复制规则正文 |
-| 记录日期与提出者 | 待填写；本 SR 的内容状态与确认声明归 frontmatter |
-| 本次范围与非目标 | 待填写 |
+| Source reading navigation, baselines, and derivation rationale | TBD: original text and versions of the actual REQ/UC/INV/CAP/QAS, and which facts support this specification |
+| Standalone maintenance task basis (when applicable) | TBD: location, completion conditions, and authorization of the actual request/issue; do not invent an artifact identity |
+| Owning context and business boundaries | TBD |
+| Explanation of related domain concepts and rules | TBD: navigation to the original text and applicability; do not copy the rule text |
+| Record date and proposer | TBD; this SR's content state and confirmation statements belong in the frontmatter |
+| Scope and non-goals for this work | TBD |
 
-frontmatter 的 `upstream` 独占声明的上游关系，使用实际 `scope/id#anchor`；本节只解释来源及阅读位置，不再维护一份映射或状态表。旧轻量来源/独立请求没有 canonical 身份时保留普通链接和缺项，不为通过 parser 发明 ID。来源未确认时只保留候选与问题，不将 draft INV 或代码常量升级为强制软件要求。
+The frontmatter `upstream` exclusively owns the declared upstream relationships, using actual `scope/id#anchor` values; this section only explains the sources and where to read them and does not maintain another mapping or status table. When an old lightweight source or standalone request has no canonical identity, keep a plain link and record the missing item; do not invent IDs to get through the parser. While sources are unconfirmed, keep only candidates and questions; do not promote a draft INV or a code constant to a mandatory software requirement.
 
 <a id="behavior"></a>
-## 软件行为与边界
+## Software behavior and boundaries
 
-| 条件或情形 | 应有的软件行为与可观察输出 | 错误处理、禁止的副作用或边界 | 来源与未决项 |
+| Condition or situation | Required software behavior and observable output | Error handling, forbidden side effects, or boundaries | Sources and open items |
 |---|---|---|---|
-| 正常/允许条件：待填写 | 待填写 | 待填写 | 待填写 |
-| 边界条件：待填写 | 待填写 | 待填写 | 待填写 |
-| 拒绝条件：待填写 | 待填写 | 待填写 | 待填写 |
-| 错误或无效输入：待填写 | 待填写 | 待填写 | 待填写 |
+| Normal/allowed condition: TBD | TBD | TBD | TBD |
+| Boundary condition: TBD | TBD | TBD | TBD |
+| Rejection condition: TBD | TBD | TBD | TBD |
+| Error or invalid input: TBD | TBD | TBD | TBD |
 
-UC 提供路径，INV 解释源规则约束，CAP/上下文说明责任，QAS 提供有来源的质量判据；只采用本任务确实需要且可读的输入。缺错误、并发、失效或副作用政策时逐项提问，不用常见实现补齐。
+UCs provide paths, INVs explain the constraints of the source rules, CAPs/contexts describe responsibilities, and QASs provide sourced quality criteria; adopt only inputs that this task really needs and that are readable. When policies for errors, concurrency, failure, or side effects are missing, ask about each one; do not fill them in with common implementations.
 
 <a id="interfaces"></a>
-## 接口与责任约定（适用时）
+## Interface and responsibility agreements (when applicable)
 
-| 提供方 → 使用方 | 输入、输出及其含义 | 事实所有者与责任边界 | 失败或不满足前提时的约定 | 来源与确认状态 |
+| Provider → user | Inputs, outputs, and their meaning | Fact owner and responsibility boundary | Agreement on failure or unmet preconditions | Source and confirmation status |
 |---|---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待确认 | 待填写 |
+| TBD | TBD | TBD | To be confirmed | TBD |
 
-没有接口则说明不适用依据；未定的协议、时序或实现保持未决，不从技术习惯推导业务决定。
+If there is no interface, state the basis for it not being applicable; keep undecided protocols, timing, or implementations open, and do not derive business decisions from technical habits.
 
 <a id="acceptance"></a>
-## 软件验收
+## Software acceptance
 
-每项分别给出可判断的软件结果，复制块时更换完整 ID 和锚点。`NNN` 只是占位，不能作为真实编号沿用。
+Give a judgeable software result for each item; when copying the block, change the full ID and anchor. `NNN` is only a placeholder and must not be kept as a real number.
 
 <a id="sr-nnn-ac-01"></a>
-### SR-NNN-AC-01：待填写
+### SR-NNN-AC-01: TBD
 
-| 项目 | 内容 |
+| Item | Content |
 |---|---|
-| 本项细化依据的阅读导航与理由 | 待填写：解释已声明来源如何支持本项，关系仍归 frontmatter |
-| 前置条件、输入及动作 | 待填写 |
-| 预期软件行为与逐项判定标准 | 待填写 |
-| 相关边界、错误与不得发生的副作用 | 待填写 |
-| 规则引用及尚未明确的部分 | 待填写 |
+| Reading navigation and rationale for this item's refinement basis | TBD: explain how the declared sources support this item; relationships still belong in the frontmatter |
+| Preconditions, inputs, and actions | TBD |
+| Expected software behavior and per-item pass criteria | TBD |
+| Related boundaries, errors, and side effects that must not occur | TBD |
+| Rule references and parts not yet clarified | TBD |
 
-VT 直接引用本项，不要求经 US。测试标识、执行结果及适用性由 VT 和原始报告记录，本表不维护另一份验证结果。
+VTs reference this item directly, without requiring a US. Test identifiers, run results, and applicability are recorded by the VT and raw reports; this table does not maintain another copy of verification results.
 
 <a id="changes"></a>
-## 变更与未决项
+## Changes and open items
 
-| 日期与基线 | 变化或问题及其影响 | 来源、确认依据或待确认人 |
+| Date and baseline | Change or question and its impact | Source, confirmation basis, or who must confirm |
 |---|---|---|
-| 待填写 | 待填写 | 待填写 |
+| TBD | TBD | TBD |
 
-修改、撤销或改名保留历史依据，旧 ID 不复用。上游规则变化时，即使本文件未复制具体数值，也要复核边界、验收与关联 VT。
+Changes, withdrawals, or renames keep their historical basis, and old IDs are not reused. When upstream rules change, re-review the boundaries, acceptance, and linked VTs even if this file did not copy the specific values.

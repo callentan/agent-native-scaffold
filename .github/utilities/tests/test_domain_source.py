@@ -27,12 +27,12 @@ class DomainFixture(unittest.TestCase):
         temporary = temporary_workspace()
         self.addCleanup(temporary.cleanup)
         self.workspace = Path(temporary.name)
-        self.root = self.workspace / "owner BC 项目"
-        self.source = self.workspace / "领域 source"
+        self.root = self.workspace / "owner BC проект €"
+        self.source = self.workspace / "домен € source"
         seed_git_repo(self.root)
         seed_git_repo(self.source)
         (self.source / "domain-model").mkdir()
-        (self.source / "domain-model/规则.md").write_bytes(b"# Owned rule\n\nlimit = 2\n")
+        (self.source / "domain-model/правило.md").write_bytes(b"# Owned rule\n\nlimit = 2\n")
         git(self.source, "add", "--", "domain-model")
         git(self.source, "commit", "--quiet", "-m", "Fixed domain fixture")
         self.version = git(self.source, "rev-parse", "HEAD")
@@ -45,7 +45,7 @@ class DomainFixture(unittest.TestCase):
         git(self.root, "add", "--", ".")
         git(self.root, "commit", "--quiet", "-m", "Owned configuration fixture")
         self.declaration = {
-            "id": "fixed-domain", "kind": "git", "root": "../领域 source",
+            "id": "fixed-domain", "kind": "git", "root": "../домен € source",
             "path": "domain-model", "baseline": self.version, "readOnly": True,
         }
 
@@ -151,9 +151,9 @@ class SourceInspectionTests(DomainFixture):
 
     def test_source_02_local_file_uses_raw_content_not_decoded_text(self):
         raw = b"\xef\xbb\xbf# Local rule\r\n"
-        path = self.source / "domain-model/规则.md"
+        path = self.source / "domain-model/правило.md"
         path.write_bytes(raw)
-        source = dict(self.declaration, kind="local", path="domain-model/规则.md", baseline=digest(raw))
+        source = dict(self.declaration, kind="local", path="domain-model/правило.md", baseline=digest(raw))
         result = self.inspect(source)
         self.assertEqual("ready", result["status"])
         self.assertEqual(digest(raw), result["location"]["baseline"])
@@ -170,7 +170,7 @@ class SourceInspectionTests(DomainFixture):
         self.assertEqual(self.version, result["location"]["baseline"])
 
     def test_source_03_wrong_nested_root_is_not_trimmed(self):
-        source = dict(self.declaration, root="../领域 source/domain-model")
+        source = dict(self.declaration, root="../домен € source/domain-model")
         result = self.inspect(source)
         self.assertEqual("unavailable", result["status"])
         self.assertEqual(str(self.source / "domain-model/domain-model"), result["location"]["selected"])
@@ -198,7 +198,7 @@ class SourceInspectionTests(DomainFixture):
         git(self.source, "tag", "-a", "v-fixture", "-m", "Not a commit object")
         objects = [
             git(self.source, "rev-parse", "HEAD^{tree}"),
-            git(self.source, "rev-parse", "HEAD:domain-model/规则.md"),
+            git(self.source, "rev-parse", "HEAD:domain-model/правило.md"),
             git(self.source, "rev-parse", "refs/tags/v-fixture"),
         ]
         for version in objects:
@@ -277,16 +277,16 @@ class SourceInspectionTests(DomainFixture):
                 self.assertNotIn(root, json.dumps(result))
 
     def test_source_12_unicode_spaces_and_exact_relative_file_are_supported(self):
-        name = "domain-model/中文 with spaces.md"
-        raw = "事实不是批准。\r\n".encode("utf-8")
+        name = "domain-model/Ωmega € with spaces.md"
+        raw = "Факт не одобрение €.\r\n".encode("utf-8")
         (self.source / name).write_bytes(raw)
         result = self.inspect(dict(self.declaration, kind="local", path=name, baseline=digest(raw)))
         self.assertEqual("ready", result["status"])
         self.assertEqual(str(self.source / name), result["location"]["selected"])
 
     def test_source_12_traversal_metadata_and_absolute_paths_are_rejected(self):
-        for path in ("../owner BC 项目", "/domain-model", "domain-model/../README.md",
-                     "domain-model//规则.md", r"domain-model\规则.md", ".git/config", ".GIT/config"):
+        for path in ("../owner BC проект €", "/domain-model", "domain-model/../README.md",
+                     "domain-model//правило.md", r"domain-model\правило.md", ".git/config", ".GIT/config"):
             with self.subTest(path=path):
                 result = self.inspect(dict(self.declaration, path=path))
                 self.assertEqual("unavailable", result["status"])
@@ -295,7 +295,7 @@ class SourceInspectionTests(DomainFixture):
     def test_source_12_source_root_reached_through_a_link_reads_the_linked_source(self):
         alias = self.workspace / "alias"
         with directory_link(alias, self.source):
-            for root in ("../alias", "../alias/../领域 source"):
+            for root in ("../alias", "../alias/../домен € source"):
                 with self.subTest(root=root):
                     result = self.inspect(dict(self.declaration, root=root))
                     self.assertEqual("ready", result["status"], result)
@@ -382,7 +382,7 @@ class SourceRegistrationTests(DomainFixture):
 
     def test_source_12_changed_source_after_inspect_is_not_setup_success(self):
         expected = self.inspect()["preflight"]
-        (self.source / "domain-model/规则.md").write_bytes(b"Owner changed source\n")
+        (self.source / "domain-model/правило.md").write_bytes(b"Owner changed source\n")
         before = self.snapshot()
         result = self.apply(expected=expected, owned=True)
         self.assertNotEqual("ready", result["status"])
@@ -466,8 +466,8 @@ class SourceSubmoduleTests(DomainFixture):
         target = self.root / "external domain"
         self.assertEqual(self.version, git(target, "rev-parse", "HEAD"))
         self.assertEqual("true", git(target, "rev-parse", "--is-inside-work-tree"))
-        self.assertEqual((self.source / "domain-model/规则.md").read_bytes(),
-                         (target / "domain-model/规则.md").read_bytes())
+        self.assertEqual((self.source / "domain-model/правило.md").read_bytes(),
+                         (target / "domain-model/правило.md").read_bytes())
         self.assertEqual(parent_head, git(self.root, "rev-parse", "HEAD"))
         self.assertEqual(before_config, self.config.read_bytes(), "Materialization must not imply BC registration")
         self.assertEqual(source_before, source_bytes(self.source))
@@ -673,7 +673,7 @@ class SourceBoundaryTests(DomainFixture):
                 self.assertEqual(before, self.snapshot())
 
     def test_source_12_case_aliased_git_root_is_not_a_local_content_source(self):
-        source = dict(self.declaration, kind="local", root="../owner BC 项目/.GIT", path="config",
+        source = dict(self.declaration, kind="local", root="../owner BC проект €/.GIT", path="config",
                       baseline=digest((self.root / ".git/config").read_bytes()))
         result = self.inspect(source)
         self.assertEqual("unavailable", result["status"])
@@ -683,7 +683,7 @@ class SourceBoundaryTests(DomainFixture):
         self.assertEqual("materialized", self.setup_submodule()["outcome"])
         target = self.root / "external domain"
         blob = git(target, "rev-parse", "HEAD:README.md")
-        git(target, "update-index", "--cacheinfo", f"100644,{blob},domain-model/规则.md")
+        git(target, "update-index", "--cacheinfo", f"100644,{blob},domain-model/правило.md")
         result = self.inspect(operation="submodule", target="external domain")
         self.assertEqual("conflict", result["status"])
         self.assertIn("INDEX_CONFLICT", self.codes(result))
@@ -696,7 +696,7 @@ class SourceBoundaryTests(DomainFixture):
         self.assertIn("INDEX_CONFLICT", self.codes(result))
 
     def sha256_source(self):
-        source = self.workspace / "sha256 领域源"
+        source = self.workspace / "sha256 домен €"
         source.mkdir()
         git(source, "init", "--quiet", "--template=", "--object-format=sha256")
         (source / "domain-model").mkdir()
@@ -705,7 +705,7 @@ class SourceBoundaryTests(DomainFixture):
         git(source, "commit", "--quiet", "-m", "Exact SHA256 source")
         version = git(source, "rev-parse", "HEAD")
         self.assertEqual(64, len(version))
-        return source, dict(self.declaration, root="../sha256 领域源", baseline=version)
+        return source, dict(self.declaration, root="../sha256 домен €", baseline=version)
 
     def test_source_06_sha256_source_and_parent_format_mismatch_stops_before_clone(self):
         _, source = self.sha256_source()

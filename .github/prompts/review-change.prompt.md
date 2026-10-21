@@ -1,12 +1,20 @@
 ---
-description: 只读检查变更范围、验收目标和已有证据。
+description: Check the change scope, acceptance targets, and existing evidence read-only.
 ---
 
-# 审阅变更
+# Review a change
 
-当前输入（由用户填写）：
-- 任务与完整交付验收范围：待填写。
-- 修改路径、旧新对象/要求/VT 基线：待填写。
-- 实际结果入口、访问限制和需重点核对的问题：待填写。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，按 [verify-change 的只读审阅模式](../skills/verify-change/SKILL.md#review-mode)返回发现与待执行项，不修改文件、不补造结果或授予批准。
+- Task and full delivery acceptance scope: TBD
+- Modified paths: TBD
+- Old and new object/requirement/VT baselines: TBD
+- Actual result entry points and access limitations: TBD
+- Issues to focus on: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [read-only review mode](../skills/verify-change/SKILL.md#review-mode). Return findings and pending runs.
+3. Do not modify files, fabricate results, or grant approval.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

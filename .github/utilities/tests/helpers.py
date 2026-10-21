@@ -85,9 +85,9 @@ def write_artifact(
         data["upstream"] = list(upstream)
     if targets is not None:
         data["targets"] = list(targets)
-    body = f"# {id}：本地夹具\n\n"
+    body = f"# {id}: Local fixture\n\n"
     for acceptance_id in acceptance_ids:
-        body += f'<a id="{acceptance_id.lower()}"></a>\n### {acceptance_id}：判据\n\n'
+        body += f'<a id="{acceptance_id.lower()}"></a>\n### {acceptance_id}: Criterion\n\n'
     return write_metadata(root, data, body, relative_path or f"{id}.md")
 
 
@@ -95,10 +95,10 @@ def criterion_block(anchor: str, expected: str, method: str, constraints: str) -
     """An actual VT-form criterion, not an expected value derived from a tool."""
     return (
         f'<a id="{anchor}"></a>\n### {anchor}\n\n'
-        "| 本目标的判定信息 | 内容 |\n|---|---|\n"
-        f"| 本目标预期与独立判定标准 | {expected} |\n"
-        f"| 对应方法/步骤或实际测试标识 | {method} |\n"
-        f"| 前提、禁止副作用及未决事项 | {constraints} |\n\n"
+        "| Criterion information for this target | Content |\n|---|---|\n"
+        f"| Expected outcome and independent pass criterion for this target | {expected} |\n"
+        f"| Corresponding method/steps or actual test identifier | {method} |\n"
+        f"| Preconditions, forbidden side effects, and open items | {constraints} |\n\n"
     )
 
 
@@ -111,23 +111,26 @@ def write_delivery_fixture(root: Path, omit_software_reject: bool = False) -> tu
         "sample/CTX-001/SR-001#sr-001-ac-02",
     )
     write_metadata(root, metadata(id="DM-001", kind="domain-model"),
-                   '# DM-001：借用规则\n\n<a id="rule-001"></a>\n## RULE-001：额度\n'
-                   'Allowance limit: 2\n\n会员资格有效；资格失效与并发政策尚未确定。\n',
+                   '# DM-001: Borrowing rules\n\n<a id="rule-001"></a>\n## RULE-001: Allowance\n'
+                   'Allowance limit: 2\n\nMembership is valid; eligibility expiry and the concurrency policy '
+                   'are not yet determined.\n',
                    "domain-model/DM-001.md")
     write_metadata(
         root, metadata(upstream=["sample/CTX-001/DM-001#rule-001"]),
-        '# REQ-001：借用业务\n\n<a id="req-001-ac-01"></a>\n'
-        '### REQ-001-AC-01：允许借用\n\n有效会员在源规则额度内能完成借用。\n\n'
-        '<a id="req-001-ac-02"></a>\n### REQ-001-AC-02：拒绝超额\n\n'
-        '超出源规则额度时不得形成新的业务借用。\n',
+        '# REQ-001: Borrowing business\n\n<a id="req-001-ac-01"></a>\n'
+        '### REQ-001-AC-01: Allow borrowing\n\n'
+        'A valid member can complete a loan within the source rule allowance.\n\n'
+        '<a id="req-001-ac-02"></a>\n### REQ-001-AC-02: Reject over-allowance\n\n'
+        'Beyond the source rule allowance, no new business loan may be created.\n',
         "stakeholder-requirements/REQ-001.md",
     )
     write_metadata(
         root, metadata(id="SR-001", kind="software-requirement", upstream=list(delivery[:2])),
-        '# SR-001：软件借用行为\n\n<a id="sr-001-ac-01"></a>\n'
-        '### SR-001-AC-01：记录允许请求\n\n在源规则允许范围内提交后新增一条借用记录。\n\n'
-        '<a id="sr-001-ac-02"></a>\n### SR-001-AC-02：拒绝请求无副作用\n\n'
-        '超出额度提交时返回拒绝且借用记录不变。\n',
+        '# SR-001: Software borrowing behavior\n\n<a id="sr-001-ac-01"></a>\n'
+        '### SR-001-AC-01: Record an allowed request\n\n'
+        'A submission within the source rule allowance adds one loan record.\n\n'
+        '<a id="sr-001-ac-02"></a>\n### SR-001-AC-02: Rejected request has no side effects\n\n'
+        'A submission over the allowance returns a rejection and leaves loan records unchanged.\n',
         "software-requirements/SR-001.md",
     )
     business = [
@@ -139,29 +142,39 @@ def write_delivery_fixture(root: Path, omit_software_reject: bool = False) -> tu
         {"target": delivery[3], "criterionAnchor": "no-write"},
     ]
     plans = (
-        ("VT-001", "业务验收", business,
-         criterion_block("allow", "额度内会员取得一次新的借用。",
-                         "按规则准备额度内状态并办理借用，观察业务登记。",
-                         "资格已有效；不决定尚未知的失效与并发政策。")
-         + criterion_block("reject", "超额度会员没有形成新的借用。",
-                           "准备已达额度的会员再申请，观察拒绝后的业务登记。",
-                           "不得扣减或增加其他会员的借用；并发政策未确定。")),
-        ("VT-002", "软件行为", software[:1] if omit_software_reject else software,
-         criterion_block("record", "有效请求新增一条关联会员的记录。",
-                         "发送额度内提交请求并读取操作前后的记录集合。",
-                         "固定有效资格；未知的资格失效分支不作断言。")
+        ("VT-001", "Business acceptance", business,
+         criterion_block("allow", "A member within the allowance obtains one new loan.",
+                         "Prepare a within-allowance state per the rule, borrow, "
+                         "and observe the business register.",
+                         "Eligibility is already valid; the still-unknown expiry "
+                         "and concurrency policies are not decided.")
+         + criterion_block("reject", "A member over the allowance does not obtain a new loan.",
+                           "Prepare a member already at the allowance, apply again, "
+                           "and observe the business register after the rejection.",
+                           "Must not decrease or increase loans of other members; "
+                           "the concurrency policy is undefined.")),
+        ("VT-002", "Software behavior", software[:1] if omit_software_reject else software,
+         criterion_block("record", "A valid request adds one record linked to the member.",
+                         "Send a within-allowance submission and read the record set "
+                         "before and after the operation.",
+                         "Eligibility is fixed as valid; the unknown eligibility-expiry "
+                         "branch is not asserted.")
          + ("" if omit_software_reject else
-            criterion_block("no-write", "超额请求返回拒绝且前后记录完全相同。",
-                            "发送超过额度的请求，比较返回和提交前后记录。",
-                            "禁止新增或修改任何借用；并发策略仍待来源明确。"))),
+            criterion_block("no-write", "An over-allowance request returns a rejection "
+                            "and the records before and after are identical.",
+                            "Send a request over the allowance; compare the response "
+                            "and the records before and after the submission.",
+                            "Adding or modifying any loan is forbidden; the concurrency "
+                            "policy still awaits clarification from the source."))),
     )
     for identifier, layer, targets, criteria in plans:
         write_metadata(
             root, metadata(id=identifier, kind="verification-test", targets=targets),
-            f'# {identifier}：独立验证计划\n\n<a id="plan"></a>\n## 计划与层次\n\n'
-            f'| 字段 | 内容 |\n|---|---|\n| 验证层次 | {layer} |\n\n'
-            '<a id="targets"></a>\n## 逐项目标与判据\n\n' + criteria
-            + '<a id="runs"></a>\n## 实际执行\n\nnot-run：尚无业务或软件执行环境。\n',
+            f'# {identifier}: Independent verification plan\n\n<a id="plan"></a>\n## Plan and layer\n\n'
+            f'| Field | Content |\n|---|---|\n| Verification layer | {layer} |\n\n'
+            '<a id="targets"></a>\n## Per-target criteria\n\n' + criteria
+            + '<a id="runs"></a>\n## Actual runs\n\n'
+            'not-run: no business or software execution environment yet.\n',
             f"verification/{identifier}.md",
         )
     return delivery
@@ -238,13 +251,13 @@ def seed_implementation_fixture(root: Path) -> str:
     (root / "bc-config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     (root / "source code").mkdir()
     (root / "native tests").mkdir()
-    (root / "source code/借用.txt").write_text(
+    (root / "source code/заем€.txt").write_text(
         "# TEXT LOCATORS ONLY; not an application.\n"
         f"# implements: {targets[2]} symbol=record\nrecord(): owned text location\n"
         f"// implements: {targets[3]} symbol=reject\nreject(): owned text location\n",
         encoding="utf-8", newline="\n",
     )
-    (root / "native tests/验证.txt").write_text(
+    (root / "native tests/проверка€.txt").write_text(
         "# TEXT LOCATORS ONLY; not discovered or executed by any runner.\n"
         f"# verifies: {targets[2]} testId=test_record\ntest_record(): owned text location\n"
         f"// verifies: {targets[3]} testId=test_no_write\ntest_no_write(): owned text location\n",

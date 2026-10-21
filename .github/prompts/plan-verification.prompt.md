@@ -1,13 +1,22 @@
 ---
-description: 依据全部验收来源规划分层 VT 与适用场景。
+description: Plan layered VTs and applicable scenarios from all acceptance sources.
 ---
 
-# 规划验证
+# Plan verification
 
-当前输入（由用户填写）：
-- 交付范围、全部验收的 owner/ID/原文、层次及基线：待填写，包括尚无 VT 的项。
-- 现有 VT/TS、companion、实际测试/报告及各自版本：待填写。
-- 实际环境、命令/cwd/报告登记或具体缺项：待填写。
-- 拟写位置、规划范围与授权：待填写；执行授权单列。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-先读 [AGENTS](../../AGENTS.md)，完整读取 [specify-feature](../skills/specify-feature/SKILL.md)，使用其[实施前验证计划](../skills/specify-feature/SKILL.md#plan-verification)小节。本入口只选择方法，不把计划或文件存在当成测试执行。
+- Delivery scope: TBD
+- Owner, ID, original text, layer, and baseline of every acceptance criterion, including items that have no VT yet: TBD
+- Existing VT/TS, companions, actual tests/reports, and their versions: TBD
+- Actual environment and commands/cwd/report registration, or the specific gaps: TBD
+- Intended location and planning scope: TBD
+- Planning authorization: TBD
+- Run authorization (list separately): TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [pre-implementation verification plan](../skills/specify-feature/SKILL.md#plan-verification) section.
+3. This prompt only selects the method. A plan or the existence of files does not count as a test run.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

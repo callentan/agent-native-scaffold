@@ -5,63 +5,63 @@ kind: review-record
 scope: PROJECT/CTX-NNN
 contentState: draft
 ---
-# REVIEW-NNN：待填写审阅主题
+# REVIEW-NNN: TBD review topic
 
-> 可选审阅/waiver 记录，不是测试报告、认证或批准。先读[治理指引](../../docs/governance.md#records)与[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `verification\REVIEW-NNN-<slug>.md`，替换占位、核对相对链接后删除本提示。只有真实关系才加 upstream/targets；本记录的确认声明仅归 frontmatter。
+> Optional review/waiver record; not a test report, certification, or approval. Read the [governance guide](../../docs/governance.md#records) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `verification/REVIEW-NNN-<slug>.md` as needed, replace the placeholders, check the relative links, and then delete this notice. Add upstream/targets only for real relationships; this record's confirmation statement belongs only in the frontmatter.
 
 <a id="basis"></a>
-## 实际对象与审阅范围
+## Actual object and review scope
 
-| 审阅输入 | 内容 |
+| Review input | Content |
 |---|---|
-| 对象与任务/政策依据的阅读入口 | 待填写；没有正式身份时用实际文件/章节 |
-| 本次审阅范围与排除依据 | 待填写；不能为了通过缩小既定范围 |
-| 对象、要求及证据的各自基线 | 待填写 |
-| 审阅日期、实际方式与读写授权 | 待填写；区分人工、Agent 自审与工具检查 |
-| 实际审阅者及角色声明 | 未提供：需要实际人员或明确的 Agent 记录者 |
-| 角色责任与权限依据 | 未提供：角色名称本身不是授权 |
+| Reading entry point for the object and the task/policy basis | TBD; without a formal identity, use the actual file/section |
+| Scope of this review and basis for exclusions | TBD; do not narrow the agreed scope in order to pass |
+| Separate baselines for the object, requirements, and evidence | TBD |
+| Review date, actual method, and read/write authorization | TBD; distinguish human review, Agent self-review, and tool checks |
+| Actual reviewer and role statement | Not provided: an actual person or an explicit Agent recorder is required |
+| Role responsibilities and basis of authority | Not provided: a role name by itself is not authorization |
 
 <a id="inspection"></a>
-## 判据与已读证据
+## Criteria and evidence read
 
-| 判据/条款的原文入口 | 实际检查的证据与基线 | 观察、未读范围及限制 |
+| Entry point to the original criterion/clause text | Evidence actually checked and its baseline | Observations, unread scope, and limitations |
 |---|---|---|
-| 待填写 | 待填写；无证据写未提供 | 待填写；结果回原 VT/报告，不复制结果表 |
+| TBD | TBD; if there is no evidence, write Not provided | TBD; results stay in the original VT/report; do not copy the result table |
 
 <a id="findings"></a>
-## 发现与影响
+## Findings and impact
 
-| 发现定位与原始证据 | 具体观察/冲突及影响理由 | 受影响所有者与对象 | 所需动作、决定或证据 |
+| Finding location and raw evidence | Specific observation/conflict and impact rationale | Affected owner and object | Required action, decision, or evidence |
 |---|---|---|---|
-| 待填写文件/行或章节、对象基线 | 待填写；严重度仅说明本问题影响，不代定临床等级 | 待填写完整身份或已知定位 | 待填写；无实际决定不关闭缺口 |
+| TBD: file/line or section, and object baseline | TBD; severity only describes this issue's impact and does not assign a clinical grade on anyone's behalf | TBD: full identity or known location | TBD; without an actual decision, do not close the gap |
 
 <a id="decision"></a>
-## 实际审阅决定及边界
+## Actual review decision and boundaries
 
-| 决定信息 | 内容 |
+| Decision information | Content |
 |---|---|
-| 审阅结论 | 未提供：尚无实际决定，不能写批准或通过 |
-| 限制与说明 | 待填写；结论覆盖什么、不覆盖什么及未解决问题 |
-| 决定原文、日期与被决定基线 | 未提供：需可定位的原始决定 |
-| 具名决定者、角色及责任依据 | 未提供：审阅者不自动拥有决定权限 |
-| 适用对象、范围与失效条件 | 未提供：不默认适用于所有对象或后续版本 |
+| Review conclusion | Not provided: no actual decision exists yet; do not write approved or passed |
+| Limitations and notes | TBD; what the conclusion covers and does not cover, and unresolved issues |
+| Original decision text, date, and decided baseline | Not provided: a locatable original decision is required |
+| Named decision maker, role, and basis of responsibility | Not provided: reviewers do not automatically have decision authority |
+| Applicable objects, scope, and expiry conditions | Not provided: do not assume it applies to all objects or later versions |
 
-“审阅结论”是原决定的有界说明，不是本记录的 contentState，也不是 VT 执行结果。具名声明、链接、Approved 勾选、Reviewed-by 或 Co-authored-by 都不认证身份；拒绝或要求补证的决定也不能被改成通过。
+"Review conclusion" is a bounded statement of the original decision; it is not this record's contentState and not a VT run result. Named statements, links, an Approved checkbox, Reviewed-by, or Co-authored-by do not authenticate identity; a decision that rejects or asks for more evidence cannot be changed into a pass either.
 
 <a id="waiver"></a>
-## 按需：waiver 的实际依据
+## As needed: actual basis for a waiver
 
-未涉及 waiver 时写明不适用及范围依据；不要为填表创造豁免。适用时仅补下列信息，决定来源仍在上节，不再抄一份批准表。
+When no waiver is involved, state that this section is not applicable and give the scope basis; do not create a waiver just to fill in the form. When applicable, add only the information below; the decision source stays in the previous section, and no second approval table is copied here.
 
-- 被豁免条款、原要求基线与理由：待填写。
-- 豁免范围、期限或失效条件及补偿措施来源：待填写。
-- 尚待哪位责任人决定、哪些要求仍然有效：待填写。
+- Waived clause, original requirement baseline, and rationale: TBD.
+- Waiver scope, duration or expiry conditions, and the source of compensating measures: TBD.
+- Which accountable owner still has to decide, and which requirements remain in force: TBD.
 
 <a id="follow-up"></a>
-## 限制、跟进与重新核对
+## Limitations, follow-up, and recheck
 
-- 缺测试、冲突证据、未满足判据及原所有者的跟进入口：待填写。
-- 所需责任人/证据、阻塞的结论及可独立继续的范围：待填写。
-- 变化后的适用性、旧记录入口与需追加的评价/决定：待填写。
+- Missing tests, conflicting evidence, unmet criteria, and the original owners' follow-up entry points: TBD.
+- Required accountable owners/evidence, blocked conclusions, and scope that can continue independently: TBD.
+- Applicability after changes, entry points to old records, and evaluations/decisions to append: TBD.
 
-保留原 VT、报告与决定基线，不覆盖失败或未执行记录；表单填写完成不消除缺口。只读审阅仅返回发现，获得保存授权后才填写正式记录。
+Keep the original VT, report, and decision baselines, and do not overwrite failed or not-run records; completing the form does not close gaps. A read-only review only returns findings; fill in the formal record only after authorization to save it is granted.

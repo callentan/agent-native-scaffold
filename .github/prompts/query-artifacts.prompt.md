@@ -1,12 +1,20 @@
 ---
-description: 在明确范围内只读查询真实工件库存与来源，不生成模型。
+description: Query the real artifact inventory and sources read-only within an explicit scope, without generating a model.
 ---
 
-# 查询实际工件
+# Query actual artifacts
 
-当前输入（由用户填写）：
-- 实际根目录、对象类型、scope 或过滤条件：待填写。
-- 查询问题、已知源文件与需比较的版本：待填写。
-- 希望返回的字段与范围：待填写；默认只读，无输出文件或导出授权。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [verify-change 的实际库存查询](../skills/verify-change/SKILL.md#query)，模式、来源边界与停止条件以该文件为准。
+- Actual root directory: TBD
+- Object types, scope, or filters: TBD
+- Query question: TBD
+- Known source files and versions to compare: TBD
+- Fields and scope to return: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [actual inventory query](../skills/verify-change/SKILL.md#query) section.
+3. Work read-only by default, with no authorization for output files or exports.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

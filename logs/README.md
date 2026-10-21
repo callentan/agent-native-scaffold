@@ -1,32 +1,32 @@
-# 开发日志与交接
+# Development logs and handoff
 
-日志保存一次任务或会话的变化与接手线索，不维护第二份验收结果。使用[开发日志表单](../_templates/items/development-log.md)，按需创建 `logs\YYYY-MM-DD-<task>-<session>.md`；当前只有指引，没有真实会话记录。
+A log holds the changes made in one task or session and the clues needed to take it over; it does not maintain a second copy of acceptance results. Use the [development log form](../_templates/items/development-log.md) and create `logs/YYYY-MM-DD-<task>-<session>.md` as needed; currently there is only this guide and no real session record.
 
 <a id="task-basis"></a>
-## 任务依据
+## Task basis
 
-优先引用现有 US、issue 或明确请求，写明目标、范围与完成条件。如果独立维护请求没有持久定位，可在日志的可选任务依据栏保留必要摘要、来源和稳定验收标识，例如占位形式 `TASK-NNN-AC-01` 配合 `task-nnn-ac-01` 锚点。只有此处确为任务依据时才填写，不复制已有需求，也不将维护条件伪装成 REQ/SR。
+Prefer referencing an existing US, issue, or explicit request, and state the goal, scope, and completion conditions. If a standalone maintenance request has no persistent location, you can keep the necessary summary, source, and stable acceptance identifiers in the log's optional task basis section, for example the placeholder form `TASK-NNN-AC-01` with the anchor `task-nnn-ac-01`. Fill in that section only when it truly is the task basis; do not copy existing requirements, and do not disguise maintenance conditions as a REQ/SR.
 
 <a id="recording"></a>
-## 记录什么
+## What to record
 
-- 日期、会话标识、关联任务和必要的记录者信息。
-- 分支、对象基线、已提交改动和未提交范围；区分本次与原有修改，不能未经检查就写“干净”。
-- 实际变化及有关工件链接，重要判断的来源和仍未确认的事项。
-- 实际检查记录与原始结果的链接，包含对象和依据基线的入口；验收结果回到 VT/原始报告读取，不在日志另列一张结果状态表。
-- 适用时记录[最小工具/任务/对象/时间/决定指针](../docs/ai-tooling.md#minimal-record)；评价与[审阅/waiver](../docs/governance.md#decisions)保留各自原记录和基线，不以日志、角色或 trailer 替代批准。
-- 覆盖缺口、受影响项、待复核项、未执行操作及原因、阻塞、下一步和重新核验条件。
+- Date, session identifier, related task, and the necessary recorder information.
+- Branch, object baseline, committed changes, and uncommitted scope; distinguish this session's changes from pre-existing ones, and never write "clean" without checking.
+- Actual changes and links to the related artifacts, the sources of important judgments, and items that are still not confirmed.
+- Links to actual check records and raw results, including entry points to the object and basis baselines; acceptance results are read from the VT/raw reports, and the log does not keep a separate result status table.
+- When applicable, the [minimal tool/task/object/time/decision pointers](../docs/ai-tooling.md#minimal-record); evaluations and [reviews/waivers](../docs/governance.md#decisions) keep their own original records and baselines, and a log, a role, or a trailer is no substitute for approval.
+- Coverage gaps, affected items, items pending re-review, operations not run and why, blockers, next steps, and conditions for re-verification.
 
-有新结果就追加其入口，不覆盖旧基线的记录。不保存完整聊天、凭据、个人绝对路径、生产数据或大段敏感输出。原始报告使用项目已有的合适位置或获准的报告入口；只有本机可访问的报告注明限制与接手所需动作，不能写成已提供跨机器证据。
+When there is a new result, append its entry point; do not overwrite records tied to old baselines. Do not save complete chats, credentials, personal absolute paths, production data, or large blocks of sensitive output. Raw reports use a suitable existing location in the project or an authorized report entry point; for a report that is accessible only on the local machine, note the limitation and the actions needed to take over, and do not present it as cross-machine evidence.
 
-工具/用途/对象变化后沿[重新评价入口](../docs/ai-tooling.md#requalification)核对当前适用性，未知决定或证据仍列缺口。没有适用治理要求的小维护无需新建资格或审批链；本指引不提供交互账本工具，也不要求归档完整对话。
+After a tool/purpose/object change, check current applicability through the [re-evaluation entry point](../docs/ai-tooling.md#requalification); unknown decisions or evidence are still listed as gaps. Small maintenance tasks without applicable governance requirements need no new qualification or approval chain; this guide provides no interaction ledger tool and does not require archiving complete conversations.
 
 <a id="handoff"></a>
-## 换会话接手
+## Take over in a new session
 
-1. 读 [README](../README.md#resume)、[AGENTS](../AGENTS.md)、当前任务、相关事实与[验证索引](../verification/README.md#coverage-index)，再读最近的相关日志。
-2. 重新检查 Git 状态与基线，核对日志中的改动、缺口和结果是否仍适用；不要直接继承旧的成功结论。
-3. 沿记录查找受影响需求、规则、设计与 VT，确认哪些待复核、哪些从未执行，哪些报告当前无法访问。
-4. 确认目标、未知事实和授权是否变化，从输入齐备的下一步继续。日志不保证恢复原进程、未保存编辑或外部系统状态。
+1. Read the [README](../README.md#resume), [AGENTS](../AGENTS.md), the current task, the relevant facts, and the [verification index](../verification/README.md#coverage-index), then read the most recent related logs.
+2. Recheck the Git status and baselines, and check whether the changes, gaps, and results in the log still apply; do not simply inherit old success conclusions.
+3. Follow the records to find the affected requirements, rules, designs, and VTs, and determine which are pending re-review, which were never run, and which reports are currently inaccessible.
+4. Confirm whether the goal, unknown facts, or authorization have changed, then continue with the next step whose inputs are complete. A log does not guarantee that the original process, unsaved edits, or external system state can be restored.
 
-当检查失败、资料不可读或修改冲突时保留现状并说明。普通进度放日志，长期架构取舍按需放 [ADR](../architecture/README.md#decisions)。
+When a check fails, materials are unreadable, or changes conflict, keep the current state and explain. Ordinary progress goes in the log; long-term architecture trade-offs go in an [ADR](../architecture/README.md#decisions) as needed.

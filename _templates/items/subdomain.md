@@ -7,46 +7,46 @@ contentState: draft
 upstream: []
 targets: []
 ---
-# SD-NNN：待填写子域
+# SD-NNN: TBD subdomain
 
-> 可选空表单，不是已确认边界。先读[领域工件指引](../../domain-model/README.md#optional-forms)及[元数据约定](../../domain-model/README.md#artifact-metadata)。按需复制到 `domain-model\SD-NNN-<slug>.md`；用已确认项目/上下文替换 `PROJECT/CTX-NNN`，替换 ID、标题和锚点，检查实际落点的相对链接，保留已有正文后删除本提示。跨上下文的子域也须明确其归属 scope，不能推定一个“全局”上下文。
+> Optional blank form; not a confirmed boundary. First read the [domain artifact guide](../../domain-model/README.md#optional-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/SD-NNN-<slug>.md` only when needed; replace `PROJECT/CTX-NNN` with the confirmed project/context, replace the ID, title, and anchors, check relative links at the actual location, keep any existing body text, and then delete this hint. A subdomain that spans contexts must also state the scope it belongs to explicitly; do not presume a "global" context.
 
 <a id="basis"></a>
-## 来源与认识边界
+## Sources and knowledge boundaries
 
-- 已知业务事实及来源定位、日期或版本：待填写。
-- 推导候选及推导依据：待填写；合理的归类不等于已确认边界。
-- 未决问题及需要谁确认：待填写。
+- Known business facts with source location, date, or version: TBD.
+- Derived candidates and the basis for deriving them: TBD; a reasonable classification is not a confirmed boundary.
+- Open questions and who needs to confirm them: TBD.
 
-可解析工件的上游关系只在 frontmatter 声明；正文解释引用的业务含义。非工件来源保留可定位引用，不编造机器身份。
+Upstream relationships of parsable artifacts are declared only in the frontmatter; the body explains the business meaning of the references. Non-artifact sources keep locatable references; do not invent machine identities for them.
 
 <a id="purpose"></a>
-## 目标与责任
+## Goals and responsibilities
 
-| 业务信息 | 内容 |
+| Business information | Content |
 |---|---|
-| 要解决的业务问题与预期价值 | 待填写 |
-| 业务责任人及决定权限的来源 | 待填写；未提供则记未决 |
-| 范围内的能力与概念 | 待填写 |
-| 明确不包含的事项与理由 | 待填写 |
-| 边界成立的依据及争议 | 待填写 |
+| Business problem to solve and expected value | TBD |
+| Accountable business owner and the source of decision authority | TBD; if not provided, record it as open |
+| Capabilities and concepts in scope | TBD |
+| Explicitly excluded matters and the reasons | TBD |
+| Basis for the boundary, and any disputes | TBD |
 
 <a id="contexts"></a>
-## 内部上下文与外部关系
+## Internal contexts and external relationships
 
-这里解释责任划分，不指定服务、项目、代码目录或部署方式。
+This section explains the division of responsibilities; it does not specify services, projects, code directories, or deployment.
 
-| 参与上下文的导航 | 在本子域承担的责任 | 与边界有关的事实及来源 |
+| Navigation to participating contexts | Responsibility within this subdomain | Boundary-related facts and sources |
 |---|---|---|
-| 待填写实际链接 | 待填写 | 待填写 |
+| TBD: actual link | TBD | TBD |
 
-| 提供方 → 使用方 | 跨边界的信息或能力 | 事实所有者 | 依赖、限制及来源 |
+| Provider → consumer | Information or capability crossing the boundary | Fact owner | Dependencies, limits, and sources |
 |---|---|---|---|
-| 待填写 | 待填写 | 待填写 | 待填写；未知不补默认约定 |
+| TBD | TBD | TBD | TBD; if unknown, do not fill in default agreements |
 
 <a id="questions"></a>
-## 未决与演化
+## Open items and evolution
 
-- 尚未确认的归属、边界或外部约定及影响：待填写。
-- 需补充的来源与责任人；必要时链接 BL：待填写。
-- 变更的旧新基线、理由与受影响资料：待填写；保留历史，不自动迁移已有模型。
+- Unconfirmed ownership, boundaries, or external agreements, and their impact: TBD.
+- Sources and accountable owners still needed; link BLs where needed: TBD.
+- Old and new baselines of changes, rationale, and affected materials: TBD; keep the history and do not migrate existing models automatically.

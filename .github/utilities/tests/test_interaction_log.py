@@ -59,7 +59,7 @@ class InteractionLogTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.caller_workspace = Path(temporary.name)
         self.workspace = Path(temporary.name).resolve()
-        self.root = self.workspace / "路径 with spaces"
+        self.root = self.workspace / "путь € with spaces"
         self.root.mkdir()
         self.log = self.root / "interaction log.csv"
         self.log.write_bytes(HEADER)
@@ -481,23 +481,23 @@ class InteractionLogTests(unittest.TestCase):
         self.assertNotIn("qualified", json.dumps(summary).lower())
 
     def test_LEDGER_08_csv_escapes_unicode_quotes_commas_and_newlines_as_data(self):
-        summary_text = '行一, "quoted"\n行二; =HYPERLINK("https://invalid","data")'
+        summary_text = 'строка один €, "quoted"\nстрока два; =HYPERLINK("https://invalid","data")'
         record = self.record(
             record_id="unicode-1",
-            tool_name="工具, α",
+            tool_name="инструмент €, α",
             operation_summary=summary_text,
-            decision_ref='决策 "原文", 第1行\n第二行',
-            evidence_ref="证据, '引用'\n补充",
+            decision_ref='решение "оригинал", строка 1 €\nстрока 2',
+            evidence_ref="данные €, 'цитата'\nдополнение",
         )
 
         self.append(record)
         rows = independent_row_bytes(self.log.read_bytes())
 
         self.assertEqual(2, len(rows))
-        self.assertEqual("工具, α", rows[1][3])
+        self.assertEqual("инструмент €, α", rows[1][3])
         self.assertEqual(summary_text, rows[1][8])
-        self.assertEqual('决策 "原文", 第1行\n第二行', rows[1][9])
-        self.assertEqual("证据, '引用'\n补充", rows[1][13])
+        self.assertEqual('решение "оригинал", строка 1 €\nстрока 2', rows[1][9])
+        self.assertEqual("данные €, 'цитата'\nдополнение", rows[1][13])
         self.assertFalse((self.root / "data").exists())
 
     def test_LEDGER_09_malformed_duplicate_or_incompatible_history_is_never_rebuilt(self):

@@ -1,12 +1,20 @@
 ---
-description: 只读核对领域工件、完整验收范围及实际证据的缺口。
+description: Check domain artifacts, the full acceptance scope, and gaps in actual evidence read-only.
 ---
 
-# 审阅领域工件
+# Review domain artifacts
 
-当前输入（由用户填写）：
-- 工件路径、范围、验收来源与基线：待填写。
-- 已知疑点、开放问题和实际决定/执行证据：待填写。
-- 期望审阅重点与输出范围：待填写；默认只读，不执行检查命令或写文件。
+Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
 
-完整读取 [verify-change 的领域工件审阅](../skills/verify-change/SKILL.md#domain-review)，模式、发现字段与停止条件以该文件为准。
+- Artifact paths and scope: TBD
+- Acceptance sources and baselines: TBD
+- Known doubts and open questions: TBD
+- Actual decision/run evidence: TBD
+- Desired review focus and output scope: TBD
+
+## Instructions
+
+1. Read [AGENTS](../../AGENTS.md).
+2. Read [verify-change](../skills/verify-change/SKILL.md) in full, then apply its [domain artifact review](../skills/verify-change/SKILL.md#domain-review) section.
+3. Work read-only by default, without running check commands or writing files.
+4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.
