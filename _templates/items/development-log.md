@@ -8,7 +8,7 @@
 | Field | Content |
 |---|---|
 | Date and session identifier | TBD |
-| Recorder or tool used | TBD: necessary information only |
+| Recorder or tool used | TBD: include only the necessary information |
 | Task source, actual link, and goal | TBD; a maintenance request can serve directly as the basis |
 | Current scope, non-goals, and source of completion conditions | TBD |
 | Branch and starting baseline | TBD after checking |

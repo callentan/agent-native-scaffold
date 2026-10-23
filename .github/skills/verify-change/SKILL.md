@@ -104,7 +104,7 @@ Purpose: check domain artifacts against their sources and against each other, an
 2. Inventory all applicable acceptance criteria first, as in [Coverage check](#coverage) step 1.
 3. Then check the following, without forcing optional materials that were not adopted:
    - term meanings and concept relationships;
-   - the basis from rules to INVs;
+   - the basis linking rules to INVs;
    - the facts owned or consumed by contexts;
    - UC paths and QAS measures;
    - adopted interface/tactical conventions.
@@ -119,7 +119,7 @@ Purpose: check domain artifacts against their sources and against each other, an
    - The suggested action.
    - Any existing BL.
 6. Handle what is missing:
-   - When a file, ID, accountable owner, or evidence is missing, state it item by item.
+   - When a file, ID, accountable owner, or evidence is missing, state each missing item separately.
    - When there is no BL, suggest creating one. Do not pretend it has been created or resolved.
 7. Do not confirm content as approved when it says "confirmed/approved" but lacks a named decision and an applicable baseline. Structural validation cannot authenticate identity either (see [Keep conclusions separate](#conclusions)).
 8. For candidate interpretations of language/boundaries, use [knowledge crunching](../define-requirements/SKILL.md#distill). Actual changes still go back to an authorized task.
@@ -192,7 +192,7 @@ Purpose: check that a BC's derived requirements, design, verification, and gener
    - Does each non-empty conflict, path mismatch, or missing development input have the required blocker record? Skipping does not count as complete generation.
    - Does existing maintenance check the task/diff/reproduction, rather than overwrite with an initializer?
    - Are read-only sources and owner content preserved, as required?
-8. Make actual changes or runs only with specific authorization. This section adds no checker, security audit, or application pass verdict.
+8. Make actual changes or runs only with specific authorization. This section does not add a checker, security audit, or application pass verdict.
 
 - Return: findings using the [existing finding fields](#domain-review): actual location, baseline, rationale, impact, and gaps.
 

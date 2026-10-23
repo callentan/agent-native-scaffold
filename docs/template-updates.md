@@ -1,6 +1,6 @@
 # Read-only template updates and explicit multi-target proposals
 
-Use [update-template](../.github/skills/update-template/SKILL.md). This page maintains the tool's input/output contract; it does not store business facts or a second copy of run results. The tool only compares an **existing local** old baseline, owner files, and a new candidate; it does not apply, merge, clone/fetch, commit/push, create PRs, discover credentials, or update external domain sources. A proposal is not permission, and neither is configuration.
+Use [update-template](../.github/skills/update-template/SKILL.md). This page maintains the tool's input/output contract; it does not store business facts or a second copy of run results. The tool only compares an **existing local** old baseline, owner files, and a new candidate; it does not apply, merge, clone/fetch, commit/push, create PRs, discover credentials, or update external domain sources. A proposal is not permission, and neither is a configuration.
 
 <a id="api"></a>
 ## API and actual inputs
@@ -105,7 +105,7 @@ The `changes/conflicts/preserved/sources` of `UpdatePlan` are all immutable tupl
 | Absent in base/local; added by candidate | add / `CANDIDATE_ADDED`; nothing is actually created |
 | Absent in base; local and candidate add different content | conflict / `ADD_ADD` |
 | Business file present only locally | preserve / `LOCAL_ONLY` |
-| Absent in base and both sides add the same content; deleted on both sides | preserve / `SAME_ADDITION`, `BOTH_DELETED` |
+| Absent in base and both sides add the same content; or both sides delete the file | preserve / `SAME_ADDITION`, `BOTH_DELETED` |
 | Base root missing/unreadable, or a provided version is wrong | input error, not a file deletion |
 | Binary content, BOM, line endings, paths with non-ASCII characters or spaces | decided on raw bytes with deterministic paths/order; no text normalization |
 | Links/out-of-bounds paths/caches/fixtures; source drift or output conflicts | explicit errors or the exclusions above; sources are not written and history is not overwritten |
@@ -139,7 +139,7 @@ The unit of propagation is the raw bytes of the whole registered `.feature` file
 an existing sibling checkout on this machine; personal absolute paths, URL/UNC, backslashes, colons,
 empty segments, environment variables, `~/$/%` expansion, and aliases are not accepted.
 Each target's local version is checked against **all of its mapped target paths**; the source
-base/candidate versions are checked against the full set of files allowed by source. A source file that
+base/candidate versions are checked against the full set of files allowed by the source list. A source file that
 exists in neither the old nor the new version is `SOURCE_FILE_MISSING` and is not disguised as no change.
 There is no default target; the API `target_ids` must be a non-empty iterable of unique, valid IDs and cannot be a single string.
 
@@ -203,7 +203,7 @@ source/target root of the registration, including cached, missing, or target roo
 The output and protected locations are compared after resolution (case-insensitively); when registration
 locations cannot be resolved, only the stdout result is kept and writing is refused. The protection covers
 locations that are equal to, below, or would become a **file ancestor** of such a root; for example, when an
-unselected target is `proposal.json/checkout`, a `proposal.json` file cannot be created to block it.
+unselected target is `proposal.json/checkout`, a `proposal.json` file cannot be created because it would block that root.
 When output is refused, the proposals/unavailable results of independent targets are still on stdout, and the exit code is non-zero;
 a complete per-target report, even one containing unavailable targets, can be explicitly saved to an exact, safe new location and still exits 2;
 if the whole input cannot be parsed, no report is created. An interrupted write may leave an incomplete **new** file; owner content is not deleted or replaced.
@@ -225,12 +225,12 @@ It uses the same Python core, read-only contents permission, and explicitly sele
 only the maker tool's own event commit, disables checkout's clean, and does not clone/fetch targets. A
 trusted self-hosted runner (any OS) must prepare the actual local registration and the three-way trees in
 advance, outside the tool checkout, and must not put work inputs into the tool path that will be checked out;
-the registration gives an exact version for each entry; there is no successful fallback via tokens, secrets, or fetching sources over the network.
+the registration gives an exact version for each entry; no fallback succeeds through tokens, secrets, or network fetches of sources.
 The run steps use Python, the actual interpreter returned by the standard-library venv, and explicit temporary outputs, without hard-coding a shell or environment layout.
 The file keeps the tool environment preparation and artifact saving, but it has no target-branch, PR, or auto-apply step.
 
 The existence of the YAML file, or the fact that it parses locally, does not mean that hosted execution,
 self-hosted permissions, or server-side required checks have been verified.
-Concrete external runs, artifact uploads, and native Git/platform propagation still happen at separately
-authorized gates; until they are run, they remain `not-run`. Local tools, the method's own use, and
-maintainer tests cannot stand in for external fan-out, the manual T17, or native discovery of new entry points.
+Concrete external runs, artifact uploads, and native Git/platform propagation still require separate authorization at each
+gate; until they are run, they remain `not-run`. Local tools, use of the method itself, and
+maintainer tests cannot stand in for external fan-out, the manual T17 run, or native discovery of new entry points.

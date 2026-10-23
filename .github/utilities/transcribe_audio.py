@@ -1,4 +1,4 @@
-"""Guarded audio entry: no service/model/SDK or data transfer is selected."""
+"""Guarded audio entry point: no service, model, SDK, or data transfer is selected."""
 
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ def transcribe_audio(
 ) -> NoReturn:
     """Always refuse until a separately approved concrete adapter exists.
 
-    Supplied strings or an authorized flag cannot install/select an adapter.
-    This entry never opens audio/output, reads secrets or discovers providers.
+    Supplied strings or an authorized flag cannot install or select an adapter.
+    This entry point never opens the audio or output, reads secrets, or discovers providers.
     """
     missing = [name for name, value in (
         ("source", source), ("service", service), ("model", model),

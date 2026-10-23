@@ -1,6 +1,6 @@
 # Optional local domain source integration
 
-The default is still single-repository material; no external source, submodule, or new application
+The default remains single-repository material; no external source, submodule, or new application
 is required. When an existing source needs to be registered, use
 `id/kind/root/path/baseline/readOnly` from the
 [original BC configuration](../.github/contracts/README.md#bc-configuration); this tool adds no source
@@ -9,11 +9,11 @@ Python and dependencies follow the [maintenance tools environment](development.m
 
 The entry point is [setup_domain_source.py](../.github/utilities/setup_domain_source.py); the shared
 YAML/schema, path, and fixed-baseline logic is provided by `artifact_io.py`,
-`check_artifacts.py`, and `source_baseline.py` in the same directory. It does not read the maker
+`check_artifacts.py`, and `source_baseline.py` in the same directory. The tool does not read the maker
 repository's tests or run history.
 
 <a id="operations"></a>
-## First distinguish the three operations
+## The three operations
 
 | Operation | Read and modification scope |
 |---|---|
@@ -133,13 +133,13 @@ An existing BC source can be selected directly by ID:
 python -B -X utf8 .github/utilities/setup_domain_source.py --root . --config bc-config.yaml --source-id owned-domain
 ```
 
-When proposing a source that is not yet registered, supply all the remaining fields of the six:
+When proposing a source that is not yet registered, supply all six fields:
 
 ```text
 python -B -X utf8 .github/utilities/setup_domain_source.py --root . --config bc-config.yaml --source-id owned-domain --kind git --source-root "../existing-domain-source" --source-path domain-model --baseline <full-local-commit> --read-only
 ```
 
-`--owned-source` only replaces `--read-only` to declare readOnly false; it does not allow writing the source.
+`--owned-source` replaces `--read-only` only to declare readOnly false; it does not allow writing the source.
 Missing fields are not filled in from the existing configuration or HEAD. Output is JSON; there is no
 file-report switch, and inspect writes nothing to disk.
 Argument usage errors exit 2 via argparse; readable conflicts and input failures still produce JSON, with exit 1 and 2 respectively.
@@ -159,7 +159,7 @@ register does not commit or stage, and does not interpret a readonly registratio
 
 This is not the default. First inspect with `--operation submodule --target <exact-relative-target>`;
 the proposal lists the target checkout, `.gitmodules`, local config, `.git/modules/<source-id>`, and the index.
-Only after the local source/target operation and the index change have each been authorized, add:
+Only after both the local source/target operation and the index change have been authorized, add:
 
 ```text
 --apply --owned-target --index-consent --expect <preflight-from-this-submodule-proposal>

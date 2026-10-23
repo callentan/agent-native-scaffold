@@ -9,7 +9,7 @@ targets: []
 ---
 # AGG-NNN: TBD aggregate candidate
 
-> Optional tactical record; it does not predetermine a consistency boundary. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/AGG-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing design, and then delete this hint.
+> Optional tactical record; it does not predetermine a consistency boundary. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/AGG-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing design, and then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis
@@ -18,7 +18,7 @@ targets: []
 - Candidate reasons for using an aggregate and the limits of that derivation: TBD; without a basis for the boundary, do not promote it to a decision.
 - Open questions and who needs to confirm them: TBD.
 
-Upstream declarations for the artifact live only in the frontmatter; the body explains how the constraints relate to the boundary and does not infer business rules from class structure.
+Upstream declarations live only in the frontmatter. The body explains how the constraints relate to the boundary and does not infer business rules from class structure.
 
 <a id="boundary"></a>
 ## Responsibility and consistency boundary

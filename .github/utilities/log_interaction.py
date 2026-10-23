@@ -507,7 +507,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--evidence-ref")
     parser.add_argument(
         "--attest-local-storage", action="store_true",
-        help="caller assertion that the selected ledger is single-host local and not network/cloud-sync storage",
+        help="caller assertion that the selected ledger is single-host local, not network or cloud-sync storage",
     )
     parser.add_argument("--lock-timeout", type=float, default=10.0)
     args = parser.parse_args(argv)

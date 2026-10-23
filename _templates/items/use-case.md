@@ -50,7 +50,7 @@ The frontmatter declares the actual upstream, such as the CAP, the artifacts tha
 <a id="acceptance"></a>
 ## Observable postconditions and business acceptance
 
-Each block is a criterion of the owning UC, not a run record. When adding or removing real entries, keep their basis; replace the full ID and the anchor immediately before it together.
+Each block is a criterion of the owning UC, not a run record. When you add or remove real entries, keep their basis. Replace the full ID together with the anchor directly above its heading.
 
 <a id="uc-nnn-ac-01"></a>
 ### UC-NNN-AC-01: Normal path

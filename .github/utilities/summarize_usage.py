@@ -128,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
         help="caller assertion for writes that the selected path is single-host local, not network/cloud-sync storage",
     )
     parser.add_argument("--lock-timeout", type=float, default=10.0,
-                        help="wait limit for --output; ignored by read-only stdout summaries")
+                        help="wait limit when writing --output; ignored for read-only stdout summaries")
     args = parser.parse_args(argv)
     try:
         if args.output is None:

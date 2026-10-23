@@ -52,7 +52,7 @@ Cite patient, clinical, safety, or regulatory requirements only when an actual s
 | Accepted/rejected scope and limitations | Not provided: do not confirm new uses or downstream commitments |
 | Escalation conditions and actual responsibility entry point | Not provided: unknown policies must be determined by the accountable owner; do not classify automatically |
 
-This record's confirmation statement stays in the frontmatter per the existing contract; it does not replace the original Intended Use decision. When the responsibility policy, environment, or constraints are unknown, keep `draft` and the stop point for the affected confirmation.
+This record's confirmation statement stays in the frontmatter per the existing contract; it does not replace the original Intended Use decision. When the responsibility policy, environment, or constraints are unknown, keep `draft` and record a stop point for the affected confirmation.
 
 <a id="impact"></a>
 ## Impact, questions, and follow-up

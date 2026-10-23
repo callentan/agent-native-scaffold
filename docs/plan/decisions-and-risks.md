@@ -37,7 +37,7 @@ These items are no longer implementation tasks for this project's first release,
 | Automatic upgrades, cross-repository report sync | Normal Git diff and review; design separately once a concrete collaboration need appears |
 | Method/assurance/stack package-management system | Provide the necessary documentation and rules first; do not build a pluggable framework up front |
 
-The lessons kept are: facts are locatable, tasks are scoped, verification is real, records support takeover, and rules are not duplicated. The software platform that over-extended itself to achieve these goals is not kept.
+The lessons kept are: facts are locatable, tasks are scoped, verification is real, records support takeover, and rules are not duplicated. The over-extended software platform built to achieve these goals is not kept.
 
 ## 3. P0 decision record
 
@@ -67,7 +67,7 @@ D03 and D04 record the user's chosen client and delivery boundary; D10–D12 rec
 
 - P1/P2 build the skeleton files in this repository; the target layout maps directly to a downstream repo root and requires no installer package, generator, or extra runtime layer.
 - The release candidate is built by copying the specific files listed in the blueprint, one by one, into a clean directory; project-material directories initially contain only filling instructions, and `src/` contains only a README. Do not copy the current `docs/`, `.github/`, or `logs/` as whole directories.
-- This repository's `docs/research/`, `docs/design/`, `docs/plan/`, maker-process logs, exercise outputs, and `.git` history never go downstream; downstream files must not link back to this undistributed material. The README and development guide in the blueprint mean the versions P1/P2 write for downstream use, not verbatim copies of the current design documents.
+- This repository's `docs/research/`, `docs/design/`, `docs/plan/`, maker-process logs, exercise outputs, and `.git` history never go downstream; downstream files must not link back to this undistributed material. The README and development guide named in the blueprint are the versions P1/P2 write for downstream use, not verbatim copies of the current design documents.
 - The current research repository is not turned directly into a public template. Release happens only in an authorized way, after the content and authorization review is complete and the release items are confirmed; this round does not create a remote repository, change visibility, set the template flag, or choose a license.
 
 ### 3.3 Inputs needed for first-time setup
@@ -81,7 +81,7 @@ D03 and D04 record the user's chosen client and delivery boundary; D10–D12 rec
 | Verifying a code change | Acceptance basis, actual commands, and an available environment; run with the real tools and record the results | Checks that cannot be run are explicitly marked `not-run` with a reason and are not treated as passing | Results belong in verification records, and logs only reference them; a skeleton without an application does not claim build or test success |
 | Pushing, releasing, or changing permissions | User authorization for that operation; a formal release also requires confirming content, license, visibility, version, and maintainers | Unconfirmed release items do not block local building or authorized development collaboration, but release operations that depend on them must not be performed | Use existing platform mechanisms; do not infer authorization from the template's existence or an Agent's own claims |
 
-Filling hints in the template are not downstream project facts. First-time setup does not automatically run project-initialization commands such as `npm init` or `dotnet new`; only after the user decides to create a specific project is it handled the native way for the chosen tech stack.
+Filling hints in the template are not downstream project facts. First-time setup does not automatically run project-initialization commands such as `npm init` or `dotnet new`; once the user decides to create a specific project, it is handled with the native tooling of the chosen tech stack.
 
 ### 3.4 P0 exit and follow-up decisions
 
@@ -102,7 +102,7 @@ The license, release location, visibility, version, and maintainers in D01, and 
 | Duplicated or conflicting rules | AGENTS, instructions, agents, and prompts each hold their own copy of the workflow | Method text stays in skills, project facts only in project documents, and entry points use references |
 | Directories renamed but responsibilities not adjusted | The same specification lives in several directories, or maintenance tasks are forced into user stories | Define clear locations for REQ/SR/US/ABB/VT and use the same mapping in entry points and skills; maintenance tasks can keep using issues/PRs |
 | False compatibility | Claiming every Agent loads the files just because they exist | Distinguish generic reading from native discovery, record the client and version, and verify in practice |
-| False security | Claiming sandboxing, approval, and budget control because "no overreach" is written down | Rely on the actual host and platform configuration, and state the template's capability boundary clearly |
+| False security | Claiming sandboxing, approval, or budget control merely because "no overreach" is written down | Rely on the actual host and platform configuration, and state the template's capability boundary clearly |
 | False completion | The log says passed, but there is no real result or matching version | Record actual commands, results, and reports; mark anything not run as not run |
 | Stale or leaking logs | A new session blindly trusts old progress, or full chats and sensitive output are committed | Check Git first when taking over; logs keep only the necessary summary and never store keys or private runtime data |
 | Merge breaks the original project | The template overwrites existing instructions, documents, or source code | Compare before merging; on conflict, keep the existing content and report it |
@@ -115,7 +115,7 @@ P1 has built the project-material entry points and seven form types; P2 has conn
 
 P3 is not complete as a whole. This round authorized a standalone local Git test project; four real App sessions completed fresh onboarding, loading of six project methods, three API working modes, and Git takeover; the conflicting-merge preflight kept all original text. Automatic path matching, GUI/optional prompts, the human comparison, and release confirmation remain unverified; the human path is deferred to later at the user's choice. No business tech stack was chosen, no application was created, not every client was tested, and no release was announced; see the [implementation plan](roadmap.md#actual-acceptance) for scope and evidence limitations.
 
-The original research facts and sources are kept; the reasoning about a custom executor is no longer a product requirement. The official basis for Copilot file conventions is registered in the [integration notes](../agent-support.md#official-sources) and still kept separate from actual client observations. Records of naming adoption are not evidence that the reference repositories were re-verified, and local exercises do not imply that native entry points have passed.
+The original research facts and sources are kept, but a custom executor is no longer a product requirement. The official basis for Copilot file conventions is registered in the [integration notes](../agent-support.md#official-sources) and still kept separate from actual client observations. Records of naming adoption are not evidence that the reference repositories were re-verified, and local exercises do not imply that native entry points have passed.
 
 No reference repository was modified, no new remote repository was created, visibility and the template flag were not changed, and no auto-merge, deployment, or other permissions were enabled.
 

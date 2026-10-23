@@ -22,14 +22,14 @@ Apply these rules when changing architecture documents or code. They tie archite
 - Where a layered or ports-and-adapters architecture is already adopted, make domain rules and business control logic depend inward. Do not let infrastructure details dictate domain meaning in reverse.
 - In that architecture, only an explicit composition root or startup wiring location may reference concrete adapters to assemble dependencies. The wiring does not own business rules.
 - This wiring exception does not extend to every controller. A boundary entry point must not use wiring as a pretext to bypass use-case or domain constraints, or to write business state directly without an agreed contract.
-- An existing project exception, such as a read-only projection, needs an actual scope or decision basis. Do not infer a general permission to access the database from it.
+- An existing project exception, such as a read-only projection, needs an actual scope or decision basis. Do not infer a general permission to access the database from that exception.
 
 ## Integration and runtime constraints
 
 - Use sources to distinguish fact owners from consumers, and logical dependencies from runtime message direction.
 - Where an explicit asynchronous integration or event-consumption contract exists, keep its boundary. A conceptual exchange between contexts is not enough to infer service calls, transport, retries, or delivery guarantees.
-- Constraints on dependency versions, interface compatibility, failure/concurrency, runtime/deployment, and observability need an actual source. When one is unknown, raise an item to be confirmed; do not fill in common SLAs or infrastructure.
-- Take real trade-offs back to an [ADR](../../architecture/README.md#decisions). Do not write back to domain sources automatically.
+- Constraints on dependency versions, interface compatibility, failure/concurrency, runtime/deployment, and observability need an actual source. When a constraint is unknown, raise an item to be confirmed; do not fill in common SLAs or infrastructure.
+- Record real trade-offs in an [ADR](../../architecture/README.md#decisions). Do not write back to domain sources automatically.
 
 ## Deviations and evidence
 

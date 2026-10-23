@@ -65,9 +65,9 @@ def _interpreter(value, root):
 
 def _launcher(root, hook, python, prefix):
     entry = root / ".github" / "hooks" / hook
-    # Git for Windows' Python shebang dispatch was observed using a different
+    # Git for Windows' Python shebang dispatch was observed to use a different
     # interpreter even with an absolute path. Git's bundled sh preserves the
-    # selected interpreter. POSIX gets a direct Python shebang when representable.
+    # selected interpreter. POSIX gets a direct Python shebang when the path is representable.
     if os.name == "nt" or any(c.isspace() for c in str(python)) or len(os.fsencode(python)) > 120:
         args = [python.as_posix(), "-B", "-X", "utf8", entry.as_posix(), "--root", root.as_posix(),
                 "--selected-python", str(python), "--selected-prefix", prefix]
@@ -87,7 +87,7 @@ def _launcher(root, hook, python, prefix):
 
 
 def _create_owned(path, raw, payload, created):
-    # Account for exclusive creation before write, context entry, flush or
+    # Account for the exclusive creation before the write, context entry, flush, or
     # close can fail. A partial file must not disappear from the recovery list.
     stream = path.open("xb")
     record = {"path": str(path), "expected_sha256": _sha(raw), "write_complete": False}
@@ -117,8 +117,8 @@ def _recovery(created):
         except OSError as error:
             item.update(state="unreadable", error=str(error))
         files.append(item)
-    # Retain even byte-identical completed files. An I/O failure is not proof
-    # that a later owner's replacement/edit may safely be removed.
+    # Retain even byte-identical completed files. An I/O failure does not prove
+    # that a later owner's replacement or edit can safely be removed.
     return {"state": "manual-required", "automatic_cleanup": False, "files": files,
             "message": "Installation is incomplete. Inspect these exact retained/partial paths and owner changes; "
                        "reconcile ownership before retrying installation or restoration. No files were deleted."}
@@ -224,7 +224,7 @@ def install(root, hooks, python=None, *, apply=False, restore=False):
                     _create_owned(receipt, receipt_bytes, payload, created)
                 payload["status"] = "installed"
     except (HookInputError, OSError, ValueError) as error:
-        # No speculative rollback of partially written or later owner-edited
+        # Do not speculatively roll back partially written or later owner-edited
         # files. Report every exclusive creation and its observable state.
         if created:
             payload["recovery"] = _recovery(created)

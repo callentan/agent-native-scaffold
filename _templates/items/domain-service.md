@@ -9,7 +9,7 @@ targets: []
 ---
 # DS-NNN: TBD domain service candidate
 
-> Optional record of a domain operation; not an application-service or network-service design. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/DS-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing division of responsibilities, and then delete this hint.
+> Optional record of a domain operation; not an application-service or network-service design. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/DS-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing division of responsibilities, and then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis

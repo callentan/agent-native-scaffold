@@ -179,7 +179,7 @@ def _source_sections(context, pointer):
         )
     data = reader.document(path, raw)
     if "object" in data and "entries" in data:
-        # Use the existing reconstruction adapter, not schema-valid result claims.
+        # Use the existing reconstruction adapter rather than making schema-valid result claims.
         from export_model import _implementation_source
         _implementation_source(reader, path, pointer["baseline"], data, context["scope"])
         selected = [("implementation report reference",

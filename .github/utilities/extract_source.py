@@ -53,7 +53,7 @@ def _valid_text(value) -> bool:
 
 
 def _local_path(value: PathInput, *, root: PathInput | None = None) -> Path:
-    """Select one ordinary local file; reject aliases before their resolution."""
+    """Select one ordinary local file, and reject aliases before they are resolved."""
     try:
         text = os.fspath(value)
         if (not _valid_text(text) or any(ord(c) < 32 for c in text)
@@ -469,7 +469,7 @@ def extract_candidates(source: PathInput, kind: str) -> dict:
 
 
 def _write_output(payload, output: str, root: PathInput, protected=()) -> None:
-    """Shared new-output rule, additionally confined to --root and away from its inputs."""
+    """Shared new-output rule, additionally confined to --root and kept away from its inputs."""
     actual_root = _local_root(_checked_location(root))
     path = _output_path(output, actual_root, (".json",), within=actual_root, protected=protected)
     _write_new(path, json.dumps(payload, ensure_ascii=False, allow_nan=False, indent=2) + "\n")

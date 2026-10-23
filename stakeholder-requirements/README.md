@@ -23,9 +23,9 @@ An unfilled section does not mean "no constraints". When a fact that affects beh
 
 1. Look up existing requirements and [domain facts](../domain-model/README.md#sources), and confirm the sources, current status, applicable contexts, and rules. Do not automatically turn a proposal into an approved item.
 2. When a new requirement is needed, use the [REQ form](../_templates/items/stakeholder-requirement.md) and save it as `stakeholder-requirements/REQ-NNN-<slug>.md`. `NNN` and `<slug>` are placeholders; the number is assigned when the real artifact is created.
-3. Write one business need, its applicable scope, non-goals, and observable business acceptance. Reference domain rules instead of maintaining a duplicate copy of their values or full text; the acceptance states under what conditions, and how, to judge that the goal is met.
+3. Write one business need, its applicable scope, non-goals, and observable business acceptance. Reference domain rules instead of maintaining a duplicate copy of their values or full text; the acceptance states the conditions and method for judging that the goal is met.
 4. Give each acceptance criterion a full ID and a stable ASCII anchor, for example `REQ-NNN-AC-01` with `req-nnn-ac-01`. Number multiple acceptance criteria individually, and keep the ID when the wording changes; a withdrawn criterion keeps its change basis, and its old number is never reused.
-5. Following the [verification guide](../verification/README.md#coverage-check), start from all acceptance criteria to find business acceptance VTs. Passing SR tests do not automatically prove that REQ business acceptance has passed.
+5. Follow the [verification guide](../verification/README.md#coverage-check): start from all acceptance criteria to find business acceptance VTs. Passing SR tests do not automatically prove that REQ business acceptance has passed.
 
 Links between formal files take the following form; this only illustrates the syntax and is not an existing requirement:
 
@@ -33,7 +33,7 @@ Links between formal files take the following form; this only illustrates the sy
 [REQ-NNN-AC-01](REQ-NNN-<slug>.md#req-nnn-ac-01)
 ```
 
-An SR keeps its own upstream REQ links, and a VT keeps its own target links; to find downstream items, search in reverse instead of maintaining another mapping or verification results in the REQ. A standalone maintenance request can serve directly as the task basis; there is no need to invent a REQ.
+An SR keeps its own upstream REQ links, and a VT keeps its own target links. To find downstream items, search in reverse; do not maintain another mapping or verification results in the REQ. A standalone maintenance request can serve directly as the task basis; there is no need to invent a REQ.
 
 <a id="domain-inputs"></a>
 ## Use optional domain inputs
@@ -50,7 +50,7 @@ When the current task genuinely has an intended-use or risk basis, reference the
 When a standalone quality requirement is needed, use the [QAS form](../_templates/items/quality-attribute-scenario.md) and save it as `stakeholder-requirements/QAS-NNN-<slug>.md`; do not store quality metrics separately in domain rules or in the product description.
 
 - Fill in the source of stimulus, stimulus, environment, object, response, and response measure separately, stating the source and scope of each.
-- A measure needs an observable criterion, a unit/statistical definition or another way of judging, and its basis. Without a value or method, keep `draft`, the specific gap, and who needs to confirm it; do not fill in a typical SLA, regulatory classification, or platform guarantee.
+- A measure needs an observable criterion, a unit/statistical definition or another way of judging, and its basis. Without a value or method, keep `draft`, record the specific gap, and name who needs to confirm it; do not fill in a typical SLA, regulatory classification, or platform guarantee.
 - A QAS's standalone criteria use owner-qualified acceptance IDs/anchors; [validation scenarios or VTs](../verification/README.md#domain-scenarios) reference the specific items. For non-behavioral concerns, keep only the specification and the inputs still needed; do not force an executable scenario.
 - When the requirement baseline changes, re-review the semantic impact on UCs, design, and verification, and keep the original run baselines and results. Filling in a QAS or passing schema validation does not mean that quality acceptance has passed.
 

@@ -9,7 +9,7 @@ targets: []
 ---
 # EVT-NNN: TBD domain event candidate
 
-> Optional modeling record for a business fact that has occurred; not a message publication or a delivery guarantee. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/EVT-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing fact definitions, and then delete this hint.
+> Optional modeling record for a business fact that has occurred; not a message publication or a delivery guarantee. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/EVT-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing fact definitions, and then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis

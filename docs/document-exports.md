@@ -3,13 +3,13 @@
 These tools only generate rebuildable derived documents; they do not take over the domain,
 architecture decisions, VT results, or approvals.
 Use Python 3.11+ and the [existing maintenance environment](development.md#maintenance-tools);
-local JSON, SVG, and HTML use only the stdlib, with no browser, CDN, remote fonts, or source commands.
+local JSON, SVG, and HTML use only the stdlib, with no browser, CDN, remote fonts, or commands from sources.
 The [rendering manifest](../.github/utilities/requirements-rendering.txt) does not select a PDF/PPTX engine.
 
 <a id="inputs"></a>
 ## Inputs and return values
 
-Import the three bound functions from the modules of the same name; the API does not write files
+Import each function from the module of the same name; the API does not write files
 or change the cwd:
 
 ```python
@@ -24,7 +24,7 @@ render_presentation(inputs, format)
 Each source reuses the existing evidence pointer: `{"reference": "architecture/SWAS-001.md",
 "baseline": "sha256:<actual raw-byte digest>"}`; the reference may carry a real explicit anchor,
 and the baseline may also be a readable full local Git commit/blob. Unknown fields, duplicate
-selections, and invalid versions, paths, references, or mismatched baselines are not empty data.
+selections, and invalid versions, paths, references, or mismatched baselines are errors, not empty data.
 
 Every call reads the real inventory of the explicit root and reuses the parser, the nine-view
 derivation, source selection, and baseline checks. `model_path` is only an existing model to be
@@ -70,8 +70,8 @@ A node `key` is the full `scope/id` and keeps the path, baseline, identity line,
 An edge keeps the `source/target` node keys, `sourceRef/targetRef`, `relation`, and the original
 declaration path/line; targets additionally keep criterion/testId.
 
-- `upstream` is **declarer → the source it depends on**, not a reversed message flow;
-  targets is **the verifying/declaring artifact's criterion → the verified target**.
+- `upstream` points **from the declarer to the source it depends on**, not a reversed message flow;
+  `targets` points **from the verifying or declaring artifact's criterion to the verified target**.
 - All owners in the selected scope are kept, including isolated nodes; the cross-scope dependency
   closure is included along actual relations, and identical short IDs are not merged. Cycles are
   traversed only once, and no edge is lost.
@@ -110,8 +110,8 @@ are explicitly unsupported and are not concatenated. The limited subset is:
   or zero messages are all explicitly unsupported.
 
 An unsupported diagram is never drawn as a "complete" sequence; the document keeps the source and the
-specific line/syntax gaps, status is `unsupported`, and the CLI exits 1. Comments, outer literals,
-adjacent sections, and unclosed fences cannot be borrowed to produce messages. Success/rejection/error
+specific line/syntax gaps, status is `unsupported`, and the CLI exits 1. Comments, literal text outside the fence,
+adjacent sections, and unclosed fences cannot be used to produce messages. Success/rejection/error
 boundaries come from the original `paths` section and the actual diagram; the tool does not fill them in.
 There is no promise of full Mermaid compatibility.
 
@@ -168,9 +168,7 @@ path; the next run still refuses to overwrite it.
 
 PDF and PPTX requests return `unavailable` with `content: null`; no corresponding output is created,
 and global packages are not probed to infer authorization. No engine, version, template, package,
-container, or service has been selected/approved yet. In the future, separate authorization must be
-obtained for selection, installation, and input processing, and the actual dependencies must be locked
-before real signature, parser, non-zero page/slide count, complete source content, and human/App checks
-are run. A file name alone, a `%PDF`/`PK` prefix, or a zero-page file does not qualify.
-Limited refusal regression is not evidence of success for these formats.
+container, or service has been selected/approved yet. In the future, separate authorization is required for selection, installation, and input processing; the actual dependencies must then be locked
+before the real signature, parser, non-zero page/slide count, complete source content, and human/App checks are run. A file name alone, a `%PDF`/`PK` prefix, or a zero-page file does not qualify.
+The limited refusal regression is not evidence of success for these formats.
 Local HTML/SVG does not close the full ENH-17 or overall parity.

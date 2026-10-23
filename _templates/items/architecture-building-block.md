@@ -44,7 +44,7 @@ Contexts are not required to map to services, repositories, or code layers. Reco
 |---|---|---|---|
 | TBD | TBD | TBD | TBD |
 
-Adopt an asynchronous boundary only when a source provides an event consumption/asynchronous integration contract; a conceptual exchange is not a service call. While dependency products and versions are not selected, keep the missing items; do not add a default SDK, broker, or delivery guarantee. Check the legitimate composition entry point and the domain dependency direction separately against the [architecture rules](../../.github/instructions/architecture.instructions.md).
+Adopt an asynchronous boundary only when a source provides an event consumption/asynchronous integration contract; a conceptual exchange is not a service call. While dependency products and versions are not selected, keep the missing items; do not add a default SDK, broker, or delivery guarantee. Check that the composition entry point is legitimate, and check the domain dependency direction separately against the [architecture rules](../../.github/instructions/architecture.instructions.md).
 
 <a id="runtime"></a>
 ## Runtime, deployment, and quality constraints (when applicable)
@@ -65,7 +65,7 @@ Copy the block below once for each constraint that needs separate verification; 
 ### ABB-NNN-VC-01: TBD
 
 - Sourced design constraint and its scope of application: TBD.
-- Refinement basis and navigation to the original text: TBD; relationships and this artifact's content statements still belong in the frontmatter.
+- Refinement basis and navigation to the original text: TBD; relationships and this artifact's content state still belong in the frontmatter.
 - Observable pass criterion: TBD.
 - Required design/component/integration checks and their preconditions: TBD; do not presume tests already exist.
 

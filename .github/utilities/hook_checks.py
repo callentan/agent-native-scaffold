@@ -76,9 +76,9 @@ def _check_runtime(runtime, *, selected_python=None, selected_prefix=None):
 
 
 def git_environment(overrides=None):
-    # Shared Git context, keeping a caller-selected config file (e.g. a fixture's
+    # Shared Git context that keeps a caller-selected config file (for example, a fixture's
     # isolation). Imported lazily: the runtime check runs before dependencies load.
-    # The native GIT_INDEX_FILE is captured explicitly by acquire_index.
+    # acquire_index captures the native GIT_INDEX_FILE explicitly.
     from check_artifacts import _git_environment
     return _git_environment(keep_config=True, overrides=overrides)
 
@@ -420,7 +420,7 @@ def run_hook(hook, root, *, base=None, message=None, selected_python=None, selec
         payload.update(status="input-error", findings=[*payload["findings"], error.finding()])
     except (OSError, UnicodeError, ValueError) as error:
         # Preserve the checker's exact codes, including INVALID_BASE and
-        # BASE_UNAVAILABLE. Other acquisition/decoding errors cannot be empty.
+        # BASE_UNAVAILABLE. Other acquisition and decoding errors must not be reported as empty.
         finding = {"code": getattr(error, "code", "INDEX_UNAVAILABLE"),
                    "path": str(getattr(error, "path", root)), "line": getattr(error, "line", 1),
                    "owner": None, "target": None, "message": getattr(error, "message", str(error)), "related": None}

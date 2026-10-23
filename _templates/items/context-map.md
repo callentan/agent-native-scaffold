@@ -9,7 +9,7 @@ targets: []
 ---
 # CM-NNN: TBD context map notes
 
-> Optional relationship description; it requires neither a diagram nor splitting services. First read the [directed exchanges](../../domain-model/README.md#exchanges) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CM-NNN-<slug>.md` only when needed; confirm the `PROJECT/CTX-NNN` this record belongs to, replace the ID, title, and anchors, fix relative links, keep any existing relationships, and then delete this hint.
+> Optional relationship description; it requires neither a diagram nor splitting services. First read the [directed exchanges](../../domain-model/README.md#exchanges) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CM-NNN-<slug>.md` only when needed. Confirm the `PROJECT/CTX-NNN` this record belongs to, replace the ID, title, and anchors, fix relative links, keep any existing relationships, and then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries

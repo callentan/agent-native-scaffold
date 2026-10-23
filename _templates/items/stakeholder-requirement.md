@@ -31,12 +31,12 @@ Identity, scope, content state, and parseable upstream are maintained only in th
 - Non-goals and constraint sources: TBD.
 - Open facts and their impact on this requirement: TBD.
 
-Rule text stays in the domain model; here, cite the rules and explain the business need without maintaining the rule values or full text again.
+Rule text stays in the domain model; here, cite the rules and explain the business need without keeping a second copy of the rule values or text.
 
 <a id="acceptance"></a>
 ## Business acceptance
 
-Copy the block below for each item, using a unique ID that includes the owning REQ and a fixed ASCII anchor; `AC-01` alone is not enough. All content is TBD, and the example ID is not a formal acceptance criterion.
+Copy the block below for each item. Use a unique ID that includes the owning REQ and a fixed ASCII anchor; `AC-01` alone is not enough. All content is TBD, and the example ID is not a formal acceptance criterion.
 
 <a id="req-nnn-ac-01"></a>
 ### REQ-NNN-AC-01: TBD
@@ -49,7 +49,7 @@ Copy the block below for each item, using a unique ID that includes the owning R
 | Boundaries, exceptions, or forbidden outcomes | TBD; keep undefined parts open |
 | Related rules/contexts and confirmation source | TBD: ID, stable link, and basis |
 
-Run results are not recorded here. The VT holds its business acceptance targets and is found in reverse by the full ID; a missing VT or a not-run status is not a pass, and passing software checks do not automatically prove that this item holds.
+Run results are not recorded here. The VT holds its business acceptance targets and is found by searching for the full ID; a missing VT or a not-run status is not a pass, and passing software checks do not automatically prove that this item holds.
 
 <a id="changes"></a>
 ## Changes and open items

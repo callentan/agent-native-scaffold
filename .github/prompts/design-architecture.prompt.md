@@ -4,7 +4,7 @@ description: Organize the necessary ABBs or ADRs according to actual constraints
 
 # Design the architecture
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Design question, scope, and non-goals: TBD
 - Original text, baselines, and confirmation basis of the actual SR, contexts/CAP, QAS, interfaces, and existing ABB/ADR: TBD

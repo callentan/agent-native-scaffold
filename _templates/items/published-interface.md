@@ -18,7 +18,7 @@ targets: []
 - Proposed commitments and the basis for deriving them: TBD; a consumer's need cannot automatically be treated as a provider commitment.
 - Open questions and who needs to confirm them: TBD.
 
-Parsable upstream belongs in the frontmatter; the body explains the semantics and basis of the commitments and does not certify approvers.
+Parsable upstream belongs in the frontmatter. The body explains the semantics and basis of the commitments, and it does not certify approvers.
 
 <a id="direction"></a>
 ## Ownership and direction

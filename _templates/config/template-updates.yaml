@@ -1,6 +1,6 @@
 # Optional data form, not an executable manifest or authorization.
-# Fill the exact contract in docs/template-updates.md#registration.
-# Empty values/lists below are deliberately not usable input.
+# Fill in the exact contract in docs/template-updates.md#registration.
+# The empty values and lists below are deliberately not usable as input.
 schemaVersion: 1
 source:
   repository: ""

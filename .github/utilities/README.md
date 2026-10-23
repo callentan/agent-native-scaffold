@@ -1,12 +1,12 @@
 # Local maintenance tools
 
-This directory provides parsing, formal-artifact checks, coverage and impact candidates, a deterministic reference model, read-only implementation-report collection, three-way and explicit multi-target update proposals, explicit local source preflight and onboarding, local document/transcript candidates with transparent scoring, and sourced local exports of relationship graphs, architecture views, and presentations; the optional hook adapter and installer entry points are described in a later section. These tools are not an application, a unified CLI framework, a general-purpose executor, or a global library. Schema fields and complete examples are maintained only in the [contract notes](../contracts/README.md); these mechanical tools do not prove business execution or approval.
+This directory provides parsing, formal-artifact checks, coverage and impact candidates, a deterministic reference model, read-only implementation-report collection, three-way and explicit multi-target update proposals, explicit local source preflight and onboarding, local document/transcript candidates with transparent scoring, and sourced local exports of relationship graphs, architecture views, and presentations. The optional hook adapter and installer entry points are described in a later section. These tools are not an application, a unified CLI framework, a general-purpose executor, or a global library. Schema fields and complete examples are maintained only in the [contract notes](../contracts/README.md); these mechanical tools do not prove business execution or approval.
 
 ## Tool environment
 
 The tools require Python 3.11+ and target Windows, Linux, and macOS. The environment and command registration are in the [maintenance tools section of the development guide](../../docs/development.md#maintenance-tools), kept separate from downstream business applications; maker-repository regression tests and run history are not prerequisites for downstream use. Locations are determined by explicit arguments and project-relative resources; no specific drive letter or directory is required. The checkers serve only DDD artifacts, references, coverage, and derived results; they are not a file-system audit or a sandbox.
 
-- [requirements.txt](requirements.txt) lists only the approved PyYAML 6.0.2 and jsonschema 4.23.0; these are the locked and tested versions, while at run time the tools only require both to be importable.
+- [requirements.txt](requirements.txt) lists only the approved PyYAML 6.0.2 and jsonschema 4.23.0; these are the locked and tested versions. At run time, the tools only require both to be importable.
 - [requirements.lock](requirements.lock) keeps the six versions actually resolved in a Python 3.13 environment, plus a conditional `typing-extensions==4.16.0` entry that Python `<3.13` needs and that was verified by an actual install on 3.11; 3.11 selects seven entries and 3.13 still selects the original six. The condition comes from the package metadata of `referencing` and does not upgrade the original pins. pip is an environment installation tool, not a runtime dependency of the tools; no hashes were guessed.
 - On Windows, from the repository root, run `python -m venv .venv`, restore the locked environment with `.venv\Scripts\python.exe -m pip install -r .github\utilities\requirements.lock`, and then run `.venv\Scripts\python.exe -m pip check`.
 - No environment activation or global pip is needed; there are no media packages, extra DOCX/PDF packages, binary-format renderers, cloud SDKs, or application dependencies. The narrow DOCX adapter uses stdlib ZIP/XML; the [optional media manifest](requirements-media.txt) selects no packages. Local JSON/SVG/HTML output uses the stdlib, and the [rendering manifest](requirements-rendering.txt) selects no PDF/PPTX engine. Other hosts use their actual `.venv/bin/python`; users must verify the local interpreter and the installed dependencies.
@@ -22,7 +22,7 @@ The fixed CSV v1 columns are:
 schema_version,record_id,recorded_at,tool_name,tool_version,task_ref,object_ref,object_baseline,operation_summary,decision_ref,usage_value,usage_unit,usage_currency,evidence_ref
 ```
 
-Field meanings, the minimal data boundary, and limitations are in the [AI tooling guide](../../docs/ai-tooling.md#interaction-ledger). [`_templates/reports/ai-interaction-log.csv`](../../_templates/reports/ai-interaction-log.csv) is a blank header to copy, not an active ledger; first copy it yourself to a new `.csv` in an existing local directory, and never write to the template directly as a ledger. The API/CLI require an explicit absolute path to an existing regular file with an existing v1 header; they do not create parent directories or repair bad records. Every row must carry a timezone-qualified time `YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)`; the original literal text of the time and usage is preserved, and values accept only finite, non-negative plain decimals, not exponent notation. The summary is at most 512 characters; callers must not put complete interactions or sensitive data into it.
+Field meanings, the minimal data boundary, and limitations are in the [AI tooling guide](../../docs/ai-tooling.md#interaction-ledger). [`_templates/reports/ai-interaction-log.csv`](../../_templates/reports/ai-interaction-log.csv) is a blank header to copy, not an active ledger; first copy it yourself to a new `.csv` in an existing local directory, and never write to the template directly as a ledger. The API/CLI require an explicit absolute path to an existing regular file with an existing v1 header; they do not create parent directories or repair bad records. Every row must carry a timezone-qualified time `YYYY-MM-DDTHH:MM:SS[.fraction](Z|±HH:MM)`; the original literal text of the time and usage is preserved, and usage values accept only finite, non-negative plain decimals, not exponent notation. The summary is at most 512 characters; callers must not put complete interactions or sensitive data into it.
 
 Cross-platform read/write boundaries:
 
@@ -57,8 +57,8 @@ drift, wrong sources, or unsupported SEQ produce explicit diagnostics.
 The parser's `section_fences(artifact, anchor)` only projects the closed fences owned by an already parsed Artifact and shares the original comment/literal state machine with the model;
 it adds no new file parser or authorization boundary.
 
-The API and the default CLI do not write. Only an explicit new output is created, exclusively; its parent directory must exist,
-and sources, history, declared-but-missing locations and their ancestor/child paths, and case/alias conflicts are all rejected. There are no CDNs, remote fonts,
+The API and the default CLI do not write. The only file written is an explicit new output, created exclusively. Its parent directory must exist,
+and the output is rejected if it conflicts with a source or history path, a declared-but-missing location or its ancestor/child paths, or a case/alias conflict. There are no CDNs, remote fonts,
 scripts, source commands, or automatic downloads. PDF/PPTX have only an unavailable/not-run rejection contract,
 which is not success in that format; the actual engine, dependencies, signature/parser, non-zero pages/slides, source content, and human/App
 gates still require separate authorization and execution. A local export is not SWAS approval or complete equivalent acceptance.
@@ -73,11 +73,11 @@ public 0–100 factors with reasons; these are not probabilities or acceptance t
 is the [source-candidate contract](../../docs/source-extraction.md); it is not added to the formal-artifact schema.
 
 The complete normalized source unit and its classification must agree; qualifiers cannot be dropped by matching a substring. Markdown candidates use the
-preceding-comment context produced by the same scanner; it is not a caller override of the visible body or a source authentication.
+preceding-comment context produced by the same scanner. This context is not a caller override of the visible body, and it is not source authentication.
 The envelope also checks the declared total unit count, format-specific coordinates/order, and empty-unit relations, and scoring happens only when all are valid;
 a bare list does not invent a total or drop duplicate sources. A DOCX table without a grid keeps the rectangular limit based on the first-row width.
 
-The API and the default CLI do not write; explicit output only exclusively creates a new JSON file inside the root and never creates directories or
+The API and the default CLI do not write. Explicit output only creates a new JSON file exclusively, inside the root, and never creates directories or
 overwrites declared inputs. `transcribe_audio` currently has only a rejection entry point (authorization/missing items/unavailable); it does not read audio or environment secrets,
 install SDKs, or call services. Candidates still go back to the [shared reverse-engineering method](../skills/reverse-engineer-domain/SKILL.md)
 for checking and clarification; the tools cannot record them as confirmed facts.
@@ -88,7 +88,7 @@ for checking and clarification; the tools cannot record them as confirmed facts.
 The [hook guide](../hooks/README.md) defines the installation proposal, explicit apply, per-path recovery, index semantics, and
 the `Reviewed-by` text policy for managed paths. By default `install_hooks.py` does not write; it rejects existing hooks,
 configuration conflicts, and shared worktree metadata, and it never modifies Git configuration or commits/pushes automatically.
-When installation I/O fails, it keeps and itemizes everything this run fully or partially created; it does not guess and delete later owner content.
+When installation I/O fails, it keeps and itemizes everything this run fully or partially created; it does not guess at or delete owner content added later.
 
 `hook_checks.py pre-commit --root <checkout-root>` can also be called directly with the selected project Python;
 it uses the actual index and raw blobs rather than working files, and accepts an exact `--base` and a new `--report`.
@@ -108,7 +108,7 @@ an empty inventory is not a business pass, local format checks do not authentica
 
 ## Parser interface
 
-This is a module that later scripts in the same directory import directly; it provides no command-line entry point that would fake success. Callers explicitly supply the real root directory and files for each call rather than relying on changing the cwd, automatic scanning, or business command registration.
+Later scripts in the same directory import this module directly. It provides no command-line entry point that would fake success. Callers explicitly supply the real root directory and files for each call rather than relying on changing the cwd, automatic scanning, or business command registration.
 
 ```python
 parse_artifact(path: str | os.PathLike[str], root: str | os.PathLike[str]) -> Artifact
@@ -119,9 +119,9 @@ parse_artifacts(
 ) -> tuple[Artifact, ...]
 ```
 
-A relative `path` is resolved against the explicit `root`; the root must be an actual directory, and each input must be a readable regular file inside the resolved root. Escaping the root after resolving a symlink/junction fails; a missing file, wrong type, garbled text, or failed read is not an empty artifact. UTF-8 with or without BOM, LF/CRLF, and paths containing non-ASCII characters and spaces are all covered by real-file tests. There is no guarantee against another process maliciously replacing a path between the check and the open; this is not an operating-system sandbox.
+A relative `path` is resolved against the explicit `root`; the root must be an actual directory, and each input must be a readable regular file inside the resolved root. A path that escapes the root after symlink or junction resolution fails; a missing file, wrong type, garbled text, or failed read is not an empty artifact. UTF-8 with or without BOM, LF/CRLF, and paths containing non-ASCII characters and spaces are all covered by real-file tests. There is no guarantee against another process maliciously replacing a path between the check and the open; this is not an operating-system sandbox.
 
-`parse_artifacts` processes only the explicitly given collection and keeps the input order; for a duplicate scope/id it reports both the second and the first location. The same ID in different scopes is valid. An empty collection returns an empty tuple but still validates the root; this does not mean business coverage is complete. Parsing a single file never scans other files for deduplication.
+`parse_artifacts` processes only the explicitly given collection and keeps the input order; for a duplicate scope/id, it reports the locations of both the second and the first occurrence. The same ID in different scopes is valid. An empty collection returns an empty tuple but still validates the root; this does not mean business coverage is complete. Parsing a single file never scans other files for deduplication.
 
 All returned records are `frozen=True, slots=True` dataclasses, and collections are tuples:
 
@@ -136,7 +136,7 @@ All returned records are `frozen=True, slots=True` dataclasses, and collections 
 
 `source` is the original text with the UTF-8 BOM removed, and `body` starts after the closing frontmatter delimiter line; both keep the original LF/CRLF and are never reflowed or written back. `body_start_line` and the target and acceptance locations let later checks locate findings; `relative_path` is the resolved root-relative path using `/`. Callers must read raw bytes separately; the decoded `source` cannot substitute for a byte digest of the original file.
 
-`metadata_locations` is a tuple of `(field-path tuple, SourceLocation)` pairs from the same YAML parse, for example `("scope",)` or `("targets", 0, "target")`; it is not a second field parser. The shared `iter_markdown_lines(body, start=1)` keeps line numbers, removes HTML comments, and returns `None` for code lines; the parser and the checkers share it for literal content. `iter_markdown_fences(body, start=1)` returns genuinely closed `MarkdownFence(start_line, end_line, info, body)` values from the **same** state machine; fence examples inside comments or enclosing code do not become new code blocks. Owner acceptance criteria still come only from the original parser's explicit anchors and owned ID headings.
+`metadata_locations` is a tuple of `(field-path tuple, SourceLocation)` pairs from the same YAML parse, for example `("scope",)` or `("targets", 0, "target")`; it is not a second field parser. The shared `iter_markdown_lines(body, start=1)` keeps line numbers, removes HTML comments, and returns `None` for code lines, so the parser and the checkers treat literal content the same way. `iter_markdown_fences(body, start=1)` returns genuinely closed `MarkdownFence(start_line, end_line, info, body)` values from the **same** state machine; fence examples inside comments or enclosing code do not become new code blocks. Owner acceptance criteria still come only from the original parser's explicit anchors and owned ID headings.
 
 Source candidates can use `iter_markdown_source_lines(body, start=1, *, initial_in_comment=False)` to obtain
 `(line, visible_or_None, incoming_comment_bool)`; the keyword-only initial state exists only to replay a complete source unit
@@ -144,7 +144,7 @@ and still delegates to the same state machine. The original line/fence interface
 
 ## Input errors
 
-The stable attributes of `ArtifactInputError(ValueError)` are `code`, `path`, `line`, and `message`. Its string contains all four; YAML, decoding, file-read, and schema failures keep the original exception chain. When a path cannot yet be established, `path` holds a readable representation of the input; errors before the file is read use line 1, and empty metadata uses line 2.
+The stable attributes of `ArtifactInputError(ValueError)` are `code`, `path`, `line`, and `message`. Its string contains all four; YAML, decoding, file-read, and schema failures keep the original exception chain. If a path cannot be established yet, `path` holds a readable form of the input; errors before the file is read use line 1, and empty metadata uses line 2.
 
 | code | Condition |
 |---|---|
@@ -165,7 +165,7 @@ The stable attributes of `ArtifactInputError(ValueError)` are `code`, `path`, `l
 | `DUPLICATE_ARTIFACT_ID` | The same scope/id appears twice within the explicit collection; neither merged nor dropped |
 | `CONTRACT_ERROR` | The local artifact schema cannot be read/parsed/validated, or contains a non-local or unresolvable `$ref` |
 
-Parsing uses SafeLoader; it does not construct Python objects or execute YAML/Markdown/referenced commands. Valid, non-circular YAML aliases that do not introduce duplicate keys are parsed; a malformed `upstream` / `targets` that has a value is reported as an error first and is not replaced by an empty tuple. The schema cache is limited to the current process; after changing the local contract, reload it in a new process rather than reusing the old cache.
+Parsing uses SafeLoader; it does not construct Python objects or execute YAML/Markdown/referenced commands. Valid, non-circular YAML aliases that do not introduce duplicate keys are parsed; a malformed `upstream` or `targets` value that is present is reported as an error first and is not replaced by an empty tuple. The schema cache is limited to the current process; after changing the local contract, reload it in a new process rather than reusing the old cache.
 
 <a id="artifact-checker"></a>
 ## Formal artifact checker
@@ -212,7 +212,7 @@ Each entry in `excluded` is `{path, reason}`; a directory with a trailing `/` st
 | `DIRECTORY_ALIAS` | Directory symlink/junction aliases that point inside the root; the actual directory is scanned only once, avoiding duplicates and cycles |
 | `NON_MARKDOWN` / `LIGHTWEIGHT_GUIDE` | Non-Markdown files / Markdown that was read but has no formal signal |
 
-A directory link that escapes the root is an error, not an exclusion; formal inputs do not accept symlinked files. A template or guide inside the root that is explicitly referenced may be read as a link target without becoming part of the formal inventory; Git, environment, and dependency data are never permitted to be read as link targets. An unenumerable directory, an unreadable file, or garbled text is never treated as empty. UNC/URL roots and UNC local references are rejected before file parsing; network addresses are never accessed. Path resolution is not an OS sandbox and does not guarantee protection against concurrent malicious replacement.
+A directory link that escapes the root is an error, not an exclusion; formal inputs do not accept symlinked files. A template or guide inside the root that is explicitly referenced may be read as a link target without becoming part of the formal inventory; Git, environment, and dependency data are never read as link targets. An unenumerable directory, an unreadable file, or garbled text is never treated as empty. UNC/URL roots and UNC local references are rejected before file parsing; network addresses are never accessed. Path resolution is not an OS sandbox and does not guarantee protection against concurrent malicious replacement.
 
 <a id="checker-format"></a>
 ### Checked Markdown and placeholder syntax
@@ -221,14 +221,14 @@ A directory link that escapes the root is an error, not an exclusion; formal inp
 - Supported: single-line inline links/images, angle-bracket destinations, optional single- or double-quoted titles, reference definitions, and full/collapsed reference links; defined shortcut references are resolved too. Paths with spaces use `%20` or `<path with spaces.md>`, and a destination may contain one level of parentheses.
 - Local files must exist inside the root. A fragment matches a parser-style standalone `<a id="ascii-anchor"></a>` or an ATX heading slug: lowercased, keeping Unicode letters/digits, spaces, `_`, and `-`, with spaces turned into `-` and suffixes such as `-1` added for repeated headings. Heading slugs serve navigation only and do not replace the explicit anchors of owner acceptance criteria. A fragment on a non-Markdown target returns `UNSUPPORTED_FRAGMENT`.
 - Backtick/tilde fenced code, code lines starting with four spaces or a tab, single-line inline code, and HTML comments are ignored. External URIs are not fetched; an undefined explicit `[label][reference]` is an error. Setext headings, multi-line links, complex nesting, raw HTML `href`, and renderer-specific anchors are outside this checked syntax; this is not a complete CommonMark/GFM renderer.
-- An actual body comment that starts before a fence is still treated as a comment; a fence's info string and content do not change the body's comment state. The info string of a backtick fence must not contain backticks, and comment-like text in it is not removed before judging validity. After the fence closes, reading of real links and owner acceptance criteria continues with the original line numbers.
+- An actual body comment that starts before a fence is still treated as a comment; a fence's info string and content do not change the body's comment state. The info string of a backtick fence must not contain backticks, and comment-like text in it is not removed before judging validity. After the fence closes, scanning for real links and owner acceptance criteria resumes, using the original line numbers.
 - Explicit residual markers are the standalone tokens `TODO/TBD/PROJECT` (`TBD` is the standard fill-in placeholder), a standalone `NNN` (including in lowercase anchors), `<slug>`/`<project>`/`<context>`/`<id>`, and `{{field}}`. Metadata placeholders are checked in the identity/relation/confirmation fields that the parser has already read, and YAML comments are not treated as values; examples in body code and comments are not placeholders. The ordinary word `project` is not a placeholder.
 - Facts with specific context, such as `open`, `to be confirmed`, or `not-run`, may remain; the checker does not fill in business decisions. The absence of these mechanical violations does not mean semantic completeness, trustworthy approval, or successful behavior execution.
 
 <a id="checker-baseline"></a>
 ### Exact baseline and current-file comparison
 
-Without a base, only the current root is read and Git is not needed. With a base, the root must be exactly the top level of the selected checkout (linked worktrees are supported); borrowing an ancestor repository is rejected. The base accepts only an actually readable full 40/64-hex-digit **commit object**; branches, short hashes, tag/blob objects, and nonexistent objects have no fallback.
+Without a base, only the current root is read and Git is not needed. With a base, the root must be exactly the top level of the selected checkout (linked worktrees are supported); borrowing an ancestor repository is rejected. The base accepts only an actually readable full 40/64-hex-digit **commit object**; branches, short hashes, tag or blob objects, and nonexistent objects are rejected, with no fallback.
 
 **In both modes, the verification target is always the complete formal inventory of the current working files.** The base only adds a historical comparison; it does not skip unchanged artifacts and is not an index (staging-area) hook check; unstaged and untracked formal files are included as well. Historical Markdown is read and recognized only from raw Git blobs, and old metadata is not required to satisfy new rules.
 
@@ -246,7 +246,7 @@ The report and internal records are narrow-purpose immutable dataclasses; `repor
 
 | Field | Actual representation |
 |---|---|
-| `status`, `findings`, `checked_count`, `baseline`, `excluded`, `attempted_count` | Top-level fields; `checked_count` is the number of formal files successfully parsed and body-checked, including files with violations; `attempted_count` additionally counts recognized formal candidates that failed to parse or could not be read. A directory read failure may make it impossible to list candidates yet; the status is still an error |
+| `status`, `findings`, `checked_count`, `baseline`, `excluded`, `attempted_count` | Top-level fields; `checked_count` is the number of formal files successfully parsed and body-checked, including files with violations; `attempted_count` additionally counts recognized formal candidates that failed to parse or could not be read. If a directory cannot be read, candidates may not be listed yet; the status is still an error |
 | `findings[]` | `{code, path, line, owner, target, message, related}`; `path` is the actual absolute path or the string of an invalid input, and `line` is 1-based; `owner` is `scope/id` once parsed, otherwise `null`. Link findings locate the referencing line and the original target; for duplicate IDs, `related={path,line}` stores the first occurrence and the primary location is the second |
 | `baseline` | `null` when the root/base fails before reading; otherwise contains `root`, `target="working-tree"`, `base_sha`, `base_tree`, `comparison_complete`, `snapshot_sha256`, `files`, `base_files`, `changes` |
 | `baseline.files[]` | `{path, sha256, size, role, owner}`; the root-relative path and the SHA-256/size of the raw bytes actually read (BOM/newline differences preserved), `role=formal/guide/reference`. Includes guides read for selection and local references; it is not a digest of the whole repository or of the tool source/schema |
@@ -257,7 +257,7 @@ The report and internal records are narrow-purpose immutable dataclasses; `repor
 
 Each input is read only once per check, and later references share the same bytes. The read set is not a file-system transaction; record the tool version used for the call, re-check after later file or tool changes, and do not treat the digest as proof of approval.
 
-`read_inventory(root, base_sha=None) -> Inventory`, which tools in the same directory reuse, performs the same single complete discovery/parse/check as `run_check`. The `report` of an `Inventory` is exactly the `CheckReport` above, and it additionally keeps immutable tuples: `artifacts`, `raw_files` (actual paths and the bytes read), and `base_raw_files` (historical relative paths and raw blob bytes). Consumers do not re-read Markdown to guess at the same snapshot. Historical parsing uses the original parser's byte entry point; standalone YAML/JSON sources use `load_yaml_mapping(text, path)`, which is still the same SafeLoader with duplicate-key/alias checks and 1-based locations, with no separate frontmatter or owner parser.
+`read_inventory(root, base_sha=None) -> Inventory` is reused by tools in the same directory. It performs the same single complete discovery, parse, and check as `run_check`. The `report` of an `Inventory` is exactly the `CheckReport` above, and it additionally keeps immutable tuples: `artifacts`, `raw_files` (actual paths and the bytes read), and `base_raw_files` (historical relative paths and raw blob bytes). Consumers do not re-read Markdown to reconstruct the same snapshot. Historical parsing uses the original parser's byte entry point; standalone YAML/JSON sources use `load_yaml_mapping(text, path)`, which is still the same SafeLoader with duplicate-key/alias checks and 1-based locations, with no separate frontmatter or owner parser.
 
 | Stable code | Classification |
 |---|---|
@@ -265,7 +265,7 @@ Each input is read only once per check, and later references share the same byte
 | `MISSING_TITLE`, `EMPTY_TITLE`, `MULTIPLE_TITLES` | `invalid`; H1 structure |
 | `INCOMPLETE_ARTIFACT` | `invalid`; explicit residual placeholder |
 | `BROKEN_LINK`, `BROKEN_ANCHOR`, `UNRESOLVED_REFERENCE`, `UNSUPPORTED_FRAGMENT`, `INVALID_LINK` | `invalid`; local link or supported scope |
-| `DIRECTORY_READ_ERROR`, `EXCLUDED_TARGET` | `input-error`; read or boundary; other path/decoding codes reuse the parser codes |
+| `DIRECTORY_READ_ERROR`, `EXCLUDED_TARGET` | `input-error`; read or boundary failure; other path and decoding codes reuse the parser codes |
 | `INVALID_BASE`, `BASE_UNAVAILABLE` | `input-error`; base shape, or failure to read the exact object |
 | `REPORT_CONFLICT`, `REPORT_WRITE_ERROR` | `input-error`; output conflict or write failure |
 
@@ -280,7 +280,7 @@ trace_report(root, delivery_ids) -> CheckReport
 
 Import it from `check_traceability` in the same directory. `delivery_ids` is the **complete set of delivery acceptance criteria** given by the caller; each item must be the `scope/id#anchor` of an actual owner, not a file title, a short ID, or a list inferred backwards from VTs. An empty collection, a single string, or invalid, duplicate, or unknown items are all input errors. The complete formal inventory is read first, and AC/VC are then extracted from their owners; other artifacts may serve as reference context but never automatically become part of "this delivery".
 
-Every actual `targets` entry is reverse-checked, including targets outside the delivery set. Only a VT/TS whose real owner acceptance criterion, compatible layer, and independent criterion all meet the mechanical requirements counts toward coverage. The layer comes from the `Verification layer` table row in the VT's `plan` section, or from `Business scope and scenario type` in the TS's `basis` section; it is never inferred from the file name, and frontmatter is not extended. A VT accepts the four explicit layers of the form (`Business acceptance`, `Software behavior`, `Applicable design verification`, `Standalone maintenance or document check`); a TS accepts an explicit business declaration of `Within context`, `Cross-context`, `REQ business acceptance`, or `QAS`. A missing, multi-valued, or unknown declaration must be reported.
+Every actual `targets` entry is reverse-checked, including targets outside the delivery set. A VT or TS counts toward coverage only when its real owner acceptance criterion, compatible layer, and independent criterion all meet the mechanical requirements. The layer comes from the `Verification layer` table row in the VT's `plan` section, or from `Business scope and scenario type` in the TS's `basis` section; it is never inferred from the file name, and frontmatter is not extended. A VT accepts the four explicit layers of the form (`Business acceptance`, `Software behavior`, `Applicable design verification`, `Standalone maintenance or document check`); a TS accepts an explicit business declaration of `Within context`, `Cross-context`, `REQ business acceptance`, or `QAS`. A missing, multi-valued, or unknown declaration must be reported.
 
 | owner kind | Target layer |
 |---|---|
@@ -290,7 +290,7 @@ Every actual `targets` entry is reverse-checked, including targets outside the d
 | development-log, backlog-item, user-story, tool-qualification, review-record | maintenance |
 | Other kinds | No layer is guessed; reports `UNKNOWN_TARGET_LAYER` |
 
-Criteria are read from the existing forms: under each `criterionAnchor`, a VT needs actual table values in the three rows `Expected outcome and independent pass criterion for this target`, `Corresponding method/steps or actual test identifier`, and `Preconditions, forbidden side effects, and open items`; a TS needs its four form bullets `Preconditions and inputs for this target`, `Actions, observations, and independent pass criterion for this target`, `Corresponding steps or actual test identifier`, and `Source navigation, open conditions, and forbidden side effects`. An anchor/heading alone, code/comments, placeholders, or a generic "all passed" do not satisfy the requirement. Different targets that share an anchor or have identical criterion content are reported as `SHARED_CRITERION`. This is an explainable structural minimum, not a proof of natural-language semantics; whether the actual expectation suffices to judge the original acceptance criterion still needs human review.
+Criteria are read from the existing forms: under each `criterionAnchor`, a VT needs actual table values in the three rows `Expected outcome and independent pass criterion for this target`, `Corresponding method/steps or actual test identifier`, and `Preconditions, forbidden side effects, and open items`; a TS needs its four form bullets `Preconditions and inputs for this target`, `Actions, observations, and independent pass criterion for this target`, `Corresponding steps or actual test identifier`, and `Source navigation, open conditions, and forbidden side effects`. An anchor/heading alone, code/comments, placeholders, or a generic "all passed" do not satisfy the requirement. Different targets that share an anchor or have identical criterion content are reported as `SHARED_CRITERION`. This is an explainable structural minimum, not proof of natural-language semantics. Human review is still needed to judge whether the actual expectation suffices for the original acceptance criterion.
 
 The returned fields, the formal-file `checked_count/attempted_count`, and the read-set `baseline` reuse the contract above; they are neither a coverage denominator nor a count of test runs. Parser/inventory input errors take precedence; a parse failure is never turned into "uncovered" or success. Additional codes:
 
@@ -302,7 +302,7 @@ The returned fields, the formal-file `checked_count/attempted_count`, and the re
 | `INSUFFICIENT_CRITERION`, `SHARED_CRITERION` | `invalid` / 1; locates the criterion declaration |
 | `UNCOVERED_ACCEPTANCE` | `invalid` / 1; locates the actual acceptance owner, path, heading line, and full target |
 
-The command is `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root <documentation-root> --delivery <full-acceptance-reference>`; repeat `--delivery` once per delivery ID. stdout is the `CheckReport` JSON, and the CLI also keeps the actual `delivery_ids`; you can add `--report <new .json>`, which follows the protected-output contract. No arguments or wrong usage exits 2; a complete structure with no findings exits 0, which does not mean that any VT was run.
+The command is `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root <documentation-root> --delivery <full-acceptance-reference>`; repeat `--delivery` once per delivery ID. stdout is the `CheckReport` JSON, and the CLI also keeps the actual `delivery_ids`; you can add `--report <new .json>`, which follows the protected-output contract. No arguments or wrong usage exits 2; a complete structure with no findings exits 0. This does not mean that any VT was run.
 
 <a id="impact-candidates"></a>
 ## Impact candidates against an exact baseline
@@ -311,13 +311,13 @@ The command is `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_trac
 impact_report(root, base_sha, task_ids=()) -> dict
 ```
 
-Also part of `check_traceability`, it uses an explicit full commit and the current working files; it does not pick HEAD or a branch, and it does not look only at staged content. The base is mandatory in the public API: explicitly passing `None` also returns `INVALID_BASE` / input-error / 2 instead of degrading, through the shared inventory's optional-base semantics, into a clean empty comparison. It returns the fields of `CheckReport.to_dict()` plus:
+It is also part of `check_traceability`. It uses an explicit full commit and the current working files, does not pick HEAD or a branch, and does not look only at staged content. The base is mandatory in the public API: explicitly passing `None` also returns `INVALID_BASE` / input-error / 2, rather than falling back through the shared inventory's optional-base semantics to a clean empty comparison. It returns the fields of `CheckReport.to_dict()` plus:
 
 - `changed_sources`: changed formal paths, added/modified/deleted, the old blob, and the before/after SHA256; `before/after` hold the parseable `{key, path, sha256}` and are null when that side does not exist.
 - `candidates`: transitive dependency candidates sorted by key, keeping `before/after` of the same shape, `requested_task`, and `reasons`. Each reason has the actual `source/consumer/reference/relation/path/line/snapshot`; `relation` is upstream or target, and `snapshot` is base/current.
 - `task_ids`: keys of existing formal tasks explicitly specified by the caller (not an acceptance set); an empty list is allowed, and invalid, duplicate, or unknown items report `INVALID_TASK* / DUPLICATE_TASK_ID / UNKNOWN_TASK_ID` respectively. Tasks that were not supplied are never invented.
 
-Changed owners are the seeds in `changed_sources`, and the other reachable owners are candidates; the dependency graph merges the old and new sides, so deleting a source or removing a reference does not erase the historical chain, and cycles are visited only once. A change to only a numeric value in a rule file can also reach REQ/SR, VT, and tasks through canonical references. An unparseable historical formal file reports `HISTORICAL_INPUT_ERROR` / 2 and keeps the known candidates without pretending to be a complete comparison. Compared with the raw historical byte comparison of `run_check`, this interface additionally parses historical identities.
+Changed owners are the seeds listed in `changed_sources`, and the other reachable owners are candidates; the dependency graph merges the old and new sides, so deleting a source or removing a reference does not erase the historical chain, and cycles are visited only once. A change to only a numeric value in a rule file can also reach REQ/SR, VT, and tasks through canonical references. An unparseable historical formal file reports `HISTORICAL_INPUT_ERROR` / 2 and keeps the known candidates without pretending to be a complete comparison. Compared with the raw historical byte comparison of `run_check`, this interface additionally parses historical identities.
 
 The CLI uses `--base <full commit>` instead of `--delivery` and accepts repeated `--task <scope/id>`; the two modes are mutually exclusive. The report can still be written explicitly to a new `.json`. Candidates are not a final conclusion on severity, approval, or business impact; non-canonical lightweight links, semantically implied dependencies, and unknown sources outside the scope must still be added following the [shared impact method](../skills/verify-change/SKILL.md#impact). The tool does not change rules, run VTs, or rewrite old results.
 
@@ -331,9 +331,9 @@ check_model(root, scope, model_path) -> CheckReport
 
 Import them from `export_model` in the same directory. Neither API writes files. The primary input reuses the complete inventory and the actual read set; the selected scope must exist in real formal artifacts, and same-numbered IDs from different scopes are not mixed. All formal sources must be valid, and canonical upstream/targets must locate a real owner/anchor. An invalid root/scope/contract/formal inventory cannot be masked by nine empty views. The export API raises `ArtifactInputError` with code/path/line; the check API and the CLI map it to an input error / 2.
 
-The [optional model-sources contract](../contracts/README.md#model-sources) selects each scope's existing Markdown or YAML/JSON summaries. A missing manifest, a missing scope registration, and a missing view each produce a specific gap; the primary index remains usable. Supplying an invalid manifest is `INVALID_SOURCE_MANIFEST` / 2. A single optional source that is missing, unreadable, or has a format or baseline problem makes that view `unverified` with its refs cleared; readable but incomplete fields/entries give `partial`; complete gives `available`. The nine original keys are never omitted; values, body text, and results still belong to the source, and approval is never inferred from a state. An optional-failure gap carries the selected path, the actual failing source, and the code; personal absolute paths and raw sensitive exception content are never output.
+The [optional model-sources contract](../contracts/README.md#model-sources) selects each scope's existing Markdown or YAML/JSON summaries. A missing manifest, a missing scope registration, and a missing view each produce a specific gap; the primary index remains usable. An invalid manifest gives `INVALID_SOURCE_MANIFEST` / 2. A single optional source that is missing, unreadable, or has a format or baseline problem makes that view `unverified` with its refs cleared; readable but incomplete fields or entries give `partial`; a complete source gives `available`. The nine original keys are never omitted; values, body text, and results still belong to the source, and approval is never inferred from a state. An optional-failure gap carries the selected path, the actual failing source, and the code; personal absolute paths and raw sensitive exception content are never output.
 
-Direct quality checks both the actual QAS and the utility-tree source (an existing file with a top-level `tree` mapping/list can be selected explicitly); a missing source gives unverified, and only missing fields/entries in a known source give partial. Direct verification reads the owned child run blocks and the four-column result table of the current VT form, records missing items/conflicts per run, and keeps the original anchors; automated/manual counts are never derived from totals, and content from adjacent runs or criteria is never stitched together. SEQ completeness reads the real diagram code subject to the shared comment/fence state, without rescanning raw literal examples. The contract notes remain authoritative for the specific source shapes.
+Direct quality checks cover both the actual QAS and the utility-tree source (an existing file with a top-level `tree` mapping/list can be selected explicitly); a missing source gives unverified, and only missing fields/entries in a known source give partial. Direct verification reads the owned child run blocks and the four-column result table of the current VT form, records missing items/conflicts per run, and keeps the original anchors; automated/manual counts are never derived from totals, and content from adjacent runs or criteria is never stitched together. SEQ completeness reads the real diagram code subject to the shared comment/fence state, without rescanning raw literal examples. The contract notes remain authoritative for the specific source shapes.
 
 The primary `source.root` is always the portable `.`. Each artifact baseline is the `sha256:` of the raw bytes actually read (including BOM/newlines), and upstream/targets, artifacts, views, refs, and gaps are sorted deterministically. The primary `source.baseline` is the `sha256:` of the following object, encoded with `json.dumps(sort_keys=True, separators=(",", ":"))` and UTF-8: `scope`, the Task6 `files` read-set records sorted by path, `manifest: absent/present`, the sorted optional failures `(selected path, code)`, and the raw digests of the contracts used for artifact/model/model-sources; when the implementation-report adapter is used, it also includes the bc-config/implementation-report contracts. The read set includes guides used for selection, the manifest, actual optional YAML/JSON, and evidence files, not only formal Markdown. There are no timestamps or random data; the tool version is saved separately with the check record.
 
@@ -341,7 +341,7 @@ Canonical references also keep the evidence baseline of their actual owner file,
 
 `check_model` reads an explicit local `.json/.yaml/.yml` (which may be a separately authorized model file outside the root), validates it, and recomputes; a changed primary source identity is `STALE_MODEL_SOURCE` / 1, and a hand-edited structure with the same source is `MODEL_MISMATCH` / 1. An invalid persisted model/schemaVersion/scope is an input error / 2. It does not repair an old model, and a derived model cannot serve as a source or as source evidence; manifest self-references are rejected.
 
-An implementation report must be selected separately and explicitly among the `verification` sources of the existing manifest. A dedicated adapter checks the v1 schema, scope, and report baseline, and rebuilds the report read-only from its exact object/owned VT references; a hand-edited report that cannot be rebuilt is `REPORT_MISMATCH`, and a missing or drifted raw report only leaves a gap in that optional view; a schema-valid pass claim alone is not accepted. The model's `implementationReports` and the verification view store only the report's `reference + baseline`, without copying entries/execution/applicability. The other eight views and the existing sources are not replaced by the report; when no report is selected, the list stays empty. `available` only means the reference can be checked; it does not imply that execution passed.
+An implementation report must be selected separately and explicitly among the `verification` sources of the existing manifest. A dedicated adapter checks the v1 schema, scope, and report baseline, and rebuilds the report read-only from its exact object/owned VT references; a hand-edited report that cannot be rebuilt is `REPORT_MISMATCH`, and a missing or drifted raw report only leaves a gap in that optional view; a schema-valid pass claim alone is not accepted. The model's `implementationReports` and the verification view store only the report's `reference + baseline`, without copying entries/execution/applicability. The other eight views and the existing sources are not replaced by the report; when no report is selected, the `implementationReports` list stays empty. `available` only means the reference can be checked; it does not imply that execution passed.
 
 | CLI arguments (all require `--root` and `--scope`) | Output and exit |
 |---|---|
@@ -365,7 +365,7 @@ build_report(root, object_sha, evidence_files, *, scope=None) -> dict
 Import it from `collect_implementation_report` in the same directory. The API is read-only and returns the existing [implementation-report v1](../contracts/README.md#implementation-report), with no root-level execution/views. The complete fields and the supported **VT selection, original form fields/baselines, comment markers, and applicability syntax** are all described in that contract; there is no separate input manifest or copied result ledger. The [blank report form](../../_templates/reports/implementation-report.yaml) only guides the output structure; it is not an actual result.
 
 - The primary BC configuration, all owner acceptance criteria, and code/test locations come from the given full local commit, not from HEAD, the index, or a snapshot of current files. With multiple configured contexts the scope must be explicit; collection fails when there is no actual scope or acceptance criterion.
-- The currently supplied VT may have records appended after the object; only owned child runs of the original owner at the same path are accepted, and a file with multiple runs requires an anchor. The original record bytes, the test object, the requirement baseline, the VT plan, and the raw report are each verified; new evidence is never labeled as bytes inside the old object.
+- The currently supplied VT may have records appended after the object; only owned child runs of the original owner at the same path are accepted, and a file with multiple runs requires an anchor. The original record bytes, the test object, the requirement baseline, the VT plan, and the raw report are each verified; new evidence is never labeled as part of the old object's bytes.
 - Each target is handled independently. A target without a selected run is not-run with empty evidenceRefs and a reason; fail/skipped and their reasons are kept. The existence of a raw report, a located test text, Approved, a count of zero, all-skipped, or an available view cannot substitute for execution.
 - Source runs, reports, dates, observations, and commands are **collected data**, not results of the collector's own run. The collector does not execute source commands or run applications/tests, and it cannot authenticate people or prove that external events happened. Manual records use concrete steps; auto/manual counts are never invented.
 - Domain inputs are read and compared using the configured root/path and fixed baseline, and are never written back. The report's object root is `.`; no personal absolute paths, raw sensitive body text, or business summaries are copied.
@@ -374,7 +374,7 @@ Import it from `collect_implementation_report` in the same directory. The API is
 |---|---|
 | `--root <checkout> --object <full commit>` | stdout is the per-target report and no file is written; repeat `--evidence <VT-relative-path[#run-anchor]>`, and add `--scope <project/context>` for multiple BCs |
 | Add `--output <explicit new .json/.yaml/.yml>` | Exclusive create; the parent directory must exist; no report directory is created and source selection is unchanged. An existing source path, or a registered/referenced one even if missing, can never become the output |
-| Successful collection with no fail | Exit 0, possibly all not-run/skipped; only means that the collection completed, not that targets passed |
+| Successful collection with no fail | Exit 0, which may include all targets not-run or skipped. It only means that the collection completed, not that targets passed |
 | A target was collected as fail | Still outputs the complete per-target report and exits 1; never changed into success |
 | Input/source/output error | JSON `status: input-error` with findings carrying code/path/line/message, exit 2; no forged empty success |
 
@@ -399,8 +399,8 @@ batch mode is `--registration <local-registration> --target <explicit-ID>` (repe
 A clean proposal may contain additions, modifications, and deletions; it is not a successful apply. An explicit `--output <new .json>` must be outside all input/
 registration locations; it creates no parent directory, never overwrites history, and cannot take a missing or unselected target root.
 
-Input parsing/safe YAML and the restricted raw Git helpers reuse `artifact_io.py` and `check_artifacts.py`;
-using the tool with them and the existing locked dependencies is enough, with no dependency on maintainer tests, maker materials, workflows, or new dependencies.
+Input parsing, safe YAML, and the restricted raw Git helpers reuse `artifact_io.py` and `check_artifacts.py`;
+these modules and the existing locked dependencies are enough for the tool, with no dependency on maintainer tests, maker materials, workflows, or new dependencies.
 There is no `--apply`, clone/fetch, commit/push, PR, external-source write-back, or background sync.
 Owner business data, original rules, and deliberate deletions are preserved; raw bytes and source drift are checked against the complete contract.
 
@@ -417,7 +417,7 @@ register only appends a source entry to the BC and does not materialize or stage
 BC configuration and requires a separately given exact target plus separate consent for the index change; raw blob writes bypass checkout/filters/hooks,
 native metadata and gitlink changes are disclosed item by item, and no commit/push is included. A non-empty target, alias, conflict, or drift is never skipped as success.
 
-The BC token identifies only the raw configuration bytes actually used for parsing/planning; a change seen by a later read within inspect is also rejected.
+The BC token identifies only the raw configuration bytes actually used for parsing/planning; a change detected by a later read during inspection is also rejected.
 A new native target never revives a `.gitmodules` from HEAD whose deletion the owner has staged, and the target itself cannot
 occupy a metadata file. The shared Git reader and the native helper use the same clean Git environment, with the selected root
 as the discovery ceiling; they neither borrow an ancestor repository nor parse repository configuration separately.
@@ -425,7 +425,7 @@ as the discovery ceiling; they neither borrow an ancestor repository nor parse r
 The complete API/CLI, the editable configuration layout, native commands, and recovery boundaries for retained partial state are in the
 [domain-source guide](../../docs/domain-sources.md); the fields still belong to the [original contract](../contracts/README.md#bc-configuration).
 The tool reuses the single safe YAML/schema reader of `artifact_io.py`, the path/Git boundaries of `check_artifacts.py`,
-and the fixed-commit/raw-domain-byte comparison of `source_baseline.py`; the collector shares the latter,
+and the fixed-commit/raw-domain-byte comparison of `source_baseline.py`; the implementation-report collector shares that comparison,
 so no second baseline parser or source model is maintained. Core dependencies are unchanged, and nothing extra is installed.
 
 ## Scope of use

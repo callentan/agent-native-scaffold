@@ -1,6 +1,6 @@
 # Domain model
 
-This directory records business meaning and boundaries; it is not a diagram of code layers. Below are filling-in guidance and blank sections; there is no confirmed business model yet. For a task that involves the business, fill in known facts or reference the existing model; for a maintenance task that does not involve the business, state why this does not apply, and do not invent content just to fill the directory.
+This directory records business meaning and boundaries; it is not a diagram of code layers. Below are guidance notes and blank sections to fill in; there is no confirmed business model yet. For a task that involves the business, fill in known facts or reference the existing model; for a maintenance task that does not involve the business, state why this does not apply, and do not invent content just to fill the directory.
 
 <a id="terms"></a>
 ## Shared terms
@@ -93,9 +93,9 @@ Business goals and requirements go back to the [stakeholder requirements entry p
 <a id="optional-forms"></a>
 ## Standalone domain artifacts as needed
 
-**The lightweight path above remains valid.** A single context or a small maintenance task can keep recording terms, relationships, rules, responsibilities, exchanges, and sources in this README; there is no need to create every artifact below or to install tools first. Adopting a form must not cause existing IDs, anchors, rule text, or owner content to be renumbered, replaced, or moved.
+**The lightweight path above remains valid.** A single context or a small maintenance task can keep recording terms, relationships, rules, responsibilities, exchanges, and sources in this README; there is no need to create every artifact below or to install tools first. Adopting a form must not renumber, replace, or move existing IDs, anchors, rule text, or owner content.
 
-Copy a form only when the material needs to be referenced on its own or has outgrown a single page. Default locations are listed in the tables below; existing project locations stay unchanged. When multiple subdomains/contexts are genuinely needed, you can also organize the owning domain materials under `domain-model/subdomains/<slug>/contexts/<slug>/`. Nested directories are only an optional way of organizing; they do not impose a split by service, repository, project, or code layer. REQs, QASs, SRs, and scenarios/VTs still go back to their own directories.
+Copy a form only when the material needs to be referenced on its own or has outgrown a single page. Default locations are listed in the tables below; existing project locations stay unchanged. When multiple subdomains/contexts are genuinely needed, you can also organize the owning domain materials under `domain-model/subdomains/<slug>/contexts/<slug>/`. Nested directories are only an optional way of organizing; they do not impose a split by service, repository, project, or code layer. REQs, QASs, SRs, and scenarios/VTs still belong in their own directories.
 
 <a id="strategic-forms"></a>
 ### Business boundaries, capabilities, and behavior
@@ -111,7 +111,7 @@ Copy a form only when the material needs to be referenced on its own or has outg
 | Quality stimulus, environment, response, and sourced measures | [QAS](../_templates/items/quality-attribute-scenario.md) | `stakeholder-requirements/QAS-NNN-<slug>.md` |
 | Standalone scenario criteria and run entry points for UC/REQ/INV/QAS | [TS](../_templates/items/validation-scenario.md) | `verification/TS-NNN-<slug>.md` |
 
-A RULE is still owned by the stable anchor in its original domain file; do not add a second copy of the rule text. An INV first references the RULE and then states the constraint; do not infer rules from code or aggregate candidates. A CAP's use case list is for navigation only; each UC declares its own upstream capability. Keep a BL's handling progress separate from the evidence for the decision on the question; a passed response deadline does not mean the question is resolved. When a QAS lacks a metric, keep an explicit gap and do not fill in a default SLA; for details see [quality inputs](../stakeholder-requirements/README.md#quality-inputs) and the [scenario guide](../verification/README.md#domain-scenarios).
+A RULE remains owned by its stable anchor in the original domain file; do not add a second copy of the rule text. An INV first references the RULE, then states the constraint. Do not infer rules from code or aggregate candidates. A CAP's use case list is for navigation only; each UC declares its own upstream capability. Keep a BL's handling progress separate from the evidence for the decision on the question; a passed response deadline does not mean the question is resolved. When a QAS lacks a metric, keep an explicit gap and do not fill in a default SLA; for details see [quality inputs](../stakeholder-requirements/README.md#quality-inputs) and the [scenario guide](../verification/README.md#domain-scenarios).
 
 <a id="integration-forms"></a>
 ### Context integration materials

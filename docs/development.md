@@ -1,6 +1,6 @@
 # Development guide
 
-**The maintenance tools and the business application are registered separately.** The optional local maintenance tools use Python; this does not choose a tech stack for any downstream business application. The business application is still not configured: there is no application project, dependency, or run command. Filling in project materials and maintaining documentation can continue; application builds and tests are not applicable to the current blank skeleton, and that does not mean the application has passed verification. If a business or software behavior VT has been planned, it stays `not-run` and records the missing object or environment as the reason.
+**The maintenance tools and the business application are registered separately.** The optional local maintenance tools use Python; this does not choose a tech stack for any downstream business application. The business application is still not configured: there is no application project, dependency, or run command. Filling in project materials and maintaining documentation can continue; application builds and tests do not apply to the current blank skeleton, and this does not mean the application has passed verification. If a business or software behavior VT has been planned, it stays `not-run`, and its reason records the missing object or environment.
 
 <a id="maintenance-tools"></a>
 ## Repository maintenance tools (not a business application)
@@ -15,11 +15,11 @@
 | Interfaces and boundaries | [Module invocation and error codes](../.github/utilities/README.md), [data contracts and complete examples](../.github/contracts/README.md), [source candidates and scoring](source-extraction.md), [local document exports](document-exports.md), [minimal interaction ledger](ai-tooling.md#interaction-ledger); the ledger does not connect to vendor/billing services and contains no actual application |
 | Usage prerequisites | Users must check their local interpreter and installed dependencies; maintainer regression tests and run history are not distributed with the candidate and are not downstream runtime prerequisites |
 
-The scripts target Windows, Linux, and macOS; platform differences are confined to the necessary lock and Git hook launch adapters. The checks serve DDD artifact structure, references, acceptance coverage, and derived results; they do not perform fixed-drive detection, native directory-handle audits, or isolation against malicious concurrent path replacement. Inputs/outputs are specified by arguments, and resources are read by project-relative location; temporary snapshots and test fixtures are allocated by `tempfile`, and nothing is written to the interpreter installation directory.
+The scripts target Windows, Linux, and macOS; platform differences are limited to the necessary lock and Git hook launch adapters. The checks serve DDD artifact structure, references, acceptance coverage, and derived results; they do not perform fixed-drive detection, native directory-handle audits, or isolation against malicious concurrent path replacement. Inputs/outputs are specified by arguments, and resources are read by project-relative location; temporary snapshots and test fixtures are allocated by `tempfile`, and nothing is written to the interpreter installation directory.
 
 Git subprocesses keep `GIT_EXEC_PATH`, which the host's Git installation needs; like the system PATH, it is provided by the runtime environment. They still clear inherited overrides of the repository, index, and object locations. Do not drop Git's own helper location to isolate the repository context, and do not hard-code the Git installation directory.
 
-All commands below use the repository root `.` as the cwd, and the Windows examples use `.venv\Scripts\python.exe`; on other hosts or environment locations, substitute the actual project interpreter (for example `.venv/bin/python`) instead of copying the example layout. There is no need to activate the environment or modify the global PATH; the scripts do not require the environment to be named `.venv`.
+All commands below use the repository root `.` as the cwd, and the Windows examples use `.venv\Scripts\python.exe`; on other hosts or in other environment locations, substitute the actual project interpreter (for example `.venv/bin/python`) instead of copying the example layout. There is no need to activate the environment or modify the global PATH; the scripts do not require the environment to be named `.venv`.
 
 | Operation | Actual command | Raw output location and limitations |
 |---|---|---|
@@ -36,7 +36,7 @@ All commands below use the repository root `.` as the cwd, and the Windows examp
 | Impact candidates for rule changes | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\check_traceability.py --root . --base <full commit>` | `--task <actual scope/id>` may be repeated; old and new dependencies are merged; semantics are judged manually |
 | Read-only model derivation | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\export_model.py --root . --scope <actual project/context>` | JSON stdout; sources are selected from the optional `model-sources.yaml`; exits 2 if the primary input fails |
 | Check an existing model | Add `--check <existing .json/.yaml/.yml>` to the row above | Read-only recomputation; exits 1 on source changes/manual edits and 2 on input errors; does not repair the sources or the model |
-| Explicitly create a new model | Add `--output <authorized new .json/.yaml/.yml>` to the read-only derivation command | Mutually exclusive with `--check`; exclusive create, no parent directory creation, and the output must not take a registered source path |
+| Explicitly create a new model | Add `--output <authorized new .json/.yaml/.yml>` to the read-only derivation command | Mutually exclusive with `--check`; exclusive create, no parent directory creation, and the output must not be a registered source path |
 | Collect an implementation summary | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\collect_implementation_report.py --root . --object <full local commit>` | JSON stdout; repeat `--evidence <VT relative path[#run anchor]>` per actual selection; multiple BCs require `--scope`; VT commands are not run |
 | Explicitly create a new implementation report | Add `--output <authorized new .json/.yaml/.yml>` to the collect command | Exclusive create, no parent directory creation; does not overwrite existing files or take over missing declared sources; does not register a model source automatically |
 | Three-way template update proposal | `.venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --base <actual old root> --local <actual local root> --candidate <actual candidate root>` | JSON stdout; `--base-version/--local-version/--candidate-version` may each be added to verify exact versions; a missing old root is an error; nothing is applied |
@@ -76,13 +76,13 @@ For optional installation, recovery, and native runtime boundaries, see the [hoo
 The thin Windows launcher uses the `sh` bundled with Git and starts only the exact project interpreter; PowerShell 7 is not required.
 The installer does not overwrite owner hooks or change `core.hooksPath`, and refuses to silently affect sibling worktrees.
 Each hook launch, before reading artifacts/the index, only confirms Python 3.11+ and that PyYAML and jsonschema are importable;
-venv, conda, or the system interpreter all work, and no fixed version or `pyvenv.cfg` is required. If these are not met, it refuses explicitly
+venv, conda, or the system interpreter all work, and no fixed version or `pyvenv.cfg` is required. If these conditions are not met, the hook refuses explicitly
 and does not fall back to another interpreter. An installation I/O failure keeps the per-path recovery state of fully/partially
 created files and does not automatically delete later owner content; recovery must verify ownership according to the hooks guide.
 The downstream documentation workflow calls only distributed modules; the maker repository's regression workflow/count runner is not distributed.
 Copying YAML does not establish required checks; hosted runs and server-side configuration need separate authorization and actual evidence.
 The template proposal workflow is likewise used only manually on the maker-repository maintainer side and requires exact local inputs that already exist on a trusted runner;
-it is not a downstream runtime dependency, includes no target checkout/branch writes/PR, and has not become an executed platform capability because of the local implementation.
+it is not a downstream runtime dependency, includes no target checkout/branch writes/PR, and the local implementation does not make it an executed platform capability.
 
 Maker-repository regression runs with the current interpreter:
 
@@ -90,14 +90,14 @@ Maker-repository regression runs with the current interpreter:
 <project-python> -B -X utf8 .github/utilities/tests/run_tooling_tests.py --start-directory .github/utilities/tests --top-level-directory .github/utilities --report <new-report.json> --raw-output <new-raw-output.txt>
 ```
 
-The report's parent directory must already exist; outputs are specified by this invocation, and nothing is written to a fixed machine directory. `tooling-tests.yml` discovers and runs the tests separately on Windows, Ubuntu, and macOS and keeps each platform's artifacts separate; this includes regressions where every CLI starts from a non-repository cwd, paths containing spaces or non-ASCII characters, and no fixed fixture directory. The run steps of all three workflows use the actual interpreter returned by Python and venv, without hard-coding `bin/python` or `Scripts/python.exe`. Template proposals still need a preconfigured `self-hosted, template-proposals` runner, but it is not restricted to a Linux label. A matrix configuration does not mean every platform has run successfully; take actual results from this run's report or from Actions.
+The report's parent directory must already exist; outputs are specified by this invocation, and nothing is written to a fixed machine directory. `tooling-tests.yml` discovers and runs the tests separately on Windows, Ubuntu, and macOS and keeps each platform's artifacts separate; this includes regressions in which every CLI starts from a non-repository cwd, uses paths containing spaces or non-ASCII characters, and uses no fixed fixture directory. The run steps of all three workflows use the actual interpreter returned by Python and venv, without hard-coding `bin/python` or `Scripts/python.exe`. Template proposals still need a preconfigured `self-hosted, template-proposals` runner, but it is not restricted to a Linux label. A matrix configuration does not mean every platform has run successfully; take actual results from this run's report or from Actions.
 
 <a id="creation-inputs"></a>
 ## When a project can be created
 
 Generate or onboard a project with that project's native tools only after the user has explicitly chosen the target project, tech stack, and location, authorized creation, and provided a sufficient task goal, behavior basis, constraints, and valid development inputs. First check the target directory and existing changes; do not choose a language, install dependencies, or create a sample application automatically.
 
-Existing projects keep their original paths and native code, test, and dependency layouts; they are not forced into `src/`, and no unified test directory is required. A new project may go directly in `src/` or in `src/<project>/`; both are only location options, not projects that already exist.
+Existing projects keep their original paths and native code, test, and dependency layouts; they are not forced into `src/`, and no unified test directory is required. A new project may go directly in `src/` or in `src/<project>/`; both are only location options; neither one is an existing project.
 
 <a id="project-registration"></a>
 ## Subproject location and command registration
@@ -127,7 +127,7 @@ A report location points only to actual output or an authorized report entry poi
 <a id="document-checks"></a>
 ## Documentation checks available now
 
-The formal-artifact checker can check its [restricted Markdown syntax](../.github/utilities/README.md#checker-format), metadata, IDs, placeholders, and local links; when there are no formal artifacts, it explicitly outputs `empty`. It is not a scanner for all documents or a language CI; ordinary READMEs/guides, coverage, and semantics must still be checked for each task. In particular, valid files/anchors must not be equated with having checked [acceptance coverage and semantic impact](../verification/README.md#coverage-check).
+The formal-artifact checker can check its [restricted Markdown syntax](../.github/utilities/README.md#checker-format), metadata, IDs, placeholders, and local links; when there are no formal artifacts, it explicitly outputs `empty`. It is not a scanner for all documents or a language CI; ordinary READMEs/guides, coverage, and semantics must still be checked for each task. In particular, valid files and anchors must not be taken to mean that [acceptance coverage and semantic impact](../verification/README.md#coverage-check) have been checked.
 
 If an existing local tool is used for checks, record the actual tool, command, working directory, object baseline, and the entry point to the raw results; do not treat external scripts on the author's machine as capabilities shipped with the repository. Manual checks record the artifacts read, baselines, observations, and limitations, without fabricating commands. Documentation checks cannot replace business acceptance or software behavior runs.
 
@@ -139,4 +139,4 @@ If an existing local tool is used for checks, record the actual tool, command, w
 | Business application environment and commands not configured | The maintenance-tool environment is listed separately; there is currently no business application, so documentation tasks are not blocked | After the user decides to create an actual project, complete the business application registration; do not reuse the tool stack to choose the application on the user's behalf |
 | Other issues | TBD | TBD |
 
-When a command is unavailable, inputs conflict, or the environment requirements are not met, report the specific reason; do not silently switch tools or record a not-run item as a success. After a command, project, or acceptance baseline changes, reassess result applicability, and keep items pending re-review and not-run items in the [log](../logs/README.md).
+When a command is unavailable, inputs conflict, or the environment requirements are not met, report the specific reason; do not silently switch tools or record a not-run item as a success. After a command, project, or acceptance baseline changes, reassess result applicability, and keep pending re-review items and not-run items in the [log](../logs/README.md).

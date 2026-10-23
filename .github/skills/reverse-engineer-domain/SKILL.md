@@ -5,7 +5,7 @@ description: Use when domain knowledge is implicit in existing documents, code, 
 
 # Extract domain candidates from existing sources
 
-Extract grounded candidate knowledge from sources you are authorized to read; it is never business approval. Every extracted item stays a candidate (`observed`, `inferred`, or `uncertain`) until the actual accountable owner confirms it against an explicit baseline. A status read from an implementation or a record proves only that the statement exists there, not that anything actually ran, that a rule is correct, or that an expert has confirmed it.
+Extract grounded candidate knowledge from sources you are authorized to read. Extraction is never business approval. Every extracted item stays a candidate (`observed`, `inferred`, or `uncertain`) until the actual accountable owner confirms it against an explicit baseline. A status read from an implementation or a record proves only that the statement exists there. It does not prove that anything actually ran, that a rule is correct, or that an expert has confirmed it.
 
 ## Inputs
 
@@ -59,12 +59,12 @@ Purpose: keep every candidate traceable to its source and visibly unconfirmed.
 
 | Information | What to record |
 |---|---|
-| Candidate content and kind | The actually observed terms, relationships, rule statements, responsibilities, or explainable model candidates |
-| Source kind, identity, and location | The kind: document, implementation, expert excerpt, or external work item. The actual file/line/version, object ID, or section of a supplied excerpt. Mark anything missing explicitly as unknown |
+| Candidate content and kind | Terms, relationships, rule statements, responsibilities, or explainable model candidates actually observed |
+| Source kind, identity, and location | The kind (document, implementation, expert excerpt, or external work item), and the actual file/line/version, object ID, or section of a supplied excerpt. Mark anything missing explicitly as unknown |
 | Original basis | Necessary short quotations or observations, with their context. Keep qualifiers. Do not collect complete sensitive material |
 | Knowledge category and rationale | `observed`: stated directly by the source. `inferred`: derived from the listed basis. `uncertain`: the basis is insufficient or conflicting, or the meaning is still undetermined. The category is not a calibrated probability or an approval status |
 | Conflicts and confirmation needs | Contrary sources and their versions, what is still missing, and who actually needs to confirm. When no accountable owner is named, ask for one. Do not role-play the expert |
-| Impact and destination | The full identity/source location of known artifacts, blocked decisions, content that can continue independently, and existing BLs. When no target ID was provided, do not invent references |
+| Impact and destination | The full identity and source location of known artifacts, blocked decisions, content that can continue independently, and existing BLs. When no target ID was provided, do not invent references |
 
 Record: the candidate entries in the source/open-items section of an authorized note or draft.
 
@@ -74,7 +74,7 @@ This method remains responsible for reading and judgment. It provides no automat
 
 - When read access to local sources is authorized, you may use [source candidates and transparent scoring](../../../docs/source-extraction.md) to read Markdown/plain text, explicit JSONL transcripts, and bounded stdlib DOCX.
 - As that contract requires, keep the actual byte identity, locations, duplicate/contrary sources, and uncertainty.
-- Scores are not probabilities, confirmations, or precedence rules. Tool candidates still go back to the source or to clarification, as in Extract and compare.
+- Scores are not probabilities, confirmations, or precedence rules. Verify tool candidates against the source or clarify them, as in Extract and compare.
 - The audio entry point currently returns only authorization, missing-input, or adapter-unavailable errors. Such a response does not mean anything was transcribed.
 - For unsupported layouts or formats, keep an explicit limitation and request authorized readable excerpts.
   - Do not install dependencies.
@@ -96,7 +96,7 @@ Purpose: turn candidates into draft domain artifacts, only when drafting is auth
 7. Turn unknown policies, metrics, actors, tactical/technical choices, and concurrency choices into specific questions.
 8. Send business clarification and decisions back to the [define-requirements interview](../define-requirements/SKILL.md#interview).
 
-A missing source blocks the confirmations that depend on it, but not independent drafts that do have sources.
+A missing source blocks only the confirmations that depend on it. Independent drafts that do have sources are not blocked.
 
 Record: drafts in the formal locations listed under Outputs.
 

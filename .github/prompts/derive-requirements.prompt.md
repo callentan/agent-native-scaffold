@@ -4,7 +4,7 @@ description: Refine software requirements from actual domain sources or a task.
 
 # Derive software requirements
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Task, scope, non-goals, and completion criteria: TBD
 - Paths, versions, confirmation sources, and open items of the actual REQ/UC/INV/CAP/QAS or maintenance basis: TBD

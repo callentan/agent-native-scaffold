@@ -5,7 +5,7 @@ description: Use when business goals or rules are unclear, a domain model has ga
 
 # Clarify domain facts and stakeholder requirements
 
-Use this method to clarify domain facts and write stakeholder requirements (REQs). Make the business meaning and its sources clear first, then write observable business acceptance criteria. Build only the models and requirements the current task needs, and never fill unknown facts with technical patterns.
+Use this method to clarify domain facts and write stakeholder requirements (REQs). Make the business meaning and its sources clear first, then write observable business acceptance criteria. Build only the models and requirements the current task needs. Never fill unknown facts with technical patterns.
 
 ## Choose the activity
 
@@ -27,7 +27,7 @@ Collect for every activity:
 
 - The goals, users, scope, constraints, and sources the user provided, and which of them are confirmed and which are only proposals.
 - The existing [product description](../../../stakeholder-requirements/README.md#product), domain model, and REQs, and the basis for this change.
-- For each actual file or supplied excerpt: its location, version or date, fact owner, and confirmation basis. If the original location or version is missing, record it as unknown. Do not fabricate it.
+- For each actual file or supplied excerpt: its location, version or date, fact owner, and confirmation basis. If the original location or version is missing, record it as unknown. Do not fabricate them.
 - The drafts or revisions wanted this time, and the allowed read and write scope.
 
 Read ADRs, Intended Use, and governance or risk materials only when this task actually provides them and they apply. They are not prerequisites for every project.
@@ -52,7 +52,7 @@ Inputs: the shared inputs, the open questions, and an actual respondent for each
 Steps:
 
 1. Check applicability. For purely technical or documentation maintenance, state that business modeling is not applicable. Work directly from the explicit task instead of the steps below. Do not manufacture REQs.
-2. Fill in the product description. Organize the goals, users, in-scope and out-of-scope matters, and sources against the inputs. Enter them in the corresponding sections of the [product description](../../../stakeholder-requirements/README.md#product).
+2. Fill in the product description. Organize the goals, users, in-scope and out-of-scope matters, and sources from the inputs. Enter them in the corresponding sections of the [product description](../../../stakeholder-requirements/README.md#product).
 3. Confirm in rounds.
    - Ask only about gaps that would change current behavior or scope.
    - Separate questions that block current decisions from questions that can wait.
@@ -63,7 +63,7 @@ Steps:
    - In [concepts and relationships](../../../domain-model/README.md#concepts), record the concepts and the meanings of their states. For each relationship, state its direction, multiplicity, and the conditions under which it holds.
    - Keep unknown relationship constraints open. A bare list of nouns is not enough.
 5. Record context responsibilities and exchanges.
-   - In [context responsibilities](../../../domain-model/README.md#contexts), state what each context is and is not responsible for. Also state the facts it owns and the external facts it only consumes.
+   - In [context responsibilities](../../../domain-model/README.md#contexts), state what each context is and is not responsible for. Also state the facts each context owns and the external facts it only consumes.
    - In [directed information exchange](../../../domain-model/README.md#exchanges), state the provider → user direction, the fact owner, and known business agreements.
    - Do not force a split into services. Do not assume aggregates, repositories, or other tactical design by default.
 6. Record rules and their sources.
@@ -109,14 +109,14 @@ Steps:
 
 Return: the findings and proposals from steps 4 and 5.
 
-Stop point: without an actual decision, do not restructure the architecture, rename globally, or claim that the model is healthy or the drift is eliminated.
+Stop point: without an actual decision, do not restructure the architecture, rename terms globally, or claim that the model is healthy or that the drift is eliminated.
 
 <a id="glossary-sync"></a>
 ## Glossary sync
 
 Compare local and external glossaries and propose how to align them.
 
-Inputs: the actually provided local and external glossary versions, with each term's definitions and contexts.
+Inputs: the local and external glossary versions actually provided, with each term's definitions and contexts.
 
 Steps:
 
@@ -124,7 +124,7 @@ Steps:
 2. Distinguish synonyms, homonyms (same name, different meaning), external-only terms, local-only terms, and unconfirmed terms.
 3. When a version is missing, make only a provisional comparison. State which differences cannot be confirmed.
 4. Keep the distinct meanings of same-named terms in different contexts. Propose qualified names, mappings, aliases, or deprecation options.
-5. List the impact along rules, UC/REQ, interfaces, and known consumers, and who needs to decide.
+5. List the impact on rules, UC/REQ, interfaces, and known consumers, and who needs to decide.
 6. Revise the original owning glossary only after both the specific choice and the write scope are confirmed. Keep the old names, source versions, deprecation basis, and historical references.
 
 Return: the term comparison, the options, the impact, and who needs to decide. When there are conflicts or missing versions, deliver an alignment proposal. Record only the confirmed glossary revision from step 6.
@@ -157,7 +157,7 @@ Record and return: the direction and commitments, the compatibility findings, th
 
 Stop points:
 
-- When the original contract, the consumers, or the error policy is missing, mark it as to be confirmed. Stop compatibility guarantees and release decisions. Do not assume a failure strategy.
+- When the original contract, the consumers, or the error policy is missing, mark the missing item as to be confirmed. Stop compatibility guarantees and release decisions. Do not assume a failure strategy.
 - When the current version or versioning policy is unknown, do not invent a version number.
 - **A draft is not a sent notification.** Actual notification, source changes, and release each require separate authorization and an original record.
 
@@ -166,7 +166,7 @@ Stop points:
 
 Assess the impact of an incoming external ADR on this project.
 
-Inputs: the actually provided ADR text, its version or decision baseline, its proposer or decider, and the purpose of handling it now.
+Inputs: the ADR text actually provided, its version or decision baseline, its proposer or decider, and the purpose of handling it now.
 
 Steps:
 
@@ -202,7 +202,7 @@ Steps:
 1. When necessary source text is missing, request it first. Do not create substitute facts.
 2. Compare the goals, users, use environment, in-scope and out-of-scope matters, and constraints. When the source involves patients, safety, or regulation, also check the corresponding changes.
 3. List the affected contexts, REQ/QAS, interfaces and consumers, and verification. Cite the actually provided governance or risk basis.
-4. Keep uncertain scope expansion or safety impact as questions. As the source requires, submit them for review to the actual accountable owner and the applicable risk or regulatory owner. If no escalation rule is given, ask them to define one.
+4. Keep uncertain scope expansion or safety impact as questions. As the source requires, submit them for review to the actual accountable owner and the applicable risk or regulatory owner. If no escalation rule is given, ask the owners to define one.
 5. When a standalone record is needed, use the [Intended Use form](../../../_templates/items/intended-use.md) and the [governance guide](../../../docs/governance.md#intended-use) to record sources, proposals, actual decisions, and impact. The owner still maintains the existing source text; the form does not fill in missing source text.
 6. For risk materials, use only the [risk control reference](../../../_templates/items/risk-control.md) to locate external sources and residual gaps.
 
@@ -228,7 +228,7 @@ Stop points:
 For every output:
 
 - Use forms only as a starting point. Do not leave formal content in `_templates`.
-- When metadata is adopted, follow the [current contract](../../../domain-model/README.md#artifact-metadata) to keep a single home for identity, scope, content state, and upstream relationships. In the body, state the basis, derivation, and questions; do not copy a status or relationship table again.
+- When metadata is adopted, follow the [current contract](../../../domain-model/README.md#artifact-metadata) to keep a single home for identity, scope, content state, and upstream relationships. In the body, state the basis, derivation, and questions; do not copy a status or relationship table into the body.
 - When the scope or ID is missing, keep an authorized plain note first. Do not forcibly migrate old lightweight materials.
 - Record confirmation, task progress, and run results separately.
 
@@ -238,7 +238,7 @@ For every output:
   - terms, concepts and relationships, rules, responsibilities, and directed exchanges have a basis
   - each acceptance criterion can be located
   - open items and impact are explicit
-- Deliverable drafts do not mean that business acceptance has been run.
+- Delivering drafts does not mean that business acceptance has been run.
 - A maintenance task need only deliver its statement of applicability.
 
 ## Stop conditions

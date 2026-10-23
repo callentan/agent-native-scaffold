@@ -6,11 +6,11 @@
 
 The repository root of the formal template is the starting point of a downstream project; there is no longer a step of installing a framework and then running a generator command. Project materials are distributed together with the agent capability files, and users own these files directly once they copy them.
 
-What is delivered is a repo skeleton, not a scaffold bundled with a sample application. `src/` is left for users to create any kind of project; the first release puts only a guide there and does not choose a language, framework, dependency manager, application entry point, or test layout.
+What is delivered is a repository skeleton, not a scaffold bundled with a sample application. `src/` is left for users to create any kind of project; the first release puts only a guide there and does not choose a language, framework, dependency manager, application entry point, or test layout.
 
 Three responsibilities are first-release content requirements, not just naming references: **DDD covers the business model and boundaries, the V-model covers traceability from requirements to verification, and templates, skills, and prompts let humans and agents work through one shared process.** Forms define artifact structure, skills hold the shared methods, and prompts only provide invocation entry points; full DDD/V-model is not mandatory, but the applicable minimum modeling and traceability are not skipped either.
 
-Directory naming follows the DDD projects and the repos researched earlier: the domain side borrows the responsibilities of `ddd-subdomain` / `DM-Subdomain`, the implementation side borrows from `ddd-bc` / `DeviceRegistry-BC`, and document forms adopt the centralized organization of `_templates`. We organize the needed content in a single repo and do not reuse their submodule or multi-repository deployment approach.
+Directory naming follows the DDD projects and the repositories researched earlier: the domain side borrows the responsibilities of `ddd-subdomain` / `DM-Subdomain`, the implementation side borrows from `ddd-bc` / `DeviceRegistry-BC`, and document forms adopt the centralized organization of `_templates`. We organize the needed content in a single repository and do not reuse their submodule or multi-repository deployment approach.
 
 Reference source code, internal research material, and this project's own design discussions must not be mixed into downstream PRDs or business documents. Prepare the distributable content before release; the current research repository must not simply be marked as a public template.
 
@@ -94,8 +94,8 @@ Blank forms are centralized in `_templates/items/`; copy one into the correspond
 
 | Previous-version purpose | Current path | Reference and adjustment |
 |---|---|---|
-| Domain facts scattered across project notes | `domain-model/` | Reuses the reference domain directory name; maintained inside this repo, not as an external read-only mount |
-| `prd/` product description | `stakeholder-requirements/` | Borrows the stakeholder requirements / REQ responsibility; placing it at the top level of a single repo is this template's own arrangement and does not claim to replicate the reference repository's nested path |
+| Domain facts scattered across project notes | `domain-model/` | Reuses the reference domain directory name; maintained inside this repository, not as an external read-only mount |
+| `prd/` product description | `stakeholder-requirements/` | Borrows the stakeholder requirements / REQ responsibility; placing it at the top level of a single repository is this template's own arrangement and does not claim to replicate the reference repository's nested path |
 | `specs/` feature specifications | `software-requirements/`; design and verification go in `architecture/` and `verification/` respectively | Reuses the reference projects' SR/ABB/VT division of labor instead of mixing all specifications into one directory |
 | `tasks/` implementation tasks | Delivery slices and implementation checklists in `user-stories/` | Reuses US; maintenance items that do not fit a user story use an issue/PR instead of being forced into a user-value narrative |
 | `docs/architecture.md`, `docs/decisions/` | `architecture/README.md`, `architecture/decisions/` | Adopts the reference projects' architecture directory; the central location for architecture decisions in a single repo is our own choice |
@@ -141,10 +141,10 @@ P1 provides the following sections and filling guidance in the established `doma
 | Core concepts and relationships | Which important objects, behaviors, or states exist in the business, and how are they related? Do not just list nouns without explaining the relationships |
 | Business rules and invariants | Which conditions must hold, which behaviors are forbidden, and within which scope does each rule apply? Rules are referenced by a stable section or identifier |
 | Bounded contexts | What is each context responsible and not responsible for, and which business facts does it maintain? Directory names or technical layers cannot replace business responsibilities |
-| Context interactions | Which side provides what business information or capability, and which agreement does the other side depend on? Business boundaries need not map one-to-one to repos, services, or `src` subprojects |
+| Context interactions | Which side provides what business information or capability, and which agreement does the other side depend on? Business boundaries need not map one-to-one to repositories, services, or `src` subprojects |
 | Sources and open items | Which facts has the user given, and which content is inferred or to be confirmed? How do the related REQs/SRs locate their business basis? |
 
-The initial skeleton provides only guidance and does not prefill a business model; business-related tasks fill in or reference the existing model within the current scope. When one context is enough, do not split it artificially; pure documentation maintenance and tasks that do not involve the business state why the model is not applicable instead of fabricating one. Entities, value objects, aggregates, the repository pattern, and code layering are adopted as actually needed; they are not an implementation form mandated by the template.
+The initial skeleton provides only guidance and does not prefill a business model; business-related tasks fill in or reference the existing model within the current scope. When one context is enough, do not split it artificially. For pure documentation maintenance and for tasks that do not involve the business, state why the model does not apply instead of fabricating one. Entities, value objects, aggregates, the repository pattern, and code layering are adopted as actually needed; they are not an implementation form mandated by the template.
 
 ### 3.2 Traceability carriers and single source of truth
 
@@ -202,7 +202,7 @@ Repository-level instructions provide guidance; `docs.instructions.md` covers do
 
 ### Entry points shared by humans and agents
 
-The formal README provides "What do I need to do now?" activity navigation that lists the required inputs, shared methods, forms, and formal artifact locations. Humans can read the steps in `SKILL.md` directly and fill in the forms by hand, while agents enter the same method from `AGENTS.md`; both follow the same fact sources, traceability requirements, completion conditions, and stop conditions. Not using an agent or prompt shortcut commands does not affect the method's usability.
+The formal README provides "What do I need to do now?" activity navigation that lists the required inputs, shared methods, forms, and formal artifact locations. Humans can read the steps in `SKILL.md` directly and fill in the forms by hand, while agents enter the same method from `AGENTS.md`; both follow the same fact sources, traceability requirements, completion conditions, and stop conditions. Skipping agents and prompt shortcuts does not affect the method's usability.
 
 P1 first provides entry points to the existing materials and forms; P2 connects the activity navigation to the six created skills. Skill text uses steps that humans can execute; it does not make a specific agent role or a dedicated tool call a mandatory step, and it does not duplicate a separate "manual workflow". Prompts only add the input for the current run and cannot change a method's acceptance standards.
 

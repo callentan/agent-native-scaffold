@@ -1,10 +1,10 @@
 # Development workflow, logging, and handoff conventions
 
-**This file defines the working conventions of the repo template; it is not a protocol for a home-grown executor. The corresponding P1 forms and P2 shared methods have been produced; for the limited exercise results of 2026-10-14 and the unfinished items, see the [actual acceptance record](../plan/roadmap.md#actual-acceptance).**
+**This file defines the working conventions of the repository template; it is not a protocol for a home-grown executor. The corresponding P1 forms and P2 shared methods have been produced; for the limited exercise results of 2026-10-14 and the unfinished items, see the [actual acceptance record](../plan/roadmap.md#actual-acceptance).**
 
 ## 1. Choose the process each task needs
 
-The usual order is "domain and business requirements → necessary software requirements and delivery slices → implementation → verification → recording and delivery". Directories use the reference projects' naming, but not every change has to create a whole new REQ/SR/US/ABB/VT chain, and there is no requirement to call a series of different agents first.
+The usual order is "domain and business requirements → necessary software requirements and delivery slices → implementation → verification → recording and delivery". Directories use the reference projects' naming, but not every change has to create a whole new REQ/SR/US/ABB/VT chain, and no series of different agents must be called first.
 
 DDD provides the business model and boundaries, and the V-model maps requirements at different levels to their verification; forms define artifact structure, skills define the shared methods, and prompts start the current activity. A lightweight process can reuse existing artifacts but must not lose the current task's business basis, acceptance source, or unverified status.
 
@@ -45,9 +45,9 @@ Before coding, also confirm the target project location within `src/`, the tech 
 
 ## 3. Artifact responsibilities and content ownership
 
-The PRD's product goals and scope go in the entry point and the business requirements of `stakeholder-requirements/`; domain concepts, rules, and contexts go in `domain-model/`, with the minimum filling requirements in [blueprint section 3.1](repository-blueprint.md). Business acceptance belongs to REQ, software behavior and software acceptance to SR, delivery scope and implementation progress to US, necessary design to `architecture/`, and verification methods and result references to `verification/`. Do not simply treat a whole PRD as a single REQ, and do not cram all spec content into SR.
+The PRD's product goals and scope go in the entry point and the business requirements of `stakeholder-requirements/`; domain concepts, rules, and contexts go in `domain-model/`, with the minimum filling requirements in [blueprint section 3.1](repository-blueprint.md). Business acceptance belongs to REQ, software behavior and software acceptance to SR, delivery scope and implementation progress to US, necessary design to `architecture/`, and verification methods and result references to `verification/`. Do not simply treat a whole PRD as a single REQ, and do not put all specification content into SR.
 
-US references requirements through links and does not copy software requirements that would then change independently; VT directly references the REQ/SR acceptance criteria it verifies and, when needed, links design constraints or the completion conditions of a standalone maintenance task. US is not a mandatory layer between requirements and VT. `verification/` stores verification documents and is not a test code directory; the skeleton does not pre-create `src/tests/`, and actual project and test paths follow the downstream tech stack or the existing project.
+US references requirements through links and does not copy software requirements, because the copies would then drift from their source; VT directly references the REQ/SR acceptance criteria it verifies and, when needed, links design constraints or the completion conditions of a standalone maintenance task. US is not a mandatory layer between requirements and VT. `verification/` stores verification documents and is not a test code directory; the skeleton does not pre-create `src/tests/`, and actual project and test paths follow the downstream tech stack or the existing project.
 
 Small changes reuse existing artifacts; new business decisions are first recorded as proposals. When architecture decision history is needed, write an ADR in `architecture/decisions/`; ordinary progress goes in the log, and not every change has to produce an ADR. Take document forms from `_templates/items/` and, once filled in, place them in the corresponding artifact directory.
 
@@ -63,7 +63,7 @@ Filling hints and examples in template files are not business facts. Nor are the
 
 A VT states its verification layer, target acceptance criteria, method, and expected results. One acceptance criterion can be covered by several VTs, and one VT can cover several acceptance criteria, but each target and its pass criterion must be listed item by item; passing software checks does not automatically imply that business acceptance passes. Decide the applicable verification method during planning, rather than working backwards to requirements after the code is done.
 
-SR stores its upstream relationships and VT stores its target relationships; each reference uses the owning artifact, a stable acceptance identifier, and a locatable link, never a bare `AC-1` of unknown ownership. Reverse lookups are done through references and search, without manually copying relationships in both directions. Update references when an artifact is renamed; when an acceptance criterion is withdrawn, keep the basis for the change and do not reuse the old identifier to hide history.
+SR stores its upstream relationships and VT stores its target relationships; each reference uses the owning artifact, a stable acceptance identifier, and a locatable link, never a bare `AC-1` of unknown ownership. Reverse lookups use references and search, without manually copying relationships in both directions. Update references when an artifact is renamed; when an acceptance criterion is withdrawn, keep the basis for the change and do not reuse the old identifier to hide history.
 
 A coverage check first lists all acceptance criteria in the current delivery scope and then looks for the corresponding VTs; do not merely scan the existing VTs to infer that "all requirements are covered". Check each item for a missing verification method, a VT pointing to a nonexistent or wrong acceptance criterion, stale references, and result baseline mismatches. Record gaps, impact, and pending items explicitly; deferral or not applicable needs a rationale and confirmation by the accountable owner, and an agent must not eliminate gaps by narrowing the scope or fabricating requirements.
 
@@ -102,7 +102,7 @@ A log is a summary of results, not tamper-proof evidence. CI, project tests, and
 
 ## 5. Development logs and handoff
 
-A separate file per task or work session is recommended, for example `logs/2026-10-13-US-001-session-a.md`; maintenance tasks can use their issue or PR identifier. This avoids all agents editing one global log at the same time. The US or issue links the related logs, progress is tracked from the corresponding task record, and logs keep the observations made at the time. `logs/` is our own additional directory and does not claim to reuse a same-named log path from the reference repositories.
+A separate file per task or work session is recommended, for example `logs/2026-10-13-US-001-session-a.md`; maintenance tasks can use their issue or PR identifier. This avoids several agents editing one global log at the same time. The US or issue links the related logs, progress is tracked from the corresponding task record, and logs keep the observations made at the time. `logs/` is our own additional directory and does not claim to reuse a same-named log path from the reference repositories.
 
 Minimum log structure:
 

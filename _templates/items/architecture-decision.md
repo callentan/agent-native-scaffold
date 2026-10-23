@@ -22,7 +22,7 @@ targets: []
 | Business context, fact ownership, and boundary constraints | TBD: links to rules or sources |
 | Why a decision is needed, and unknown facts | TBD |
 
-Declared relationships belong in the frontmatter `upstream`, and content state and confirmation records are also maintained only in the frontmatter. When the incoming original text or the actual decision is missing, record the gap; do not treat a file title, the word Accepted, or a local proposal as an authorized decision.
+Relationships are declared only in the frontmatter `upstream`, and content state and confirmation records are also maintained only there. When the incoming original text or the actual decision is missing, record the gap; do not treat a file title, the word Accepted, or a local proposal as an authorized decision.
 
 <a id="options"></a>
 ## Options and trade-offs
@@ -41,12 +41,12 @@ Declared relationships belong in the frontmatter `upstream`, and content state a
 - Affected contexts, consumers, interfaces, and verification: TBD; notifications are drafts only, and actually sending them requires separate authorization.
 - Links to records superseded by or superseding this decision: TBD; if none, say so.
 
-Without a confirmation basis, keep `draft`; the form or an Agent self-review cannot produce "accepted". When the source changes, keep the old decision and its applicable baseline and list the need for re-review separately; do not automatically publish to an external wiki or rewrite sources.
+Without a confirmation basis, keep `draft`; neither the form nor an agent's self-review can produce "accepted". When the source changes, keep the old decision and its applicable baseline and list the need for re-review separately; do not automatically publish to an external wiki or rewrite sources.
 
 <a id="verification-needs"></a>
 ## Verification needs (as needed)
 
-If a constraint already has an owner, reference its stable ID and anchor directly; use the block below only when the constraint is genuinely defined by this ADR, and do not copy a set of requirements.
+If a constraint already has an owner, reference its stable ID and anchor directly; use the block below only when this ADR genuinely defines the constraint, and do not copy requirements here.
 
 <a id="adr-nnn-vc-01"></a>
 ### ADR-NNN-VC-01: TBD

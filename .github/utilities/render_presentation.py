@@ -1,4 +1,4 @@
-"""Parameterized source-section slides in real self-contained local HTML/SVG."""
+"""Render parameterized source-section slides as real, self-contained local HTML/SVG."""
 
 from __future__ import annotations
 

@@ -41,7 +41,7 @@ Read the old baseline, the current owner content, and the new candidate separate
 
 ## Command example
 
-Run from the repository root with this run's actual project interpreter. This is a Windows example; on other hosts, substitute the actual interpreter, such as `.venv/bin/python`, and `/` separators.
+Run from the repository root with this run's actual project interpreter. This is a Windows example; on other hosts, substitute the actual interpreter (for example, `.venv/bin/python`) and use `/` separators.
 
 ```text
 .venv\Scripts\python.exe -B -X utf8 .github\utilities\plan_template_update.py --registration "<local-registration.yaml>" --target "<explicit-target-id>"
@@ -68,8 +68,8 @@ Apply each row to the affected target.
 - Never write back to read-only sources.
 - Do not overwrite the whole repository or move the business layout.
 - Do not treat a historical distribution manifest as the file scope of the current version.
-- Neither the configuration, a proposal, the word `apply`, nor this method approves clone/fetch, file changes, commit/push, PRs, or merges. This tool has none of these operations.
-- Do not misread inputs: a missing old baseline does not mean "the template never had the file"; unreadable is not deleted; a local-only file is not an outdated template.
+- The configuration, a proposal, the word `apply`, and this method do not approve clone/fetch, file changes, commit/push, PRs, or merges. This tool has none of these operations.
+- Do not misread inputs: a missing old baseline does not mean "the template never had the file"; an unreadable file is not a deleted file; a local-only file is not an outdated template.
 - A report exiting 0, a file existing, or workflow YAML parsing successfully does not prove that business acceptance, manual approval, client discovery, or an external fan-out has run.
 
 ## Outputs
@@ -87,5 +87,5 @@ Apply each row to the affected target.
 ## Stop conditions
 
 - Stop the affected target at each stop point in Result handling: `conflict`, `input-error` / `unavailable`, and unclear permissions/scope or an unauthorized non-empty target/output.
-- Stop any native Git/platform operation that lacks separate current authorization for its specific target, version, and action (Steps 6).
+- Stop any native Git/platform operation that lacks separate current authorization for its specific target, version, and action (Step 6).
 - Then: handle the target as its Result handling row says; the other targets' results stay visible.

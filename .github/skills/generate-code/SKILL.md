@@ -39,13 +39,13 @@ This is a hard gate: complete every check here before any write.
    - Unconfirmed rules, unreadable sources, and conflicts support only questions or candidates.
    - Never generate definite business behavior from them.
 3. Verify each [project creation input](../../../docs/development.md#creation-inputs) and the authorization to run each command.
-   - New project with no source code yet: state explicitly that it does not exist. Verify the intended native layout and the files the tools can produce.
+   - New project with no source code yet: state explicitly that no source code exists. Verify the intended native layout and the files the tools can produce.
    - Existing project: keep its actual layout.
    - If the project, stack/version, path, environment, actual commands/cwd/reports, or creation permission is missing, record `blocked` with the exact gaps. Keep the related behavioral VTs `not-run`.
    - Never unblock by borrowing the maintenance tools' Python stack, a sample application, or fake commands.
 4. Explicitly read the [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), [security](../../instructions/security.instructions.md), and applicable [test rules](../../instructions/tests.instructions.md) in full. Rule globs do not cover every actual code location, and they do not authorize execution.
 5. For every path to be written, resolve its actual root, parent directory, and link targets. Check the allowed scope and all existing content.
-   - Stop the write to a path when its directory does not match, it is out of scope or unreadable, or it is a non-empty target that conflicts. List the exact path.
+   - Stop the write to a path when its directory does not match, when it is out of scope or unreadable, or when it is a conflicting non-empty target. List the exact path.
    - Send task changes to existing files to the maintenance path ([implement-task](../implement-task/SKILL.md)). Do not use an initializer in place of review.
    - Keep the original bytes or a retrievable snapshot.
 

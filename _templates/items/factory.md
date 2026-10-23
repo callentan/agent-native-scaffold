@@ -9,7 +9,7 @@ targets: []
 ---
 # FAC-NNN: TBD factory candidate
 
-> Optional record of a creation responsibility; it does not require the Factory pattern. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/FAC-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing creation rules, and then delete this hint.
+> Optional record of a creation responsibility; it does not require the Factory pattern. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/FAC-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing creation rules, and then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis
@@ -18,7 +18,7 @@ targets: []
 - Candidate reasons for a separate creation responsibility: TBD; simple construction does not need a separate factory.
 - Open questions and who needs to confirm them: TBD.
 
-The frontmatter holds the upstream; the body explains what creation means and does not copy a set of business rules.
+The frontmatter holds the upstream; the body explains what creation means and does not copy business rules.
 
 <a id="creation"></a>
 ## Creation responsibility

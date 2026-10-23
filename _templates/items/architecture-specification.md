@@ -38,7 +38,7 @@ Logical components do not imply a deployment topology. Cite languages, framework
 <a id="views"></a>
 ## Completeness of the nine source views
 
-This table follows the nine view semantics of the [model contract](../../.github/contracts/README.md), but it is not a second model: it keeps only readability, original-text navigation/baselines, and gaps, and does not copy domain text, the canonical relationship list, or actual results.
+This table follows the nine view semantics of the [model contract](../../.github/contracts/README.md), but it is not a second model. It keeps only the readability status, original-text navigation and baselines, and gaps. It does not copy domain text, the canonical relationship list, or actual results.
 
 `available` means the required sources are readable and complete, with at least one verifiable reference; `partial` means some references exist and there are specific gaps; `unverified` means the sources are missing, unreadable, or their baselines cannot be verified, so no reference can be claimed. None of the three equals `pass`, approval, or released. A missing required primary input is an input error and must not be disguised as a missing optional view. Keep the row even when an optional view is missing; marking a view not applicable also needs a scope basis and cannot be done merely by leaving it blank.
 

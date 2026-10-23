@@ -20,7 +20,7 @@ score_candidates(items: list[dict]) -> list[dict]
 ```
 
 `source` must be an explicit absolute path to a local regular file. URLs, UNC paths, ambiguous drive-relative
-paths, and alternate streams are rejected; paths resolve links the host's normal way (for example macOS `/tmp`); this is not an OS sandbox,
+paths, and alternate streams are rejected; links in paths are resolved the way the host normally resolves them (for example, macOS `/tmp`); this is not an OS sandbox,
 and it does not guarantee protection against malicious concurrent replacement by other processes. The source identity is **the bytes actually read in this run**, not an inferred Git commit or formal artifact identity.
 The API does not write files or change the cwd.
 
@@ -43,7 +43,7 @@ Each candidate has the following fixed fields:
 | `kind` | The candidate type: `rule`, `capability`, `use-case`, `term`, or `statement` |
 | `nature` | `observed`: explicit label; `inferred`: lexical classification of unlabeled text; `uncertain`: proposal/tentative wording. None of them means the fact is confirmed |
 | `text` | The **complete** normalized text of the selected source unit; it must not select only a substring or drop qualifiers; normalization is specified below |
-| `fragment` | The raw line, raw transcript JSON line, or DOCX paragraph text; it does not pose as a missing raw interview or XML line number |
+| `fragment` | The raw line, raw transcript JSON line, or DOCX paragraph text; it does not stand in for a missing raw interview or XML line number |
 | `source`, `location` | The same actual byte identity, and the 1-based format coordinates described below |
 | `uncertainty` | The detected proposal words and the reason; empty when a direct statement contains none of these words, which does not mean it agrees with other sources |
 | `extraction_reason` | The classification basis: explicit label or lexical inference |
@@ -57,7 +57,7 @@ and as a capability only from `can/allows/supports`; everything else is a statem
 This is not a complete natural-language recognizer and cannot prove necessity or that the domain type is correct.
 `maybe/should/proposed/perhaps/unconfirmed` are kept as uncertainty markers,
 overriding the ordinary observed/inferred classification. Contradictory sources may both lack proposal words; both must still be kept and compared by the method;
-the tool does not automatically detect all business contradictions or choose a prevailing rule, and has no supersedes/confirmed status.
+the tool does not automatically detect all business contradictions, choose a prevailing rule, or record a supersedes/confirmed status.
 
 <a id="formats"></a>
 ## Local formats and exact locations
@@ -71,7 +71,7 @@ the tool does not automatically detect all business contradictions or choose a p
 
 UTF-8 may have a BOM; Unicode, paths with spaces, and CRLF are supported. The byte digest keeps the BOM/line endings as they are;
 text lines in `fragment` exclude the line terminator. A text paragraph is a group of consecutive non-empty raw lines separated by blank lines **before filtering**,
-so groups containing Markdown headings, comments, and fences still count; they do not pretend to be renderer-semantic paragraphs.
+so a group that contains Markdown headings, comments, or fences still counts. These groups are not renderer-level paragraphs.
 Markdown `text` may strip HTML comments while `fragment` keeps the raw line; scoring uses the same state machine and the
 explicit pre-line comment context to check the complete visible unit. The tool is not a complete Markdown renderer
 and does not automatically turn tables, headings, or frontmatter into formal artifacts.
@@ -85,7 +85,7 @@ and does not automatically turn tables, headings, or frontmatter into formal art
 - Markdown: the same shared scanner reads the whole raw line and applies the comment/code/fence rules to get the complete visible line;
   after excluding headings, code, and empty visible lines, only a leading/trailing `strip()` is applied. Extraction keeps the actual whole-file
   `markdown_context.in_comment`; scoring enters the **same** scanner in that declared state,
-  without writing a second Markdown parser for standalone fragments and without accepting caller-supplied duplicated visible text.
+  without a second Markdown parser for standalone fragments and without accepting caller-supplied duplicate visible text.
 
 For example, given the two raw lines `<!--` and `    --> Rule: Members <!--x--> must keep receipts.`,
 the second line keeps its raw fragment, raw line/group, and `{"in_comment": true}`;
@@ -97,11 +97,11 @@ unknown keys, and numeric stand-ins for bools are not allowed; line 1 cannot inh
 Markdown candidates that lack this field, the declared default entry state is non-comment; omitted context cannot be guessed.
 This state is a limited **source-context declaration**, not a fact re-authenticated from the original file.
 The tool does not open the original or authenticate the original hash, the speaker, or unsupplied prefixes; it only proves that the given fragment/context/
-complete text/classification are internally consistent. Do not advertise this limitation as a guarantee of authenticity or approval.
+complete text/classification are internally consistent. Do not present this check as a guarantee of authenticity or approval.
 
 `kind`, `nature`, and all `uncertainty` markers must match the result of reclassifying the complete normalized unit,
 including the order and repetition of markers. Truncating text, removing `maybe`/`should`/`unconfirmed`, or manually overriding
-nature/markers to disguise a different candidate is not allowed. Separate business judgments by the owner are still recorded through the shared method, and the tool's observations are not modified
+nature/markers to disguise a different candidate is not allowed. The owner's business judgments are still recorded through the shared method, and the tool's observations are not edited
 in place of clarification; raw fragments and coordinates are not rewritten by normalization.
 
 ### Explicit transcript format
@@ -117,7 +117,7 @@ Timestamps are fixed as `HH:MM:SS.mmm` (two-digit hours, minutes/seconds 00–59
 Input order, speakers, and time strings are preserved; names are not authenticated, real clock times are not validated, and chronological order is not inferred.
 `text` is the JSON-decoded text and `fragment` is the raw JSON line; escaping does not change the source baseline.
 Blank lines add no turn; invalid JSON, non-finite numbers, missing fields, empty text, invalid Unicode/control characters,
-or any bad turn fails the entire read, and no first-half "success" is returned.
+or any bad turn fails the entire read, and no partial success is returned.
 
 ### Bounded stdlib DOCX
 
@@ -147,7 +147,7 @@ justify claiming that arbitrary DOCX files are fully extracted; the needed forma
 Nothing is unpacked to disk, external entities are not resolved, relationship targets are not accessed, and document content is not executed.
 ZIP traversal/absolute paths/backslashes/NUL/duplicate names/type aliases, encrypted ZIPs, DTD/entity
 declarations, corrupt XML/CRC, missing required parts, and unsupported compression/layouts are rejected. Non-body content such as XML comments does not become a business candidate;
-it still falls within the identity of the entire input bytes.
+it is still covered by the identity of the entire input bytes.
 
 | Resource boundary | Fixed limit |
 |---|---|
@@ -228,7 +228,7 @@ The scoring CLI can read a complete extraction envelope (keeping the source and 
 Saving requires an explicitly specified, non-existent `.json` whose parent directory already exists and which resolves inside the root
 without taking over a declared source or input; exclusive create, no overwrite, no mkdir, no auto-repair.
 Existing files/sources/directories, out-of-bounds paths, stream paths, and missing parent directories are rejected. Partial I/O failures are not guaranteed to roll back;
-the explicit error and any partial output from this run are kept, and this must not be used as grounds to overwrite owner content and retry.
+the explicit error and any partial output from this run are kept, and neither may be used as grounds to overwrite owner content and retry.
 
 | Result / code | Meaning and exit |
 |---|---|
@@ -247,7 +247,7 @@ argument syntax errors are reported by argparse on stderr with exit 2. There is 
 Unknown kinds are not guessed from the extension, and read/parse failures are not downgraded to empty.
 
 <a id="audio"></a>
-## Audio gate: only an honest refusal entry point
+## Audio gate: refusal-only entry point
 
 ```python
 transcribe_audio(
@@ -265,6 +265,6 @@ discovers environment providers, installs packages, sends data, writes output, o
 - All future fields supplied and operation is `transcribe`: still `SOURCE_ADAPTER_UNAVAILABLE`.
   Passing a service name or `--authorized` **cannot** select, install, or enable an adapter.
 
-A future real call additionally requires explicit input/service/model/pinned SDK version, operation, allowed data scope/destination,
-an exact new output, and authorization, before a concrete adapter and real failure propagation are implemented. No transcription service success or failure has been verified;
+A future real call additionally requires explicit input, service, model, pinned SDK version, operation, allowed data scope and destination,
+an exact new output, and authorization. These must be settled before a concrete adapter and real failure propagation are implemented. No transcription service success or failure has been verified;
 the local refusal contract does not replace actual audio acceptance and does not close the related enhancement conditions.

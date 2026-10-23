@@ -4,7 +4,7 @@ description: Extract domain candidates to be confirmed from existing materials, 
 
 # Extract domain candidates by reverse engineering
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Extraction question, domain/context, and scope: TBD
 - Documents, code, excerpts, or external records permitted to be read: TBD

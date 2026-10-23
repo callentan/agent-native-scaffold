@@ -118,7 +118,7 @@ Actions:
 3. Following the [architecture guide](../../../architecture/README.md#building-blocks), describe owned/consumed facts, responsibilities, dependencies, and collaboration direction.
 4. Give a source for every technology choice, interface/dependency version, and runtime/deployment, observability, or quality statement.
    - Do not presuppose a four-layer directory structure or a platform.
-5. Keep domain dependencies separate from legitimate composition-root wiring. Wiring is not a pass for controllers to bypass domain rules.
+5. Keep domain dependencies separate from legitimate composition-root wiring. Wiring does not let controllers bypass domain rules.
 6. Give each real design constraint its own VC/anchor, or reference its original owner. Plan suitable criteria for it in the VT.
 7. Hand incoming ADRs to [incoming-adr](../define-requirements/SKILL.md#incoming-adr). Decisions and notifications do not take effect automatically.
 
@@ -140,18 +140,18 @@ Actions:
 1. First, following the [full acceptance inventory](../../../verification/README.md#coverage-check), list the owner, full ID, source text, and baseline of every in-scope item, **including items without a VT**.
 2. Following the [verification layers](../../../verification/README.md#layers), plan business, software, applicable design, or document checks separately, using a [VT](../../../_templates/items/verification-test.md#plan).
 3. In each `targets` entry, declare the actual `scope/id#anchor` and a local `criterionAnchor`.
-4. In the VT body, keep per item the independent criterion, observation method, preconditions/forbidden side effects, and open items.
+4. In the VT body, keep for each item the independent criterion, observation method, preconditions/forbidden side effects, and open items.
    - Do not also copy a target-relationship table.
-5. Trace each item back to its source owner, anchor, and layer. A single "all passed" cannot cover multiple targets.
+5. Trace each item back to its source owner, anchor, and layer. A single "all passed" result cannot cover multiple targets.
 6. When Gherkin is needed, use the [feature file](../../../_templates/items/verification-test.feature) following the [companion guide](../../../verification/README.md#feature-companion).
-   - The feature file exclusively holds the scenario text. The VT keeps navigation to the actual file/baseline and the per-item criteria.
+   - The feature file holds only the scenario text. The VT keeps navigation to the actual file/baseline and the criteria for each item.
    - Use only known normal/negative cases and measures. Safety tags need a named source.
    - Without step implementations or a runner, the feature file is only a text plan. Do not call it automated.
 7. Record the object, requirement/task, and VT plan baselines.
 8. Verify the actual environment, method, command/cwd, and report location.
 9. Keep layers apart:
    - Business acceptance is not an aggregate of software results.
-   - Never enter document checks as behavioral runs.
+   - Never record document checks as behavioral runs.
 10. Register navigation, checked baselines, and gaps in the [verification index](../../../verification/README.md#coverage-index). Do not build a separate result table.
 11. Before implementation and runs, check complete coverage and semantic impact with [verify-change](../verify-change/SKILL.md#coverage).
 
@@ -225,7 +225,7 @@ Deliver this specification/plan only when:
 - Each target and its layer are explicit.
 - The pre-implementation verification plan and its gaps are locatable.
 
-Delivery does not mean behavioral verification has passed. Without an application, application checks are not applicable to documentation tasks, and planned business/software VTs remain `not-run`.
+Delivery does not mean behavioral verification has passed. For a documentation task without an application, application checks do not apply, and planned business/software VTs remain `not-run`.
 
 ## Stop conditions
 

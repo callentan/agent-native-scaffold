@@ -39,7 +39,7 @@ Actual upstream relationships such as REQ, UC, and rules belong in the frontmatt
 | Measure information | Content |
 |---|---|
 | Who proposed the criterion, its source, and the confirmed baseline | Not provided |
-| Observation points, sampling/statistical definitions, or other judgment methods | Not provided; must be determined by the real target |
+| Observation points, sampling/statistical definitions, or other judgment methods | Not provided; must be determined from the actual target |
 | Object, load, time window, and exclusion conditions | Not provided; do not infer from common configurations |
 | Available measurement methods, tools, and environment | Not configured |
 | Parts that cannot be measured or that conflict | TBD |
@@ -54,7 +54,7 @@ Actual upstream relationships such as REQ, UC, and rules belong in the frontmatt
 - Independent measurable criterion and its original basis: Not provided; the criterion is incomplete.
 - Why it cannot be judged now and the inputs needed: a measure and method confirmed by the accountable owner are missing.
 
-While the measure is missing, keep `draft` and the specific questions; do not treat "performs well" as an executable criterion or claim a pass. Scenarios/VTs only reference this item; run results are not stored here.
+While the measure is missing, keep `draft` and record the specific questions; do not treat "performs well" as an executable criterion or claim a pass. Scenarios and VTs only reference this item; run results are not stored here.
 
 <a id="questions"></a>
 ## Open items and changes

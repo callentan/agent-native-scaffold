@@ -39,7 +39,7 @@ Use only participants that the sources actually name. Distinguish contexts, user
 | Rejection: TBD | TBD | TBD | TBD | TBD |
 | Error/timeout: awaiting a source | TBD | TBD | TBD | TBD |
 
-Only when an actual source specifies that integration/event consumption is asynchronous, keep the asynchronous boundary in that direction and do not turn it into a synchronous call; when there is only a conceptual exchange, do not infer the transport from the arrows. Failure propagation, retries, ordering, duplication/idempotency, correlation, and delivery guarantees each need a source; leave unknowns without default values.
+Only when an actual source specifies that integration or event consumption is asynchronous, keep that asynchronous boundary in the stated direction and do not turn it into a synchronous call. When the exchange is only conceptual, do not infer the transport from the arrows. Failure propagation, retries, ordering, duplication/idempotency, correlation, and delivery guarantees each need a source; leave unknowns without default values.
 
 <a id="diagram"></a>
 ## Mermaid source

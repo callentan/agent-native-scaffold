@@ -490,7 +490,7 @@ def build_report(root: PathInput, object_sha: str, evidence_files, *, scope: str
 
 
 def _validate_collected_report(root: Path, data: dict, path: Path, scope: str) -> _Collection:
-    """Model's explicit report adapter: verify references and reconstruct, not run.
+    """The model's explicit report adapter: verify references and reconstruct, not run.
 
     Selection is recovered only from actual owned run pointers already in this
     report. Reconstruction rejects omitted targets, fabricated results/locators,

@@ -18,7 +18,7 @@ targets:
 
 | Plan information | Content |
 |---|---|
-| Business scope and scenario type | TBD: Within context / Cross-context / REQ business acceptance / QAS; do not mix it up with a software run |
+| Business scope and scenario type | TBD: Within context / Cross-context / REQ business acceptance / QAS; do not confuse it with a software run |
 | Known facts and locatable sources, dates, or versions | TBD |
 | Derived candidates and source limitations | TBD; unconfirmed policies do not enter definite expectations |
 | Object, requirement, and scenario plan baselines | TBD; locate each separately, not just the current HEAD |
@@ -52,7 +52,7 @@ Each `targets` entry uses `criterionAnchor` to point at an independent criterion
 | Source of the actual environment, runner, command, and cwd | Not configured; fill in only from the real development registration |
 | Raw output location and access limitations | Not configured |
 
-When a `.feature` file exists, only reference its single Gherkin body; do not copy another one into this file. Without an application or runner, the scenario remains a plan; when a QAS lacks a measurement criterion, keep the gap and do not produce a fictitious pass criterion.
+When a `.feature` file exists, only reference its single Gherkin body; do not copy that body into this file. Without an application or runner, the scenario remains a plan; when a QAS lacks a measurement criterion, keep the gap and do not produce a fictitious pass criterion.
 
 <a id="runs"></a>
 ## Actual runs (separate from the plan)

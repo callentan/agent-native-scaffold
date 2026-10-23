@@ -4,7 +4,7 @@ This file is the common entry point: it sets the reading path and the rules for 
 
 ## Start here
 
-1. Read the [README project registration](README.md#project) and the current task's goal, scope, basis, and completion conditions.
+1. Read the [README project registration](README.md#project), and confirm the current task's goal, scope, basis, and completion conditions.
    - A maintenance request can itself serve as the basis.
    - Creating a US is not mandatory.
 2. Choose the matching method from the [README activity navigation](README.md#activities). **Explicitly read the complete `SKILL.md`**, then read the current facts, guides, and forms it links to.

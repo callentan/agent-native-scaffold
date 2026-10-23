@@ -1,6 +1,6 @@
 # TBD: Project name
 
-This is the entry point to the project's materials. Record the known goals, business facts, and current task first, and create a project only when needed; reading and maintaining the materials does not require choosing a tech stack first. All "TBD" values and `NNN` are placeholders; they do not represent confirmed facts or formal artifacts.
+This is the entry point to the project's materials. Record the known goals, business facts, and current task first. Create a project only when needed; reading and maintaining the materials does not require choosing a tech stack. All "TBD" values and `NNN` are placeholders; they do not represent confirmed facts or formal artifacts.
 
 <a id="project"></a>
 ## Project registration
@@ -19,7 +19,7 @@ Details of product goals, users, scope, and constraints belong in the [stakehold
 
 Humans and agents onboard a project with [project-onboarding](.github/skills/project-onboarding/SKILL.md); to compare old, local, and new template versions or to propose scenarios for explicitly named BCs, use [update-template](.github/skills/update-template/SKILL.md). Keep owner content and the existing locations of rules, and never overwrite the whole repository; a proposal neither applies changes nor authorizes propagation.
 
-Fill in confirmed information only; maintaining the materials does not require a tech stack. Take the coding path only when the user has chosen the project, tech stack, and location, has authorized creation, and the [development inputs](docs/development.md#creation-inputs) are complete. When working with an agent, also read the [common entry point](AGENTS.md) and the [distribution scope](docs/distribution.md). The distribution candidate does not include historical client observations, and the presence of a file does not mean that any entry point has been verified in practice.
+Fill in confirmed information only; maintaining the materials does not require a tech stack. Take the coding path only when the user has chosen the project, tech stack, and location, has authorized creation, and the [development inputs](docs/development.md#creation-inputs) are complete. When working with an agent, also read the [common entry point](AGENTS.md) and the [distribution scope](docs/distribution.md). The distribution candidate does not include historical client observations. The presence of a file does not mean that any entry point has been verified in practice.
 
 <a id="daily-work"></a>
 ## Daily work
@@ -48,7 +48,7 @@ Follow the [record-handoff takeover order](.github/skills/record-handoff/SKILL.m
 | Check coverage and evidence | [verify-change](.github/skills/verify-change/SKILL.md) | All delivery acceptance criteria, old and new baselines, and real records; [verification guide](verification/README.md), [governance fields](docs/governance.md) as needed | [VT](_templates/items/verification-test.md); [review record](_templates/items/review-record.md) or [tool usage record](_templates/items/tool-qualification.md) as needed | [Verification directory](verification/README.md) and actual report entry points; test code stays in the project's native location |
 | Hand off or resume a task | [record-handoff](.github/skills/record-handoff/SKILL.md) | Task, Git, changes, result entry points, and gaps; [log guide](logs/README.md), [minimal tool record](docs/ai-tooling.md#minimal-record) as needed | [Development log](_templates/items/development-log.md) | [Logs directory](logs/README.md); results and decisions are still read from their original records |
 
-Domain and review activities can go straight to the subsections below. You must still read the owning method in full; there is no separate process:
+For domain and review activities, go directly to the subsections below. You must still read the owning method in full; there is no separate process:
 
 | Current need | Method subsection and inputs |
 |---|---|
@@ -73,7 +73,7 @@ Adopt [SEQ](_templates/items/sequence-diagram.md), [SWAS](_templates/items/archi
 
 When a standalone Intended Use or a reference to external risk is needed, use the [Intended Use](_templates/items/intended-use.md) and [risk control](_templates/items/risk-control.md) forms and save them at the [domain location](domain-model/README.md#governance-forms). All four governance/tool records are optional; keep a gap for any unknown policy, source, or decision. A blank form does not establish a QMS, a qualification, or an approval.
 
-The [thin Copilot entry point](.github/copilot-instructions.md) only links to the methods above; when they are not discovered automatically, explicitly read the specific `SKILL.md` and the applicable rules. A link does not guarantee automatic inclusion, and optional prompt files are not a prerequisite for running these methods.
+The [thin Copilot entry point](.github/copilot-instructions.md) only links to the methods above. When the client does not discover them automatically, explicitly read the specific `SKILL.md` and the applicable rules. A link does not guarantee automatic inclusion, and optional prompt files are not a prerequisite for running these methods.
 
 <a id="forms"></a>
 ## Filling-in conventions

@@ -4,7 +4,7 @@ description: Check domain artifacts, the full acceptance scope, and gaps in actu
 
 # Review domain artifacts
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Artifact paths and scope: TBD
 - Acceptance sources and baselines: TBD

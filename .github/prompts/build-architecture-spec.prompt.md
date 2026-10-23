@@ -4,7 +4,7 @@ description: Compile a Markdown architecture specification from actual sources a
 
 # Compile an architecture specification
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Purpose, scope, and non-goals: TBD
 - Intended location: TBD
@@ -19,5 +19,5 @@ Fill in before running. Leave `TBD` where a value is unknown; the method's stop 
 
 1. Read [AGENTS](../../AGENTS.md).
 2. Read [specify-feature](../skills/specify-feature/SKILL.md) in full, then apply its [architecture specification compilation](../skills/specify-feature/SKILL.md#build-architecture-spec) section.
-3. This prompt does not certify approval and does not provide PDF or presentation rendering commands.
+3. This prompt does not certify approval or provide PDF or presentation rendering commands.
 4. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

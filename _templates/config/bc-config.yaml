@@ -14,7 +14,7 @@ domainSources:
     path: "<repo-relative-source-path>"
     baseline: "<full-fixed-git-object-or-sha256-digest>"
     readOnly: true
-# Currently points to the blank development registration; a readable path does not mean the application/commands are configured.
+# This currently points to the blank development registration; a readable path does not mean the application or its commands are configured.
 developmentRegistration: docs/development.md#project-registration
 # Check root and path separately; for a git source, enter only an actual full Git object, not HEAD, a branch, or an abbreviation.
 # A local source may use an actual sha256:<digest>; with no domain source, use an empty list only with an explicit basis.

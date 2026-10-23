@@ -18,7 +18,7 @@ targets: []
 - Candidate reasons for recording the policy separately: TBD; a policy is not a second rule authority.
 - Open questions and who needs to confirm them: TBD.
 
-The rule owner's canonical upstream belongs in the frontmatter; the sections below only explain how the decision is used and do not rewrite the source policy.
+The rule owner's canonical upstream belongs in the frontmatter. The sections below only explain how the decision is used; they do not rewrite the source policy.
 
 <a id="decision"></a>
 ## Decision responsibility

@@ -4,7 +4,7 @@ description: Handle an initial code generation request within an explicit projec
 
 # Initial code generation
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
 
 - Task, confirmed behavior sources, and scope/non-goals: TBD
 - Acceptance and VT baselines: TBD

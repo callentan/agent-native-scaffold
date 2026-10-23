@@ -5,7 +5,7 @@
 <a id="reading"></a>
 ## Common file-reading path
 
-People choose a method from the [README activity navigation](../README.md#activities); an Agent that can read repository files first explicitly reads [AGENTS.md](../AGENTS.md), then the complete `SKILL.md` for the activity, the applicable rules, and the actual artifacts. Links are for navigation; they are not include syntax and do not guarantee that the client goes on to load the link targets.
+People choose a method from the [README activity navigation](../README.md#activities); an Agent that can read repository files first explicitly reads [AGENTS.md](../AGENTS.md), then the complete `SKILL.md` for the activity, the applicable rules, and the actual artifacts. Links are for navigation; they are not include syntax and do not guarantee that the client will load the link targets.
 
 Ordinary file reading also works when there is no native discovery or prompt support; it requires no personal/global skills, access to a reference repository, or hidden chat. You can start in natural language, with the user filling in the actual inputs:
 
@@ -35,11 +35,11 @@ This is only an operational entry point for explicit reading, not a tested resul
 | BC activity prompts | [derive-requirements](../.github/prompts/derive-requirements.prompt.md), [design-architecture](../.github/prompts/design-architecture.prompt.md), [plan-verification](../.github/prompts/plan-verification.prompt.md), [generate-code](../.github/prompts/generate-code.prompt.md), [sequence-diagram](../.github/prompts/sequence-diagram.prompt.md), [build-architecture-spec](../.github/prompts/build-architecture-spec.prompt.md); they provide only the current inputs and the actual method links |
 | Update-proposal prompt | [update-template](../.github/prompts/update-template.prompt.md) provides only the inputs for this run's three-way sources, explicit targets, and scope; it does not approve applying or propagating |
 
-In total there are currently nine methods, twenty-two prompts, and three modes. The template-update method and its thin entry points reuse the same read-only Python core; the existing eight methods are kept, and no role is added and no permission granted. Native discovery, App prompt invocation, and manual use of the new methods/subsections/rules have not been verified; limited use through explicit file reading cannot be recorded retroactively as results for these clients.
+In total there are currently nine methods, twenty-two prompts, and three modes. The template-update method and its thin entry points reuse the same read-only Python core; the existing eight methods are kept, and no role is added and no permission is granted. Native discovery, App prompt invocation, and manual use of the new methods/subsections/rules have not been verified; limited use through explicit file reading cannot be recorded retroactively as results for these clients.
 
 The test-rule patterns are not a universal set of naming conventions and do not prescribe a test layout. Real projects should extend the patterns to their actual paths; when modifying any test, read that rule explicitly even if no automatic match occurs.
 
-The coding rules initially cover directories such as `src/app/apps/lib/packages/services`, and the architecture rules also cover `architecture` documents; these are not all code locations. When modifying code elsewhere, likewise explicitly read the architecture/coding/security rules and the applicable test rules in full; do not change the layout to make it match, and do not infer automatic activation or real ACLs from configuration text.
+The coding rules initially cover directories such as `src/app/apps/lib/packages/services`, and the architecture rules also cover `architecture` documents; these patterns do not cover every code location. When modifying code elsewhere, likewise explicitly read the architecture/coding/security rules and the applicable test rules in full; do not change the layout to make it match, and do not infer automatic activation or real ACLs from configuration text.
 
 <a id="evidence-types"></a>
 ## Record four kinds of basis separately
@@ -54,7 +54,7 @@ The coding rules initially cover directories such as `src/app/apps/lib/packages/
 <a id="official-sources"></a>
 ## Registered official sources
 
-The following sources were checked on **2026-10-14**. All of them are "Official documentation only" and are not client tests in this repository. Recheck the applicable scope after the clients change.
+The following sources were checked on **2026-10-14**. All of them are "Official documentation only" and are not client tests in this repository. Recheck the applicable scope when the clients change.
 
 | Official material | Confirmed documentation content and boundaries |
 |---|---|
@@ -118,7 +118,7 @@ The following are limited tests in four real App sessions during template making
 
 The native selected-agent events for all three roles recorded `tools: ["*"]`, consistent with the files configuring no allowlist. reviewer/planner actually followed the read-only agreement of this run; tool permissions were not restricted, and this does not prove additional App/OS security controls. No dangerous operations were used to probe for blocking.
 
-The raw sessions and tool events were saved on the local machine by the template-making sessions and are not distributed with the candidate; distributed copies cannot treat this summary as a raw report they can access themselves. Users should fill in the project registration above again under their own client, version, and permission configuration, and cannot inherit conclusions for untested entry points.
+The raw sessions and tool events were saved on the local machine by the template-making sessions and are not distributed with the candidate; recipients of distributed copies cannot treat this summary as a raw report they can access themselves. Users should fill in the project registration above again under their own client, version, and permission configuration, and cannot inherit conclusions for untested entry points.
 
 <a id="boundaries"></a>
 ## Permission and runtime boundaries

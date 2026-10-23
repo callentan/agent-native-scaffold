@@ -28,7 +28,7 @@ targets:
 <a id="targets"></a>
 ## Targets and criteria by item
 
-The frontmatter `targets` list is the only declaration of target relationships; each entry contains a full `scope/id#anchor` and this file's `criterionAnchor`. The body expands each criterion anchor one by one; do not write only `AC-01`, a requirement file title, or a generic "verify everything". When business inputs are used, targets may point at specific UC/REQ/INV/QAS entries, but do not mix up verification layers.
+The frontmatter `targets` list is the only declaration of target relationships; each entry contains a full `scope/id#anchor` and this file's `criterionAnchor`. The body gives each criterion anchor its own block; do not write only `AC-01`, a requirement file title, or a generic "verify everything". When business inputs are used, targets may point at specific UC/REQ/INV/QAS entries, but do not mix verification layers.
 
 <a id="criterion-01"></a>
 ### Criterion 01
@@ -40,9 +40,9 @@ The frontmatter `targets` list is the only declaration of target relationships; 
 | Corresponding method/steps or actual test identifier | TBD; if none exists, do not guess |
 | Preconditions, forbidden side effects, and open items | TBD |
 
-When you add a target, add a separate criterion block and anchor. Cite the original acceptance text and add only how this method judges that the target is met; do not write a second set of requirements or mappings. Prefer separate VTs for different layers; a document check cannot be recorded as a business or software behavior run.
+When you add a target, add a separate criterion block and anchor. Cite the original acceptance text and add only how this method judges that the target is met; do not duplicate requirements or write a second mapping. Prefer separate VTs for different layers; a document check cannot be recorded as a business or software behavior run.
 
-Relative links in a formal VT take the form below; use them only after replacing them with artifacts that actually exist:
+Use the relative link forms below in a formal VT, and only after replacing them with artifacts that actually exist:
 
 ```markdown
 [REQ-NNN-AC-01](../stakeholder-requirements/REQ-NNN-<slug>.md#req-nnn-ac-01)
@@ -68,14 +68,14 @@ For non-command checks, state why commands do not apply; do not invent commands.
 <a id="feature"></a>
 ## Gherkin companion (as needed)
 
-When behavior scenarios apply, copy the [blank feature form](verification-test.feature) to a `.feature` file with the same name in the same directory as this VT, and fill it in following the [companion guide](../../verification/README.md#feature-companion). After deleting this section's notes, keep only the actual file/baseline navigation in the method table; the `.feature` file exclusively owns the Given/When/Then scenario text, and the Markdown does not maintain a second copy of the scenario.
+When behavior scenarios apply, copy the [blank feature form](verification-test.feature) to a `.feature` file with the same name in the same directory as this VT, and fill it in following the [companion guide](../../verification/README.md#feature-companion). After deleting this section's notes, keep only the actual file/baseline navigation in the method table; the `.feature` file alone owns the Given/When/Then scenario text, and this Markdown file does not keep a second copy of the scenario.
 
 `targets[].testId` may point at a scenario or native test identifier that actually exists; a source file name or scenario name only proves a text location and is not a test the runner can discover. Each target still owns an independent criterion through `criterionAnchor`. Safety/risk tags may come only from named sources already provided; the blank form presets none. Without an application, step implementations, a runner, a command/cwd, or a report, the behavior result is `not-run`; report only the text, syntax, or mapping checks actually performed.
 
 <a id="runs"></a>
 ## Actual run records
 
-Below is a record block to be filled in; every target defaults to `not-run`, and it is not a run that has happened. After an actual run, fill in the observations made at that time; for a repeat check, append a new block with a new run anchor and keep the old results and their original baselines. Do not copy the planned command here to pretend it has been run.
+The record block below is to be filled in; every target defaults to `not-run`, and it is not a run that has happened. After an actual run, fill in the observations made at that time; for a repeat check, append a new block with a new run anchor and keep the old results and their original baselines. Do not copy the planned command here to pretend it has been run.
 
 <a id="vt-nnn-run-01"></a>
 ### VT-NNN-RUN-01: Pending run
@@ -99,12 +99,12 @@ Record the actual result for each item; a zero exit code or an overall summary c
 |---|---|---|---|
 | [Criterion 01](#criterion-01) | Not run | not-run | Not run yet; the specific reason is TBD |
 
-The result can be `not-run`, `pass`, `fail`, or `skipped` and must have a matching observation; zero discovered tests or all tests skipped cannot be reported as the target being verified. Do not maintain this result table again in logs or the coverage index.
+The result can be `not-run`, `pass`, `fail`, or `skipped` and must have a matching observation; zero discovered tests or all tests skipped cannot be reported as verifying the target. Do not copy this result table into logs or the coverage index.
 
 <a id="applicability"></a>
 ## Current applicability review (separate from actual results)
 
-Append a row each time applicability is reviewed and keep historical conclusions; the latest review row for the same run and target states its applicability to the current baseline. After a baseline or rule changes, first record `unverified`; do not simply carry over an old success, and do not change a historical success into a failure.
+Append a row each time applicability is reviewed and keep historical conclusions; the latest review row for the same run and target states its applicability to the current baseline. After the baseline or a rule changes, first record `unverified`; do not simply carry over an old success, and do not change a historical success into a failure.
 
 | Review date and recorder | Original run/result and target link | Current object, requirement, and VT baselines | Applicability | Rationale, impact, and items to recheck |
 |---|---|---|---|---|

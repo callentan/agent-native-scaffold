@@ -9,7 +9,7 @@ targets: []
 ---
 # CTX-NNN: TBD context
 
-> Optional blank form; not a service decomposition decision. First read the [context guide](../../domain-model/README.md#contexts) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CTX-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original content, and then delete this hint. When one context is enough, keep using the original README.
+> Optional blank form; not a service decomposition decision. First read the [context guide](../../domain-model/README.md#contexts) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CTX-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original content, and then delete this hint. When one context is enough, keep using the original README.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -18,7 +18,7 @@ targets: []
 - Derived candidates and the basis for deriving them: TBD.
 - Open questions and who needs to confirm them: TBD; a context does not by default correspond to one service or repository.
 
-Parsable upstream is declared only in the frontmatter; the body explains the sources and the current judgment about responsibilities.
+Parsable upstream relationships are declared only in the frontmatter; the body explains the sources and the current judgment about responsibilities.
 
 <a id="responsibilities"></a>
 ## Responsibilities and exclusions
@@ -45,7 +45,7 @@ Parsable upstream is declared only in the frontmatter; the body explains the sou
 |---|---|---|---|
 | TBD | TBD | TBD | To be confirmed; consuming information does not grant the right to modify it |
 
-For information this context provides to others, describe the direction in the [directed exchanges](../../domain-model/README.md#exchanges) or an actual context map; these navigation links are not a second upstream mapping.
+For information this context provides to others, describe the direction in the [directed exchanges](../../domain-model/README.md#exchanges) or an actual context map. The links in this form are navigation only, not a second upstream mapping.
 
 <a id="questions"></a>
 ## Boundary disputes and changes

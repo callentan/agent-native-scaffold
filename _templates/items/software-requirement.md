@@ -23,7 +23,7 @@ targets: []
 | Record date and proposer | TBD; this SR's content state and confirmation statements belong in the frontmatter |
 | Scope and non-goals for this work | TBD |
 
-The frontmatter `upstream` exclusively owns the declared upstream relationships, using actual `scope/id#anchor` values; this section only explains the sources and where to read them and does not maintain another mapping or status table. When an old lightweight source or standalone request has no canonical identity, keep a plain link and record the missing item; do not invent IDs to get through the parser. While sources are unconfirmed, keep only candidates and questions; do not promote a draft INV or a code constant to a mandatory software requirement.
+The frontmatter `upstream` is the only place for declared upstream relationships, using actual `scope/id#anchor` values. This section only explains the sources and where to read them; it does not maintain another mapping or status table. When an old lightweight source or standalone request has no canonical identity, keep a plain link and record the missing item; do not invent IDs to get through the parser. While sources are unconfirmed, keep only candidates and questions; do not promote a draft INV or a code constant to a mandatory software requirement.
 
 <a id="behavior"></a>
 ## Software behavior and boundaries
@@ -35,7 +35,7 @@ The frontmatter `upstream` exclusively owns the declared upstream relationships,
 | Rejection condition: TBD | TBD | TBD | TBD |
 | Error or invalid input: TBD | TBD | TBD | TBD |
 
-UCs provide paths, INVs explain the constraints of the source rules, CAPs/contexts describe responsibilities, and QASs provide sourced quality criteria; adopt only inputs that this task really needs and that are readable. When policies for errors, concurrency, failure, or side effects are missing, ask about each one; do not fill them in with common implementations.
+UCs provide paths, INVs explain the constraints of the source rules, CAPs/contexts describe responsibilities, and QASs provide sourced quality criteria; adopt only the inputs that this task needs and that can be read. When policies for errors, concurrency, failure, or side effects are missing, ask about each one; do not fill them in with common implementations.
 
 <a id="interfaces"></a>
 ## Interface and responsibility agreements (when applicable)
@@ -44,12 +44,12 @@ UCs provide paths, INVs explain the constraints of the source rules, CAPs/contex
 |---|---|---|---|---|
 | TBD | TBD | TBD | To be confirmed | TBD |
 
-If there is no interface, state the basis for it not being applicable; keep undecided protocols, timing, or implementations open, and do not derive business decisions from technical habits.
+If there is no interface, state why it does not apply; keep undecided protocols, timing, or implementations open, and do not derive business decisions from technical habits.
 
 <a id="acceptance"></a>
 ## Software acceptance
 
-Give a judgeable software result for each item; when copying the block, change the full ID and anchor. `NNN` is only a placeholder and must not be kept as a real number.
+Give each item a software result that can be judged. When copying the block, change the full ID and anchor. `NNN` is only a placeholder and must not be kept as a real number.
 
 <a id="sr-nnn-ac-01"></a>
 ### SR-NNN-AC-01: TBD
