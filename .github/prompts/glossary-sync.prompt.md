@@ -4,7 +4,7 @@ description: Compare local and external glossaries of given versions while keepi
 
 # Glossary sync
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Real files or excerpts, versions, and scope of the local glossary: TBD
 - Real files or excerpts, versions, and scope of the external glossary: TBD

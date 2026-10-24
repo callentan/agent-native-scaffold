@@ -4,7 +4,7 @@ description: Map out or revise the business commitments, consumer impact, and no
 
 # Published Interface evolution
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - This operation (map out or revise): TBD
 - Actual contract/model paths and current version: TBD

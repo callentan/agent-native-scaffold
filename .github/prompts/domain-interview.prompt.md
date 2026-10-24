@@ -4,7 +4,7 @@ description: Run a domain interview with iterative confirmation when goals, rule
 
 # Domain interview
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Goal, participants, scope, and non-goals: TBD
 - Existing facts: TBD

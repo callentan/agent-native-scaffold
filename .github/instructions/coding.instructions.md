@@ -4,12 +4,11 @@ applyTo: "src/**,app/**,apps/**,lib/**,packages/**,services/**"
 
 # Follow the real project's coding conventions
 
-Read these rules explicitly whenever you modify any real code. Follow the actual project's conventions, and implement only what the task and confirmed behavior sources cover.
+Read these rules explicitly whenever you modify any real code. Follow the actual project's conventions.
 
 ## Scope of these rules
 
-- The `applyTo` patterns are only an initial match and do not enumerate every code location.
-- The rules apply equally to project directories that do not match. Code does not have to be moved into `src/`.
+- The `applyTo` patterns are only an initial match and do not enumerate every code location. The rules apply equally to project directories that do not match; code need not move into `src/`.
 
 ## Read first
 

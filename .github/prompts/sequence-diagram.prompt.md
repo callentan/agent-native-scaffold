@@ -4,7 +4,7 @@ description: Organize a source-backed sequence diagram from actual scenarios and
 
 # Sequence diagram
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Scenario scope: TBD
 - Original text, baselines, and confirmation basis of the actual UC/ABB and related rules: TBD

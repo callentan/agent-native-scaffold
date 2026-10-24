@@ -4,7 +4,7 @@ description: Compile a Markdown architecture specification from actual sources a
 
 # Compile an architecture specification
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Purpose, scope, and non-goals: TBD
 - Intended location: TBD

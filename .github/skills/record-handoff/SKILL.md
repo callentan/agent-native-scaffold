@@ -26,7 +26,7 @@ Leave a record that lets whoever takes over determine the current state and the 
 
 ## Record a handoff
 
-Fill in the log form section by section, so that whoever takes over can continue without old chats.
+Fill in the log form section by section.
 
 1. Read the [log guide](../../../logs/README.md#recording).
 2. In the [log form](../../../_templates/items/development-log.md#session), fill in "Session, task, and Git state".

@@ -7,7 +7,7 @@ contentState: draft
 ---
 # REVIEW-NNN: TBD review topic
 
-> Optional review/waiver record; not a test report, certification, or approval. Read the [governance guide](../../docs/governance.md#records) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `verification/REVIEW-NNN-<slug>.md` as needed, replace the placeholders, check the relative links, and then delete this notice. Add upstream/targets only for real relationships; this record's confirmation statement belongs only in the frontmatter.
+> Optional review/waiver record; not a test report, certification, or approval. Read the [governance guide](../../docs/governance.md#records) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `verification/REVIEW-NNN-<slug>.md` as needed, replace placeholders, check links, then delete this notice. Add upstream/targets only for real relationships; the confirmation statement belongs only in the frontmatter.
 
 <a id="basis"></a>
 ## Actual object and review scope
@@ -46,12 +46,12 @@ contentState: draft
 | Named decision maker, role, and basis of responsibility | Not provided: reviewers do not automatically have decision authority |
 | Applicable objects, scope, and expiry conditions | Not provided: do not assume it applies to all objects or later versions |
 
-"Review conclusion" is a bounded statement of the original decision; it is not this record's contentState and not a VT run result. A named statement, a link, an Approved checkbox, Reviewed-by, or Co-authored-by does not authenticate identity; a decision that rejects or asks for more evidence cannot be changed into a pass either.
+"Review conclusion" bounds the original decision; it is neither this record's contentState nor a VT run result. A named statement, link, Approved checkbox, Reviewed-by, or Co-authored-by does not authenticate identity, and a decision that rejects or asks for more evidence cannot become a pass.
 
 <a id="waiver"></a>
 ## As needed: actual basis for a waiver
 
-When no waiver is involved, state that this section is not applicable and give the scope basis; do not create a waiver just to fill in the form. When applicable, add only the information below. The decision source stays in the previous section, and no second approval table is copied here.
+When no waiver is involved, state that this section is not applicable and give the scope basis; do not create a waiver just to fill in the form. When applicable, add only the information below; the decision source stays in the previous section, and no second approval table is copied here.
 
 - Waived clause, original requirement baseline, and rationale: TBD.
 - Waiver scope, duration or expiry conditions, and the source of compensating measures: TBD.
@@ -64,4 +64,4 @@ When no waiver is involved, state that this section is not applicable and give t
 - Required accountable owners/evidence, blocked conclusions, and scope that can continue independently: TBD.
 - Applicability after changes, entry points to old records, and evaluations/decisions to append: TBD.
 
-Keep the original VT, report, and decision baselines, and do not overwrite failed or not-run records; completing the form does not close gaps. A read-only review returns findings only; fill in the formal record only after save authorization is granted.
+Keep original VT, report, and decision baselines; do not overwrite failed or not-run records; completing the form does not close gaps. A read-only review returns findings only; fill in the formal record only after save authorization is granted.

@@ -4,7 +4,7 @@ description: Implement one explicit task within real inputs and the authorized s
 
 # Implement a task
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Task basis and goal: TBD
 - Paths to modify and non-goals: TBD

@@ -5,7 +5,7 @@ description: Use when a feature or maintenance task has a basis but its software
 
 # Specify behavior and the verification plan
 
-Before implementation, decide what to observe, which layer accepts it, and how each item is judged. You may complete specifications, necessary design, and the verification plan first, but **never prefill run results**. The activities below are not an automatic role pipeline.
+Before implementation, decide what to observe, which layer accepts it, and how each item is judged. You may complete specifications, necessary design, and the verification plan first, but **never prefill run results**.
 
 ## Choose the activity
 
@@ -18,7 +18,7 @@ Complete the common steps first. Then choose only the activities this task needs
 - [Sequence description](#sequence-diagram): describe one scenario's interaction paths (SEQ).
 - [Compile the architecture specification](#build-architecture-spec): compile the source views into a Markdown architecture specification (SWAS).
 
-The activities do not form a mandatory chain:
+The activities are not an automatic role pipeline and do not form a mandatory chain:
 
 - A US is optional. SR and VT need not go through a US.
 - ABB and VT can each proceed independently once their own necessary inputs are complete.
@@ -32,7 +32,7 @@ The activities do not form a mandatory chain:
   - All current acceptance criteria, with their baselines.
   - The actual configuration, or not-configured state, in the [development guide](../../../docs/development.md).
 - When applicable:
-  - Related SR/US/ABB/ADR/VT, interfaces, or sequences, with their respective baselines.
+  - Related SR/US/ABB/ADR/VT, interfaces, or sequences, with their baselines.
   - An adopted [BC configuration](../../../architecture/README.md#bc-configuration): check its identity, source roots/paths, pinned objects, read-only nature, and registration references.
 
 Read only materials that apply to this task and were actually provided. Configuration does not grant execution rights.
@@ -48,12 +48,12 @@ Read only materials that apply to this task and were actually provided. Configur
    - Put source relationships and content declarations in frontmatter.
    - In the body, state meaning, reading navigation, and criteria.
    - Do not migrate old lightweight materials automatically.
-6. Run the chosen activities. Each one follows the same pattern: purpose, inputs, actions, output, and stop points.
+6. Run the chosen activities; each follows the same pattern: purpose, inputs, actions, output, and stop points.
 
 <a id="derive-requirements"></a>
 ## Derive software requirements
 
-Purpose: determine, item by item, the behavior the software must express, and record it as SRs with software-layer acceptance criteria.
+Purpose: record the behavior the software must express as SRs with software-layer acceptance criteria.
 
 Inputs: the actual REQ acceptance criteria, UC paths, source rules/INVs, CAP/context responsibilities, and applicable QAS; existing SRs.
 
@@ -66,9 +66,7 @@ Actions:
 5. Declare locatable sources in `upstream`. Explain the refinement rationale in the body.
 6. Write normal/allowed, boundary, rejection, error, and forbidden side-effect cases separately.
 7. When an interface, eligibility-lapse, concurrency, or metric policy is missing, list specific questions. Do not make decisions on behalf of the business.
-8. Give every software acceptance criterion a full owner ID and a stable anchor.
-   - Write only criteria observable at the software layer.
-   - Leave the rules in their source text.
+8. Give every software acceptance criterion a full owner ID and a stable anchor. Write only criteria observable at the software layer, and leave rules in their source text.
 9. Check existing SRs to avoid duplicate numbers, duplicate requirements, or silent overrides.
 10. For source changes, go through [semantic impact](../verify-change/SKILL.md#impact) first. Then plan the layered VTs in [Pre-implementation verification plan](#plan-verification).
 
@@ -98,7 +96,7 @@ Actions:
    - Do not copy a second set of acceptance criteria.
 5. Put task progress in the US body and content declarations in frontmatter. Runs belong in the VT.
 
-Output: a US, only when delivery needs organizing, in the location given in the delivery guide.
+Output: a US only when delivery needs organizing, at the location in the delivery guide.
 
 Stop points:
 
@@ -140,11 +138,9 @@ Actions:
 1. First, following the [full acceptance inventory](../../../verification/README.md#coverage-check), list the owner, full ID, source text, and baseline of every in-scope item, **including items without a VT**.
 2. Following the [verification layers](../../../verification/README.md#layers), plan business, software, applicable design, or document checks separately, using a [VT](../../../_templates/items/verification-test.md#plan).
 3. In each `targets` entry, declare the actual `scope/id#anchor` and a local `criterionAnchor`.
-4. In the VT body, keep for each item the independent criterion, observation method, preconditions/forbidden side effects, and open items.
-   - Do not also copy a target-relationship table.
+4. In the VT body, keep for each item its independent criterion, observation method, preconditions/forbidden side effects, and open items. Do not also copy a target-relationship table.
 5. Trace each item back to its source owner, anchor, and layer. A single "all passed" result cannot cover multiple targets.
-6. When Gherkin is needed, use the [feature file](../../../_templates/items/verification-test.feature) following the [companion guide](../../../verification/README.md#feature-companion).
-   - The feature file holds only the scenario text. The VT keeps navigation to the actual file/baseline and the criteria for each item.
+6. When Gherkin is needed, use the [feature file](../../../_templates/items/verification-test.feature) following the [companion guide](../../../verification/README.md#feature-companion). The feature file holds only the scenario text; the VT keeps navigation to the actual file/baseline and the criteria for each item.
    - Use only known normal/negative cases and measures. Safety tags need a named source.
    - Without step implementations or a runner, the feature file is only a text plan. Do not call it automated.
 7. Record the object, requirement/task, and VT plan baselines.
@@ -229,11 +225,7 @@ Delivery does not mean behavioral verification has passed. For a documentation t
 
 ## Stop conditions
 
-- Stop the affected specification confirmation or implementation when any of these holds:
-  - Sources cannot determine behavior.
-  - Acceptance targets cannot be located.
-  - Boundaries conflict.
-  - Authorization is unclear.
+- Stop the affected specification confirmation or implementation when sources cannot determine behavior, acceptance targets cannot be located, boundaries conflict, or authorization is unclear.
 - Stop writing when a file to be written conflicts with its existing content.
 - Then keep known drafts and exact gaps.
 - **Do not finish the task by deleting in-scope acceptance criteria, forcing a US, or borrowing results from another layer.**

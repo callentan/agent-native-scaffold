@@ -1,6 +1,6 @@
 # Copilot repository entry point
 
-This file points Copilot to the shared entry point and methods. Humans and agents use the same methods, facts, and results.
+Humans and agents use the same methods, facts, and results.
 
 ## Start here
 

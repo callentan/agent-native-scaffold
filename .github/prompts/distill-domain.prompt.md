@@ -4,7 +4,7 @@ description: Crunch domain knowledge when model meaning, boundaries, or actual u
 
 # Distill the domain model
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Model path, context, and version: TBD
 - Actual statements or usage signals: TBD

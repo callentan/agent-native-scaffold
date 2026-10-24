@@ -1,5 +1,5 @@
 # Blank companion; not an actual application scenario or run evidence.
-# Use the same name and directory as the VT Markdown. The scenario text belongs here; targets, independent criteria, and evidence belong to the VT.
+# Use the VT Markdown's name and directory. Scenario text belongs here; targets, independent criteria, and evidence belong to the VT.
 # Replace every placeholder before referencing an existing scenario identifier; do not presume business actors or safety-critical tags.
 # Without an application, step implementations, and a runner, the result is not-run; do not call a text check an automated pass.
 Feature: TBD: observable behavior with a source

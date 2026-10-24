@@ -9,7 +9,7 @@ targets: []
 ---
 # IP-NNN: TBD integration partner
 
-> Optional collaboration record; not an authorization to connect to external systems. First read the [integration forms guide](../../domain-model/README.md#integration-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/IP-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing agreements, and then delete this hint.
+> Optional collaboration record; not an authorization to connect to external systems. Read the [integration forms guide](../../domain-model/README.md#integration-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/IP-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing agreements, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries

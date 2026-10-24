@@ -9,7 +9,7 @@ targets: []
 ---
 # SD-NNN: TBD subdomain
 
-> Optional blank form; not a confirmed boundary. First read the [domain artifact guide](../../domain-model/README.md#optional-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/SD-NNN-<slug>.md` only when needed; replace `PROJECT/CTX-NNN` with the confirmed project/context, replace the ID, title, and anchors, check relative links at the actual location, keep any existing body text, and then delete this hint. A subdomain that spans contexts must also state the scope it belongs to explicitly; do not presume a "global" context.
+> Optional blank form; not a confirmed boundary. Read the [domain artifact guide](../../domain-model/README.md#optional-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/SD-NNN-<slug>.md` only when needed; replace `PROJECT/CTX-NNN` with the confirmed project/context, replace the ID, title, and anchors, check links at the actual location, keep any existing body text, then delete this hint. A subdomain spanning contexts must state its scope explicitly; do not presume a "global" context.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -18,7 +18,7 @@ targets: []
 - Derived candidates and the basis for deriving them: TBD; a reasonable classification is not a confirmed boundary.
 - Open questions and who needs to confirm them: TBD.
 
-Upstream relationships of parsable artifacts are declared only in the frontmatter; the body explains the business meaning of the references. Non-artifact sources keep locatable references; do not invent machine identities for them.
+Upstream of parsable artifacts is declared only in the frontmatter; the body explains the business meaning of references. Non-artifact sources keep locatable references; do not invent machine identities for them.
 
 <a id="purpose"></a>
 ## Goals and responsibilities
@@ -34,7 +34,7 @@ Upstream relationships of parsable artifacts are declared only in the frontmatte
 <a id="contexts"></a>
 ## Internal contexts and external relationships
 
-This section explains the division of responsibilities; it does not specify services, projects, code directories, or deployment.
+This section explains responsibility division only; it does not specify services, projects, code directories, or deployment.
 
 | Navigation to participating contexts | Responsibility within this subdomain | Boundary-related facts and sources |
 |---|---|---|

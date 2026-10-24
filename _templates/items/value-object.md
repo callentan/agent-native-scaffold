@@ -9,7 +9,7 @@ targets: []
 ---
 # VO-NNN: TBD value object candidate
 
-> Optional tactical record; it does not preselect a programming-language type. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/VO-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing definition, and then delete this hint.
+> Optional tactical record; it does not preselect a programming-language type. Read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/VO-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix links, keep any existing definition, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis

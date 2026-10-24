@@ -9,7 +9,7 @@ targets: []
 ---
 # QAS-NNN: TBD quality attribute scenario
 
-> Optional blank form; not a committed SLA. Read the [quality attribute inputs](../../stakeholder-requirements/README.md#quality-inputs) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `stakeholder-requirements/QAS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, the title, and the acceptance anchors, adjust the relative links for the location, keep existing content, and then delete this notice.
+> Optional blank form; not a committed SLA. Read the [quality attribute inputs](../../stakeholder-requirements/README.md#quality-inputs) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `stakeholder-requirements/QAS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, adjust links for the location, keep existing content, then delete this notice.
 
 <a id="basis"></a>
 ## Source and value
@@ -19,7 +19,7 @@ targets: []
 - Derived candidates and their derivation basis: TBD; rules of thumb are not this project's requirements.
 - Open questions and who must confirm them: TBD.
 
-Actual upstream relationships such as REQ, UC, and rules belong in the frontmatter; here, explain how the quality need relates to the business scope.
+Actual upstream relationships such as REQ, UC, and rules belong in the frontmatter; here, explain how the quality need relates to business scope.
 
 <a id="scenario"></a>
 ## Six elements

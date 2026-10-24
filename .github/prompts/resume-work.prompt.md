@@ -4,7 +4,7 @@ description: Resume the next step whose inputs are complete, based on the task a
 
 # Resume work
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Current task and goal: TBD
 - Paths to the most recent relevant logs: TBD

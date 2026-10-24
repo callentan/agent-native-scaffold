@@ -9,7 +9,7 @@ targets: []
 ---
 # ADR-NNN: TBD
 
-> Optional decision form; it does not mean a decision has been made. Read the [ADR guide](../../architecture/README.md#decisions) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first; create `architecture/decisions/ADR-NNN-<slug>.md` and its directory only when a real decision is needed. Once the project/context is clear, replace all placeholders and delete this notice; the location is one level deeper than this form, so recheck the relative links.
+> Optional decision form; it does not mean a decision has been made. Read the [ADR guide](../../architecture/README.md#decisions) and [metadata conventions](../../domain-model/README.md#artifact-metadata); create `architecture/decisions/ADR-NNN-<slug>.md` and its directory only when a real decision is needed. Once project and context are clear, replace all placeholders, delete this notice, and recheck relative links (the location is in a different directory, so its relative paths differ).
 
 <a id="context"></a>
 ## Context and basis
@@ -22,7 +22,7 @@ targets: []
 | Business context, fact ownership, and boundary constraints | TBD: links to rules or sources |
 | Why a decision is needed, and unknown facts | TBD |
 
-Relationships are declared only in the frontmatter `upstream`, and content state and confirmation records are also maintained only there. When the incoming original text or the actual decision is missing, record the gap; do not treat a file title, the word Accepted, or a local proposal as an authorized decision.
+Relationships, content state, and confirmation records are maintained only in the frontmatter (`upstream`). If the incoming original text or the actual decision is missing, record the gap; a file title, the word Accepted, or a local proposal is not an authorized decision.
 
 <a id="options"></a>
 ## Options and trade-offs
@@ -41,7 +41,7 @@ Relationships are declared only in the frontmatter `upstream`, and content state
 - Affected contexts, consumers, interfaces, and verification: TBD; notifications are drafts only, and actually sending them requires separate authorization.
 - Links to records superseded by or superseding this decision: TBD; if none, say so.
 
-Without a confirmation basis, keep `draft`; neither the form nor an agent's self-review can produce "accepted". When the source changes, keep the old decision and its applicable baseline and list the need for re-review separately; do not automatically publish to an external wiki or rewrite sources.
+Without a confirmation basis, keep `draft`; neither the form nor an agent's self-review can produce "accepted". When the source changes, keep the old decision and its applicable baseline, list re-review needs separately, and do not automatically publish to an external wiki or rewrite sources.
 
 <a id="verification-needs"></a>
 ## Verification needs (as needed)

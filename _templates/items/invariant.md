@@ -9,7 +9,7 @@ targets: []
 ---
 # INV-NNN: TBD business invariant
 
-> Optional blank form; not a rule reverse-engineered from code. First read the [rules guide](../../domain-model/README.md#rules) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/INV-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, fix relative links, keep any existing rules, and then delete this hint.
+> Optional blank form; not a rule reverse-engineered from code. Read the [rules guide](../../domain-model/README.md#rules) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/INV-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, fix relative links, keep any existing rules, then delete this hint.
 
 <a id="basis"></a>
 ## Rule basis and derivation boundary

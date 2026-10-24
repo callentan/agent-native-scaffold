@@ -16,33 +16,33 @@ This directory takes the place of a PRD: product goals, users, scope, and constr
 | Fact sources, confirmer, and date | TBD |
 | Open questions, their impact, and who needs to confirm them | TBD |
 
-An unfilled section does not mean "no constraints". When a fact that affects behavior is missing, clarify it first; an open item that only affects later work can remain open, with a stated reason why it does not block the current task.
+An unfilled section does not mean "no constraints". When a fact affecting behavior is missing, clarify it first; an open item that only affects later work may stay open, with a stated reason it does not block the current task.
 
 <a id="req-writing"></a>
 ## Write a REQ
 
-1. Look up existing requirements and [domain facts](../domain-model/README.md#sources), and confirm the sources, current status, applicable contexts, and rules. Do not automatically turn a proposal into an approved item.
-2. When a new requirement is needed, use the [REQ form](../_templates/items/stakeholder-requirement.md) and save it as `stakeholder-requirements/REQ-NNN-<slug>.md`. `NNN` and `<slug>` are placeholders; the number is assigned when the real artifact is created.
-3. Write one business need, its applicable scope, non-goals, and observable business acceptance. Reference domain rules instead of maintaining a duplicate copy of their values or full text; the acceptance states the conditions and method for judging that the goal is met.
-4. Give each acceptance criterion a full ID and a stable ASCII anchor, for example `REQ-NNN-AC-01` with `req-nnn-ac-01`. Number multiple acceptance criteria individually, and keep the ID when the wording changes; a withdrawn criterion keeps its change basis, and its old number is never reused.
+1. Look up existing requirements and [domain facts](../domain-model/README.md#sources); confirm sources, current status, applicable contexts, and rules. Do not turn a proposal into an approved item automatically.
+2. For a new requirement, use the [REQ form](../_templates/items/stakeholder-requirement.md) and save it as `stakeholder-requirements/REQ-NNN-<slug>.md`. `NNN` and `<slug>` are placeholders; the number is assigned when the real artifact is created.
+3. Write one business need, its applicable scope, non-goals, and observable business acceptance. Reference domain rules instead of duplicating their values or text; the acceptance states the conditions and method for judging that the goal is met.
+4. Give each acceptance criterion a full ID and a stable ASCII anchor, for example `REQ-NNN-AC-01` with `req-nnn-ac-01`. Number each criterion individually and keep its ID when the wording changes; a withdrawn criterion keeps its change basis, and its old number is never reused.
 5. Follow the [verification guide](../verification/README.md#coverage-check): start from all acceptance criteria to find business acceptance VTs. Passing SR tests do not automatically prove that REQ business acceptance has passed.
 
-Links between formal files take the following form; this only illustrates the syntax and is not an existing requirement:
+Links between formal files take this form; it illustrates syntax only and is not an existing requirement:
 
 ```markdown
 [REQ-NNN-AC-01](REQ-NNN-<slug>.md#req-nnn-ac-01)
 ```
 
-An SR keeps its own upstream REQ links, and a VT keeps its own target links. To find downstream items, search in reverse; do not maintain another mapping or verification results in the REQ. A standalone maintenance request can serve directly as the task basis; there is no need to invent a REQ.
+An SR keeps its own upstream REQ links, and a VT its own target links. To find downstream items, search in reverse; do not maintain another mapping or verification results in the REQ. A standalone maintenance request can serve directly as the task basis; there is no need to invent a REQ.
 
 <a id="domain-inputs"></a>
 ## Use optional domain inputs
 
-When there are many sources, you can reference existing SD/CTX, CAP, UC, RULE, INV, and QAS; for the forms and default locations, see the [domain artifact guide](../domain-model/README.md#strategic-forms). They are not a mandatory prerequisite chain for a REQ, and existing rules in the lightweight README remain valid sources. A REQ states the business need and acceptance; domain facts and rule text are still read from their original owners.
+With many sources, you may reference existing SD/CTX, CAP, UC, RULE, INV, and QAS (forms and default locations: [domain artifact guide](../domain-model/README.md#strategic-forms)). These are not a mandatory prerequisite chain for a REQ, and existing rules in the lightweight README remain valid sources. A REQ states the business need and acceptance; domain facts and rule text are still read from their original owners.
 
-The new [REQ form](../_templates/items/stakeholder-requirement.md) declares identity, scope, content state, and upstream in the frontmatter; the body only explains why the sources support this requirement. Replace placeholders according to the [metadata conventions](../domain-model/README.md#artifact-metadata); do not convert old REQs automatically or change existing acceptance IDs/anchors. Old sources without metadata keep ordinary links; do not invent canonical keys. Open requirement questions and business source gaps must name the accountable owner; a fully filled-in form is no substitute for confirmation.
+The new [REQ form](../_templates/items/stakeholder-requirement.md) declares identity, scope, content state, and upstream in the frontmatter; the body only explains why the sources support the requirement. Replace placeholders per the [metadata conventions](../domain-model/README.md#artifact-metadata); do not convert old REQs automatically or change existing acceptance IDs/anchors. Old sources without metadata keep ordinary links, and no canonical keys are invented. Open requirement questions and business source gaps must name the accountable owner; a fully filled-in form is no substitute for confirmation.
 
-When the current task genuinely has an intended-use or risk basis, reference the [optional Intended Use/risk control materials](../domain-model/README.md#governance-forms) and their original source/decision baselines; the product description does not keep its own copy of the intended-use or risk text. An unknown environment, scope limitation, or governing policy blocks confirmation of the related requirements; for candidate changes, first list the impact according to [intended use revision](../.github/skills/define-requirements/SKILL.md#intended-use), and do not assume new product claims or regulatory classifications by default.
+When the current task genuinely has an intended-use or risk basis, reference the [optional Intended Use/risk control materials](../domain-model/README.md#governance-forms) and their original source/decision baselines; the product description keeps no copy of intended-use or risk text. An unknown environment, scope limitation, or governing policy blocks confirmation of related requirements; for candidate changes, first list the impact per [intended use revision](../.github/skills/define-requirements/SKILL.md#intended-use), and do not assume new product claims or regulatory classifications by default.
 
 <a id="quality-inputs"></a>
 ## Quality attribute inputs

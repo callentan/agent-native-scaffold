@@ -5,7 +5,7 @@ description: Use when an identified task is ready for scoped edits, or an implem
 
 # Implement the current task
 
-Start from the actual directory, the task basis, and the acceptance criteria. Documentation maintenance and coding have different prerequisites. **Never generate a project on your own initiative just to carry out a request.**
+Start from the actual directory, the task basis, and the acceptance criteria. **Never generate a project on your own initiative just to carry out a request.**
 
 ## Inputs
 

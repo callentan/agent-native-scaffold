@@ -7,7 +7,7 @@ contentState: draft
 ---
 # TQ-NNN: TBD tool purpose and evaluation scope
 
-> Optional tool record; the title does not mean the tool is qualified. Read the [AI tooling guide](../../docs/ai-tooling.md) and [governance ownership](../../docs/governance.md#ownership) first. Copy it to `verification/TQ-NNN-<slug>.md` as needed, replace the placeholders, check the links, and then delete this notice. Follow the existing metadata contract: add upstream only for real bases, and do not duplicate the evaluation/authorization status as contentState.
+> Optional tool record; the title does not mean the tool is qualified. Read the [AI tooling guide](../../docs/ai-tooling.md) and [governance ownership](../../docs/governance.md#ownership) first. Copy to `verification/TQ-NNN-<slug>.md` as needed, replace placeholders, check links, then delete this notice. Follow the metadata contract: add upstream only for real bases, and do not duplicate evaluation/authorization status as contentState.
 
 <a id="tool"></a>
 ## Actual tool and environment
@@ -50,7 +50,7 @@ contentState: draft
 | Uses, objects, and scope actually allowed/rejected | Not provided: do not derive global qualification from a partial evaluation |
 | Usage limitations, required re-reviews, and expiry conditions | TBD |
 
-Gather evidence separately for the proposed use, the evaluated behavior, the claimed authorization, and current applicability. When this record is confirmed, declare the confirmation only in the frontmatter; a valid schema, a model name, a role, or a trailer cannot prove organizational/regulatory qualification or approval.
+Gather evidence separately for the proposed use, evaluated behavior, claimed authorization, and current applicability. When confirmed, declare the confirmation only in the frontmatter; a valid schema, model name, role, or trailer cannot prove organizational or regulatory qualification or approval.
 
 <a id="applicability"></a>
 ## Current applicability and re-evaluation
@@ -63,4 +63,4 @@ Gather evidence separately for the proposed use, the evaluated behavior, the cla
 | Evaluations and decisions to append, and their accountable owners | TBD |
 | Open inputs and blocked uses | TBD |
 
-A new check appends a separate record; do not turn an old success into a new success or into a historical failure. Keep only the necessary pointers to the task/tool/object/time/evidence/decision; do not require full chats, credentials, patient/production data, or estimated usage.
+A new check appends a separate record; do not turn an old success into a new success or a historical failure. Keep only the necessary pointers to the task, tool, object, time, evidence, and decision; do not require full chats, credentials, patient/production data, or estimated usage.

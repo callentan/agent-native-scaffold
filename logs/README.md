@@ -1,11 +1,11 @@
 # Development logs and handoff
 
-A log holds the changes made in one task or session and the clues needed to take it over; it does not maintain a second copy of acceptance results. Use the [development log form](../_templates/items/development-log.md) and create `logs/YYYY-MM-DD-<task>-<session>.md` as needed; currently there is only this guide and no real session record.
+A log holds the changes made in one task or session and the clues needed to take it over; it keeps no second copy of acceptance results. Use the [development log form](../_templates/items/development-log.md) and create `logs/YYYY-MM-DD-<task>-<session>.md` as needed; currently only this guide exists, with no real session record.
 
 <a id="task-basis"></a>
 ## Task basis
 
-Prefer referencing an existing US, issue, or explicit request, and state the goal, scope, and completion conditions. If a standalone maintenance request has no persistent location, you can keep the necessary summary, source, and stable acceptance identifiers in the log's optional task basis section, for example the placeholder form `TASK-NNN-AC-01` with the anchor `task-nnn-ac-01`. Fill in that section only when it truly is the task basis; do not copy existing requirements, and do not disguise maintenance conditions as a REQ/SR.
+Prefer referencing an existing US, issue, or explicit request, and state its goal, scope, and completion conditions. A standalone maintenance request with no persistent location may keep its summary, source, and stable acceptance identifiers in the optional task basis section, e.g. the placeholder `TASK-NNN-AC-01` with anchor `task-nnn-ac-01`. Fill that section in only when it truly is the task basis; do not copy existing requirements or disguise maintenance conditions as a REQ/SR.
 
 <a id="recording"></a>
 ## What to record

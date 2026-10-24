@@ -5,7 +5,7 @@ description: Use when a template version changes, a project has owner edits agai
 
 # Compare template versions and make multi-target proposals
 
-Read the old baseline, the current owner content, and the new candidate separately. **A difference is a proposal, not an applied result or an authorization to propagate.** Humans and agents share this method; it does not depend on prompts or maintainer workflows.
+Read the old baseline, current owner content, and new candidate separately. **A difference is a proposal, not an applied result or an authorization to propagate.** Humans and agents share this method; it does not depend on prompts or maintainer workflows.
 
 ## Inputs
 
@@ -22,22 +22,12 @@ Read the old baseline, the current owner content, and the new candidate separate
 ## Steps
 
 1. Read [AGENTS](../../../AGENTS.md), the task, and the actual materials first. Check the working directory, branch, commit, index/working files, and existing changes.
-2. Following the [tool contract](../../../docs/template-updates.md#api), check the three roots and the actual raw bytes.
-   - When an exact Git/content version is given, verify it.
-   - Never label a dirty file as HEAD without verification.
-   - The default mode and the API do not write. Only an explicit new report may be written, and only outside all protected sources. Never overwrite an existing report.
-3. Run the same Python core (see Command example) to obtain `changes/conflicts/preserved`. For each item, read the path, the old/local/candidate versions with their digests (or explicit absence), the operation, and the reason.
-   - Do not normalize binaries, BOMs, line endings, or intentional local deletions.
-   - Do not auto-merge, pick ours/theirs, or resurrect content the owner deleted.
-4. Check multi-target runs in this order: source scenario → explicit BC → allowed files → per-target result.
-   - Read only existing local sources. Do not copy the model or the whole repository.
-   - A target that is unavailable or in conflict does not hide the other results.
-   - Never use a few successes to claim that the whole batch has propagated.
+2. Following the [tool contract](../../../docs/template-updates.md#api), check the three roots and the actual raw bytes. When an exact Git/content version is given, verify it. Never label a dirty file as HEAD without verification. The default mode and the API do not write. Only an explicit new report may be written, and only outside all protected sources; never overwrite an existing report.
+3. Run the same Python core (see Command example) to obtain `changes/conflicts/preserved`. For each item, read the path, the old/local/candidate versions with their digests (or explicit absence), the operation, and the reason. Do not normalize binaries, BOMs, line endings, or intentional local deletions. Do not auto-merge, pick ours/theirs, or resurrect content the owner deleted.
+4. Check multi-target runs in this order: source scenario → explicit BC → allowed files → per-target result. Read only existing local sources; do not copy the model or the whole repository. An unavailable or conflicting target does not hide the other results. Never use a few successes to claim that the whole batch has propagated.
 5. Apply the stop points in Result handling per affected target.
 6. If native Git/platform operations follow later, obtain separate current authorization for the **specific target, version, and action**. Before acting, re-read the source version and the exact proposal.
-7. Use [verify-change](../verify-change/SKILL.md) to check actual results and source protection. Use [record-handoff](../record-handoff/SKILL.md) to link proposals and gaps.
-   - Record only the necessary identities, digests, and diagnostics.
-   - Do not copy local business text, secrets, or full chats.
+7. Use [verify-change](../verify-change/SKILL.md) to check actual results and source protection, and [record-handoff](../record-handoff/SKILL.md) to link proposals and gaps. Record only the necessary identities, digests, and diagnostics; do not copy local business text, secrets, or full chats.
 
 ## Command example
 
@@ -86,6 +76,6 @@ Apply each row to the affected target.
 
 ## Stop conditions
 
-- Stop the affected target at each stop point in Result handling: `conflict`, `input-error` / `unavailable`, and unclear permissions/scope or an unauthorized non-empty target/output.
-- Stop any native Git/platform operation that lacks separate current authorization for its specific target, version, and action (Step 6).
+- Stop the affected target at each stop point in Result handling (`conflict`; `input-error` / `unavailable`; unclear permissions/scope or an unauthorized non-empty target/output).
+- Stop any native Git/platform operation lacking separate current authorization for its specific target, version, and action (Step 6).
 - Then: handle the target as its Result handling row says; the other targets' results stay visible.

@@ -1,6 +1,6 @@
 # Common work entry point
 
-This file is the common entry point: it sets the reading path and the rules for all work. Humans and agents use the same methods, facts, and results. Method text is maintained only in the actual `SKILL.md` files listed in the [activity navigation](README.md#activities).
+This common entry point sets the reading path and rules for all work. Humans and agents use the same methods, facts, and results. Method text is maintained only in the actual `SKILL.md` files listed in the [activity navigation](README.md#activities).
 
 ## Start here
 
@@ -8,13 +8,12 @@ This file is the common entry point: it sets the reading path and the rules for 
    - A maintenance request can itself serve as the basis.
    - Creating a US is not mandatory.
 2. Choose the matching method from the [README activity navigation](README.md#activities). **Explicitly read the complete `SKILL.md`**, then read the current facts, guides, and forms it links to.
-   - Follow this reading path even when the client has no native discovery.
-   - File names, links, and descriptions do not guarantee automatic inclusion.
+   - Follow this reading path even without native discovery; file names, links, and descriptions do not guarantee automatic inclusion.
 3. Read the rules for what you change:
    - Markdown: read the [documentation rules](.github/instructions/docs.instructions.md).
    - Any test: read the [test rules](.github/instructions/tests.instructions.md).
    - Code: also explicitly read the [architecture](.github/instructions/architecture.instructions.md), [coding](.github/instructions/coding.instructions.md), and [security rules](.github/instructions/security.instructions.md) in full, even if the actual paths do not match their initial globs.
-   - Extend the matched scope to fit the actual project. Do not assume that `src` is the only code location or that tests follow a uniform layout.
+   - Extend the matched scope to the actual project; do not assume `src` is the only code location or that tests follow a uniform layout.
 4. Before writing, check the actual directory, Git branch, commit, index (staging area), and uncommitted scope.
    - Preserve owner content, the existing locations of rules, and unrelated changes.
 
@@ -31,7 +30,7 @@ This file is the common entry point: it sets the reading path and the rules for 
 - While the [development guide](docs/development.md) is not configured, do not choose a stack, install dependencies, or generate a project on your own. Documentation-only maintenance with complete inputs may continue.
 - Use [generate-code](.github/skills/generate-code/SKILL.md) for initial generation. Use [implement-task](.github/skills/implement-task/SKILL.md) for maintaining existing code or documents.
 - On a conflict with a non-empty target, explicitly stop writing. Skipped files do not mean that generation is complete.
-- The optional [BC configuration](architecture/README.md#bc-configuration) does not grant permission to write to sources or to execute anything.
+- The optional [BC configuration](architecture/README.md#bc-configuration) does not grant permission to write sources or execute anything.
 
 ### Template updates
 

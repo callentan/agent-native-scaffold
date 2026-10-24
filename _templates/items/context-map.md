@@ -9,7 +9,7 @@ targets: []
 ---
 # CM-NNN: TBD context map notes
 
-> Optional relationship description; it requires neither a diagram nor splitting services. First read the [directed exchanges](../../domain-model/README.md#exchanges) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CM-NNN-<slug>.md` only when needed. Confirm the `PROJECT/CTX-NNN` this record belongs to, replace the ID, title, and anchors, fix relative links, keep any existing relationships, and then delete this hint.
+> Optional relationship description; it requires neither a diagram nor splitting services. Read the [directed exchanges](../../domain-model/README.md#exchanges) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/CM-NNN-<slug>.md` only when needed; confirm the `PROJECT/CTX-NNN` this record belongs to, replace the ID, title, and anchors, fix relative links, keep any existing relationships, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -18,7 +18,7 @@ targets: []
 - Derived candidates and the basis for deriving them: TBD.
 - Open questions and who needs to confirm them: TBD.
 
-Upstream declarations of the participating artifacts belong in the frontmatter; the sections below record direction, term meaning, and responsibility, and are not a second machine-readable relationship table.
+Participating artifacts' upstream belongs in the frontmatter; the sections below record direction, term meaning, and responsibility, not a second machine-readable relationship table.
 
 <a id="relations"></a>
 ## Directed relationships
@@ -29,7 +29,7 @@ Record each direction separately; do not infer two-way reads and writes from an 
 |---|---|---|---|
 | TBD | TBD | Not decided | TBD |
 
-The relationship type can be an evidence-based Partnership or Customer-Supplier relationship, or it can remain undecided. Choose patterns such as ACL, Open Host Service, Shared Kernel, or Separate Ways only when there is a real need and a source; this table does not mandate them.
+The relationship type can be an evidence-based Partnership or Customer-Supplier relationship, or stay undecided. Choose patterns such as ACL, Open Host Service, Shared Kernel, or Separate Ways only with a real need and a source; this table does not mandate them.
 
 <a id="translation"></a>
 ## Translation and collaboration agreements

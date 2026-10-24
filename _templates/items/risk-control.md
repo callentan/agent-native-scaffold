@@ -7,7 +7,7 @@ contentState: draft
 ---
 # RC-NNN: TBD risk control reference
 
-> Optional reference to external risk material; not a risk analysis or an acceptance authority. Read the [governance boundaries](../../docs/governance.md#intended-use) and the [source field conventions](../../docs/governance.md#source-views) first. Copy it to `domain-model/RC-NNN-<slug>.md` as needed, replace the placeholders, fix the links, and then delete this notice. Add only real upstream relationships; do not fabricate requirements, VTs, or risk levels to complete an export.
+> Optional reference to external risk material; not a risk analysis or acceptance authority. Read the [governance boundaries](../../docs/governance.md#intended-use) and [source field conventions](../../docs/governance.md#source-views) first. Copy to `domain-model/RC-NNN-<slug>.md` as needed, replace placeholders, fix links, then delete this notice. Add only real upstream relationships; do not fabricate requirements, VTs, or risk levels to complete an export.
 
 <a id="analysis"></a>
 ## External risk analysis source
@@ -39,7 +39,7 @@ contentState: draft
 | Named decision maker and source of responsibility/authority | Not provided: a Reviewed-by string cannot authenticate anyone |
 | Objects, scope, and limitations the decision applies to | Not provided: do not extrapolate to other uses or versions |
 
-When the source is unavailable or the decision is missing, keep it unknown and stop the affected acceptance/compliance statements; do not fill in a default severity, a residual risk score, or legal compliance. The frontmatter alone holds contentState and this record's confirmation, and neither one means the external risk has been accepted.
+When the source is unavailable or the decision is missing, keep it unknown and stop the affected acceptance/compliance statements; do not fill in a default severity, residual risk score, or legal compliance. The frontmatter alone holds contentState and confirmation; neither means the external risk has been accepted.
 
 <a id="follow-up"></a>
 ## Remaining gaps and recheck
@@ -48,4 +48,4 @@ When the source is unavailable or the decision is missing, keep it unknown and s
 - Changes to the use, requirements, controls, or object baselines, and the original artifacts to re-review: TBD.
 - Preserved entry points to old sources/decisions/VTs, next steps, and their authorization prerequisites: TBD.
 
-The model only references sources and baselines; with incomplete fields keep `partial`, and with an unreadable optional source keep `unverified`. Do not fabricate values, reverse relationships, or decisions to complete an export, and do not overwrite external sources or historical results.
+The model only references sources and baselines; keep `partial` for incomplete fields and `unverified` for an unreadable optional source. Do not fabricate values, reverse relationships, or decisions to complete an export, and do not overwrite external sources or historical results.

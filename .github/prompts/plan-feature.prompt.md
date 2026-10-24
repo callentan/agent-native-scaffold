@@ -4,7 +4,7 @@ description: Refine a feature and its verification plan from existing facts or a
 
 # Refine a feature
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Goal, users, scope, and non-goals: TBD
 - Paths, versions, and confirmation sources of the actual model/REQ, or the basis of a standalone maintenance task: TBD

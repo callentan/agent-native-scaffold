@@ -9,7 +9,7 @@ targets: []
 ---
 # FAC-NNN: TBD factory candidate
 
-> Optional record of a creation responsibility; it does not require the Factory pattern. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/FAC-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing creation rules, and then delete this hint.
+> Optional record of a creation responsibility; it does not require the Factory pattern. Read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/FAC-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing creation rules, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis

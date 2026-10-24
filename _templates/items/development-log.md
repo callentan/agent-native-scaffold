@@ -1,6 +1,6 @@
 # Development log: TBD task and session
 
-> Blank handoff form; not a record of a session that has happened. Read the [log guide](../../logs/README.md) first, then copy it to `logs/YYYY-MM-DD-<task>-<session>.md` as needed. After copying, delete this notice, replace the placeholders and any necessary anchors, and check the relative links. Do not store full chats or sensitive output.
+> Blank handoff form; not a record of a session that has happened. Read the [log guide](../../logs/README.md) first, then copy to `logs/YYYY-MM-DD-<task>-<session>.md` as needed; then delete this notice, replace placeholders and necessary anchors, and check relative links. Do not store full chats or sensitive output.
 
 <a id="session"></a>
 ## Session, task, and Git state
@@ -19,7 +19,7 @@
 <a id="task-basis"></a>
 ## Optional: maintenance request without a durable source
 
-When a task or acceptance source already exists, only reference it and delete this section; do not copy the requirements. When the request really must be kept in this record, fill in the necessary summary, date, and confirmation basis, and give the completion conditions stable IDs owned by the task; a placeholder number is not a confirmed condition.
+If a task or acceptance source already exists, only reference it, delete this section, and do not copy its requirements. If the request must be kept here, fill in the necessary summary, date, and confirmation basis; completion conditions need stable task-owned IDs, and a placeholder number is not a confirmed condition.
 
 - Request source and necessary summary: TBD.
 - Goal, scope, and confirmation basis: TBD.
@@ -40,13 +40,13 @@ When a task or acceptance source already exists, only reference it and delete th
 <a id="verification"></a>
 ## Actual result entry points
 
-Only reference results here; do not build a separate acceptance status table. Label the layer separately for business/software behavior, design, and standalone document checks; read results, actual commands, and judgments from their sources. If there is no run record, state that it was not run; do not invent links.
+Only reference results here; do not build a separate acceptance status table. Label the layer separately for business/software behavior, design, and standalone document checks; take results, actual commands, and judgments from their sources. With no run record, state that it was not run; do not invent links.
 
 | Check and layer | Actual record link (VT run block, raw report, or check record) | Entry point to the object and requirement/VT baselines | Accessibility and limitations |
 |---|---|---|---|
 | TBD | Not run; no record yet | TBD | TBD |
 
-For reports accessible only on this machine, state the limitation and the actions needed to take over; do not record personal absolute paths, and do not describe a local temporary report as cross-machine evidence.
+For reports accessible only on this machine, state the limitation and takeover actions; do not record personal absolute paths or present a local temporary report as cross-machine evidence.
 
 <a id="follow-up"></a>
 ## Gaps, impact, and items to recheck
@@ -55,7 +55,7 @@ For reports accessible only on this machine, state the limitation and the action
 |---|---|---|
 | TBD | TBD | TBD; mark actions not run as `not-run` |
 
-Keep the original results and original baselines; this table only records impact and pending work. For the current applicability of a result, see the review records of the original result.
+Keep original results and baselines; this table only records impact and pending work. For a result's current applicability, see the review records of that original result.
 
 <a id="handoff"></a>
 ## Blockers and next steps

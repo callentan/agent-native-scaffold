@@ -9,7 +9,7 @@ targets: []
 ---
 # POL-NNN: TBD policy candidate
 
-> Optional record of a business decision; it does not automatically introduce a rules engine. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/POL-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original rules, and then delete this hint.
+> Optional record of a business decision; it does not automatically introduce a rules engine. Read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/POL-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix links, keep the original rules, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis
@@ -18,7 +18,7 @@ targets: []
 - Candidate reasons for recording the policy separately: TBD; a policy is not a second rule authority.
 - Open questions and who needs to confirm them: TBD.
 
-The rule owner's canonical upstream belongs in the frontmatter. The sections below only explain how the decision is used; they do not rewrite the source policy.
+The rule owner's canonical upstream belongs in the frontmatter; the sections below explain use and do not rewrite the source policy.
 
 <a id="decision"></a>
 ## Decision responsibility

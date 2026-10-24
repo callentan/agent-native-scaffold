@@ -4,7 +4,7 @@ description: Plan layered VTs and applicable scenarios from all acceptance sourc
 
 # Plan verification
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Delivery scope: TBD
 - Owner, ID, original text, layer, and baseline of every acceptance criterion, including items that have no VT yet: TBD

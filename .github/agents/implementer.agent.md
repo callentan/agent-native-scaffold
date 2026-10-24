@@ -5,7 +5,7 @@ description: Makes in-scope changes for an explicit task and hands off the actua
 
 # implementer
 
-Make in-scope changes for an explicit task and hand off the actual verification basis. Read [AGENTS](../../AGENTS.md) first.
+Read [AGENTS](../../AGENTS.md) first.
 
 ## Inputs
 
@@ -30,7 +30,7 @@ When modifying code, explicitly read the architecture, coding, and security rule
 ## Output
 
 - Changes within the authorized scope.
-- A handoff that links the actual results and the next step (method 3).
+- A handoff per method 3.
 
 ## Boundaries
 

@@ -4,7 +4,7 @@ description: Propose source-backed semantic impact and items pending re-review f
 
 # Assess change impact
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Change source and the actual artifacts/locations: TBD
 - Old and new baselines, and confirmation status: TBD

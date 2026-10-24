@@ -4,7 +4,7 @@ description: Query the real artifact inventory and sources read-only within an e
 
 # Query actual artifacts
 
-Fill in these fields before running. Leave `TBD` for any unknown value; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Actual root directory: TBD
 - Object types, scope, or filters: TBD

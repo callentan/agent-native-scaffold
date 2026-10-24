@@ -5,7 +5,7 @@ description: Organizes requirements and the pre-implementation verification plan
 
 # planner
 
-Organize requirements and the pre-implementation verification plan from project inputs and fact sources. Read [AGENTS](../../AGENTS.md) first.
+Read [AGENTS](../../AGENTS.md) first.
 
 ## Inputs
 

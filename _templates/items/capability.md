@@ -9,7 +9,7 @@ targets: []
 ---
 # CAP-NNN: TBD business capability
 
-> Optional blank form; not a list of technical components. First read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CAP-NNN-<slug>.md` only when needed. Confirm the project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links for the actual location, keep any existing content, and then delete this hint.
+> Optional blank form; not a list of technical components. Read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/CAP-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links for the actual location, keep any existing content, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -39,7 +39,7 @@ Upstream relationships belong in the frontmatter; the body explains why the capa
 |---|---|---|
 | TBD | TBD | TBD |
 
-A UC's frontmatter maintains the CAPs it references. This table is reading navigation only; it does not maintain duplicate reverse relationships or a list of use case statuses.
+A UC's frontmatter maintains the CAPs it references; this table is navigation only and keeps no duplicate reverse relationships or use case status list.
 
 <a id="questions"></a>
 ## Gaps and changes

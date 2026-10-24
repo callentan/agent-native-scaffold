@@ -4,12 +4,12 @@ applyTo: "architecture/**/*.md,src/**,app/**,apps/**,lib/**,packages/**,services
 
 # Source-backed architecture boundaries
 
-Apply these rules when changing architecture documents or code. They tie architecture constraints to what the project actually adopts and to actual sources.
+Apply these rules when changing architecture documents or code.
 
 ## Scope of these rules
 
 - The `applyTo` patterns are a limited initial set. They do not prescribe project locations or code layering.
-- When actual code lives in other directories, or the client does not load this file, whoever makes the change must still read these rules explicitly.
+- When actual code lives in other directories, or the client does not load this file, the change-maker must still read these rules explicitly.
 - Adjust the match patterns to the real project. Do not move code just to make it match.
 
 ## Read first
@@ -19,7 +19,7 @@ Apply these rules when changing architecture documents or code. They tie archite
 
 ## Dependency direction and wiring
 
-- Where a layered or ports-and-adapters architecture is already adopted, make domain rules and business control logic depend inward. Do not let infrastructure details dictate domain meaning in reverse.
+- Where a layered or ports-and-adapters architecture is already adopted, make domain rules and business control logic depend inward; do not let infrastructure details dictate domain meaning in reverse.
 - In that architecture, only an explicit composition root or startup wiring location may reference concrete adapters to assemble dependencies. The wiring does not own business rules.
 - This wiring exception does not extend to every controller. A boundary entry point must not use wiring as a pretext to bypass use-case or domain constraints, or to write business state directly without an agreed contract.
 - An existing project exception, such as a read-only projection, needs an actual scope or decision basis. Do not infer a general permission to access the database from that exception.
