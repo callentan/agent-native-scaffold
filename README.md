@@ -33,6 +33,26 @@ Method text is maintained only in the nine `SKILL.md` files listed below; the ex
 
 Follow the [record-handoff takeover order](.github/skills/record-handoff/SKILL.md#resume) to recheck the task, materials, Git state, and evidence, then continue from an unfinished step whose inputs are complete. A "pass" in an old log, an inaccessible report, or unsaved state does not automatically become current evidence.
 
+<a id="layout"></a>
+## Directory map
+
+Each folder's role and how to use it. The method for each task is in [Find materials by activity](#activities).
+
+| Path | Purpose | How to use it |
+| --- | --- | --- |
+| `AGENTS.md` | Common entry point and reading path for agents | Read first, then the method for your task. |
+| `stakeholder-requirements/` | Product description (goals, users, scope, constraints) and stakeholder requirements (REQ) | Fill in the [product description](stakeholder-requirements/README.md#product) first. Copy REQ forms from `_templates/items/` when needed. |
+| `domain-model/` | Shared terms, bounded contexts, concepts, and [artifact metadata conventions](domain-model/README.md#artifact-metadata) | Record only confirmed terms and contexts. |
+| `software-requirements/` | Software requirements (SR) and their acceptance criteria | Derive SRs from confirmed REQs using [specify-feature](.github/skills/specify-feature/SKILL.md). |
+| `user-stories/` | Optional delivery units (US) | Add a US only when a delivery needs one. |
+| `architecture/` | Architecture guide, optional BC configuration, and `decisions/` for ADRs | Start from the [architecture guide](architecture/README.md). `decisions/` is created with the first ADR. |
+| `verification/` | Verification guide, VT plans, and run records | Keep each run's result with its own baseline. See the [verification guide](verification/README.md). |
+| `logs/` | Development logs, one per task or session | Record handoffs using the [logs guide](logs/README.md). Link to results instead of copying them. |
+| `src/` | Project code, in any native layout | Create code only after the [development inputs](docs/development.md#creation-inputs) are complete. Keep the layout the project actually uses. |
+| `docs/` | Guides for development, governance, tooling, distribution, and template updates, plus the [project flow](docs/project-flow.md) | Start with the [development guide](docs/development.md) for commands and registration. Maker-side design, plan, and research notes (`docs/design/`, `docs/plan/`, `docs/research/`) are not part of a distributed copy. |
+| `_templates/` | Blank forms in `items/`, configuration in `config/`, and report templates in `reports/` | Copy a form to its formal location. Do not edit the blank form in place. |
+| `.github/` | Agent instructions, agents, skills (methods), prompts, the PR template, and optional tools: `utilities/` (Python maintenance tools), `contracts/` (JSON schemas), `hooks/` (git hooks), and `workflows/` (CI) | Start with [copilot-instructions](.github/copilot-instructions.md). Read the [utilities guide](.github/utilities/README.md) before running any tool. |
+
 <a id="activities"></a>
 ## Find materials by activity
 
