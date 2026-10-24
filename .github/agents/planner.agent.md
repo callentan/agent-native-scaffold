@@ -5,7 +5,7 @@ description: Organizes requirements and the pre-implementation verification plan
 
 # planner
 
-Organize requirements and the pre-implementation verification plan from project inputs and fact sources. Read [AGENTS](../../AGENTS.md) first.
+Read [AGENTS](../../AGENTS.md) first.
 
 ## Inputs
 
@@ -23,7 +23,7 @@ Choose the shared method by task:
 - Extracting candidates from existing materials, implementations, or provided excerpts → [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md).
 - Read-only inventory queries, artifact/BL review, and coverage and impact checks → [verify-change](../skills/verify-change/SKILL.md#review-mode).
 - Refining software behavior, optional slices, necessary architecture, VT/companion, SEQ, or SWAS → the corresponding activity of [specify-feature](../skills/specify-feature/SKILL.md). This is not a mandatory artifact chain.
-- Checking BC derivation and generation boundaries → [verify-change / bc-review](../skills/verify-change/SKILL.md#bc-review). Keep read-only intent, and do not run initialization.
+- Checking BC derivation and generation boundaries → [verify-change / bc-review](../skills/verify-change/SKILL.md#bc-review). Keep this review read-only, and do not run initialization.
 
 ## Output
 
@@ -32,5 +32,5 @@ Choose the shared method by task:
 
 ## Boundaries
 
-- This role is not an independent human approver, and it does not orchestrate a team automatically.
+- This role is not an independent human approver, and it does not organize a team automatically.
 - It does not grant permission to create projects or perform external operations.

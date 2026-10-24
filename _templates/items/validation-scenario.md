@@ -11,14 +11,14 @@ targets:
 ---
 # TS-NNN: TBD business validation scenario
 
-> Optional scenario plan; not run yet. Read the [domain scenario guide](../../verification/README.md#domain-scenarios) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy it to `verification/TS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, targets, and anchors, check the target owners, the actual location, and the relative links, keep existing records, and then delete this notice. Copying the blank form or parsing it successfully does not mean the business passed.
+> Optional scenario plan; not run yet. Read the [domain scenario guide](../../verification/README.md#domain-scenarios) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `verification/TS-NNN-<slug>.md` as needed; confirm and replace `PROJECT/CTX-NNN`, the ID, targets, and anchors, check target owners, the actual location, and links, keep existing records, then delete this notice. Copying or parsing the blank form does not mean the business passed.
 
 <a id="basis"></a>
 ## Basis and plan baseline
 
 | Plan information | Content |
 |---|---|
-| Business scope and scenario type | TBD: Within context / Cross-context / REQ business acceptance / QAS; do not mix it up with a software run |
+| Business scope and scenario type | TBD: Within context / Cross-context / REQ business acceptance / QAS; do not confuse it with a software run |
 | Known facts and locatable sources, dates, or versions | TBD |
 | Derived candidates and source limitations | TBD; unconfirmed policies do not enter definite expectations |
 | Object, requirement, and scenario plan baselines | TBD; locate each separately, not just the current HEAD |
@@ -29,7 +29,7 @@ Declare parseable bases such as UC, RULE, INV, REQ, and QAS in `upstream`; decla
 <a id="targets"></a>
 ## Criteria by target
 
-Each `targets` entry uses `criterionAnchor` to point at an independent criterion block in this file. When you add a target, add a criterion block; different targets cannot share one "all passed" sentence. The source entry's text still belongs to its original owner.
+Each `targets` entry uses `criterionAnchor` to point at an independent criterion block in this file. Add a block per target; different targets cannot share one "all passed" sentence. The source entry's text belongs to its original owner.
 
 <a id="criterion-01"></a>
 ### Criterion 01
@@ -52,12 +52,12 @@ Each `targets` entry uses `criterionAnchor` to point at an independent criterion
 | Source of the actual environment, runner, command, and cwd | Not configured; fill in only from the real development registration |
 | Raw output location and access limitations | Not configured |
 
-When a `.feature` file exists, only reference its single Gherkin body; do not copy another one into this file. Without an application or runner, the scenario remains a plan; when a QAS lacks a measurement criterion, keep the gap and do not produce a fictitious pass criterion.
+When a `.feature` file exists, only reference its single Gherkin body; do not copy that body into this file. Without an application or runner, the scenario remains a plan; when a QAS lacks a measurement criterion, keep the gap and do not produce a fictitious pass criterion.
 
 <a id="runs"></a>
 ## Actual runs (separate from the plan)
 
-This block is a pending-run record, not a run that has happened. If a VT holds the actual result, only link its run block here; do not copy the result again. For repeat runs, append records and keep the old baselines.
+This block is a pending-run record, not a run that has happened. If a VT holds the actual result, only link its run block here; do not copy the result again. For repeat runs, append records and keep old baselines.
 
 <a id="ts-nnn-run-01"></a>
 ### TS-NNN-RUN-01: Pending run

@@ -4,7 +4,7 @@ description: Start onboarding project materials from confirmed project inputs.
 
 # Onboard a project
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Goal, scope, and completion criteria: TBD
 - Project name and phase: TBD

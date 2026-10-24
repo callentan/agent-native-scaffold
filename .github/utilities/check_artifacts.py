@@ -162,7 +162,7 @@ def _checked_location(value: PathInput, *, missing_ok: bool = False) -> Path:
             raise ArtifactInputError("INVALID_ROOT", "root", 1, "An unambiguous local directory is required")
         requested = requested if requested.is_absolute() else Path.cwd() / requested
         try:
-            # Lexical ".." first gives the same answer on Windows and POSIX hosts.
+            # Lexical ".." handling runs first, so Windows and POSIX hosts give the same answer.
             return Path(os.path.normpath(requested)).resolve(strict=not missing_ok)
         except FileNotFoundError as error:
             raise ArtifactInputError("INVALID_ROOT", "root", 1,
@@ -711,7 +711,7 @@ def _overlaps(left: Path, right: Path) -> bool:
 
 def _output_path(value: str, base: PathInput, suffixes: tuple[str, ...], *,
                  within: PathInput | None = None, protected=()) -> Path:
-    """The single new-output rule for every tool: explicit, local, new, outside its sources.
+    """The single new-output rule for every tool: explicit, local, new, and outside its sources.
 
     Relative values are taken from ``base``. Paths follow the host's normal link
     resolution. The parent must already exist; no directory is created and no

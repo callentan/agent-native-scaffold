@@ -5,7 +5,7 @@ description: Use when pausing or finishing a task, handing work to another sessi
 
 # Record a handoff and resume a task
 
-Leave a record that lets whoever takes over determine the current state and the next step without relying on old chats. The log only summarizes changes and links authoritative records; it does not keep another copy of acceptance results.
+Leave a record that lets whoever takes over determine the current state and the next step without relying on old chats. The log only summarizes changes and links to authoritative records; it does not keep another copy of acceptance results.
 
 ## Inputs
 
@@ -26,7 +26,7 @@ Leave a record that lets whoever takes over determine the current state and the 
 
 ## Record a handoff
 
-Fill in the log form section by section, so that whoever takes over can continue without old chats.
+Fill in the log form section by section.
 
 1. Read the [log guide](../../../logs/README.md#recording).
 2. In the [log form](../../../_templates/items/development-log.md#session), fill in "Session, task, and Git state".
@@ -83,7 +83,7 @@ Record: the authorized handoff record from action 8.
 
 - Formal handoff → `logs/YYYY-MM-DD-<task>-<session>.md`, using the fields of the existing form.
 - Tasks, acceptance criteria, and runs → stay in their own source files.
-- When resuming: update only authorized records. The actual implementation is the responsibility of the corresponding activity method.
+- When resuming: update only authorized records. Implementation itself belongs to the corresponding activity method.
 
 ## Done when
 
@@ -99,6 +99,6 @@ This does not mean that all work is done, that historical evidence has been rest
 
 ## Stop conditions
 
-- When a required task or evidence is unreadable, the Git scope conflicts, sources contradict each other, or a change in authorization is unclear, stop the operations that depend on that item.
+- When a required task or its evidence is unreadable, the Git scope conflicts, sources contradict each other, or a change in authorization is unclear, stop the operations that depend on that item.
 - Then: state the limitation and give the minimal additional input needed.
 - Never get past a blocker by relying on old chats, replaying uncertain external actions, or fabricating results.

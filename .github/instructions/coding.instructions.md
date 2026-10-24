@@ -4,12 +4,11 @@ applyTo: "src/**,app/**,apps/**,lib/**,packages/**,services/**"
 
 # Follow the real project's coding conventions
 
-Read these rules explicitly whenever you modify any real code. Follow the actual project's conventions, and implement only what the task and confirmed behavior sources cover.
+Read these rules explicitly whenever you modify any real code. Follow the actual project's conventions.
 
 ## Scope of these rules
 
-- The `applyTo` patterns are only an initial match and do not enumerate every code location.
-- The rules apply equally to project directories that do not match. Code does not have to be moved into `src/`.
+- The `applyTo` patterns are only an initial match and do not enumerate every code location. The rules apply equally to project directories that do not match; code need not move into `src/`.
 
 ## Read first
 
@@ -23,20 +22,20 @@ Read these rules explicitly whenever you modify any real code. Follow the actual
 - Keep domain terms, responsibilities, and interface semantics. Do not add concurrency, expiry, retry, or boundary policies for implementation convenience.
 - Make inputs, outputs, errors, and forbidden side effects explicit.
 - Do not swallow errors. Do not disguise unfinished work with empty implementations or hard-coded success return values.
-- Bound each change by a reproducible problem and the smallest relevant diff. Keep user code and unrelated formatting.
+- Limit each change to a reproducible problem and the smallest relevant diff. Keep user code and unrelated formatting unchanged.
 
 ## Portable scripts and checkers
 
 - Scaffold scripts must behave identically on Windows, Linux, and macOS.
 - Take paths from explicit arguments, project-relative resources, or the standard temporary directory. Do not hard-code personal directories, drive letters, or virtual environment layouts.
 - Encapsulate necessary OS adaptation at the file-lock/startup boundary, without changing DDD meaning.
-- Checkers serve artifact structure, references, and coverage. Do not make fixed-drive detection, native directory-handle auditing, or protection against malicious concurrent file replacement a prerequisite for running them.
+- Checkers serve artifact structure, references, and coverage. Do not require fixed-drive detection, native directory-handle auditing, or protection against malicious concurrent file replacement before they run.
 - Keep basic protections, such as explicit errors and never overwriting existing output.
 
 ## Traceability
 
 - Use the project's existing comments, test annotations/identifiers, or task records to locate the full owner-qualified acceptance criterion and the real code location. Do not tag only an ownerless `AC-01`.
-- Do not add a traceability SDK, and do not copy a set of requirements/statuses into the code.
+- Do not add a traceability SDK, and do not copy requirements or statuses into the code.
 
 ## Dependencies, builds, and evidence
 

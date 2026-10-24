@@ -4,7 +4,7 @@ description: Propose a template version update, or a scenario-source change for 
 
 # Template update proposal
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Task and completion criteria: TBD
 - Permitted file scope and operational authorization: TBD

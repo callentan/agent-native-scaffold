@@ -9,7 +9,7 @@ targets: []
 ---
 # AGG-NNN: TBD aggregate candidate
 
-> Optional tactical record; it does not predetermine a consistency boundary. First read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/AGG-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing design, and then delete this hint.
+> Optional tactical record; it does not predetermine a consistency boundary. Read the [tactical forms guide](../../domain-model/README.md#tactical-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy to `domain-model/AGG-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep any existing design, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and candidate basis
@@ -18,7 +18,7 @@ targets: []
 - Candidate reasons for using an aggregate and the limits of that derivation: TBD; without a basis for the boundary, do not promote it to a decision.
 - Open questions and who needs to confirm them: TBD.
 
-Upstream declarations for the artifact live only in the frontmatter; the body explains how the constraints relate to the boundary and does not infer business rules from class structure.
+Upstream lives only in the frontmatter; the body explains how constraints relate to the boundary and does not infer business rules from class structure.
 
 <a id="boundary"></a>
 ## Responsibility and consistency boundary
@@ -44,11 +44,11 @@ Upstream declarations for the artifact live only in the frontmatter; the body ex
 
 - Other owners, required facts, and direction of collaboration: TBD.
 - Candidates for cross-boundary identity references and for published facts/events: Not decided.
-- Concurrency, consistency, failure handling, and the basis for these decisions: Not provided; do not assume a transaction, lock, or messaging solution.
+- Concurrency, consistency, failure handling, and their basis: Not provided; do not assume a transaction, lock, or messaging solution.
 
 <a id="questions"></a>
 ## Open items and impact
 
 - Missing boundary, identity, or rule evidence and related BLs: TBD.
 - Accountable owner and next step: TBD.
-- Old and new baselines, and related design and scenario/VT items pending re-review: TBD; this form does not prove that software implements the constraints.
+- Old and new baselines and related design and scenario/VT items pending re-review: TBD; this form does not prove software implements the constraints.

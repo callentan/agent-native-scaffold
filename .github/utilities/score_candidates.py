@@ -163,7 +163,7 @@ def _score_validated(items: list[dict]) -> list[dict]:
 
 
 def score_candidates(items: list[dict]) -> list[dict]:
-    """Validate the whole list before scores; no envelope total/order is invented."""
+    """Validate the whole list before scoring; never invent an envelope total or order."""
     _validate_items(items)
     return _score_validated(items)
 

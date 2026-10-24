@@ -569,7 +569,7 @@ def _materialize(context, result, changes):
         _record(changes, modules.parent, directory=True)
         modules.parent.mkdir()
     for path in (target, modules):
-        _record(changes, path, directory=True)  # Account even for native partial creation/failure.
+        _record(changes, path, directory=True)  # Record even a partial native creation or failure.
     _native(root, "clone", "--local", "--no-hardlinks", "--no-checkout", "--template=",
             "--separate-git-dir=" + str(modules), "--", str(context["source_root"]), str(target),
             payload=result, local_clone=True)

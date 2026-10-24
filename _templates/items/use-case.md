@@ -9,7 +9,7 @@ targets: []
 ---
 # UC-NNN: TBD business use case
 
-> Optional blank form; not approved behavior. First read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/UC-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and all acceptance anchors, fix relative links, keep any existing body text, and then delete this hint.
+> Optional blank form; not approved behavior. Read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/UC-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and all acceptance anchors, fix links, keep any existing body text, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -18,7 +18,7 @@ targets: []
 - Derived candidates and the basis for deriving them: TBD.
 - Open questions and who needs to confirm them: TBD.
 
-The frontmatter declares the actual upstream, such as the CAP, the artifacts that hold the rules, and INVs; the body explains how rules constrain the use case and does not derive business facts from the implementation.
+The frontmatter declares actual upstream (such as the CAP, rule-holding artifacts, and INVs); the body explains how rules constrain the use case and does not derive business facts from the implementation.
 
 <a id="entry"></a>
 ## Actors, preconditions, and trigger
@@ -50,7 +50,7 @@ The frontmatter declares the actual upstream, such as the CAP, the artifacts tha
 <a id="acceptance"></a>
 ## Observable postconditions and business acceptance
 
-Each block is a criterion of the owning UC, not a run record. When adding or removing real entries, keep their basis; replace the full ID and the anchor immediately before it together.
+Each block is a criterion of the owning UC, not a run record. When adding or removing real entries, keep their basis. Replace the full ID together with the anchor directly above its heading.
 
 <a id="uc-nnn-ac-01"></a>
 ### UC-NNN-AC-01: Normal path

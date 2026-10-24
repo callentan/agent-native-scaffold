@@ -9,7 +9,7 @@ targets: []
 ---
 # INV-NNN: TBD business invariant
 
-> Optional blank form; not a rule reverse-engineered from code. First read the [rules guide](../../domain-model/README.md#rules) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/INV-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, fix relative links, keep any existing rules, and then delete this hint.
+> Optional blank form; not a rule reverse-engineered from code. Read the [rules guide](../../domain-model/README.md#rules) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/INV-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and acceptance anchors, fix relative links, keep any existing rules, then delete this hint.
 
 <a id="basis"></a>
 ## Rule basis and derivation boundary
@@ -33,7 +33,7 @@ Declare the parsable rule owner and its RULE anchor in `upstream`; legacy rules 
 | Outcomes forbidden when the constraint is violated | TBD; keep undefined handling as a gap |
 | Business rationale and source of the constraint | TBD |
 
-An invariant does not automatically decide the aggregate root, transactions, locks, or storage approach. When the points in time where it applies or the concurrency rules are unclear, do not claim that every state transition preserves it.
+An invariant does not automatically decide the aggregate root, transactions, locks, or storage approach. When the points in time where it applies, or the concurrency rules, are unclear, do not claim that every state transition preserves it.
 
 <a id="acceptance"></a>
 ## Constraint criteria

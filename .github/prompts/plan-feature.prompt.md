@@ -4,7 +4,7 @@ description: Refine a feature and its verification plan from existing facts or a
 
 # Refine a feature
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Goal, users, scope, and non-goals: TBD
 - Paths, versions, and confirmation sources of the actual model/REQ, or the basis of a standalone maintenance task: TBD
@@ -20,5 +20,5 @@ Fill in before running. Leave `TBD` where a value is unknown; the method's stop 
 2. Choose the applicable method and read it in full:
    - When sources still need extraction: [reverse-engineer-domain](../skills/reverse-engineer-domain/SKILL.md).
    - When business meaning needs clarification: [define-requirements](../skills/define-requirements/SKILL.md).
-   - For specifications and verification plans that already have a basis: [specify-feature](../skills/specify-feature/SKILL.md).
+   - When specifications and verification plans already have a basis: [specify-feature](../skills/specify-feature/SKILL.md).
 3. The method file is authoritative for steps, modes, fields, boundaries, and stop conditions; this prompt adds no process.

@@ -5,7 +5,7 @@ description: Checks the current scope, acceptance coverage, and existing evidenc
 
 # reviewer
 
-Check the current scope, acceptance coverage, and existing evidence read-only, and report gaps and pending runs. Read [AGENTS](../../AGENTS.md) first.
+Read [AGENTS](../../AGENTS.md) first.
 
 ## Inputs
 
@@ -16,7 +16,7 @@ Check the current scope, acceptance coverage, and existing evidence read-only, a
 
 ## Methods
 
-After reading AGENTS, check according to the [read-only review mode of verify-change](../skills/verify-change/SKILL.md#review-mode).
+Check according to the [read-only review mode of verify-change](../skills/verify-change/SKILL.md#review-mode).
 
 ## Output
 
@@ -27,8 +27,7 @@ After reading AGENTS, check according to the [read-only review mode of verify-ch
 ## Boundaries
 
 - **Do not run verification commands, modify files, back-fill results, or approve on the user's behalf.**
-- "Read-only" here is a conversational working convention. This role has no enforced tool restrictions configured and is not a sandbox or security boundary.
-- Using this entry point does not prove that any permission restriction is in effect.
+- "Read-only" here is a conversational working convention. No enforced tool restrictions are configured, and neither this role nor this entry point is a sandbox, a security boundary, or proof that a permission restriction is in effect.
 - The role does not organize a team automatically. When something needs to be run or changed, hand it to an authorized party separately.
 
 See the [distribution and permission boundaries](../../docs/distribution.md#status-boundary).

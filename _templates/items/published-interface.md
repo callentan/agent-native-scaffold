@@ -9,7 +9,7 @@ targets: []
 ---
 # PI-NNN: TBD business commitments of a Published Interface
 
-> Optional draft business contract; not an interface implementation or an approval to publish. First read the [integration forms guide](../../domain-model/README.md#integration-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/PI-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep earlier commitments and their versions, and then delete this hint.
+> Optional draft business contract; not an interface implementation or an approval to publish. Read the [integration forms guide](../../domain-model/README.md#integration-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/PI-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix links, keep earlier commitments and their versions, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -18,7 +18,7 @@ targets: []
 - Proposed commitments and the basis for deriving them: TBD; a consumer's need cannot automatically be treated as a provider commitment.
 - Open questions and who needs to confirm them: TBD.
 
-Parsable upstream belongs in the frontmatter; the body explains the semantics and basis of the commitments and does not certify approvers.
+Parsable upstream belongs in the frontmatter; the body explains the commitments' semantics and basis and does not certify approvers.
 
 <a id="direction"></a>
 ## Ownership and direction
@@ -34,7 +34,7 @@ Parsable upstream belongs in the frontmatter; the body explains the semantics an
 <a id="promises"></a>
 ## Commitment elements
 
-List only elements backed by the model. Keep the evidence for proposed content separate from the evidence for committed content; without evidence, state explicitly that nothing has been committed yet.
+List only model-backed elements. Keep evidence for proposed content separate from evidence for committed content; without evidence, state explicitly that nothing has been committed yet.
 
 | Element and navigation to the source text | Meaning, applicable conditions, and boundaries | Actual provider commitment and evidence / content still to be confirmed |
 |---|---|---|
@@ -44,7 +44,7 @@ List only elements backed by the model. Keep the evidence for proposed content s
 |---|---|---|
 | TBD | TBD | TBD |
 
-Protocols, endpoints, wire formats, storage, and delivery guarantees are not defaults of this form. Without a source, record them as unknown; do not fill them in from technical conventions.
+Protocols, endpoints, wire formats, storage, and delivery guarantees are not defaults of this form. Without a source, record them as unknown and do not fill them in from technical conventions.
 
 <a id="evolution"></a>
 ## Compatibility and change proposals

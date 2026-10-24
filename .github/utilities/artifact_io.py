@@ -171,7 +171,7 @@ class _UniqueSafeLoader(yaml.SafeLoader):
         except (ValueError, KeyError, OverflowError, IndexError, AttributeError) as error:
             # SafeLoader's scalar constructors can leak built-in exceptions for
             # malformed explicit !!int/!!bool/!!timestamp values. Locate the
-            # failure at this YAML node, retaining the original cause and detail.
+            # failure at this YAML node and retain the original cause and detail.
             raise yaml.constructor.ConstructorError(
                 "while constructing a safe YAML value", node.start_mark,
                 f"{node.tag}: {error}", node.start_mark,
@@ -212,7 +212,7 @@ def _check_yaml_graph(node: Node, active: set[int], visited: set[int]) -> None:
     active.add(identity)
     if isinstance(node, MappingNode):
         # Check the raw graph before SafeLoader normalizes ANY merge node, including
-        # nested nodes which flatten_mapping consumes without construct_mapping.
+        # nested nodes that flatten_mapping consumes without construct_mapping.
         original_keys: set[str] = set()
         for key, value in node.value:
             if isinstance(key, ScalarNode):

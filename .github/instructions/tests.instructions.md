@@ -4,7 +4,7 @@ applyTo: "**/test/**,**/tests/**,**/Tests/**,**/*.test.*,**/*.spec.*,**/*_test.*
 
 # Test change conventions
 
-**Read these rules explicitly whenever you modify any test, even if automatic matching did not trigger.** Tests start from the full acceptance scope, and only actual runs count as evidence.
+**Read these rules explicitly whenever you modify any test, even if automatic matching did not trigger.** Only actual runs count as evidence.
 
 ## Scope of these rules
 
@@ -15,7 +15,7 @@ applyTo: "**/test/**,**/tests/**,**/Tests/**,**/*.test.*,**/*.spec.*,**/*_test.*
 
 - Keep the project's actual test layout and existing style.
 - First read the target acceptance criteria, the corresponding VT, and [verify-change](../skills/verify-change/SKILL.md).
-- Check gaps across the full scope instead of picking only existing tests.
+- Start from the full acceptance scope and check gaps across it, not only existing tests.
 
 ## Test content
 

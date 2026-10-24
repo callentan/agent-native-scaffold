@@ -5,7 +5,7 @@ description: Use when initial code generation or project scaffolding is requeste
 
 # Generate initial code safely
 
-This is a file-based method shared by humans and agents, not a generator program. It handles only authorized initial generation. **Write nothing to a target until it has passed every preflight check below.**
+This is a file-based method shared by humans and agents, not a generator program; it handles only authorized initial generation. **Write nothing to a target until it has passed every preflight check below.**
 
 ## Inputs
 
@@ -35,17 +35,15 @@ This is a file-based method shared by humans and agents, not a generator program
 This is a hard gate: complete every check here before any write.
 
 1. Check the directory, Git branch, full commit, index, and pre-existing changes.
-2. Read the task and its actual sources. Check the acceptance criteria and plan with [specify-feature](../specify-feature/SKILL.md#plan-verification).
-   - Unconfirmed rules, unreadable sources, and conflicts support only questions or candidates.
-   - Never generate definite business behavior from them.
+2. Read the task and its actual sources, and check the acceptance criteria and plan with [specify-feature](../specify-feature/SKILL.md#plan-verification). Unconfirmed rules, unreadable sources, and conflicts support only questions or candidates; never generate definite business behavior from them.
 3. Verify each [project creation input](../../../docs/development.md#creation-inputs) and the authorization to run each command.
-   - New project with no source code yet: state explicitly that it does not exist. Verify the intended native layout and the files the tools can produce.
+   - New project with no source code yet: state explicitly that none exists; verify the intended native layout and the files the tools can produce.
    - Existing project: keep its actual layout.
-   - If the project, stack/version, path, environment, actual commands/cwd/reports, or creation permission is missing, record `blocked` with the exact gaps. Keep the related behavioral VTs `not-run`.
+   - If the project, stack/version, path, environment, actual commands/cwd/reports, or creation permission is missing, record `blocked` with the exact gaps and keep related behavioral VTs `not-run`.
    - Never unblock by borrowing the maintenance tools' Python stack, a sample application, or fake commands.
 4. Explicitly read the [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), [security](../../instructions/security.instructions.md), and applicable [test rules](../../instructions/tests.instructions.md) in full. Rule globs do not cover every actual code location, and they do not authorize execution.
 5. For every path to be written, resolve its actual root, parent directory, and link targets. Check the allowed scope and all existing content.
-   - Stop the write to a path when its directory does not match, it is out of scope or unreadable, or it is a non-empty target that conflicts. List the exact path.
+   - Stop the write to a path when its directory does not match, when it is out of scope or unreadable, or when it is a conflicting non-empty target. List the exact path.
    - Send task changes to existing files to the maintenance path ([implement-task](../implement-task/SKILL.md)). Do not use an initializer in place of review.
    - Keep the original bytes or a retrievable snapshot.
 
@@ -63,7 +61,7 @@ Before writing, state what will be generated. Record these fields for each propo
 | Acceptance and trace marker | Full owner-qualified IDs/anchors, and how they are located in native project comments, test identifiers, or task records |
 | Native generation/check scope | Actual tools and arguments, explicit cwd, files the tools may write as a side effect, environment/dependencies, report location, and current authorization |
 
-1. Show the statement to the requester, or save it in an authorized task record. It is not automatically treated as approval.
+1. Show the statement to the requester or save it in an authorized task record; it is not automatically approval.
 2. If you cannot list a tool's outputs, side effects, or commands, stop any generation that depends on that tool.
 3. Do not add bootstrap steps, dependency choices, authentication/deployment configuration, or test projects that were not shown.
 4. A maintenance task without formal artifacts may cite the actual task conditions. Do not invent IDs.
@@ -75,18 +73,10 @@ Record: the proposed-files statement.
 
 Write only what passed preflight, then check what was actually produced.
 
-1. Generate only for authorized targets that passed preflight without conflicts. Recheck the existing content right before writing.
-   - If a tool produces out-of-scope output or a new conflict, stop further actions. Describe the actual changes and ask how to proceed.
-   - Do not clean up owner files yourself.
-2. Check the actual diff, sources, and trace markers against the proposed-files statement.
-   - Report omitted, skipped, and unauthorized extra files separately. Do not call partial generation complete.
-   - For a missing business policy, keep an explicit blocker. Do not generate default behavior that merely "looks usable".
-3. Following [verify-change](../verify-change/SKILL.md), run only registered and authorized native checks. Check the discovered/executed/skipped counts and the per-item reports.
-   - File existence, a successful compile, a test name, or a zero exit code alone cannot prove behavioral acceptance.
-   - Tests that were not run stay `not-run`. Do not fabricate results or auto-generate tests to pass them off as execution.
+1. Generate only for authorized targets that passed preflight without conflicts, and recheck the existing content right before writing. If a tool produces out-of-scope output or a new conflict, stop further actions, describe the actual changes, and ask how to proceed. Do not clean up owner files yourself.
+2. Check the actual diff, sources, and trace markers against the proposed-files statement. Report omitted, skipped, and unauthorized extra files separately; do not call partial generation complete. For a missing business policy, keep an explicit blocker, and do not generate default behavior that merely "looks usable".
+3. Following [verify-change](../verify-change/SKILL.md), run only registered and authorized native checks, and check the discovered/executed/skipped counts and per-item reports. File existence, a successful compile, a test name, or a zero exit code alone cannot prove behavioral acceptance. Tests that were not run stay `not-run`; do not fabricate results or auto-generate tests to pass them off as execution.
 4. Following [record-handoff](../record-handoff/SKILL.md), link the actual files, the checks and their baselines, preserved content, conflicts, and remaining inputs.
-
-Record: the handoff links from action 4.
 
 ## Guardrails
 
@@ -103,18 +93,13 @@ Record: the handoff links from action 4.
 
 ## Done when
 
-Report the generation result for a scope only when:
-
-- the authorized files are fully written;
-- the diff and sources have been checked;
-- the required native checks have actual evidence;
-- the remaining gaps are clear.
+Report the generation result for a scope only when the authorized files are fully written, the diff and sources have been checked, the required native checks have actual evidence, and the remaining gaps are clear.
 
 Report blocked or partial generation, documentation derivation, source generation, actual runs, and acceptance success separately. **Skipping conflicts does not mean generation is complete.** Never cover a missing source, a path conflict, or insufficient execution prerequisites with "done".
 
 ## Stop conditions
 
-- Stop generation and record `blocked` when a creation input or permission is missing (Preflight gate 3).
+- Stop and record `blocked` when a creation input or permission is missing (Preflight gate 3).
 - Stop the write to a path whose directory does not match, that is out of scope or unreadable, or that is a conflicting non-empty target (Preflight gate 5).
 - Stop generation that depends on a tool whose outputs, side effects, or commands you cannot list (Proposed files 2).
 - Stop further actions when a tool produces out-of-scope output or a new conflict, and ask how to proceed (Writing and verification 1).

@@ -4,7 +4,7 @@ description: Analyze section amendments, scope impact, and decisions that need e
 
 # Amend Intended Use
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Existing complete Intended Use file and its version/baseline: TBD
 - Fact owner: TBD

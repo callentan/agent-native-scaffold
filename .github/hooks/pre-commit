@@ -1,4 +1,4 @@
-"""Python entry point; install explicitly, never copy this into Git by hand."""
+"""Python entry point; install explicitly, and never copy this file into Git by hand."""
 import sys
 from pathlib import Path
 

@@ -44,7 +44,7 @@ First separate existing content, confirmed inputs, and open items. Humans can fo
 - Keep owner markers, rule locations, and unrelated changes. Do not overwrite the whole repository or move code.
 - Never fabricate information to make something look "done".
 - Onboarding itself does not initialize code, install dependencies, or choose a tech stack.
-- Move on to implementation separately, and only after the user has chosen the project, tech stack, and location, has granted authorization, and the [actual development inputs](../../../docs/development.md#creation-inputs) are complete.
+- Move on to implementation separately, and only after the user has chosen the project, tech stack, and location; granted authorization; and the [actual development inputs](../../../docs/development.md#creation-inputs) are complete.
 
 ## Outputs
 
@@ -68,6 +68,6 @@ This does not mean the development environment is configured or business accepta
 
 ## Stop conditions
 
-- Stop the affected writes when materials are unreadable, behavioral facts conflict, a merge conflicts, or authorization is insufficient.
+- Stop the affected writes when materials are unreadable, behavioral facts conflict, a merge has conflicts, or authorization is insufficient.
 - Then: keep the current state, and list the specific paths, the problems, and who must confirm what.
 - A missing tech stack blocks only the coding work that needs it, not documentation maintenance whose inputs are complete.

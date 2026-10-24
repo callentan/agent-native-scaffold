@@ -9,7 +9,7 @@ targets: []
 ---
 # ABB-NNN: TBD
 
-> Optional design form; there is no confirmed architecture yet. Read the [architecture guide](../../architecture/README.md#building-blocks) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `architecture/ABB-NNN-<slug>.md` as needed. Once the project/context is clear, replace placeholder IDs and anchors, delete this notice, and check the relative links.
+> Optional design form; no architecture is confirmed yet. Read the [architecture guide](../../architecture/README.md#building-blocks) and [metadata conventions](../../domain-model/README.md#artifact-metadata), then copy to `architecture/ABB-NNN-<slug>.md` as needed. Once project and context are clear, replace placeholder IDs and anchors, check relative links, and delete this notice.
 
 <a id="basis"></a>
 ## Basis and scope
@@ -21,7 +21,7 @@ targets: []
 | Design scope and non-goals | TBD |
 | Record date and proposer | TBD; content state and confirmation statements belong in the frontmatter |
 
-`upstream` is the only place to declare sources; the body navigation explains the sources and does not maintain a separate relationship table. An existing US can explain the slice, but it is not a mandatory prerequisite for an ABB. While a QAS is still draft, an ADR is undecided, or versions are unknown, the related design is only a candidate; do not use the form to complete technology selection.
+`upstream` is the only place to declare sources; the body navigation does not maintain a separate relationship table. An existing US can explain the slice but is not a mandatory prerequisite for an ABB. While a QAS is draft, an ADR undecided, or versions unknown, the design is only a candidate; do not use the form to complete technology selection.
 
 <a id="structure"></a>
 ## Structure, responsibilities, and collaboration
@@ -44,7 +44,7 @@ Contexts are not required to map to services, repositories, or code layers. Reco
 |---|---|---|---|
 | TBD | TBD | TBD | TBD |
 
-Adopt an asynchronous boundary only when a source provides an event consumption/asynchronous integration contract; a conceptual exchange is not a service call. While dependency products and versions are not selected, keep the missing items; do not add a default SDK, broker, or delivery guarantee. Check the legitimate composition entry point and the domain dependency direction separately against the [architecture rules](../../.github/instructions/architecture.instructions.md).
+Adopt an asynchronous boundary only when a source provides an event or asynchronous integration contract; a conceptual exchange is not a service call. While products and versions are unselected, keep the missing items; do not add a default SDK, broker, or delivery guarantee. Check the composition entry point's legitimacy and the domain dependency direction separately against the [architecture rules](../../.github/instructions/architecture.instructions.md).
 
 <a id="runtime"></a>
 ## Runtime, deployment, and quality constraints (when applicable)
@@ -59,13 +59,13 @@ Adopt an asynchronous boundary only when a source provides an event consumption/
 <a id="verification-needs"></a>
 ## Design constraints and verification needs
 
-Copy the block below once for each constraint that needs separate verification; link existing constraints directly. A design check is not automatically equivalent to business or software behavior acceptance.
+Copy the block below once per constraint needing separate verification; link existing constraints directly. A design check is not automatically business or software behavior acceptance.
 
 <a id="abb-nnn-vc-01"></a>
 ### ABB-NNN-VC-01: TBD
 
 - Sourced design constraint and its scope of application: TBD.
-- Refinement basis and navigation to the original text: TBD; relationships and this artifact's content statements still belong in the frontmatter.
+- Refinement basis and original-text navigation: TBD.
 - Observable pass criterion: TBD.
 - Required design/component/integration checks and their preconditions: TBD; do not presume tests already exist.
 
@@ -78,4 +78,4 @@ The VT maintains the target reference to this constraint; verification results a
 |---|---|---|
 | TBD | TBD | To be confirmed |
 
-Write an ADR only when a long-term decision needs to be kept. After related rules or requirements change, re-review the design boundaries and verification needs; old results remain bound to their original baselines.
+Write an ADR only when a long-term decision must be kept. After related rules or requirements change, re-review design boundaries and verification needs; old results stay bound to their original baselines.

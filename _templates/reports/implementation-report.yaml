@@ -24,6 +24,6 @@ entries:
     applicability:
       state: unverified
       reason: "No independent applicability review record matching the run, target, and baseline exists yet."
-# scope, the complete acceptance inventory, BC/domain sources, code/test locations, and evidence must all be traced back to their sources.
+# The scope, complete acceptance inventory, BC/domain sources, code/test locations, and evidence must all trace back to their sources.
 # Real targets without evidence must still be kept; do not copy only the single entry above or targets that already succeeded.
-# The report has no root execution/views; the nine views belong to the model, and actual results belong to the original VT/report.
+# The report has no root-level execution or views; the nine views belong to the model, and actual results belong to the original VT or report.

@@ -72,7 +72,7 @@ def domain_files(source_root: Path, relative: str, baseline: str, read) -> tuple
     """The collector's fixed root/path comparison, shared with explicit setup.
 
     The caller owns acquisition/protection and supplies read(path, source_root).
-    SHA256 identifies one raw file; a commit identifies one file or the exact
+    The SHA256 baseline identifies one raw file; a commit identifies one file or the exact
     directory file set, excluding only its .git metadata.
     """
     path = source_root / relative

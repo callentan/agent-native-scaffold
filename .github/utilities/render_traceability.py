@@ -1,4 +1,4 @@
-"""Source-verified deterministic local graph exports. No renderer installs or execution."""
+"""Source-verified deterministic local graph exports. No renderer installation or execution."""
 
 from __future__ import annotations
 

@@ -10,7 +10,7 @@ from check_traceability import section_lines
 
 
 def owned_runs(source: Artifact) -> tuple[str, ...]:
-    """Only child runs inside the source-owned H2; closing H2/H1 cannot qualify."""
+    """Only child runs inside the source-owned H2 qualify; a closing H2 or H1 cannot."""
     start = next((a.location.line for a in source.anchors if a.name == "runs"), None)
     if start is None:
         return ()
@@ -44,7 +44,7 @@ def owned_runs(source: Artifact) -> tuple[str, ...]:
 
 def result_rows(source: Artifact, anchor: str,
                 lines: tuple[tuple[int, str], ...] | None = None) -> tuple[dict, list[str]]:
-    """Keep each real four-column observation/reason/line, not only its status."""
+    """Keep each real four-column observation, reason, and line, not only the status."""
     lines = section_lines(source, anchor) if lines is None else lines
     expected = {target.criterion_anchor for target in source.targets}
     results, gaps = {}, []

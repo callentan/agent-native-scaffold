@@ -9,7 +9,7 @@ targets: []
 ---
 # CAP-NNN: TBD business capability
 
-> Optional blank form; not a list of technical components. First read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and the [metadata conventions](../../domain-model/README.md#artifact-metadata). Copy it to `domain-model/CAP-NNN-<slug>.md` only when needed; confirm and replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links for the actual location, keep any existing content, and then delete this hint.
+> Optional blank form; not a list of technical components. Read the [domain artifact guide](../../domain-model/README.md#strategic-forms) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/CAP-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links for the actual location, keep any existing content, then delete this hint.
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries
@@ -39,11 +39,11 @@ Upstream relationships belong in the frontmatter; the body explains why the capa
 |---|---|---|
 | TBD | TBD | TBD |
 
-A UC's frontmatter maintains the CAPs it references; this table is reading navigation only and does not maintain a second set of reverse relationships or a list of use case statuses.
+A UC's frontmatter maintains the CAPs it references; this table is navigation only and keeps no duplicate reverse relationships or use case status list.
 
 <a id="questions"></a>
 ## Gaps and changes
 
 - Parts of the capability boundary, actors, or rules that are not yet clear: TBD.
 - Who needs to supply which sources; link BLs where needed: TBD.
-- Old and new baselines and business impact: TBD; the technical implementation is still decided by later explicit tasks.
+- Old and new baselines and business impact: TBD; later explicit tasks still decide the technical implementation.

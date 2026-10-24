@@ -4,7 +4,7 @@ description: Check the change scope, acceptance targets, and existing evidence r
 
 # Review a change
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Task and full delivery acceptance scope: TBD
 - Modified paths: TBD

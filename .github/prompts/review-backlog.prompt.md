@@ -4,7 +4,7 @@ description: Check open questions, the decision basis of BLs, and residual impac
 
 # Review open questions
 
-Fill in before running. Leave `TBD` where a value is unknown; the method's stop conditions decide what a missing input blocks.
+Fill in these fields before running. Leave `TBD` for unknown values; the method's stop conditions decide what a missing input blocks.
 
 - Actual question/BL paths: TBD
 - Original question baseline: TBD

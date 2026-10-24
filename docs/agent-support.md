@@ -1,13 +1,13 @@
 # Agent integration and verification records
 
-**GitHub Copilot App has limited real-session observations; per-item results are in [template entry-point observations](#template-observations).** Providing a file does not mean the client has loaded it, and a result for a single role or skill cannot represent all entry points. File checks, ordinary sub-agent results, and the behavior of other clients cannot replace actual testing in the App either.
+**GitHub Copilot App has limited real-session observations; per-item results are in [template entry-point observations](#template-observations).** Providing a file does not mean the client loaded it, and one role's or skill's result cannot represent all entry points. File checks, ordinary sub-agent results, and other clients cannot replace actual App testing.
 
 <a id="reading"></a>
 ## Common file-reading path
 
-People choose a method from the [README activity navigation](../README.md#activities); an Agent that can read repository files first explicitly reads [AGENTS.md](../AGENTS.md), then the complete `SKILL.md` for the activity, the applicable rules, and the actual artifacts. Links are for navigation; they are not include syntax and do not guarantee that the client goes on to load the link targets.
+People choose a method from the [README activity navigation](../README.md#activities); an Agent that can read repository files first explicitly reads [AGENTS.md](../AGENTS.md), then the complete `SKILL.md` for the activity, the applicable rules, and the actual artifacts. Links are for navigation, not include syntax, and do not guarantee that the client loads their targets.
 
-Ordinary file reading also works when there is no native discovery or prompt support; it requires no personal/global skills, access to a reference repository, or hidden chat. You can start in natural language, with the user filling in the actual inputs:
+Ordinary file reading also works without native discovery or prompt support; it needs no personal or global skills, reference repository, or hidden chat. Start in natural language, filling in the actual inputs:
 
 ```text
 First explicitly read AGENTS.md in the repository root.
@@ -17,7 +17,7 @@ read it completely before acting, and read the instructions that apply to docume
 State which files were actually read, the missing inputs, and the evidence limitations; do not treat links as loaded.
 ```
 
-This is only an operational entry point for explicit reading, not a tested result. People can apply the current nine shared methods directly; the optional prompts do not require a universal slash syntax, and no core method depends on prompt loading.
+This is an operational entry point for explicit reading, not a tested result. People can apply the nine shared methods directly; optional prompts need no universal slash syntax, and no core method depends on prompt loading.
 
 <a id="entry-points"></a>
 ## Thin entry points provided
@@ -35,11 +35,11 @@ This is only an operational entry point for explicit reading, not a tested resul
 | BC activity prompts | [derive-requirements](../.github/prompts/derive-requirements.prompt.md), [design-architecture](../.github/prompts/design-architecture.prompt.md), [plan-verification](../.github/prompts/plan-verification.prompt.md), [generate-code](../.github/prompts/generate-code.prompt.md), [sequence-diagram](../.github/prompts/sequence-diagram.prompt.md), [build-architecture-spec](../.github/prompts/build-architecture-spec.prompt.md); they provide only the current inputs and the actual method links |
 | Update-proposal prompt | [update-template](../.github/prompts/update-template.prompt.md) provides only the inputs for this run's three-way sources, explicit targets, and scope; it does not approve applying or propagating |
 
-In total there are currently nine methods, twenty-two prompts, and three modes. The template-update method and its thin entry points reuse the same read-only Python core; the existing eight methods are kept, and no role is added and no permission granted. Native discovery, App prompt invocation, and manual use of the new methods/subsections/rules have not been verified; limited use through explicit file reading cannot be recorded retroactively as results for these clients.
+There are currently nine methods, twenty-two prompts, and three modes. The template-update method and its thin entry points reuse the same read-only Python core; the existing eight methods are kept, and no role is added and no permission is granted. Native discovery, App prompt invocation, and manual use of the new methods, subsections, and rules are not verified; explicit-reading use cannot be retroactively recorded as results for these clients.
 
-The test-rule patterns are not a universal set of naming conventions and do not prescribe a test layout. Real projects should extend the patterns to their actual paths; when modifying any test, read that rule explicitly even if no automatic match occurs.
+Test-rule patterns are not a universal naming convention and do not prescribe a test layout; real projects should extend them to their actual paths. When modifying any test, read that rule explicitly even without an automatic match.
 
-The coding rules initially cover directories such as `src/app/apps/lib/packages/services`, and the architecture rules also cover `architecture` documents; these are not all code locations. When modifying code elsewhere, likewise explicitly read the architecture/coding/security rules and the applicable test rules in full; do not change the layout to make it match, and do not infer automatic activation or real ACLs from configuration text.
+Coding rules initially cover directories such as `src/app/apps/lib/packages/services`, and architecture rules also cover `architecture` documents; these patterns do not cover every code location. When modifying code elsewhere, explicitly read the architecture, coding, and security rules and the applicable test rules in full; do not change the layout to match, and do not infer automatic activation or real ACLs from configuration text.
 
 <a id="evidence-types"></a>
 ## Record four kinds of basis separately
@@ -54,21 +54,21 @@ The coding rules initially cover directories such as `src/app/apps/lib/packages/
 <a id="official-sources"></a>
 ## Registered official sources
 
-The following sources were checked on **2026-10-14**. All of them are "Official documentation only" and are not client tests in this repository. Recheck the applicable scope after the clients change.
+The following sources were checked on **2026-10-14**. All are "Official documentation only" and are not client tests in this repository; recheck the applicable scope when the clients change.
 
 | Official material | Confirmed documentation content and boundaries |
 |---|---|
-| [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) | `description` is required and `name` is optional; omitting `model` inherits the user's setting. None of this repository's three roles pins a model. The documentation lists aliases such as `read`, `search`, and `execute`; unknown tool names are ignored, so fictitious names cannot be used to claim that permissions are restricted |
-| [Add skills](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills) | Repository skills use `.github/skills/<lowercase-name>/SKILL.md` containing `name` and `description`. The file format is not execution authorization |
-| [Repository custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions) | `applyTo` in path rules supports comma-separated globs; the specific client discovery/matching behavior must still be tested in practice |
-| [Customize GitHub Copilot App](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app) | The App documentation says repository/CLI skills are available and describes the custom agent picker; this is not a conclusion observed for this project in the App |
-| [Customization cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet) | The matrix lists prompt files as unsupported on GitHub.com and in the CLI; loading cannot be inferred from prompt files existing in the repository |
-| [VS Code prompt files](https://code.visualstudio.com/docs/agent-customization/prompt-files) | `description` is optional, and relative Markdown links can be used; the current documentation says Agent Host sessions do not load prompt files, while the Local agent still supports them. Do not claim across the board that all IDE modes work |
+| [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) | `description` is required and `name` optional; omitting `model` inherits the user's setting, and none of this repository's three roles pins a model. Aliases such as `read`, `search`, and `execute` are listed; unknown tool names are ignored, so fictitious names cannot claim restricted permissions |
+| [Add skills](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills) | Repository skills are `.github/skills/<lowercase-name>/SKILL.md` with `name` and `description`; the file format is not execution authorization |
+| [Repository custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions) | `applyTo` supports comma-separated globs; client discovery and matching must still be tested in practice |
+| [Customize GitHub Copilot App](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app) | App docs say repository and CLI skills are available and describe the custom agent picker; not observed for this project in the App |
+| [Customization cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet) | The matrix lists prompt files as unsupported on GitHub.com and in the CLI; prompt files in the repository do not imply loading |
+| [VS Code prompt files](https://code.visualstudio.com/docs/agent-customization/prompt-files) | `description` is optional and relative Markdown links can be used; per current docs, Agent Host sessions do not load prompt files while the Local agent still supports them. Do not claim all IDE modes work |
 
 <a id="client-records"></a>
 ## Registration by client
 
-Copy the registration set below separately for each client, version, and environment. Record only one specific entry point and one mode each time; keep native discovery and explicit reading separate, and do not let the result for a single skill/agent/prompt represent all files of the same type.
+Copy the registration set below separately for each client, version, and environment. Record one entry point and one mode at a time; keep native discovery and explicit reading separate, and do not let one skill, agent, or prompt result represent all files of its type.
 
 | Context of this set | Actual value |
 |---|---|
@@ -78,7 +78,7 @@ Copy the registration set below separately for each client, version, and environ
 | Date, recorder, and observation identifier | TBD |
 | Object baseline | TBD: branch, commit, uncommitted scope, and versions of the files used |
 
-The table below is a placeholder for projects adopting the template to fill in; it is not a copy of the template-making observations further below. When testing, copy the relevant row and fill in the specific files, inputs, observable behavior, and accessible raw records; untested entry points remain Unverified.
+The table below is a placeholder for projects adopting the template; it does not copy the template-making observations below. When testing, copy the relevant row and fill in the specific files, inputs, observable behavior, and accessible raw records; untested entry points remain Unverified.
 
 | Entry point/scenario | Mode (native discovery or explicit reading) | Actual input | Files actually discovered | Files actually read | Result and raw-record entry point | Corrections and items to retest |
 |---|---|---|---|---|---|---|
@@ -90,14 +90,14 @@ The table below is a placeholder for projects adopting the template to fill in; 
 | A single shared skill | To be tested separately | TBD: task trigger or explicit read request | Not observed | Not observed | Unverified | TBD |
 | A single optional prompt | To be tested separately | TBD: file and client run mode | Not observed | Not observed | Unverified | TBD |
 
-Record discovery and reading separately; do not substitute "the Agent says it has read the file" or one completed task for observable evidence. Results state the scope of success, the failure symptoms, or the reason for not running; after a correction, keep the original record and record the retest baseline. When official material and observations disagree, keep the difference and distinguish discovery failure, explicit non-support in the documentation, and untested, instead of merging them into a single "supported" mark.
+Record discovery and reading separately; "the Agent says it read the file" or one completed task is not observable evidence. Results state the scope of success, the failure symptoms, or the reason for not running; after a correction, keep the original record and record the retest baseline. When official material and observations disagree, keep the difference and distinguish discovery failure, explicit non-support in the documentation, and untested, rather than merging them into one "supported" mark.
 
 <a id="template-observations"></a>
 ## Template entry-point observations (2026-10-14)
 
-This section is a historical observation against the baseline of the original six methods and five prompts; new files or method revisions do not extend it into a claim that the current nine methods and twenty-two prompts have been verified in the App.
+This is a historical observation against the baseline of the original six methods and five prompts; new files or method revisions do not extend it to claim that the current nine methods and twenty-two prompts were verified in the App.
 
-The following are limited tests in four real App sessions during template making; they do not mean that a new project has completed onboarding. The object was an independent local Git copy of the P2 content and its documentation-exercise checkpoint, with no remote and no application. The App created isolated worktrees and used the default work mode and, via the API, selected reviewer, planner, and implementer respectively, without substituting an ordinary task sub-agent for the client. The GUI agent picker was not observed, and the whole shared App was not restarted.
+These are limited tests in four real App sessions during template making; they do not mean a new project completed onboarding. The object was an independent local Git copy of the P2 content and its documentation-exercise checkpoint, with no remote and no application. The App created isolated worktrees in the default work mode and, via the API, selected reviewer, planner, and implementer respectively; no ordinary task sub-agent was substituted for the client. The GUI agent picker was not observed, and the whole shared App was not restarted.
 
 | Environment and baseline | Actual observation |
 |---|---|
@@ -108,28 +108,24 @@ The following are limited tests in four real App sessions during template making
 
 | Entry point | Observed behavior | Behavior not yet proven |
 |---|---|---|
-| Three custom work modes | The App API selected reviewer/planner/implementer respectively, and the native selected-agent events matched the repository names; the first two were read-only, and the last wrote only the authorized handoff record | The GUI picker, behavior under arbitrary tasks, and enforced tool boundaries |
-| Six project skills | The startup list had six entries, and all six showed native invocations with `source=project` and successful tool completions; the paths were in each worktree's `.github\skills`, and the complete content was delivered and used for onboarding, planning, or checking/handoff | All natural triggering situations, other models/configurations or clients; general reliability is not inferred from this limited use |
-| AGENTS and repository instructions | The startup content matched the files; both files were then actually read explicitly, and work followed the activity navigation | Isolated proof of each one's automatic loading mechanism; recursive inclusion of links |
+| Three custom work modes | The App API selected reviewer/planner/implementer respectively; native selected-agent events matched the repository names; the first two were read-only, and the last wrote only the authorized handoff record | The GUI picker, behavior under arbitrary tasks, and enforced tool boundaries |
+| Six project skills | The startup list had six entries; all six showed native invocations with `source=project` and successful tool completions; paths were in each worktree's `.github\skills`; complete content was delivered and used for onboarding, planning, or checking/handoff | All natural triggering situations, other models/configurations or clients; general reliability is not inferred from this limited use |
+| AGENTS and repository instructions | The startup content matched the files; both were then explicitly read, and work followed the activity navigation | Isolated proof of each one's automatic loading mechanism; recursive inclusion of links |
 | Two path instructions | The startup manifest had the files and their `applyTo` scopes, and the content was actually read | Automatic activation for matching and non-matching paths |
 | Five optional prompts | Actually read as files; the flow does not depend on shortcut entry points | Native App prompt invocation; neither support nor non-support can be claimed from this |
 | Real onboarding without prompts | Natural-language tasks, combined with native method loading/explicit file reading, filled in a fixed project name and scope and left real logs and a local checkpoint; the tech stack and commands remained not configured | Cannot be used to claim that GUI shortcut entry points were tested or that a business application can run |
-| New-session Git takeover | A new implementer took over from the source checkpoint relying only on the repository, logs, and actual Git, identified the exact coverage gap, stale boundaries, the historical B1 source, and not-run items, and modified only logs/indexes | Did not implement the whole quota-specification correction; a successful handoff is not taken as current documentation consistency or a behavior pass |
+| New-session Git takeover | A new implementer took over from the source checkpoint using only the repository, logs, and actual Git; identified the exact coverage gap, stale boundaries, the historical B1 source, and not-run items; modified only logs and indexes | Did not implement the whole quota-specification correction; a successful handoff is not taken as current documentation consistency or a behavior pass |
 
-The native selected-agent events for all three roles recorded `tools: ["*"]`, consistent with the files configuring no allowlist. reviewer/planner actually followed the read-only agreement of this run; tool permissions were not restricted, and this does not prove additional App/OS security controls. No dangerous operations were used to probe for blocking.
+The native selected-agent events for all three roles recorded `tools: ["*"]`, consistent with the files configuring no allowlist. reviewer and planner followed the read-only agreement of this run; tool permissions were not restricted, and this does not prove additional App/OS security controls. No dangerous operations were used to probe for blocking.
 
-The raw sessions and tool events were saved on the local machine by the template-making sessions and are not distributed with the candidate; distributed copies cannot treat this summary as a raw report they can access themselves. Users should fill in the project registration above again under their own client, version, and permission configuration, and cannot inherit conclusions for untested entry points.
+Raw sessions and tool events were saved locally by the template-making sessions and are not distributed with the candidate; recipients cannot treat this summary as a raw report they can access. Users should fill in the registration above again under their own client, version, and permission configuration, and cannot inherit conclusions for untested entry points.
 
 <a id="boundaries"></a>
 ## Permission and runtime boundaries
 
-Copying Markdown or explicitly reading AGENTS does not enable a sandbox, approvals, branch protection, or tool restrictions; these capabilities must be configured and verified by the client, the operating system, and the hosting platform. This repository has no preset business application or application-language CI; the [development guide](development.md) is authoritative for command status.
+Copying Markdown or explicitly reading AGENTS does not enable a sandbox, approvals, branch protection, or tool restrictions; the client, the operating system, and the hosting platform must configure and verify these. This repository has no preset business application or application-language CI; the [development guide](development.md) is authoritative for command status.
 
-The [optional hooks and documentation workflow](../.github/hooks/README.md) provide only explicit opt-in:
-the installer proposes by default and does not change real project/user/global configuration; the installed pre-commit checks the actual index,
-and commit-msg checks only the text format of declared managed paths, without authenticating manual review. Maker-side tests and downstream documentation
-validation are separate, and platform runs/required checks stay not-run until actually tested. They do not expand any Agent's permissions,
-and a single local fixture commit cannot be recorded retroactively as all clients or hosting platforms having passed.
+The [optional hooks and documentation workflow](../.github/hooks/README.md) are explicit opt-in only: the installer proposes by default and changes no real project, user, or global configuration; the installed pre-commit checks the actual index, and commit-msg checks only the text format of declared managed paths, without authenticating manual review. Maker-side tests and downstream documentation validation are separate; platform runs and required checks stay not-run until actually tested. Neither expands any Agent's permissions, and a single local fixture commit cannot be recorded retroactively as all clients or hosting platforms having passed.
 
 The three roles are working perspectives, not independent human approvers or automatic team orchestration. reviewer declares no `tools` restriction, so its read-only requirement is only a conversational agreement; in the entry-point observations the actual tool selection was `["*"]`, **so the role does not establish an enforced read-only boundary and does not prove that host security controls are effective**. If tool aliases are configured later, verify them according to the official format and with a real client; file rules cannot replace permission configuration.
 

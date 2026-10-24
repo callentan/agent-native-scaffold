@@ -7,7 +7,7 @@ contentState: draft
 ---
 # IU-NNN: TBD scope of use
 
-> Optional Intended Use material; it presets no product or clinical claims. Read the [use and risk boundaries](../../docs/governance.md#intended-use) first. Copy it to `domain-model/IU-NNN-<slug>.md` as needed, replace the placeholders and relative links, and then delete this notice. Revising an existing Intended Use still requires the original text/baseline; a new form cannot replace an unreadable current document. Formal identity, status, and real upstream relationships belong only in the frontmatter.
+> Optional Intended Use material; it presets no product or clinical claims. Read the [use and risk boundaries](../../docs/governance.md#intended-use) first. Copy to `domain-model/IU-NNN-<slug>.md` as needed, replace placeholders and relative links, then delete this notice. Revising an existing Intended Use still requires its original text/baseline; a new form cannot replace an unreadable current document. Formal identity, status, and real upstream relationships belong only in the frontmatter.
 
 <a id="basis"></a>
 ## Source and responsibility
@@ -52,7 +52,7 @@ Cite patient, clinical, safety, or regulatory requirements only when an actual s
 | Accepted/rejected scope and limitations | Not provided: do not confirm new uses or downstream commitments |
 | Escalation conditions and actual responsibility entry point | Not provided: unknown policies must be determined by the accountable owner; do not classify automatically |
 
-This record's confirmation statement stays in the frontmatter per the existing contract; it does not replace the original Intended Use decision. When the responsibility policy, environment, or constraints are unknown, keep `draft` and the stop point for the affected confirmation.
+The confirmation statement stays in the frontmatter per the existing contract and does not replace the original Intended Use decision. When the responsibility policy, environment, or constraints are unknown, keep `draft` and record a stop point for the affected confirmation.
 
 <a id="impact"></a>
 ## Impact, questions, and follow-up
@@ -61,4 +61,4 @@ This record's confirmation statement stays in the frontmatter per the existing c
 |---|---|---|
 | TBD: entry points to the actual context, REQ/QAS/SR, design/interface, risk, or verification | TBD; list only related objects; do not invent a downstream chain | TBD; if not run, do not write passed |
 
-Keep the current Intended Use and the old evidence baselines; candidate changes go to the actual accountable owner for a decision first. Risk analysis and acceptance are the responsibility of their original owners; when no applicable responsibility rule exists, stop the affected confirmation, while the known parts and explicit questions may still be kept.
+Keep the current Intended Use and old evidence baselines; candidate changes go to the actual accountable owner for a decision first. Risk analysis and acceptance belong to their original owners; when no applicable responsibility rule exists, stop the affected confirmation, while known parts and explicit questions may still be kept.

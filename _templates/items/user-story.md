@@ -9,7 +9,7 @@ targets: []
 ---
 # US-NNN: TBD
 
-> Optional delivery form; not a second copy of the requirements. Read the [delivery guide](../../user-stories/README.md) and the [metadata conventions](../../domain-model/README.md#artifact-metadata) first, then copy it to `user-stories/US-NNN-<slug>.md` as needed. When an existing maintenance request or issue is sufficient, no US is needed. Once the project/context is clear, replace all placeholders, delete this notice, and check the relative links.
+> Optional delivery form; not a second copy of the requirements. Read the [delivery guide](../../user-stories/README.md) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first; copy to `user-stories/US-NNN-<slug>.md` as needed. No US is needed when an existing maintenance request or issue suffices. Once the project/context is clear, replace all placeholders, check links, then delete this notice.
 
 <a id="task"></a>
 ## Task and scope
@@ -26,7 +26,7 @@ targets: []
 | Dependencies, prerequisite inputs, and owners | TBD |
 | Source of completion conditions | TBD: cite the original acceptance or task agreement |
 
-`upstream` declares the actual sources, and `contentState` and confirmation records belong in the frontmatter; the table above does not store these fields again. A formal delivery slice based on an SR must verify the confirmation basis of the SR and any applicable UC/INV; the word Approved alone or a draft source is not enough to establish an implementable commitment. An existing standalone maintenance request is not forced into a US because of this.
+`upstream` declares the actual sources; `contentState` and confirmation records belong in the frontmatter, and the table above does not repeat these fields. A formal delivery slice based on an SR must verify the confirmation basis of the SR and any applicable UC/INV; the word Approved alone, or a draft source, does not establish an implementable commitment. An existing standalone maintenance request is not forced into a US.
 
 <a id="checklist"></a>
 ## Implementation checklist
@@ -34,7 +34,7 @@ targets: []
 - [ ] TBD: one concrete work item and its inputs.
 - [ ] TBD: related verification and record work.
 
-The checklist only tracks work; it does not add a new set of business/software acceptance criteria. Split by value and verifiable scope, not forcibly by fixed technical layers; task progress can change to `in-progress`, `blocked`, `review-ready`, or `done`, and each change leaves its actual basis. When upstream changes, first re-review the slice and its verification impact; do not automatically roll back content statements or overwrite old results.
+The checklist only tracks work and adds no business or software acceptance criteria. Split work by value and verifiable scope, not fixed technical layers; task progress can change to `in-progress`, `blocked`, `review-ready`, or `done`, and each change leaves its actual basis. When upstream changes, first re-review the slice and its verification impact; do not automatically roll back content statements or overwrite old results.
 
 <a id="records"></a>
 ## Record entry points
