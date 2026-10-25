@@ -22,9 +22,9 @@ project/
   README.md
   AGENTS.md
   .gitignore
-  domain-model/
-    README.md
   stakeholder-requirements/
+    README.md
+  domain-model/
     README.md
   software-requirements/
     README.md
@@ -32,57 +32,42 @@ project/
     README.md
   architecture/
     README.md
-    decisions/
+    decisions/          (created with the first ADR)
   verification/
     README.md
   logs/
     README.md
   docs/
     development.md
-    agent-support.md
+    ai-tooling.md
+    governance.md
+    distribution.md
+    distribution-manifest.json
+    domain-sources.md
+    source-extraction.md
+    document-exports.md
+    template-updates.md
+    project-flow.md
   _templates/
-    items/
-      stakeholder-requirement.md
-      software-requirement.md
-      user-story.md
-      architecture-building-block.md
-      verification-test.md
-      architecture-decision.md
-      development-log.md
+    items/              (blank forms)
+    config/             (optional configuration templates)
+    reports/            (report templates)
   src/
     README.md
   .github/
     copilot-instructions.md
-    instructions/
-      docs.instructions.md
-      tests.instructions.md
-    agents/
-      planner.agent.md
-      implementer.agent.md
-      reviewer.agent.md
-    skills/
-      project-onboarding/
-        SKILL.md
-      define-requirements/
-        SKILL.md
-      specify-feature/
-        SKILL.md
-      implement-task/
-        SKILL.md
-      verify-change/
-        SKILL.md
-      record-handoff/
-        SKILL.md
-    prompts/
-      start-project.prompt.md
-      plan-feature.prompt.md
-      implement-task.prompt.md
-      review-change.prompt.md
-      resume-work.prompt.md
+    instructions/       (rules for Markdown, tests, code, and security)
+    agents/             (planner, implementer, reviewer)
+    skills/             (method SKILL.md files)
+    prompts/            (optional prompt files)
+    contracts/          (JSON schemas and their guide)
+    utilities/          (optional Python maintenance tools)
+    hooks/              (optional git hooks)
+    workflows/          (validate-artifacts.yml)
     pull_request_template.md
 ```
 
-This is the first-release distribution manifest as produced: 38 files in total. P1 (21 files) is README, AGENTS, `.gitignore`, the project-material guides, the seven forms, the two `docs` guides, `src/README.md`, and the PR form; P2 adds the remaining 17 `.github` capability files and connects them to the P1 entry points. A file's existence means neither native client discovery nor release authorization.
+This tree is an overview of the shipped layout, not an exhaustive list; the authoritative file list is `docs/distribution-manifest.json`. The first-release count of 38 files is historical (see section 8). A file's existence means neither native client discovery nor release authorization.
 
 `architecture/decisions/` is the agreed ADR location, created together with the first ADR; do not add a fake decision to keep an empty directory. Project-material directories initially contain only filling guidance; REQ/SR/US artifacts are not pre-generated.
 

@@ -1516,8 +1516,8 @@ class DistributionTests(unittest.TestCase):
             for entry in self.manifest()["files"]
         }
         reported_hashes = {item["path"]: item["candidate_sha256"] for item in verification["files"]}
-        self.assertEqual(len(expected_hashes), 132)
-        self.assertEqual(132, verification["verified_count"])
+        self.assertEqual(len(expected_hashes), 133)
+        self.assertEqual(133, verification["verified_count"])
         self.assertEqual(expected_hashes, reported_hashes)
         self.assertEqual(before, source_bytes(candidate))
 
