@@ -7,6 +7,20 @@ description: Use when pausing or finishing a task, handing work to another sessi
 
 Leave a record that lets whoever takes over determine the current state and the next step without relying on old chats. The log only summarizes changes and links to authoritative records; it does not keep another copy of acceptance results.
 
+## Checklist
+
+A reminder of the steps below, not a replacement for them. Tick each item before closing the log.
+
+- [ ] Read [AGENTS](../../../AGENTS.md), this method, and the [log guide](../../../logs/README.md#recording) in full.
+- [ ] Git state is rechecked now (branch, commit, staged, new versus pre-existing uncommitted), not prefilled as clean.
+- [ ] Changes list real paths and artifact IDs, each with its basis.
+- [ ] Result entry points link existing records with baselines; otherwise write `not-run` or `inaccessible`.
+- [ ] No old result is presented as current, and no result table is copied.
+- [ ] Gaps use full owner-qualified IDs; impact is checked with [verify-change](../verify-change/SKILL.md).
+- [ ] Blockers say who must supply what; machine-local reports are labeled as such.
+- [ ] No credentials, personal absolute paths, or full chats are stored.
+- [ ] Resuming: sources, Git, and evidence baselines are rechecked before acting on the old log.
+
 ## Inputs
 
 - Required:

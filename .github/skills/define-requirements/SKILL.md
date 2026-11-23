@@ -21,6 +21,20 @@ Each activity is a focused entry point. Run only the activity this session needs
 
 Before any activity, collect the Inputs and confirm the session mode. Outputs and Stop conditions apply to every activity.
 
+## Checklist
+
+A reminder of the sections below, not a replacement for them. Tick each item before reporting.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full; the chosen activity is named.
+- [ ] The session mode (analysis, drafting, or authorized revision) is stated; without write authorization, return only findings and questions.
+- [ ] Business modeling applies; for purely technical or documentation work, say so and stop.
+- [ ] Each fact has a location, version or date, owner, and confirmation basis; confirmed facts and proposals are kept apart.
+- [ ] Business confirmation comes from an actual respondent, never from roles, deadlines, code, or document status.
+- [ ] Rule text lives in one place; changing an existing rule goes through [impact](../verify-change/SKILL.md#impact) first.
+- [ ] Every REQ acceptance criterion has a full owner-qualified ID and a stable anchor; missing metrics and policies stay questions.
+- [ ] Business acceptance is handed to [specify-feature](../specify-feature/SKILL.md), not replaced by software checks.
+- [ ] Documentation rules read for any Markdown change.
+
 ## Inputs
 
 Collect for every activity:

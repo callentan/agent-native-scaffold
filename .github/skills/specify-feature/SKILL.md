@@ -24,6 +24,20 @@ The activities are not an automatic role pipeline and do not form a mandatory ch
 - ABB and VT can each proceed independently once their own necessary inputs are complete.
 - Small maintenance may reuse the task's completion conditions without building a full artifact chain.
 
+## Checklist
+
+A reminder of the sections below, not a replacement for them. Tick each item before reporting.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full; the chosen activities are named.
+- [ ] Source text is read first; confirmed facts, candidates, and unknowns are kept apart. Insufficient sources go back to [define-requirements](../define-requirements/SKILL.md).
+- [ ] The session mode (analysis, drafting, or authorized revision) is stated, and every file to write is checked for conflicts.
+- [ ] Every acceptance criterion has a full owner-qualified ID and a stable anchor.
+- [ ] Each in-scope acceptance item has a layered VT in the [plan](#plan-verification), with an independent criterion.
+- [ ] Missing policies are specific questions, not decisions made for the business.
+- [ ] Source changes go through [semantic impact](../verify-change/SKILL.md#impact) first.
+- [ ] New drafts are `draft`; no run result is prefilled.
+- [ ] Documentation rules read for any Markdown change.
+
 ## Inputs
 
 - Required:

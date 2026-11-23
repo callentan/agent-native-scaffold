@@ -7,6 +7,20 @@ description: Use when assessing acceptance coverage or domain and BC artifacts, 
 
 Use this method to check acceptance coverage, domain artifacts, open questions, semantic impact, and run evidence; record results only when authorized. **Start from the complete list of delivery acceptance criteria; never work backward from existing VTs to infer the scope.** Traceability, actual run, run success, and current applicability are separate conclusions (see [Keep conclusions separate](#conclusions)).
 
+## Checklist
+
+A reminder of the sections below, not a replacement for them. Tick each item before reporting.
+
+- [ ] Read [AGENTS](../../../AGENTS.md), this method, and the [verification guide](../../../verification/README.md) in full.
+- [ ] [Mode](#review-mode) chosen: read-only by default; run or record only with authorization.
+- [ ] The full acceptance inventory is built from the delivery scope, not from existing VTs.
+- [ ] Every actual target is traced back by full owner-qualified ID; no number is invented.
+- [ ] Traceability, actual run, run success, and current applicability are reported separately ([conclusions](#conclusions)).
+- [ ] Baselines (object, requirement, VT) are stated for every result; old results keep their original baseline.
+- [ ] Unrun work is `not-run`; inaccessible evidence is stated; nothing is approved on anyone's behalf.
+- [ ] After a rule or baseline change: [impact](#impact) is checked, not only links.
+- [ ] Tests edited or run: [test rules](../../instructions/tests.instructions.md) read.
+
 ## Inputs
 
 - General: the current task and complete delivery scope; the actual model, REQs, SRs, necessary design, and maintenance completion conditions; the Git branch, commit, and uncommitted scope; the requirement and VT baselines; all related VTs, existing runs, and raw reports; the check mode and authorization; the actual object and the [development configuration](../../../docs/development.md#project-registration), or what is missing from it.

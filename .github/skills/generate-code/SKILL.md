@@ -7,6 +7,19 @@ description: Use when initial code generation or project scaffolding is requeste
 
 This is a file-based method shared by humans and agents, not a generator program; it handles only authorized initial generation. **Write nothing to a target until it has passed every preflight check below.**
 
+## Checklist
+
+A reminder of the steps below, not a replacement for them. Tick each item in order; write nothing before the [preflight gate](#preflight) is complete.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full; confirm this is authorized initial generation, not maintenance.
+- [ ] Directory, Git branch, commit, index, and pre-existing changes are checked.
+- [ ] The user has chosen the project, stack and versions, target path, and creation authorization; the [creation inputs](../../../docs/development.md#creation-inputs) are verified, or the task is `blocked`.
+- [ ] [Architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), [security](../../instructions/security.instructions.md), and [test](../../instructions/tests.instructions.md) rules read in full.
+- [ ] Every target path is resolved and checked for conflicts; conflicting paths are stopped and listed.
+- [ ] The [proposed-files statement](#proposed-files) is shown, with every tool output and side effect listed.
+- [ ] After writing: diff checked against the statement; only registered checks run; unrun checks stay `not-run`.
+- [ ] Handoff left with [record-handoff](../record-handoff/SKILL.md); skipped conflicts are not reported as complete.
+
 ## Inputs
 
 - Required:

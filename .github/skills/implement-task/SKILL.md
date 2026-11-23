@@ -7,6 +7,20 @@ description: Use when an identified task is ready for scoped edits, or an implem
 
 Start from the actual directory, the task basis, and the acceptance criteria. **Never generate a project on your own initiative just to carry out a request.**
 
+## Checklist
+
+A reminder of the steps below, not a replacement for them. Tick each item before writing.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full.
+- [ ] Goal, scope, non-goals, completion conditions, and authorization are written down.
+- [ ] Directory, branch, commit, index, and pre-existing uncommitted changes are checked.
+- [ ] Markdown: [documentation rules](../../instructions/docs.instructions.md) read.
+- [ ] Any test: [test rules](../../instructions/tests.instructions.md) read.
+- [ ] Code: [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), and [security](../../instructions/security.instructions.md) rules read in full.
+- [ ] Affected rules, REQs, SRs, and VTs are read; the [development registration](../../../docs/development.md#project-registration) is verified for code.
+- [ ] After the change: checks run through [verify-change](../verify-change/SKILL.md), and the diff is rechecked against the scope.
+- [ ] A [handoff log](../record-handoff/SKILL.md) is left, with gaps marked `not-run`.
+
 ## Inputs
 
 - Required:

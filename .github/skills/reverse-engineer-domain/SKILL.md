@@ -7,6 +7,20 @@ description: Use when domain knowledge is implicit in existing documents, code, 
 
 Extract grounded candidate knowledge from sources you are authorized to read. Extraction is never business approval: every item stays a candidate (`observed`, `inferred`, or `uncertain`) until the actual accountable owner confirms it against an explicit baseline. A status read from an implementation or record proves only that the statement exists there. It does not prove that anything actually ran, that a rule is correct, or that an expert confirmed it.
 
+## Checklist
+
+A reminder of the sections below, not a replacement for them. Tick each item before reporting.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full.
+- [ ] Read, write, and execution authorization are checked separately; reading code does not authorize running it.
+- [ ] Every source has a kind, identity, and version or date; unknown locations are written as unknown.
+- [ ] Sources actually read and sources unreadable are both listed.
+- [ ] Every item is a candidate marked `observed`, `inferred`, or `uncertain`; none is marked confirmed.
+- [ ] Conflicts keep both sides with their versions; no value is picked to hide them.
+- [ ] Confirmation is routed to a named accountable owner, not role-played.
+- [ ] Files are saved only with authorization and an output location; sources are never modified.
+- [ ] Documentation rules read for any Markdown change; sources and impact checked with [verify-change](../verify-change/SKILL.md#domain-review).
+
 ## Inputs
 
 - Required:

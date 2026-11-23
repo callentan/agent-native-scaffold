@@ -7,6 +7,18 @@ description: Use when joining an existing repository, adopting this skeleton, or
 
 First separate existing content, confirmed inputs, and open items. Humans can follow this method directly; it needs neither an agent service nor an existing application.
 
+## Checklist
+
+A reminder of the steps below, not a replacement for them. Tick each item before closing.
+
+- [ ] Read [AGENTS](../../../AGENTS.md) and this method in full.
+- [ ] Directory, branch, commit, index, and uncommitted scope are checked; existing content is separated from proposed content.
+- [ ] Only confirmed names, stage, scope, and versions enter the [project registration](../../../README.md#project); unknowns keep their placeholders.
+- [ ] Each gap is recorded under the stage it affects (product description versus [development registration](../../../docs/development.md#project-registration)).
+- [ ] Business modeling is either routed to [define-requirements](../define-requirements/SKILL.md) or marked not applicable.
+- [ ] Unconfirmed fields are listed; nothing initializes code, installs dependencies, or picks a stack.
+- [ ] Documentation rules read for any Markdown change; handoff left with [record-handoff](../record-handoff/SKILL.md).
+
 ## Inputs
 
 - Required:
