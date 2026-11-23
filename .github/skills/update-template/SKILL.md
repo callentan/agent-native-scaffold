@@ -7,6 +7,19 @@ description: Use when a template version changes, a project has owner edits agai
 
 Read the old baseline, current owner content, and new candidate separately. **A difference is a proposal, not an applied result or an authorization to propagate.** Humans and agents share this method; it does not depend on prompts or maintainer workflows.
 
+## Checklist
+
+A reminder of the steps below, not a replacement for them. Tick each item before reporting.
+
+- [ ] Read [AGENTS](../../../AGENTS.md), this method, and the [update guide](../../../docs/template-updates.md) in full.
+- [ ] Old baseline, local project, and new candidate are three real roots with exact versions; none is substituted by HEAD, a branch, or an empty directory.
+- [ ] Local uncommitted changes, intentional deletions, and business data are identified and preserved.
+- [ ] Output goes to stdout or one new report outside all protected sources; no existing report is overwritten.
+- [ ] Each change, conflict, and preserved item is read with its digests and reason; nothing is auto-merged.
+- [ ] Multi-target runs follow source scenario → explicit BC → allowed files → per-target result; unavailable targets do not hide others.
+- [ ] No Git or platform operation runs without separate authorization for that target, version, and action.
+- [ ] Results checked with [verify-change](../verify-change/SKILL.md); handoff left with [record-handoff](../record-handoff/SKILL.md).
+
 ## Inputs
 
 - Required:
