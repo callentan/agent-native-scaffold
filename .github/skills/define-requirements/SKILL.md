@@ -40,7 +40,7 @@ A reminder of the sections below, not a replacement for them. Tick each item bef
 Collect for every activity:
 
 - The goals, users, scope, constraints, and sources the user provided, marking which are confirmed and which are only proposals.
-- The existing [product description](../../../stakeholder-requirements/README.md#product), domain model, and REQs, and the basis for this change.
+- The existing [product description](../../../stakeholder-requirements/product.md#product), [domain overview](../../../domain-model/overview.md) or domain artifacts, and REQs, and the basis for this change.
 - For each actual file or supplied excerpt: location, version or date, fact owner, and confirmation basis. Record a missing location or version as unknown; do not fabricate it.
 - The drafts or revisions wanted, and the allowed read and write scope.
 
@@ -64,21 +64,21 @@ Inputs: the shared inputs, the open questions, and an actual respondent for each
 Steps:
 
 1. Check applicability. For purely technical or documentation maintenance, state that business modeling is not applicable, work directly from the explicit task instead of these steps, and do not manufacture REQs.
-2. Fill in the corresponding sections of the [product description](../../../stakeholder-requirements/README.md#product) with the goals, users, in-scope and out-of-scope matters, and sources from the inputs.
+2. Fill in the corresponding sections of the [product description](../../../stakeholder-requirements/product.md#product) with the goals, users, in-scope and out-of-scope matters, and sources from the inputs.
 3. Confirm in rounds.
    - Ask only about gaps that would change current behavior or scope. Separate questions that block current decisions from those that can wait.
    - Each round, restate the new facts, candidate interpretations, conflicts, and questions to confirm. Record the actual respondent, the basis, and the confirmed baseline.
 4. Record terms and concepts.
-   - In [shared terms](../../../domain-model/README.md#terms), explain the business meaning and context.
-   - In [concepts and relationships](../../../domain-model/README.md#concepts), record the concepts and the meanings of their states. For each relationship, state its direction, multiplicity, and the conditions under which it holds.
+   - In [shared terms](../../../domain-model/overview.md#terms) (per the [domain guide](../../../domain-model/README.md#terms)), explain the business meaning and context.
+   - In [concepts and relationships](../../../domain-model/overview.md#concepts), record the concepts and the meanings of their states. For each relationship, state its direction, multiplicity, and the conditions under which it holds.
    - Keep unknown relationship constraints open. A bare list of nouns is not enough.
 5. Record context responsibilities and exchanges.
-   - In [context responsibilities](../../../domain-model/README.md#contexts), state what each context is and is not responsible for, the facts it owns, and the external facts it only consumes.
-   - In [directed information exchange](../../../domain-model/README.md#exchanges), state the provider → user direction, the fact owner, and known business agreements.
+   - In [context responsibilities](../../../domain-model/overview.md#contexts), state what each context is and is not responsible for, the facts it owns, and the external facts it only consumes.
+   - In [directed information exchange](../../../domain-model/overview.md#exchanges), state the provider → user direction, the fact owner, and known business agreements.
    - Do not force a split into services or assume aggregates, repositories, or other tactical design by default.
 6. Record rules and their sources.
-   - In the [rules section](../../../domain-model/README.md#rules), assign stable rule IDs and anchors, and write the conditions, boundaries, forbidden behavior, and unknowns.
-   - In the [sources section](../../../domain-model/README.md#sources), record the fact sources, the nature and limits of the evidence, and the actual confirmer and date.
+   - In the [rules section](../../../domain-model/overview.md#rules), assign stable rule IDs and anchors, and write the conditions, boundaries, forbidden behavior, and unknowns.
+   - In the [sources section](../../../domain-model/overview.md#sources), record the fact sources, the nature and limits of the evidence, and the actual confirmer and date.
    - Maintain rule text in one place only. When an existing rule changes, first handle its dependencies with the [verify-change impact check](../verify-change/SKILL.md#impact).
    - Describe a derivation with the [INV form](../../../_templates/items/invariant.md#basis) only after its rule exists.
    - Clarify strategic responsibility boundaries first, then discuss [tactical candidates](../../../domain-model/README.md#tactical-forms) as needed.
@@ -90,7 +90,7 @@ Steps:
    - When participants, postconditions, concurrency policies, metrics, or measurement methods are not provided, keep them as questions. Do not fill them in from experience.
 8. Close out the REQs.
    - Keep questions, impact, and the confirmation basis in the REQ's "Changes and open items" section.
-   - Update the [formal requirements entry point](../../../stakeholder-requirements/README.md#requirements).
+   - Update [stakeholder-requirements/INDEX.md](../../../stakeholder-requirements/INDEX.md#requirements) only when high-level area navigation changes; do not edit `stakeholder-requirements/README.md` or log every individual REQ file.
    - Hand all of this session's business acceptance criteria to [specify-feature](../specify-feature/SKILL.md) for layered verification planning. Do not substitute software checks for business acceptance.
 
 Record and return: the updated product description and domain model sections, the REQs with their open items, and the acceptance criteria handed to specify-feature. For maintenance, return the statement of applicability.
@@ -214,8 +214,8 @@ Stop points:
 
 ## Outputs
 
-- Domain facts → the existing sections of `domain-model/README.md`, or the models it already links.
-- Product information → `stakeholder-requirements/README.md`.
+- Domain facts → the existing sections of `domain-model/overview.md` (or high-level navigation in `domain-model/INDEX.md`), or the standalone models in `domain-model/`; keep `domain-model/README.md` as a static guide.
+- Product information → `stakeholder-requirements/product.md` (with optional high-level navigation in `stakeholder-requirements/INDEX.md`); keep `stakeholder-requirements/README.md` as a static guide.
 - New REQs → `stakeholder-requirements/REQ-NNN-<slug>.md`, as needed.
 - Standalone domain artifacts, QAS, and BLs → the [existing locations](../../../domain-model/README.md#optional-forms).
 - ADRs → where the [architecture guide](../../../architecture/README.md#decisions) places them.

@@ -28,7 +28,6 @@ Applicable [intended use/risk references](../docs/governance.md#intended-use) ar
 
 The ID and link above are placeholder syntax only. Real numbers and anchors are assigned at creation; when renaming, fix links at the same time; a withdrawn criterion keeps its basis, and its ID is not reused. Handle semantic changes with the [impact check](../verification/README.md#change-impact); do not keep using old results just because the links still open.
 
-<a id="requirements"></a>
-## Formal requirement entry points
+## Navigation and discovery
 
-There are no formal SRs yet. Add file links as needed; business acceptance still belongs to REQs and software acceptance to SRs, and results are read from VTs and raw records.
+Individual `SR-NNN-<slug>.md` files are discovered directly in this directory and declare their own `upstream` links in frontmatter; do not edit this `README.md` when adding or updating SRs. Use [INDEX.md](INDEX.md) only when high-level capability-cluster navigation is helpful; business acceptance belongs to REQs, software acceptance to SRs, and results are read from VTs and raw records.

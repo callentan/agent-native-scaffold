@@ -9,7 +9,7 @@ targets: []
 ---
 # CTX-NNN: TBD context
 
-> Optional blank form; not a service decomposition decision. Read the [context guide](../../domain-model/README.md#contexts) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/CTX-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original content, then delete this hint. When one context is enough, keep using the original README.
+> Optional blank form; not a service decomposition decision. Read the [context guide](../../domain-model/README.md#contexts) and [metadata conventions](../../domain-model/README.md#artifact-metadata) first. Copy to `domain-model/CTX-NNN-<slug>.md` only when needed; confirm project and context, replace `PROJECT/CTX-NNN`, the ID, title, and anchors, fix relative links, keep the original content, then delete this hint. When one context is enough, keep using [domain-model/overview.md](../../domain-model/overview.md).
 
 <a id="basis"></a>
 ## Sources and knowledge boundaries

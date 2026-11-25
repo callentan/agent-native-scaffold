@@ -73,7 +73,7 @@ Record: the handoff in `logs/YYYY-MM-DD-<task>-<session>.md`.
 Rebuild the current state from the source records before continuing. Work through this checklist in order:
 
 1. Enter from the [README](../../../README.md#resume) and [AGENTS](../../../AGENTS.md).
-2. Read the current task, the [domain facts](../../../domain-model/README.md), the related [REQ](../../../stakeholder-requirements/README.md)/[SR](../../../software-requirements/README.md), the [coverage index](../../../verification/README.md#coverage-index), the actual VTs, and the [most recent related logs](../../../logs/README.md#handoff). Indexes and summaries cannot replace the target's source text.
+2. Read the current task, the [domain facts](../../../domain-model/overview.md) and domain artifacts, the related REQs in `stakeholder-requirements/` (and [product scope](../../../stakeholder-requirements/product.md#product)) / SRs in `software-requirements/`, the [coverage index](../../../verification/INDEX.md#coverage-index), the actual VTs, and the [most recent related logs](../../../logs/README.md#handoff). Indexes and summaries cannot replace the target's source text.
 3. Recheck whether the actual directory and the Git branch/commit/dirty scope match the record.
 4. Follow the result entry points. Check the object, requirement, and VT baselines and whether the evidence is accessible.
    - Record inaccessible reports explicitly.
