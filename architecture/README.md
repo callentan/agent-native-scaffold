@@ -1,6 +1,6 @@
 # Architecture and decisions
 
-This directory records the necessary structure, constraints, and trade-offs. There is no confirmed project architecture yet; do not infer services or code layers from directory names. [Business contexts](../domain-model/README.md#contexts) need not map one-to-one to technical components.
+This directory records the necessary structure, constraints, and trade-offs. Keep this `README.md` as a static guide and do not infer services or code layers from directory names. [Business contexts](../domain-model/README.md#contexts) need not map one-to-one to technical components.
 
 Actual design work starts from [specify-feature](../.github/skills/specify-feature/SKILL.md#design-architecture); read that method in full and explicitly read the [architecture rules](../.github/instructions/architecture.instructions.md). The forms below are optional structure only and imply no application, architecture decision, or approval.
 
@@ -55,6 +55,6 @@ The schema validates structure only; it does not access or download sources or v
 
 When an existing BC needs an implementation summary, provide an explicit commit, scope, and original VT records per the [collection contract](../.github/contracts/README.md#implementation-report). The collector checks the local domain root, path, and pinned baseline in the configuration and neither clones nor writes back; the source configuration and code/test locations bind the test object, and new runs keep their own byte baselines. The [output form](../_templates/reports/implementation-report.yaml) is not an execution-input ledger. Once the report is separately and explicitly registered as a verification source of the model, it connects only through the report reference; the nine views still belong to the model, and governance, risk, sequence, and similar sources must not be passed off as execution evidence.
 
-## Maintenance entry points
+## Navigation and discovery
 
-Add links here once real ABBs, ADRs, SEQs, or SWASs exist. Record ordinary progress in the [development log](../logs/README.md); when rules or requirements change, re-review the design and old results per the [semantic impact check](../verification/README.md#change-impact). Do not use the log as a substitute for the source of design decisions.
+Individual `ABB-NNN`, `SEQ-NNN`, `SWAS-NNN`, and `decisions/ADR-NNN` files are discovered directly without editing this `README.md`; maintain high-level view or specification links in [INDEX.md](INDEX.md) only when needed. Record ordinary progress in the [development log](../logs/README.md); when rules or requirements change, re-review the design and old results per the [semantic impact check](../verification/README.md#change-impact). Do not use the log as a substitute for the source of design decisions.

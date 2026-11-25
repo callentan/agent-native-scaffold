@@ -162,7 +162,7 @@ Actions:
 9. Keep layers apart:
    - Business acceptance is not an aggregate of software results.
    - Never record document checks as behavioral runs.
-10. Register navigation, checked baselines, and gaps in the [verification index](../../../verification/README.md#coverage-index). Do not build a separate result table.
+10. Register navigation, checked baselines, and gaps in the [verification index](../../../verification/INDEX.md#coverage-index). Keep subdirectory `README.md` files untouched and do not build a separate result table.
 11. Before implementation and runs, check complete coverage and semantic impact with [verify-change](../verify-change/SKILL.md#coverage).
 
 Output: VTs (and feature companions when needed) with per-target criteria, baselines, and gaps, registered in the verification index.

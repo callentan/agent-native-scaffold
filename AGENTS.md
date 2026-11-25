@@ -29,6 +29,7 @@ This common entry point sets the reading path and rules for all work. Humans and
 
 - While the [development guide](docs/development.md) is not configured, do not choose a stack, install dependencies, or generate a project on your own. Documentation-only maintenance with complete inputs may continue.
 - Use [generate-code](.github/skills/generate-code/SKILL.md) for initial generation. Use [implement-task](.github/skills/implement-task/SKILL.md) for maintaining existing code or documents.
+- Keep subdirectory `README.md` files as static guides; record project scope, lightweight domain tables, coverage gaps, or optional high-level navigation in `product.md`, `overview.md`, or `INDEX.md` rather than appending routine artifacts to `README.md`.
 - On a conflict with a non-empty target, explicitly stop writing. Skipped files do not mean that generation is complete.
 - The optional [BC configuration](architecture/README.md#bc-configuration) does not grant permission to write sources or execute anything.
 

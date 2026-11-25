@@ -36,13 +36,13 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 2. Enter only confirmed names, stage, scope summary, and source version in the project registration.
    - Do not guess an unknown stage.
    - When a version has no basis, keep the original placeholder.
-   - Details of goals, users, scope, and constraints belong in the [product description](../../../stakeholder-requirements/README.md#product). Do not keep a second copy in the README.
+   - Details of goals, users, scope, and constraints belong in the [product description](../../../stakeholder-requirements/product.md#product). Do not keep a second copy in the README.
 3. Record each gap under the stage it affects.
    - Questions that affect current materials or business decisions → the open-items section of the product description, with the blocked scope noted.
    - Inputs that only affect later coding → the [development registration](../../../docs/development.md#project-registration) and its [gaps section](../../../docs/development.md#troubleshooting).
    - Documentation-only tasks may continue.
 4. Decide whether business modeling applies.
-   - When business matters are involved, check facts against the [domain sources](../../../domain-model/README.md#sources), then use [define-requirements](../define-requirements/SKILL.md).
+   - When business matters are involved, check facts against the [domain sources](../../../domain-model/overview.md#sources) and [source rules](../../../domain-model/README.md#sources), then use [define-requirements](../define-requirements/SKILL.md).
    - When an optional local domain source is needed, also read [the difference between registration and materialization](../../../docs/domain-sources.md#operations).
    - For technical or documentation maintenance, state that business modeling is not applicable.
 5. Check this session's registrations and links, and state which fields remain unconfirmed.
@@ -63,7 +63,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 Formal content goes, as needed, to:
 
 - Confirmed project registration → the root `README.md`.
-- Product details and current-stage open items → `stakeholder-requirements/README.md`.
+- Product details and current-stage open items → `stakeholder-requirements/product.md`.
 - Coding-stage inputs and gaps → `docs/development.md`.
 - Handoff → `logs/YYYY-MM-DD-<task>-<session>.md`. For log fields, see the [log guide](../../../logs/README.md#recording).
 

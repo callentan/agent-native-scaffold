@@ -18,7 +18,8 @@ Apply these rules to every Markdown change. They keep facts, proposals, open ite
 - Read methods from the [README activity navigation](../../README.md#activities). Do not copy whole method bodies.
 - Base formal artifacts on the existing forms, following the [form conventions](../../README.md#forms), and keep them in their owning directories.
 - Put rule text in the domain model, upstream relationships in the SR, and acceptance-target relationships and run records in the VT.
-- Use indexes only to navigate and record gaps. Use logs only to summarize and link to authoritative records.
+- Keep subdirectory `README.md` files as static method and format guides; do not modify them when creating or updating specs or records.
+- Use folder-local `INDEX.md` files only for high-level navigation or [coverage gaps](../../verification/INDEX.md#coverage-index), not as an exhaustive log of every record. Put product scope in [stakeholder-requirements/product.md](../../stakeholder-requirements/product.md#product) and lightweight single-context domain tables in [domain-model/overview.md](../../domain-model/overview.md). Use logs only to summarize and link to authoritative records.
 
 ## Links, IDs, and changes
 

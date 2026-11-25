@@ -702,6 +702,8 @@ class DistributionTests(unittest.TestCase):
             "README.md", "AGENTS.md", ".gitignore",
             "docs/distribution.md", "docs/distribution-manifest.json",
             "docs/development.md", "logs/README.md", "verification/README.md",
+            "verification/INDEX.md", "stakeholder-requirements/product.md",
+            "domain-model/overview.md",
             "src/README.md", "_templates/items/stakeholder-requirement.md",
             "_templates/items/verification-test.md", "_templates/items/verification-test.feature",
             ".github/skills/implement-task/SKILL.md",
@@ -813,10 +815,17 @@ class DistributionTests(unittest.TestCase):
         self.assertEqual(["README.md"], source_files)
         for relative in ("bc-config.yaml", "model-sources.yaml", "model.yaml", "model.json"):
             self.assertFalse((candidate / relative).exists(), relative)
-        for directory in ("domain-model", "stakeholder-requirements",
-                          "software-requirements", "verification"):
-            contents = [path.name for path in (candidate / directory).iterdir() if path.is_file()]
-            self.assertEqual(["README.md"], contents, directory)
+        expected_guides = {
+            "domain-model": ["INDEX.md", "README.md", "overview.md"],
+            "stakeholder-requirements": ["INDEX.md", "README.md", "product.md"],
+            "software-requirements": ["INDEX.md", "README.md"],
+            "user-stories": ["INDEX.md", "README.md"],
+            "architecture": ["INDEX.md", "README.md"],
+            "verification": ["INDEX.md", "README.md"],
+        }
+        for directory, expected in expected_guides.items():
+            contents = sorted(path.name for path in (candidate / directory).iterdir() if path.is_file())
+            self.assertEqual(expected, contents, directory)
         templates = [path for path in (candidate / "_templates").rglob("*") if path.is_file()]
         self.assertTrue(templates)
         for path in templates:
@@ -1516,8 +1525,8 @@ class DistributionTests(unittest.TestCase):
             for entry in self.manifest()["files"]
         }
         reported_hashes = {item["path"]: item["candidate_sha256"] for item in verification["files"]}
-        self.assertEqual(len(expected_hashes), 133)
-        self.assertEqual(133, verification["verified_count"])
+        self.assertEqual(len(expected_hashes), 141)
+        self.assertEqual(141, verification["verified_count"])
         self.assertEqual(expected_hashes, reported_hashes)
         self.assertEqual(before, source_bytes(candidate))
 
