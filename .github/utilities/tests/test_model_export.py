@@ -166,29 +166,29 @@ class ModelFixture(unittest.TestCase):
     def summary_sources(self):
         # All identities really exist with their source-owned explicit anchors.
         for identifier, kind, anchor, upstream in (
-            ("UC-001", "use-case", "main", []),
+            ("SD-001", "subdomain", "main", []),
             ("US-001", "user-story", "task", [self.scope + "/SR-001"]),
             ("ABB-001", "architecture-building-block", "structure", []),
             ("ADR-001", "architecture-decision", "decision", []),
-            ("IP-001", "integration-partner", "contract", []),
+            ("SD-002", "subdomain", "contract", []),
             ("SEQ-001", "sequence-diagram", "diagram",
-             [self.scope + "/ABB-001#structure", self.scope + "/IP-001#contract"]),
+             [self.scope + "/ABB-001#structure", self.scope + "/SD-002#contract"]),
             ("QAS-001", "quality-attribute-scenario", "qas-001-ac-01", [self.scope + "/REQ-001"]),
-            ("GOV-001", "review-record", "decision", []),
+            ("GOV-001", "development-log", "decision", []),
             ("RISK-001", "domain-model", "analysis", []),
-            ("RC-001", "risk-control", "control", []),
+            ("RC-001", "subdomain", "control", []),
             ("REL-001", "development-log", "release", []),
-            ("CTX-001", "bounded-context", "scope", []),
+            ("CTX-001", "subdomain", "scope", []),
         ):
             body = f'# {identifier}: Source record\n\n<a id="{anchor}"></a>\n'
             body += ("### QAS-001-AC-01: Measurable scenario\n" if identifier == "QAS-001" else f"## {anchor}\n")
             body += "The original notes are kept only in the source; the export does not copy this paragraph.\n"
             write_metadata(self.root, metadata(id=identifier, kind=kind, upstream=upstream),
                            body, f"records/{identifier}.md")
-        write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
+        write_metadata(self.root, metadata(id="VT-003", kind="verification-test", targets=[
             {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001: Quality scenario\n<a id="criterion"></a>\n## Observation\n'
-            'Compare the response with the original QAS metric under the given load.\n', "records/TS-001.md")
+            '# VT-003: Quality scenario\n<a id="criterion"></a>\n## Observation\n'
+            'Compare the response with the original QAS metric under the given load.\n', "records/VT-003.md")
         (self.root / "evidence").mkdir(exist_ok=True)
         for name, anchor in (("governance", "decision"), ("change-control", "change"), ("run", "run")):
             (self.root / f"evidence/{name}.md").write_text(
@@ -205,17 +205,17 @@ class ModelFixture(unittest.TestCase):
         sources = {
             "requirements": {"srSummary": {"srVersion": "source-v1", "entries": [
                 {"reqId": ref("REQ-001", "req-001-ac-01"), "srIds": [ref("SR-001", "sr-001-ac-01")],
-                 "ucId": ref("UC-001", "main"), "status": "draft", "notes": "source-owned requirement note"}]}},
+                 "ucId": ref("SD-001", "main"), "status": "draft", "notes": "source-owned requirement note"}]}},
             "stories": {"storySummary": {"storyVersion": "source-v1", "entries": [
                 {"srId": ref("SR-001", "sr-001-ac-01"), "usIds": [ref("US-001", "task")], "status": "todo"}]}},
             "architecture": {"abbSummary": {"abbVersion": "source-v1", "language": "source-selected",
                 "framework": "source-selected", "blocks": [
                     {"abbId": ref("ABB-001", "structure"), "adrRef": ref("ADR-001", "decision")}],
-                "integrations": [ref("IP-001", "contract")]}},
+                "integrations": [ref("SD-002", "contract")]}},
             "sequences": {"sequenceSummary": {"seqVersion": "source-v1", "entries": [
-                {"seqId": ref("SEQ-001", "diagram"), "ucId": ref("UC-001", "main"),
+                {"seqId": ref("SEQ-001", "diagram"), "ucId": ref("SD-001", "main"),
                  "title": "Source-owned borrowing path", "hasAsync": False,
-                 "externalPartners": [ref("IP-001", "contract")], "status": "draft"}]}},
+                 "externalPartners": [ref("SD-002", "contract")], "status": "draft"}]}},
             "verification": {"verificationSummary": {"vtVersion": "source-v1", "lastRunDate": "source-date",
                 "entries": [{"usId": ref("US-001", "task"), "vtIds": [ref("VT-002", "record")],
                              "result": "not-run", "automatedCount": 0, "manualCount": 0,
@@ -223,7 +223,7 @@ class ModelFixture(unittest.TestCase):
                 "evidenceRefs": [evidence("evidence/run.md", "run")]}},
             "quality": {"quality": {"qasRefs": [ref("QAS-001", "qas-001-ac-01")],
                 "utilityTree": evidence("evidence/utility.yaml", "tree"),
-                "testScenarios": [ref("TS-001", "criterion"), evidence("evidence/scenario.feature")]}},
+                "testScenarios": [ref("VT-003", "criterion"), evidence("evidence/scenario.feature")]}},
             "governance": {"governanceSummary": {"govVersion": "source-v1", "entries": [
                 {"govId": ref("GOV-001", "decision"), "status": "review-needed",
                  "ref": evidence("evidence/governance.md", "decision"), "notes": "source-owned limitations",
@@ -381,7 +381,7 @@ class ModelExportTests(ModelFixture):
                          {view: data["state"] for view, data in model["views"].items()})
         seq = model["views"]["sequences"]
         self.assertEqual([self.scope + "/" + value for value in (
-            "ABB-001#structure", "IP-001#contract", "SEQ-001#diagram", "UC-001#main")], seq["artifactRefs"])
+            "ABB-001#structure", "SD-001#main", "SD-002#contract", "SEQ-001#diagram")], seq["artifactRefs"])
         self.assertIn({"reference": "sources/sequences.yaml#sequenceSummary",
                        "baseline": byte_baseline(paths["sequences"])}, seq["evidenceRefs"])
         self.assertIn({"reference": "evidence/governance.md#decision",
@@ -511,7 +511,7 @@ class ModelExportTests(ModelFixture):
     def test_quality_retains_qas_req_ts_and_feature_evidence_relationships(self):
         _, _, _ = self.summary_sources()
         view = self.export()["views"]["quality"]
-        for reference in ("QAS-001#qas-001-ac-01", "REQ-001#req-001-ac-01", "REQ-001#req-001-ac-02", "TS-001#criterion"):
+        for reference in ("QAS-001#qas-001-ac-01", "REQ-001#req-001-ac-01", "REQ-001#req-001-ac-02", "VT-003#criterion"):
             self.assertIn(self.scope + "/" + reference, view["artifactRefs"])
         self.assertIn({"reference": "evidence/scenario.feature",
                        "baseline": byte_baseline(self.root / "evidence/scenario.feature")}, view["evidenceRefs"])
@@ -520,10 +520,10 @@ class ModelExportTests(ModelFixture):
         self.manifest(self.select("requirements", self.root / "software-requirements/SR-001.md"))
         model = self.export()
         view = model["views"]["requirements"]
-        self.assertEqual("partial", view["state"])  # UC is not supplied by this delivery.
+        self.assertEqual("available", view["state"])
         self.assertIn(self.scope + "/SR-001#sr-001-ac-02", view["artifactRefs"])
         self.assertIn(self.scope + "/REQ-001#req-001-ac-02", view["artifactRefs"])
-        self.assertTrue(any("use-case" in gap for gap in view["gaps"]))
+        self.assertEqual([], view["gaps"])
         self.assertIn({"reference": "software-requirements/SR-001.md",
                        "baseline": byte_baseline(self.root / "software-requirements/SR-001.md")}, view["evidenceRefs"])
 
@@ -582,7 +582,7 @@ class ModelExportTests(ModelFixture):
     def test_manually_edited_valid_view_detected_without_auto_repair(self):
         self.summary_sources()
         model = self.export()
-        model["views"]["sequences"]["artifactRefs"].remove(self.scope + "/UC-001#main")
+        model["views"]["sequences"]["artifactRefs"].remove(self.scope + "/SD-001#main")
         path = write_yaml(self.workspace / "manually-edited.yaml", model)
         before = path.read_bytes()
         report = self.tool().check_model(self.root, self.scope, path)
@@ -665,38 +665,37 @@ class ModelBoundaryTests(ModelFixture):
         self.assertNotIn(str(self.root), json.dumps(view))
 
     def test_explicit_direct_sources_are_combined_before_kind_completeness_check(self):
-        uc = write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                            '# UC-001: Business path\n<a id="main"></a>\n## Normal path\n'
+        sd = write_metadata(self.root, metadata(id="SD-001", kind="subdomain"),
+                            '# SD-001: Business boundary\n<a id="main"></a>\n## Scope\n'
                             'A member submits a loan request, handled per the original rule.\n',
-                            "domain-model/UC-001.md")
+                            "domain-model/SD-001.md")
         views = self.select("requirements", self.root / "software-requirements/SR-001.md")
-        views["requirements"] += self.select("requirements", uc)["requirements"]
+        views["requirements"] += self.select("requirements", sd)["requirements"]
         self.manifest(views)
         view = self.export()["views"]["requirements"]
         self.assertEqual("available", view["state"])
         self.assertEqual([], view["gaps"])
-        self.assertIn(self.scope + "/UC-001#main", view["artifactRefs"])
+        self.assertIn(self.scope + "/SD-001#main", view["artifactRefs"])
 
     def test_header_only_direct_source_is_partial_not_available(self):
-        source = write_metadata(self.root, metadata(id="GOV-001", kind="review-record"),
-                                '# GOV-001: Decision record\n<a id="decision"></a>\n## Record\n'
-                                '| Item | Content |\n|---|---|\n', "records/GOV-001.md")
-        self.manifest(self.select("governance", source))
-        view = self.export()["views"]["governance"]
+        source = write_metadata(self.root, metadata(id="REL-001", kind="development-log"),
+                                '# REL-001: Release record\n<a id="release"></a>\n## Release\n'
+                                '| Item | Content |\n|---|---|\n'
+                                '<a id="change-control"></a>\n## Change control\n'
+                                '| Item | Content |\n|---|---|\n', "records/REL-001.md")
+        self.manifest(self.select("release", source))
+        view = self.export()["views"]["release"]
         self.assertEqual("partial", view["state"])
-        self.assertIn("decision", " ".join(view["gaps"]))
+        self.assertIn("release", " ".join(view["gaps"]))
 
     def test_sequence_code_elsewhere_cannot_fill_missing_diagram_section(self):
-        uc = write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                            '# UC-001: Business path\n<a id="main"></a>\n## Path\nActual source.\n',
-                            "domain-model/UC-001.md")
         abb = write_metadata(self.root, metadata(id="ABB-001", kind="architecture-building-block"),
                              '# ABB-001: Responsibility\n' + "".join(
                                  f'<a id="{anchor}"></a>\n## {anchor}\n'
                                  'The source states the responsibility and version boundary of this building block.\n'
                                  for anchor in ("structure", "interfaces", "runtime")), "records/ABB-001.md")
         seq = write_metadata(self.root, metadata(id="SEQ-001", kind="sequence-diagram",
-                             upstream=[self.scope + "/UC-001#main", self.scope + "/ABB-001#structure"]),
+                             upstream=[self.scope + "/ABB-001#structure"]),
                              '# SEQ-001: Path\n' + "".join(
                                  f'<a id="{anchor}"></a>\n## {anchor}\n'
                                  'This section states the existing participants, messages, and source limitations.\n'
@@ -720,18 +719,18 @@ class ModelBoundaryTests(ModelFixture):
 
     def test_cross_scope_refs_keep_actual_source_path_and_byte_baseline(self):
         sources, paths, selection = self.summary_sources()
-        other = write_metadata(self.root, metadata(id="UC-001", kind="use-case", scope="other/CTX-002"),
-                               '# UC-001: External context path\n<a id="main"></a>\n## Path\n'
-                               'This known source is in another explicit scope.\n', "other/UC-001.md")
-        sources["sequences"]["sequenceSummary"]["entries"][0]["ucId"] = "other/CTX-002/UC-001#main"
+        other = write_metadata(self.root, metadata(id="SD-001", kind="subdomain", scope="other/CTX-002"),
+                               '# SD-001: External context path\n<a id="main"></a>\n## Path\n'
+                               'This known source is in another explicit scope.\n', "other/SD-001.md")
+        sources["sequences"]["sequenceSummary"]["entries"][0]["ucId"] = "other/CTX-002/SD-001#main"
         write_yaml(paths["sequences"], sources["sequences"])
         selection["sequences"][0]["baseline"] = byte_baseline(paths["sequences"])
         self.manifest(selection)
         model = self.export()
         view = model["views"]["sequences"]
-        self.assertIn("other/CTX-002/UC-001#main", view["artifactRefs"])
-        self.assertNotIn("other/CTX-002/UC-001", [a["key"] for a in model["artifacts"]])
-        self.assertIn({"reference": "other/UC-001.md", "baseline": byte_baseline(other)}, view["evidenceRefs"])
+        self.assertIn("other/CTX-002/SD-001#main", view["artifactRefs"])
+        self.assertNotIn("other/CTX-002/SD-001", [a["key"] for a in model["artifacts"]])
+        self.assertIn({"reference": "other/SD-001.md", "baseline": byte_baseline(other)}, view["evidenceRefs"])
 
     def test_check_uses_the_same_schema_snapshot_as_derivation(self):
         model_path = write_yaml(self.workspace / "checked.yaml", self.export())
@@ -848,11 +847,11 @@ class ModelBoundaryTests(ModelFixture):
                              'The original measurement method is described in this source.\n'
                              '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01: Response\n'
                              'The target is still owned by this QAS.\n', "records/QAS-001.md")
-        write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
+        write_metadata(self.root, metadata(id="VT-003", kind="verification-test", targets=[
             {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001: Measurement plan\n<a id="criterion"></a>\n## Independent measurement\n'
+            '# VT-003: Measurement plan\n<a id="criterion"></a>\n## Independent measurement\n'
             'Compare the actual value with the source measure.\n',
-            "records/TS-001.md")
+            "records/VT-003.md")
         # Fix1 isolates the missing field: QAS AND an actual utility-tree source
         # must exist before field incompleteness can legitimately be partial.
         # The original partial/responseMeasure assertions below are unchanged.
@@ -877,10 +876,8 @@ class ModelBoundaryTests(ModelFixture):
         us = replace_body("US-001", "user-story", ("task", "checklist"), (self.scope + "/SR-001",))
         abb = replace_body("ABB-001", "architecture-building-block", ("structure", "interfaces", "runtime"))
         seq = replace_body("SEQ-001", "sequence-diagram", ("basis", "participants", "paths", "diagram"),
-                           (self.scope + "/UC-001#main", self.scope + "/ABB-001#structure",
-                            self.scope + "/IP-001#contract"))
-        rc = replace_body("RC-001", "risk-control", ("analysis", "control", "residual"),
-                          (self.scope + "/REQ-001", self.scope + "/VT-001"))
+                           (self.scope + "/SD-001#main", self.scope + "/ABB-001#structure",
+                            self.scope + "/SD-002#contract"))
         for name in ("VT-001", "VT-002"):
             path = self.root / f"verification/{name}.md"
             path.write_text(path.read_text(encoding="utf-8").replace(
@@ -892,8 +889,7 @@ class ModelBoundaryTests(ModelFixture):
             ("architecture", [abb, self.root / "records/ADR-001.md"], "abbSummary.language"),
             ("sequences", [seq], "sequenceSummary.hasAsync"),
             ("verification", [self.root / "verification/VT-002.md"], "verificationSummary.lastRunDate"),
-            ("governance", [self.root / "records/GOV-001.md"], "governanceSummary.status"),
-            ("risk", [rc], "riskSummary.preMitigationLevel"),
+            ("release", [self.root / "records/REL-001.md"], "releaseStatus.lifecycle"),
         ):
             with self.subTest(view=view):
                 self.manifest({view: [{"path": path.relative_to(self.root).as_posix(),
@@ -923,11 +919,11 @@ class QualityViewTests(ModelFixture):
             '<a id="qas-001-ac-01"></a>\n### QAS-001-AC-01: Record response\n'
             'The independent response criterion is owned by this QAS.\n', "records/QAS-001.md")
         write_metadata(
-            self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
+            self.root, metadata(id="VT-003", kind="verification-test", targets=[
                 {"target": self.scope + "/QAS-001#qas-001-ac-01", "criterionAnchor": "criterion"}]),
-            '# TS-001: Measurement plan\n<a id="criterion"></a>\n## Measurement\n'
+            '# VT-003: Measurement plan\n<a id="criterion"></a>\n## Measurement\n'
             'Compare the response with the QAS source criterion without running the application.\n',
-            "records/TS-001.md")
+            "records/VT-003.md")
         selections = self.select("quality", qas)
         tree_path = self.root / "evidence/utility.yaml"
         if tree:
@@ -1071,9 +1067,6 @@ class DiagramViewTests(ModelFixture):
     BLOCK = "```mermaid\nsequenceDiagram\n  Member->>Clerk: Known request\n```\n"
 
     def sequence_source(self, diagram):
-        write_metadata(self.root, metadata(id="UC-001", kind="use-case"),
-                       '# UC-001: Path\n<a id="main"></a>\n## Path\nA business path stated in the source.\n',
-                       "records/UC-001.md")
         write_metadata(self.root, metadata(id="ABB-001", kind="architecture-building-block"),
                        '# ABB-001: Building block\n' + "".join(
                            f'<a id="{anchor}"></a>\n## {anchor}\n'
@@ -1081,7 +1074,7 @@ class DiagramViewTests(ModelFixture):
                            for anchor in ("structure", "interfaces", "runtime")), "records/ABB-001.md")
         path = write_metadata(
             self.root, metadata(id="SEQ-001", kind="sequence-diagram",
-                                upstream=[self.scope + "/UC-001#main", self.scope + "/ABB-001#structure"]),
+                                upstream=[self.scope + "/ABB-001#structure"]),
             '# SEQ-001: Scenario\n<a id="basis"></a>\n## Source\n'
             'Keeps the scope and conditions of the original scenario.\n'
             '<a id="participants"></a>\n## Participants\n| externalPartners | No external partners |\n'

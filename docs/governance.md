@@ -5,12 +5,12 @@ This page gives guidance on fields and ownership, not an approval process. Adopt
 <a id="records"></a>
 ## Choose records by actual need
 
-| Material to keep | Form and default formal location | Shared method |
+| Material to keep | Where to record it | Shared method |
 |---|---|---|
-| Human review, findings, and sourced decisions; waivers where applicable | [Review record](../_templates/items/review-record.md); `verification/REVIEW-NNN-<slug>.md` | [verify-change](../.github/skills/verify-change/SKILL.md#domain-review), read-only by default |
-| Tool purpose, evaluation scope, and the actual source of authorization | [Tool qualification and use](../_templates/items/tool-qualification.md); `verification/TQ-NNN-<slug>.md` | [verify-change](../.github/skills/verify-change/SKILL.md); fields are described in the [AI tooling guide](ai-tooling.md) |
-| Sourced purpose, users, environment, in-scope and out-of-scope uses, and change proposals | [Intended Use](../_templates/items/intended-use.md); `domain-model/IU-NNN-<slug>.md` | [define-requirements](../.github/skills/define-requirements/SKILL.md#intended-use) |
-| References to external risk analysis, controls, and decisions | [Risk control reference](../_templates/items/risk-control.md); `domain-model/RC-NNN-<slug>.md` | [Impact check in verify-change](../.github/skills/verify-change/SKILL.md#impact) |
+| Human review, findings, and sourced decisions; waivers where applicable | [Development log](../_templates/items/development-log.md) or an ordinary Markdown note in `verification/` | [verify-change](../.github/skills/verify-change/SKILL.md#domain-review), read-only by default |
+| Tool purpose, evaluation scope, and the actual source of authorization | [Development log](../_templates/items/development-log.md) or an ordinary Markdown note in `verification/` | [verify-change](../.github/skills/verify-change/SKILL.md); fields are described in the [AI tooling guide](ai-tooling.md) |
+| Sourced purpose, users, environment, in-scope and out-of-scope uses, and change proposals | [Domain model](../domain-model/README.md#governance-forms) or [stakeholder requirement](../_templates/items/stakeholder-requirement.md) | [define-requirements](../.github/skills/define-requirements/SKILL.md#intended-use) |
+| References to external risk analysis, controls, and decisions | [Domain model](../domain-model/README.md#governance-forms), owning `SD`, or `REQ` | [Impact check in verify-change](../.github/skills/verify-change/SKILL.md#impact) |
 
 These are on-demand locations; empty directories need not be created, and existing locations and original owners stay unchanged. For purpose material already provided, a draft may follow [interview and fact organization](../.github/skills/define-requirements/SKILL.md#interview). A **revision** still requires the existing complete file, its original baseline, and actual authorization; a new form cannot replace a missing original. Review mode returns findings only; a form's existence does not grant permission to run anything or save records.
 

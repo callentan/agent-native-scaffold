@@ -28,22 +28,16 @@ _LAYERS = {
     "Applicable design verification": "design", "Standalone maintenance or document check": "maintenance",
 }
 _OWNER_LAYERS = {
-    **dict.fromkeys(("stakeholder-requirement", "use-case", "invariant",
-                     "quality-attribute-scenario", "domain-model"), "business"),
+    **dict.fromkeys(("stakeholder-requirement", "quality-attribute-scenario",
+                     "domain-model", "subdomain"), "business"),
     "software-requirement": "software",
     **dict.fromkeys(("architecture-building-block", "architecture-decision",
-                     "architecture-specification", "sequence-diagram",
-                     "published-interface"), "design"),
-    **dict.fromkeys(("development-log", "backlog-item", "user-story",
-                     "tool-qualification", "review-record"), "maintenance"),
+                     "sequence-diagram"), "design"),
+    **dict.fromkeys(("development-log", "user-story"), "maintenance"),
 }
 _VT_FIELDS = ("Expected outcome and independent pass criterion for this target",
               "Corresponding method/steps or actual test identifier",
               "Preconditions, forbidden side effects, and open items")
-_TS_FIELDS = ("Preconditions and inputs for this target",
-              "Actions, observations, and independent pass criterion for this target",
-              "Corresponding steps or actual test identifier",
-              "Source navigation, open conditions, and forbidden side effects")
 _GENERIC = re.compile(
     r"(?:all\s+(?:tests?\s+)?pass(?:ed)?|verify\s+all|(?:meets?|conforms?\s+to)\s+(?:the\s+)?requirements?|"
     r"as\s+required|see\s+(?:the\s+)?requirements?|same\s+as\s+above|pass|not[-\s]run|"
@@ -86,12 +80,6 @@ def _layer(artifact: Artifact) -> tuple[str | None, int]:
     if artifact.kind == "verification-test":
         values = _table_values(section_lines(artifact, "plan"), "Verification layer")
         layer = _LAYERS.get(values[0][1]) if len(values) == 1 else None
-    elif artifact.kind == "validation-scenario":
-        values = _table_values(section_lines(artifact, "basis"), "Business scope and scenario type")
-        valid = len(values) == 1 and re.match(
-            r"^(?:Within context|Cross-context|REQ business acceptance|QAS)(?:$|[:,; ])", values[0][1],
-        )
-        layer = "business" if valid and not _PLACEHOLDER.search(values[0][1]) else None
     else:
         values, layer = [], None
     return layer, values[0][0] if values else artifact.body_start_line
@@ -106,20 +94,11 @@ def _meaningful(value: str) -> bool:
 def _criterion(artifact: Artifact, anchor: str) -> tuple[bool, tuple[str, ...]]:
     lines = section_lines(artifact, anchor)
     values = []
-    if artifact.kind == "validation-scenario":
-        for field in _TS_FIELDS:
-            matches = [re.match(r"^\s*[-*] " + re.escape(field) + r":\s*(.+)$", line)
-                       for _, line in lines]
-            entries = [match[1] for match in matches if match]
-            if len(entries) != 1 or not _meaningful(entries[0]):
-                return False, ()
-            values.append(entries[0])
-    else:
-        for field in _VT_FIELDS:
-            entries = _table_values(lines, field)
-            if len(entries) != 1 or not _meaningful(entries[0][1]):
-                return False, ()
-            values.append(entries[0][1])
+    for field in _VT_FIELDS:
+        entries = _table_values(lines, field)
+        if len(entries) != 1 or not _meaningful(entries[0][1]):
+            return False, ()
+        values.append(entries[0][1])
     return True, tuple(" ".join(value.split()) for value in values)
 
 
@@ -196,8 +175,8 @@ def _trace_inventory(inventory, delivery_ids, *, allow_empty: bool = False) -> C
                 add("DANGLING_TARGET", "Target owner or explicit anchor is absent")
             elif target.target not in acceptances:
                 add("TARGET_NOT_ACCEPTANCE", "A normal anchor is not an owner AC/VC acceptance")
-            if artifact.kind not in ("verification-test", "validation-scenario"):
-                add("INVALID_TARGET_SOURCE", "Coverage requires an actual VT or TS plan")
+            if artifact.kind != "verification-test":
+                add("INVALID_TARGET_SOURCE", "Coverage requires an actual VT plan")
             elif layer is None:
                 add("UNKNOWN_VALIDATION_LAYER", "Missing, ambiguous or unsupported declaration in the plan/basis table", layer_line)
             elif owner is not None:

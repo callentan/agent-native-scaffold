@@ -80,13 +80,13 @@ Steps:
    - In the [rules section](../../../domain-model/overview.md#rules), assign stable rule IDs and anchors, and write the conditions, boundaries, forbidden behavior, and unknowns.
    - In the [sources section](../../../domain-model/overview.md#sources), record the fact sources, the nature and limits of the evidence, and the actual confirmer and date.
    - Maintain rule text in one place only. When an existing rule changes, first handle its dependencies with the [verify-change impact check](../verify-change/SKILL.md#impact).
-   - Describe a derivation with the [INV form](../../../_templates/items/invariant.md#basis) only after its rule exists.
+   - Record rule-derived constraints under the owning rule anchor in `domain-model/README.md` or the owning `SD` only after the rule exists.
    - Clarify strategic responsibility boundaries first, then discuss [tactical candidates](../../../domain-model/README.md#tactical-forms) as needed.
 7. Write a REQ when a formal stakeholder requirement is needed.
    - Use the [REQ form](../../../_templates/items/stakeholder-requirement.md#basis) and the [REQ guide](../../../stakeholder-requirements/README.md#req-writing). State the source, business need, and scope; link the actual concepts, contexts, and rules; do not copy rule text.
    - Write each acceptance criterion in the form's fields: preconditions and scenario → action → observable result → boundary or forbidden result.
    - Give each acceptance criterion a full, stable ID that includes its owning artifact, plus an anchor, such as `REQ-NNN-AC-01`. Do not write just `AC-01`.
-   - Use a [UC](../../../_templates/items/use-case.md) or [QAS](../../../_templates/items/quality-attribute-scenario.md) as needed.
+   - Use a [QAS](../../../_templates/items/quality-attribute-scenario.md) or [SD](../../../_templates/items/subdomain.md) as needed.
    - When participants, postconditions, concurrency policies, metrics, or measurement methods are not provided, keep them as questions. Do not fill them in from experience.
 8. Close out the REQs.
    - Keep questions, impact, and the confirmation basis in the REQ's "Changes and open items" section.
@@ -154,9 +154,9 @@ Inputs: the supplied contract, model or glossary, original version, proposed dif
 Steps:
 
 1. Make clear whether this session documents existing commitments or revises them.
-2. Read the inputs. Using the [PI form](../../../_templates/items/published-interface.md#direction), separate the provider → consumer direction, the fact owner, and the actual commitments. A consumer's need does not automatically become a commitment.
+2. Read the inputs. In the [directed information exchange section](../../../domain-model/README.md#exchanges) or owning `SD`, separate the provider → consumer direction, the fact owner, and the actual commitments. A consumer's need does not automatically become a commitment.
 3. Compare element meanings, applicability conditions, missing values, and failure handling. Record potential breaking changes and consumer impact. Do not call a semantic change compatible just because field names are unchanged.
-4. In the [evolution section](../../../_templates/items/published-interface.md#evolution), propose the version, migration or compatibility window, withdrawal, and notification plan. Base version suggestions on the actual versioning policy; a known breaking change proposes a corresponding version bump.
+4. In the owning domain or subdomain record, propose the version, migration or compatibility window, withdrawal, and notification plan. Base version suggestions on the actual versioning policy; a known breaking change proposes a corresponding version bump.
 5. Draft the notification: recipients, old and new baselines, differences, impact, and items to be confirmed.
 
 Record and return: direction and commitments, compatibility findings, evolution proposal, and notification draft.
@@ -200,8 +200,8 @@ Steps:
 2. Compare goals, users, use environment, in-scope and out-of-scope matters, and constraints. If the source involves patients, safety, or regulation, also check those changes.
 3. List the affected contexts, REQ/QAS, interfaces and consumers, and verification, citing the governance or risk basis actually provided.
 4. Keep uncertain scope expansion or safety impact as questions. Submit them to the actual accountable owner and the applicable risk or regulatory owner, as the source requires. If no escalation rule is given, ask the owners to define one.
-5. For a standalone record, use the [Intended Use form](../../../_templates/items/intended-use.md) and the [governance guide](../../../docs/governance.md#intended-use) to record sources, proposals, actual decisions, and impact. The owner still maintains the existing source text; the form does not fill in missing source text.
-6. For risk materials, use only the [risk control reference](../../../_templates/items/risk-control.md) to locate external sources and residual gaps.
+5. For a standalone record, use `domain-model/README.md`, the owning `SD`/`REQ`, and the [governance guide](../../../docs/governance.md#intended-use) to record sources, proposals, actual decisions, and impact. The owner still maintains the existing source text; local notes do not fill in missing source text.
+6. For risk materials, record only external source pointers and residual gaps in `domain-model/README.md` or the owning `SD`/`REQ`.
 
 Record and return: section-level differences, impact and escalation proposals, who confirms what, and blocked actions. An authorized revision keeps the old baseline and unresolved items.
 

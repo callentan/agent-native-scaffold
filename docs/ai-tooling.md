@@ -5,7 +5,7 @@ This page applies when a project keeps a basis for its use of AI or other assist
 <a id="adoption"></a>
 ## Adoption and recording boundaries
 
-When a standalone evaluation record is needed, use the [tool qualification and use form](../_templates/items/tool-qualification.md) at its default location `verification/TQ-NNN-<slug>.md`. When an independent review or waiver is needed, use the [existing review form and decision guidance](governance.md#decisions), not a new role pipeline. Check material with [verify-change](../.github/skills/verify-change/SKILL.md), change documents with [implement-task](../.github/skills/implement-task/SKILL.md), and hand off with [record-handoff](../.github/skills/record-handoff/SKILL.md); complete methods live only in those files.
+When a standalone evaluation record is needed, record it in a [development log](../_templates/items/development-log.md) or an ordinary Markdown note in `verification/`. When an independent review or waiver is needed, follow the [decision guidance](governance.md#decisions), not a new role pipeline. Check material with [verify-change](../.github/skills/verify-change/SKILL.md), change documents with [implement-task](../.github/skills/implement-task/SKILL.md), and hand off with [record-handoff](../.github/skills/record-handoff/SKILL.md); complete methods live only in those files.
 
 Distinguish four things:
 

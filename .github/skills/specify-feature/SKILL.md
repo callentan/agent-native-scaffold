@@ -204,7 +204,7 @@ Inputs: the business, logical, runtime, and deployment sources within the author
 
 Actions:
 
-1. Following the [SWAS](../../../_templates/items/architecture-specification.md), read the business, logical, runtime, and deployment sources within the authorized scope.
+1. Following the [architecture guide](../../../architecture/README.md#architecture-specifications), read the business, logical, runtime, and deployment sources within the authorized scope.
    - Do not modify read-only domain sources.
 2. If a model/implementation summary is provided, check its source baselines and go back to the source text. When no summary is provided, do not fake an export.
 3. Keep the [nine source views](../../../architecture/README.md#architecture-specifications) and their original baselines. Give each view a state:

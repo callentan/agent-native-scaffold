@@ -50,60 +50,34 @@ Business goals and requirements go back to the [stakeholder requirements entry p
 Copy a form only when the material must be referenced on its own or has outgrown a single page. Default locations are in the tables below; existing project locations stay unchanged. When multiple subdomains or contexts are genuinely needed, the domain materials may be organized under `domain-model/subdomains/<slug>/contexts/<slug>/`; nesting is optional and imposes no split by service, repository, project, or code layer. REQs, QASs, SRs, and scenarios/VTs still belong in their own directories.
 
 <a id="strategic-forms"></a>
-### Business boundaries, capabilities, and behavior
+### Business boundaries, quality scenarios, and verification
 
 | Content to record as needed | Form | Default formal location |
 |---|---|---|
 | Subdomain goal, boundaries, business responsibilities, and external relationships | [SD](../_templates/items/subdomain.md) | `domain-model/SD-NNN-<slug>.md` |
-| Context responsibilities, owned/consumed facts, and direction | [CTX](../_templates/items/bounded-context.md) | `domain-model/CTX-NNN-<slug>.md` |
-| Business capability, owner, and use case navigation | [CAP](../_templates/items/capability.md) | `domain-model/CAP-NNN-<slug>.md` |
-| Actors, normal/alternative/rejection paths, and observable postconditions | [UC](../_templates/items/use-case.md) | `domain-model/UC-NNN-<slug>.md` |
-| Constraints derived from a business RULE, applicable states, and criteria | [INV](../_templates/items/invariant.md) | `domain-model/INV-NNN-<slug>.md` |
-| Specific questions, conflicts, impact, and decision evidence | [BL](../_templates/items/backlog-item.md) | `domain-model/BL-NNN-<slug>.md` |
 | Quality stimulus, environment, response, and sourced measures | [QAS](../_templates/items/quality-attribute-scenario.md) | `stakeholder-requirements/QAS-NNN-<slug>.md` |
-| Standalone scenario criteria and run entry points for UC/REQ/INV/QAS | [TS](../_templates/items/validation-scenario.md) | `verification/TS-NNN-<slug>.md` |
+| Verification criteria and run entry points for REQ/QAS/SR/design | [VT](../_templates/items/verification-test.md) | `verification/VT-NNN-<slug>.md` |
 
-A RULE remains owned by its stable anchor in the original domain file. An INV first references the RULE, then states the constraint. Do not infer rules from code or aggregate candidates. A CAP's use case list is for navigation only; each UC declares its own upstream capability. Keep a BL's handling progress separate from its decision evidence; a passed response deadline does not mean the question is resolved. When a QAS lacks a metric, keep an explicit gap and fill in no default SLA; see [quality inputs](../stakeholder-requirements/README.md#quality-inputs) and the [scenario guide](../verification/README.md#domain-scenarios).
+A RULE remains owned by its stable anchor in the original domain file. Context responsibilities, capabilities, use cases, invariants, and open questions are maintained in `domain-model/README.md` or the owning `SD` document rather than split into separate formal kinds. When a QAS lacks a metric, keep an explicit gap and fill in no default SLA; see [quality inputs](../stakeholder-requirements/README.md#quality-inputs) and the [scenario guide](../verification/README.md#domain-scenarios).
 
 <a id="integration-forms"></a>
 ### Context integration materials
 
-| Content to record as needed | Form | Default formal location |
-|---|---|---|
-| Fact owner, relationship type, translation, and dependency for each direction | [Context map](../_templates/items/context-map.md) | `domain-model/CM-NNN-<slug>.md` |
-| Elements actually promised, consumers, semantic version, and change/notification proposals | [Published Interface](../_templates/items/published-interface.md) | `domain-model/PI-NNN-<slug>.md` |
-| Partner responsibilities, producing/consuming direction, contract, and failure boundaries | [Integration partner](../_templates/items/integration-partner.md) | `domain-model/IP-NNN-<slug>.md` |
-
-Choose relationship patterns from known needs; ACL, open host service, shared kernel, and similar patterns are not the default architecture. A consumer's information need does not automatically become a provider commitment. When version, failure policy, or translation responsibility is unknown, keep it as a question; a breaking change requires a recorded rationale, affected consumers, and a version/notification proposal. Without authorization, do not modify external sources or actually send notifications.
+Record cross-context exchanges, fact ownership, interface commitments, and external partner boundaries in the [directed information exchange](#exchanges) section of `domain-model/README.md` or in the owning `SD` / `ABB` / `SEQ` document. Choose relationship patterns from known needs; ACL, open host service, shared kernel, and similar patterns are not the default architecture. A consumer's information need does not automatically become a provider commitment. When version, failure policy, or translation responsibility is unknown, keep it as a question; a breaking change requires a recorded rationale, affected consumers, and a version/notification proposal. Without authorization, do not modify external sources or actually send notifications.
 
 <a id="tactical-forms"></a>
 ### Optional tactical materials
 
-Use these only when an explicit task genuinely needs them. Without a basis for boundaries, rules, or identity, keep candidates and questions; a form's existence is not a reason to choose an implementation pattern.
-
-| What distinguishes the role | Form | Default formal location |
-|---|---|---|
-| Candidate boundary, root, and lifecycle for constraints that must be upheld together | [Aggregate](../_templates/items/aggregate.md) | `domain-model/AGG-NNN-<slug>.md` |
-| A concept identified by an enduring business identity that changes over its lifecycle | [Entity](../_templates/items/entity.md) | `domain-model/ENT-NNN-<slug>.md` |
-| Meaning identified by value, equality conditions, units, and validity | [Value object](../_templates/items/value-object.md) | `domain-model/VO-NNN-<slug>.md` |
-| Object creation, initial state, and responsibility for validity | [Factory](../_templates/items/factory.md) | `domain-model/FAC-NNN-<slug>.md` |
-| Domain operations that do not fit within a single entity/value object | [Domain service](../_templates/items/domain-service.md) | `domain-model/DS-NNN-<slug>.md` |
-| Sourced business decisions, conditions, and conflict/expiry boundaries | [Policy](../_templates/items/policy.md) | `domain-model/POL-NNN-<slug>.md` |
-| Meaning of a fact that has occurred, its production/consumption, and semantic evolution | [Domain event](../_templates/items/domain-event.md) | `domain-model/EVT-NNN-<slug>.md` |
-
-These records presuppose no endpoints, databases, message middleware, transactions, or performance/delivery guarantees, and provide no regulatory classification. Fill in rules, lifecycles, collaborators, and version expectations from sources; without a source, state who must supply them. A completed form does not mean the implementation or behavior has been verified.
+Tactical domain concepts (aggregates, entities, value objects, factories, domain services, policies, and domain events) do not have separate formal artifact kinds; record confirmed concepts and relationships in `domain-model/README.md` or the owning `SD` document, and keep implementation patterns in code only when an explicit task genuinely needs them. These records presuppose no endpoints, databases, message middleware, transactions, or performance/delivery guarantees, and provide no regulatory classification.
 
 <a id="governance-forms"></a>
 ### Optional intended use and external risk references
 
-| Content to record as needed | Form | Default formal location |
-|---|---|---|
-| Purpose, users, environment, use boundaries, and candidate changes | [Intended Use](../_templates/items/intended-use.md) | `domain-model/IU-NNN-<slug>.md` |
-| Actual references to external analyses/controls/residual risks and decisions | [Risk control](../_templates/items/risk-control.md) | `domain-model/RC-NNN-<slug>.md` |
+Standalone Intended Use and risk-control forms are not part of the formal kind set; when an applicable project needs to reference external intended-use statements or risk controls, record the source pointers and gaps in `domain-model/README.md`, the owning `SD`, or the relevant `REQ` / `development-log`.
 
 Existing locations and external-fact ownership stay unchanged; the [governance guide](../docs/governance.md#intended-use) explains applicability and responsibility gaps. Keep initial source organization separate from revising an existing intended use; a revision still reads the complete original text and baseline per the [existing method](../.github/skills/define-requirements/SKILL.md#intended-use). Medical/QMS is not assumed by default. Do not calculate or accept risk, or confirm intended use, on behalf of the external risk owner; unknowns block only the affected decisions.
 
-When a standalone review or tool-use basis is needed, put the record in the [verification directory](../verification/README.md#optional-reviews), not in a domain rule or VT result. Read model sources through the [existing fields](../docs/governance.md#source-views); do not add risk values or fabricate relationships to complete an export.
+When a standalone review or tool-use basis is needed, record it per the [verification directory](../verification/README.md#optional-reviews), not in a domain rule or VT result. Read model sources through the [existing fields](../docs/governance.md#source-views); do not add risk values or fabricate relationships to complete an export.
 
 <a id="artifact-metadata"></a>
 ## Optional structured identity and relationships

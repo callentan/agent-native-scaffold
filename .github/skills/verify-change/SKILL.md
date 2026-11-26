@@ -87,7 +87,7 @@ Purpose: check domain artifacts against their sources and against each other, an
 6. Handle what is missing: state each missing file, ID, accountable owner, or evidence item separately. With no BL, suggest creating one; do not pretend it has been created or resolved.
 7. Do not confirm content as approved when it says "confirmed/approved" but lacks a named decision and an applicable baseline (see [Keep conclusions separate](#conclusions)).
 8. For candidate interpretations of language/boundaries, use [knowledge crunching](../define-requirements/SKILL.md#distill). Actual changes still go back to an authorized task.
-9. When a standalone record is needed, use the [review form](../../../_templates/items/review-record.md) and the [governance field guide](../../../docs/governance.md#ownership); for tool-use evaluation, also use the [tool record](../../../docs/ai-tooling.md#adoption) to locate version, configuration, inputs, evidence, and decision scope. In read-only mode, return only findings that match these fields; do not run checks or write forms. Run checks or save records only with authorization for this session. Keep actual decisions separate from VT results, and keep gaps for unknown risks or missing decisions rather than filling values to complete an export.
+9. When a standalone record is needed, record it in a [development log](../../../_templates/items/development-log.md) following the [governance field guide](../../../docs/governance.md#ownership); for tool-use evaluation, also use the [tool record](../../../docs/ai-tooling.md#adoption) to locate version, configuration, inputs, evidence, and decision scope. In read-only mode, return only findings that match these fields; do not run checks or write forms. Run checks or save records only with authorization for this session. Keep actual decisions separate from VT results, and keep gaps for unknown risks or missing decisions rather than filling values to complete an export.
 10. Do not automatically refactor, correct statuses, or declare the model healthy.
 
 - Return: the findings, with the fields from step 5, and the residual gaps.
@@ -146,7 +146,7 @@ Purpose: check that a BC's derived requirements, design, verification, and gener
 
 Purpose: classify open questions and BLs by their evidence, and recommend closure only where evidence supports it. Read-only by default (see [mode](#review-mode)).
 
-1. Check each item against: the original question; conflicting sources; the impact/blocked scope; the actual accountable owner; the [decision evidence](../../../_templates/items/backlog-item.md#decision).
+1. Check each item against: the original question; conflicting sources; the impact/blocked scope; the actual accountable owner; and the recorded decision evidence in `domain-model/README.md` or the owning task/log.
 2. Report the findings in these categories: items still awaiting an answer; items decided but not yet implemented; items with insufficient evidence; items recommendable for closure. These describe this review's findings and do not replace the original status enumeration.
 3. Recommend closure only on locatable and applicable decision/handling evidence. An expired date, a schedule, an implementation constant, complete links, or a self-declared "done" is not enough.
 4. Using the [finding fields](#domain-review), list the residual impact and the acceptance criteria/VTs still to be checked.

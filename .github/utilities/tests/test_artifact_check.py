@@ -130,7 +130,7 @@ class ArtifactCheckTests(unittest.TestCase):
 
     def test_formal_metadata_discovers_readme_and_arbitrary_filename(self) -> None:
         write_artifact(self.root, relative_path="README.md")
-        write_artifact(self.root, id="UC-002", kind="use-case", relative_path="ordinary-name.md")
+        write_artifact(self.root, id="SD-002", kind="subdomain", relative_path="ordinary-name.md")
         report = run_check(self.root)
         self.assertEqual("clean", report.status)
         self.assertEqual(2, report.checked_count)
@@ -649,7 +649,7 @@ class ArtifactCheckTests(unittest.TestCase):
         seed_git_repo(self.root)
         unchanged = write_artifact(self.root, relative_path="keep/REQ-001.md")
         modified = write_artifact(self.root, id="SR-001", kind="software-requirement")
-        deleted = write_artifact(self.root, id="UC-001", kind="use-case")
+        deleted = write_artifact(self.root, id="SD-001", kind="subdomain")
         base = self.commit_files()
         old_raw = modified.read_bytes()
         old_blob = git(self.root, "rev-parse", f"{base}:SR-001.md")
@@ -657,7 +657,7 @@ class ArtifactCheckTests(unittest.TestCase):
         git(self.root, "add", "--", "SR-001.md")
         modified.write_bytes(old_raw + b"\nCurrent unstaged body.\n")
         deleted.unlink()
-        added = write_artifact(self.root, id="INV-001", kind="invariant")
+        added = write_artifact(self.root, id="ADR-001", kind="architecture-decision")
         before = source_bytes(self.root)
         report = run_check(self.root, base_sha=base)
         self.assertEqual("clean", report.status)
@@ -666,10 +666,10 @@ class ArtifactCheckTests(unittest.TestCase):
         self.assertEqual(git(self.root, "rev-parse", f"{base}^{{tree}}"), report.baseline.base_tree)
         self.assertEqual("working-tree", report.baseline.target)
         self.assertEqual(
-            [("INV-001.md", "added"), ("SR-001.md", "modified"), ("UC-001.md", "deleted")],
+            [("ADR-001.md", "added"), ("SD-001.md", "deleted"), ("SR-001.md", "modified")],
             [(item.path, item.status) for item in report.baseline.changes],
         )
-        change = report.baseline.changes[1]
+        change = report.baseline.changes[2]
         self.assertEqual(old_blob, change.base_blob)
         self.assertEqual(hashlib.sha256(old_raw).hexdigest(), change.before_sha256)
         self.assertEqual(hashlib.sha256(modified.read_bytes()).hexdigest(), change.after_sha256)
@@ -730,7 +730,7 @@ class ArtifactCheckTests(unittest.TestCase):
         seed_git_repo(self.root)
         write_metadata(self.root, metadata(), "# Requirement\n[x](missing.md)\n")
         base = self.commit_files()
-        write_artifact(self.root, id="UC-001", kind="use-case")
+        write_artifact(self.root, id="SD-001", kind="subdomain")
         report = run_check(self.root, base_sha=base)
         self.assertEqual("invalid", report.status)
         self.assertEqual(2, report.checked_count)
@@ -741,7 +741,7 @@ class ArtifactCheckTests(unittest.TestCase):
         write_artifact(self.root, relative_path="a/REQ-001.md")
         write_artifact(self.root, relative_path="b/REQ-001.md")
         base = self.commit_files()
-        write_artifact(self.root, id="UC-001", kind="use-case")
+        write_artifact(self.root, id="SD-001", kind="subdomain")
         report = run_check(self.root, base_sha=base)
         self.assertEqual("input-error", report.status)
         self.assertEqual(3, report.checked_count)

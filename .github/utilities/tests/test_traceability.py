@@ -197,33 +197,8 @@ class TraceabilityTests(TraceFixture):
         self.finding(report, "SHARED_CRITERION")
         self.assertEqual(set(DELIVERY[2:]), {f.target for f in report.findings if f.code == "UNCOVERED_ACCEPTANCE"})
 
-    def test_business_ts_uses_real_basis_declaration_and_cannot_cover_software(self):
-        (self.root / "verification/VT-001.md").unlink()
-        write_metadata(self.root, metadata(id="TS-001", kind="validation-scenario", targets=[
-            {"target": DELIVERY[0], "criterionAnchor": "allow"},
-            {"target": DELIVERY[1], "criterionAnchor": "reject"}]),
-            '# TS-001: Business scenario\n<a id="basis"></a>\n## Basis\n'
-            '| Business scope and scenario type | REQ business acceptance: borrowing allowance |\n'
-            '<a id="targets"></a>\n## Targets\n'
-            '<a id="allow"></a>\n### Allow\n'
-            '- Preconditions and inputs for this target: Membership is valid and within the allowance.\n'
-            '- Actions, observations, and independent pass criterion for this target: '
-            'After one loan, the business register grows.\n'
-            '- Corresponding steps or actual test identifier: Manually compare the business register '
-            'before and after.\n'
-            '- Source navigation, open conditions, and forbidden side effects: Must not change the '
-            'registers of other members; concurrency is unknown.\n'
-            '<a id="reject"></a>\n### Reject\n'
-            '- Preconditions and inputs for this target: Membership is valid but the allowance is reached.\n'
-            '- Actions, observations, and independent pass criterion for this target: '
-            'After applying again, the business register is unchanged.\n'
-            '- Corresponding steps or actual test identifier: Manually check the rejection response '
-            'and the business register.\n'
-            '- Source navigation, open conditions, and forbidden side effects: No new loan may be '
-            'created; the expiry policy is unknown.\n',
-            "verification/TS-001.md")
-        self.assertEqual("clean", self.report().status)
-        self.replace("verification/TS-001.md", DELIVERY[0], DELIVERY[2])
+    def test_business_vt_cannot_cover_software_acceptance(self):
+        self.replace("verification/VT-001.md", DELIVERY[0], DELIVERY[2])
         self.finding(self.report(), "LAYER_MISMATCH")
 
     def test_mentions_code_and_comments_do_not_become_acceptance_inventory(self):

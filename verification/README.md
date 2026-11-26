@@ -17,9 +17,9 @@ A passing software check does not automatically imply that business acceptance h
 <a id="domain-scenarios"></a>
 ## Optional domain scenarios and target declarations
 
-The [validation scenario form (TS)](../_templates/items/validation-scenario.md), saved as `verification/TS-NNN-<slug>.md`, can plan within-context, cross-context, REQ business acceptance, or QAS scenarios; it is not application test code. A standalone business criterion can be owned by a UC, REQ, INV, or QAS; the scenario references its specific AC anchor, and rules stay referenced in the original domain text. A scenario without sufficient sources stays a draft/question and produces no definite behavior.
+Business acceptance and QAS scenarios use the same [VT form](../_templates/items/verification-test.md) (`verification/VT-NNN-<slug>.md`) with `Verification layer` set to `Business acceptance`; a VT is not application test code. A standalone business criterion can be owned by a REQ, QAS, domain model, or subdomain; the VT references its specific AC anchor, and rules stay referenced in the original domain text. A scenario without sufficient sources stays a draft/question and produces no definite behavior.
 
-New TS and [VT forms](../_templates/items/verification-test.md) adopt the [existing metadata contract](../.github/contracts/README.md):
+New [VT forms](../_templates/items/verification-test.md) adopt the [existing metadata contract](../.github/contracts/README.md):
 
 - The frontmatter holds only identity, scope, content state, `upstream`, and `targets`; the body holds the per-target judgment method, plan, actual results, and current applicability. Old VTs are not migrated or renumbered automatically, and reading them does not require installing the parser.
 - Each target gives the full `scope/id#anchor` and the current file's `criterionAnchor`; the optional `testId` takes only a real test identifier. A target is not a generic file title; `AC-01` alone is not enough, and when different contexts reuse a number, look items up by full identity.
@@ -88,7 +88,7 @@ This is a **reference summary of source results**: it does not mean the collecto
 <a id="optional-reviews"></a>
 ## Optional review and tool usage records
 
-Adopt the [review form](../_templates/items/review-record.md) or the [tool qualification and usage form](../_templates/items/tool-qualification.md) only when a standalone record is needed, saved as `verification/REVIEW-NNN-<slug>.md` or `verification/TQ-NNN-<slug>.md`; existing project locations stay unchanged. Use [governance field ownership](../docs/governance.md#ownership) to distinguish criteria, findings, raw execution evidence, and named decisions; for tool scope, version, configuration, and re-evaluation, see the [tooling notes](../docs/ai-tooling.md).
+When a standalone review or tool evaluation note is needed, record it in a [development log](../_templates/items/development-log.md) or an ordinary Markdown note referencing the checked baselines; existing project locations stay unchanged. Use [governance field ownership](../docs/governance.md#ownership) to distinguish criteria, findings, raw execution evidence, and named decisions; for tool scope, version, configuration, and re-evaluation, see the [tooling notes](../docs/ai-tooling.md).
 
 Reviews still follow [verify-change](../.github/skills/verify-change/SKILL.md#domain-review) and are read-only by default; write a record only when current authorization allows saving it. For missing tests, conflicting evidence, or failed criteria, reference the original owner and list follow-ups; do not rewrite VT results, quietly narrow coverage, or claim a pass because a form is complete. Synthetic decisions only demonstrate fields and navigation; a declared confirmation does not certify a person or permission, and agent self-review is not human participation in acceptance.
 

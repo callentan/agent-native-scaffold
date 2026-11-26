@@ -32,25 +32,26 @@ _SUMMARY = {
     "governance": "governanceSummary", "risk": "riskSummary", "release": "releaseStatus",
 }
 _KINDS = {
-    "requirements": {"stakeholder-requirement", "software-requirement", "use-case"},
+    "requirements": {"stakeholder-requirement", "software-requirement", "subdomain", "domain-model"},
     "stories": {"software-requirement", "user-story"},
-    "architecture": {"architecture-building-block", "architecture-decision", "integration-partner"},
-    "sequences": {"sequence-diagram", "use-case", "architecture-building-block", "integration-partner"},
-    "verification": {"verification-test", "validation-scenario", "user-story",
+    "architecture": {"architecture-building-block", "architecture-decision", "subdomain"},
+    "sequences": {"sequence-diagram", "architecture-building-block", "subdomain"},
+    "verification": {"verification-test", "user-story",
                      "stakeholder-requirement", "software-requirement"},
-    "quality": {"quality-attribute-scenario", "stakeholder-requirement", "validation-scenario", "verification-test"},
-    "governance": {"review-record", "tool-qualification", "stakeholder-requirement"},
-    "risk": {"domain-model", "intended-use", "risk-control", "stakeholder-requirement", "verification-test"},
-    "release": {"development-log", "bounded-context"},
+    "quality": {"quality-attribute-scenario", "stakeholder-requirement", "verification-test"},
+    "governance": {"development-log", "stakeholder-requirement"},
+    "risk": {"domain-model", "subdomain", "stakeholder-requirement", "verification-test"},
+    "release": {"development-log", "subdomain"},
 }
 _DIRECT_REQUIRED = {
-    "requirements": {"stakeholder-requirement", "software-requirement", "use-case"},
+    "requirements": {"stakeholder-requirement", "software-requirement"},
     "stories": {"user-story", "software-requirement"},
     "architecture": {"architecture-building-block", "architecture-decision"},
-    "sequences": {"sequence-diagram", "use-case", "architecture-building-block"},
+    "sequences": {"sequence-diagram", "architecture-building-block"},
     "verification": {"verification-test", "software-requirement", "stakeholder-requirement"},
     "quality": {"quality-attribute-scenario", "stakeholder-requirement"},
-    "governance": {"review-record"}, "risk": {"risk-control", "stakeholder-requirement", "verification-test"},
+    "governance": {"development-log"},
+    "risk": {"domain-model", "stakeholder-requirement", "verification-test"},
     "release": {"development-log"},
 }
 _SECTIONS = {
@@ -58,7 +59,6 @@ _SECTIONS = {
     "architecture-decision": ("decision",), "sequence-diagram": ("basis", "participants", "paths", "diagram"),
     "verification-test": ("plan", "targets", "runs"),
     "quality-attribute-scenario": ("scenario", "measurement"),
-    "review-record": ("decision",), "risk-control": ("analysis", "control", "residual"),
     "development-log": ("release", "change-control"),
 }
 # Closed adapters for source-owned summaries, NOT extensible plugins or result models.
@@ -87,15 +87,15 @@ _ROOT_FIELDS = {
 _ROLE_KINDS = {
     "reqId": {"stakeholder-requirement"}, "reqIds": {"stakeholder-requirement"},
     "srId": {"software-requirement"}, "srIds": {"software-requirement"},
-    "ucId": {"use-case"}, "usId": {"user-story"}, "usIds": {"user-story"},
+    "ucId": {"domain-model", "subdomain"}, "usId": {"user-story"}, "usIds": {"user-story"},
     "abbId": {"architecture-building-block"}, "adrRef": {"architecture-decision"},
-    "seqId": {"sequence-diagram"}, "externalPartners": {"integration-partner"},
-    "integrations": {"integration-partner"}, "vtIds": {"verification-test"},
-    "vtCoverage": {"verification-test", "validation-scenario"},
-    "qasRefs": {"quality-attribute-scenario"}, "testScenarios": {"validation-scenario", "verification-test"},
-    "govId": {"review-record", "tool-qualification"}, "waiverRefs": {"review-record"},
-    "riskId": {"domain-model", "intended-use", "risk-control"}, "rcIds": {"risk-control"},
-    "releaseRef": {"development-log"}, "bcRefs": {"bounded-context"},
+    "seqId": {"sequence-diagram"}, "externalPartners": {"subdomain", "architecture-building-block"},
+    "integrations": {"subdomain", "architecture-building-block"}, "vtIds": {"verification-test"},
+    "vtCoverage": {"verification-test"},
+    "qasRefs": {"quality-attribute-scenario"}, "testScenarios": {"verification-test"},
+    "govId": {"development-log", "stakeholder-requirement"}, "waiverRefs": {"development-log", "stakeholder-requirement"},
+    "riskId": {"domain-model", "subdomain", "stakeholder-requirement"}, "rcIds": {"domain-model", "subdomain", "stakeholder-requirement"},
+    "releaseRef": {"development-log"}, "bcRefs": {"subdomain"},
 }
 _DIRECT_VALUES = {
     ("stories", "user-story"): (
@@ -123,14 +123,6 @@ _DIRECT_VALUES = {
         ("scenario", "object", ("object", "Object: which business process or affected object"), "text"),
         ("scenario", "response", ("response", "Response: what should be observed"), "text"),
         ("scenario", "responseMeasure", ("responseMeasure", "Response measure: measurable criterion, unit, and scope"), "text"),
-    ),
-    ("governance", "review-record"): (
-        ("decision", "status", ("status", "Review conclusion"), "text"),
-        ("decision", "notes", ("notes", "Limitations and notes"), "text"),
-    ),
-    ("risk", "risk-control"): (
-        ("analysis", "preMitigationLevel", ("preMitigationLevel", "Pre-mitigation risk"), "text"),
-        ("residual", "residualRiskLevel", ("residualRiskLevel", "Residual risk"), "text"),
     ),
     ("release", "development-log"): tuple(
         ("release", name, (name,), "text")
@@ -371,9 +363,9 @@ class _Sources:
             artifact = self.owners[key]
             dependencies = list(artifact.upstream) + [target.target for target in artifact.targets]
             if view == "quality" and artifact.kind == "quality-attribute-scenario":
-                # testScenarios are owned by the actual TS/VT targets, not a duplicate QAS field.
+                # testScenarios are owned by the actual VT targets, not a duplicate QAS field.
                 for candidate in self.owners.values():
-                    if candidate.kind in ("validation-scenario", "verification-test"):
+                    if candidate.kind == "verification-test":
                         for target in candidate.targets:
                             if target.target.split("#")[0] == key:
                                 dependencies.append(candidate.key + "#" + target.criterion_anchor)
@@ -588,6 +580,8 @@ def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: st
         if source.kind in ("stakeholder-requirement", "software-requirement") and not source.acceptances:
             gaps.append(f"{source.relative_path}: missing owner acceptances")
         for anchor in _SECTIONS.get(source.kind, ()):
+            if source.kind == "verification-test" and view != "verification":
+                continue
             if source.kind == "verification-test" and anchor == "runs" and _owned_runs(source):
                 continue
             if not _section_has_content(source, anchor):
@@ -598,8 +592,6 @@ def _direct_source(reader: _Sources, view: str, artifact: Artifact, baseline: st
             gaps.extend(run_gaps)
             continue
         for anchor, field, labels, kind in _DIRECT_VALUES.get((view, source.kind), ()):
-            if field == "externalPartners" and any(reader.owners[key].kind == "integration-partner" for key in visited):
-                continue  # Actual partners are declared by canonical upstream, not copied.
             rows = [row for label in labels for row in _table_values(section_lines(source, anchor), label)]
             value = rows[0][1].strip() if len(rows) == 1 else ""
             valid = (bool(value) and not re.match(
@@ -693,7 +685,7 @@ def _view(reader: _Sources, view: str, selected: list[dict], *, scope: str | Non
     if has_direct and not failed:
         for kind in sorted(_DIRECT_REQUIRED[view] - kinds):
             gaps.add(f"{view}: {selection}: missing {kind} source")
-        if view == "quality" and not kinds.intersection({"validation-scenario", "verification-test"}):
+        if view == "quality" and "verification-test" not in kinds:
             gaps.add(f"{view}: {selection}: missing quality testScenarios source")
     if not failed:
         reader.implementation_reports.update(implementation_reports)
