@@ -1,6 +1,6 @@
 # Development logs and handoff
 
-A log holds the changes made in one task or session and the clues needed to take it over; it keeps no second copy of acceptance results. Use the [development log form](../_templates/items/development-log.md) and create `logs/YYYY-MM-DD-<task>-<session>.md` as needed; currently only this guide exists, with no real session record.
+A log holds the changes made in one task or session and the clues needed to take it over; it keeps no second copy of acceptance results. Keep this `README.md` as a static guide: use the [development log form](../_templates/items/development-log.md) and create `logs/YYYY-MM-DD-<task>-<session>.md` as needed without editing this file.
 
 <a id="task-basis"></a>
 ## Task basis
@@ -24,7 +24,7 @@ After a tool/purpose/object change, check current applicability through the [re-
 <a id="handoff"></a>
 ## Take over in a new session
 
-1. Read the [README](../README.md#resume), [AGENTS](../AGENTS.md), the current task, the relevant facts, and the [verification index](../verification/README.md#coverage-index), then read the most recent related logs.
+1. Read the [README](../README.md#resume), [AGENTS](../AGENTS.md), the current task, the relevant facts, and the [verification index](../verification/INDEX.md#coverage-index), then read the most recent related logs.
 2. Recheck the Git status and baselines, and check whether the changes, gaps, and results in the log still apply; do not simply inherit old success conclusions.
 3. Follow the records to find the affected requirements, rules, designs, and VTs, and determine which are pending re-review, which were never run, and which reports are currently inaccessible.
 4. Confirm whether the goal, unknown facts, or authorization have changed, then continue with the next step whose inputs are complete. A log does not guarantee that the original process, unsaved edits, or external system state can be restored.

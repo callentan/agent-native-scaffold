@@ -1,78 +1,38 @@
-# Domain model
+# Domain model guide
 
-This directory records business meaning and boundaries; it is not a diagram of code layers. It holds guidance notes and blank sections; there is no confirmed business model yet. For a business task, fill in known facts or reference the existing model; for a maintenance task without business involvement, state why this does not apply and do not invent content to fill the directory.
+This directory records business meaning and boundaries; it is not a diagram of code layers. Keep this `README.md` as a static modeling guide: fill lightweight project terms, rules, contexts, exchanges, and sources in [overview.md](overview.md), maintain high-level subdomain/context navigation in [INDEX.md](INDEX.md), or adopt [standalone domain artifacts](#optional-forms) as needed. For a maintenance task without business involvement, state why domain modeling does not apply and do not invent content to fill the directory.
 
 <a id="terms"></a>
 ## Shared terms
 
-The same word can mean different things in different contexts. Record the business definition, easily confused meanings, and source; do not use a technical class name in place of a definition.
-
-| Term | Owning context | Business meaning | Aliases or easily confused meanings | Source and confirmation status |
-|---|---|---|---|---|
-| TBD | TBD | TBD | TBD | To be confirmed; source TBD |
+The same word can mean different things in different contexts. In [overview.md#terms](overview.md#terms), record the business definition, owning context, easily confused meanings, and source; do not use a technical class name in place of a definition.
 
 <a id="concepts"></a>
 ## Concepts and relationships
 
-Record the concepts and how they relate. When a relationship's direction, cardinality, conditions, or state meaning is unclear, keep it as a question; do not fill in default rules.
-
-| Concept ID and name | Owning context | Business meaning, related behavior, or states | Source and confirmation status |
-|---|---|---|---|
-| TBD | TBD | TBD | To be confirmed |
-
-| Relationship ID | From concept → to concept | Meaning, direction, and cardinality constraints of the relationship | Conditions under which it holds, or restrictions | Sources and open items |
-|---|---|---|---|---|
-| TBD | TBD → TBD | TBD | TBD | TBD |
+In [overview.md#concepts](overview.md#concepts) or standalone concept artifacts, record the concepts, their states, and how they relate. When a relationship's direction, cardinality, conditions, or state meaning is unclear, keep it as a question; do not fill in default rules.
 
 <a id="rules"></a>
 ## Business rules
 
-Give each real rule a stable `RULE-NNN` identifier and an ASCII anchor; the `rule-nnn` below only demonstrates the placeholder structure, so replace both when filling it in. Do not renumber a rule when its wording changes; when withdrawn, keep its basis and never reassign the number.
-
-<a id="rule-nnn"></a>
-### RULE-NNN: TBD (placeholder rule)
-
-| Field | Content |
-|---|---|
-| Status | To be confirmed; not yet a business fact |
-| Applicable context and scope | TBD |
-| Conditions, constraints that must hold, and forbidden behavior | TBD |
-| Boundaries, exceptions, and handling of undefined cases | TBD; do not fill unknowns with default values |
-| Fact source, confirmer, and date | TBD |
-| Change basis and original baseline | TBD |
+Give each real rule in [overview.md#rules](overview.md#rules) (or its owning domain file) a stable `RULE-NNN` identifier and an ASCII anchor such as `rule-nnn`. Do not renumber a rule when its wording changes; when withdrawn, keep its basis and never reassign the number. State status, applicable context and scope, conditions, boundaries/exceptions, fact source/confirmer/date, and change basis.
 
 REQs, SRs, and designs reference the file and anchor where a rule lives; do not copy rule text into several places.
 
 <a id="contexts"></a>
 ## Context responsibilities and fact ownership
 
-Contexts are divided by business responsibility and need not map to services, repositories, subprojects, or code layers. When one context is enough, do not split it artificially; technical patterns such as entities, value objects, aggregates, and repositories are not mandatory.
-
-<a id="ctx-nnn"></a>
-### CTX-NNN: TBD (placeholder context)
-
-| Field | Content |
-|---|---|
-| Business capabilities and decisions it is responsible for | TBD |
-| Matters it is explicitly not responsible for | TBD |
-| Business facts it owns and maintains | TBD |
-| External facts it only uses but does not own, and their owners | TBD |
-| Links to related concepts and rules | TBD |
-| Sources, confirmation status, and open boundaries | TBD |
+Contexts are divided by business responsibility and need not map to services, repositories, subprojects, or code layers. Record each context's responsibilities, non-responsibilities, owned facts, consumed external facts, and open boundaries in [overview.md#contexts](overview.md#contexts) or a standalone [CTX](#strategic-forms). When one context is enough, do not split it artificially; technical patterns such as entities, value objects, aggregates, and repositories are not mandatory.
 
 <a id="exchanges"></a>
 ## Directed information exchange
 
-State the provider and consumer separately, with the fact owner and dependency agreement. Do not merely write "the two contexts interact", and do not decide message middleware or interface implementation in advance.
-
-| Provider → consumer | Information or capability provided | Fact owner | Trigger, timeliness, and business agreement on failure | Source, status, and open items |
-|---|---|---|---|---|
-| TBD → TBD | TBD | TBD | To be confirmed | TBD |
+In [overview.md#exchanges](overview.md#exchanges) or a [Context map](#integration-forms), state the provider and consumer separately, with the fact owner and dependency agreement. Do not merely write "the two contexts interact", and do not decide message middleware or interface implementation in advance.
 
 <a id="sources"></a>
 ## Sources, facts, and open items
 
-Keep a locatable source, a date, and a confirmation basis for every fact. Keep user-confirmed facts, analysis proposals, and open questions apart; a reasonable derivation is not a confirmation. For an unreadable source, record the limitation instead of guessing.
+Keep a locatable source, a date, and a confirmation basis for every fact in [overview.md#sources](overview.md#sources) or standalone [BL](#strategic-forms) records. Keep user-confirmed facts, analysis proposals, and open questions apart; a reasonable derivation is not a confirmation. For an unreadable source, record the limitation instead of guessing.
 
 To reference an existing local domain source, check its actual root, path, and pinned baseline against the [existing BC fields](../architecture/README.md#bc-configuration) and the [read-only onboarding preflight](../docs/domain-sources.md).
 Registering a reference does not replace this guide or business text. Creating a local submodule needs separate, explicit authorization; there is no permission to write back to the source, access the network, or commit. A readOnly declaration is not an OS permission setting.
@@ -80,16 +40,12 @@ Registering a reference does not replace this guide or business text. Creating a
 When authorized to read local documents or explicit transcripts, you may optionally use [source candidates and transparent scoring](../docs/source-extraction.md); byte identities, paragraph/line/table/turn locations, and candidates are not formal facts or approvals.
 Contradicting sources, open wording, and later confirmation still follow the [reverse-engineering method](../.github/skills/reverse-engineer-domain/SKILL.md); a high score does not select a business rule, and sending audio or data externally requires separate authorization.
 
-| Fact or question ID | Content and the owning concept, rule, or context | Status (Confirmed / Proposal / Open) | Source location, date, and confirmation basis | Who needs to confirm what |
-|---|---|---|---|---|
-| TBD | TBD | Open | TBD | TBD |
-
 Business goals and requirements go back to the [stakeholder requirements entry point](../stakeholder-requirements/README.md), and software behavior to the [software requirements entry point](../software-requirements/README.md). When a rule or boundary changes, handle dependencies, old results, and items pending re-review per the [semantic impact check](../verification/README.md#change-impact); a referencing artifact can be affected even if it did not copy the specific values.
 
 <a id="optional-forms"></a>
 ## Standalone domain artifacts as needed
 
-**The lightweight path above remains valid.** A single context or small maintenance task can keep recording terms, relationships, rules, responsibilities, exchanges, and sources in this README, without creating every artifact below or installing tools first. Adopting a form must not renumber, replace, or move existing IDs, anchors, rule text, or owner content.
+**The lightweight path remains valid.** A single context or small maintenance task can keep recording terms, relationships, rules, responsibilities, exchanges, and sources in [overview.md](overview.md), without creating every artifact below or installing tools first. Adopting a form must not renumber, replace, or move existing IDs, anchors, rule text, or owner content. Use [INDEX.md](INDEX.md) only for high-level subdomain or context navigation; do not log every standalone file in this `README.md` or in `INDEX.md`.
 
 Copy a form only when the material must be referenced on its own or has outgrown a single page. Default locations are in the tables below; existing project locations stay unchanged. When multiple subdomains or contexts are genuinely needed, the domain materials may be organized under `domain-model/subdomains/<slug>/contexts/<slug>/`; nesting is optional and imposes no split by service, repository, project, or code layer. REQs, QASs, SRs, and scenarios/VTs still belong in their own directories.
 
@@ -133,7 +89,7 @@ When copying a form or adding metadata to existing materials:
 1. Check the actual source, authorization, existing files, and stable IDs first. Fill in `scope` only once project/context ownership is clear; for a subdomain or cross-context map, the accountable owner chooses it. Do not guess from the directory or invent a "global" context.
 2. Replace placeholders in the file name, frontmatter, title, acceptance IDs, and anchors. Identity is `scope/id`: different scopes may reuse a number, but a number must not repeat within one scope.
 3. `upstream` declares the actual resolvable sources; `targets` declares the specific targets with this file's `criterionAnchor`. Relationships and content state are maintained only in the frontmatter; the body holds business meaning, source interpretation, and standalone criteria. Body links may navigate to these references but must not maintain a second state or relationship table.
-4. Rules have no kind of their own: if the rule owner has metadata, reference `scope/<owner-id>#rule-...`; sources still using a lightweight README keep ordinary relative links. Do not automatically add metadata to old files just to obtain canonical keys.
+4. Rules have no kind of their own: if the rule owner has metadata, reference `scope/<owner-id>#rule-...`; sources still using a lightweight overview keep ordinary relative links. Do not automatically add metadata to old files just to obtain canonical keys.
 5. Acceptance criteria use the full owner ID, such as the placeholder `UC-NNN-AC-01`, preceded on its own line by `<a id="uc-nnn-ac-01"></a>`. Targets use `scope/id#anchor`; `AC-01` alone is not enough. Keep original acceptance numbers; do not reuse a number after withdrawal.
 6. Delete the prompts or turn them into explicit questions, and fix every relative URL for the actual location; path examples in prose use forward slashes `/`. `confirmed` requires an actual confirmation source and confirmed baseline; the template provides no approval.
 

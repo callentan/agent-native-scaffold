@@ -1,22 +1,6 @@
-# Product description and stakeholder requirements
+# Stakeholder requirements guide
 
-This directory takes the place of a PRD: product goals, users, scope, and constraints are maintained here, and each REQ records only one stakeholder requirement and its business acceptance. Domain rules belong in the [domain model](../domain-model/README.md) and software behavior in the [software requirements](../software-requirements/README.md); do not treat an entire PRD as a single REQ.
-
-<a id="product"></a>
-## Product description (TBD)
-
-| Content | Confirmed information or questions to be confirmed |
-|---|---|
-| Product goal, problem to solve, and value | TBD |
-| Users, operators, and related stakeholders | TBD |
-| Observable basis for business success | TBD; do not prefill it as achieved |
-| In-scope items | TBD |
-| Out-of-scope items | TBD |
-| Business, compliance, and delivery constraints | To be confirmed |
-| Fact sources, confirmer, and date | TBD |
-| Open questions, their impact, and who needs to confirm them | TBD |
-
-An unfilled section does not mean "no constraints". When a fact affecting behavior is missing, clarify it first; an open item that only affects later work may stay open, with a stated reason it does not block the current task.
+This directory holds product scope, stakeholder requirements (REQ), and quality attribute scenarios (QAS). Keep this `README.md` as a static writing guide: maintain product goals, users, scope, and constraints in [product.md](product.md#product), and high-level area navigation in [INDEX.md](INDEX.md) when needed. Domain rules belong in the [domain model](../domain-model/README.md) and software behavior in the [software requirements](../software-requirements/README.md); do not treat an entire PRD as a single REQ.
 
 <a id="req-writing"></a>
 ## Write a REQ
@@ -38,7 +22,7 @@ An SR keeps its own upstream REQ links, and a VT its own target links. To find d
 <a id="domain-inputs"></a>
 ## Use optional domain inputs
 
-With many sources, you may reference existing SD/CTX, CAP, UC, RULE, INV, and QAS (forms and default locations: [domain artifact guide](../domain-model/README.md#strategic-forms)). These are not a mandatory prerequisite chain for a REQ, and existing rules in the lightweight README remain valid sources. A REQ states the business need and acceptance; domain facts and rule text are still read from their original owners.
+With many sources, you may reference existing SD/CTX, CAP, UC, RULE, INV, and QAS (forms and default locations: [domain artifact guide](../domain-model/README.md#strategic-forms)). These are not a mandatory prerequisite chain for a REQ, and existing rules in the [lightweight domain overview](../domain-model/overview.md) remain valid sources. A REQ states the business need and acceptance; domain facts and rule text are still read from their original owners.
 
 The new [REQ form](../_templates/items/stakeholder-requirement.md) declares identity, scope, content state, and upstream in the frontmatter; the body only explains why the sources support the requirement. Replace placeholders per the [metadata conventions](../domain-model/README.md#artifact-metadata); do not convert old REQs automatically or change existing acceptance IDs/anchors. Old sources without metadata keep ordinary links, and no canonical keys are invented. Open requirement questions and business source gaps must name the accountable owner; a fully filled-in form is no substitute for confirmation.
 
@@ -54,7 +38,6 @@ When a standalone quality requirement is needed, use the [QAS form](../_template
 - A QAS's standalone criteria use owner-qualified acceptance IDs/anchors; [validation scenarios or VTs](../verification/README.md#domain-scenarios) reference the specific items. For non-behavioral concerns, keep only the specification and the inputs still needed; do not force an executable scenario.
 - When the requirement baseline changes, re-review the semantic impact on UCs, design, and verification, and keep the original run baselines and results. Filling in a QAS or passing schema validation does not mean that quality acceptance has passed.
 
-<a id="requirements"></a>
-## Formal requirement entry points
+## Navigation and discovery
 
-There are no formal REQs yet. After creating a real requirement, append a link to its file here; each REQ is authoritative for its own text, acceptance criteria, and status, and coverage gaps are listed in the [verification index](../verification/README.md#coverage-index).
+Individual `REQ-NNN-<slug>.md` and `QAS-NNN-<slug>.md` files are authoritative for their own text, acceptance criteria, and status, and are discovered directly in this directory without modifying this `README.md`. Use [INDEX.md](INDEX.md) only for high-level capability or domain navigation when needed, and track acceptance coverage gaps in [verification/INDEX.md](../verification/INDEX.md#coverage-index).

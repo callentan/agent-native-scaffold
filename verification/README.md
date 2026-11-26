@@ -1,6 +1,6 @@
-# Verification, coverage, and results entry point
+# Verification, coverage, and results guide
 
-This directory holds verification plans, target references, gaps, and run-record entry points; it does not hold test code. Use the [VT form](../_templates/items/verification-test.md) for a verification artifact and save it as `verification/VT-NNN-<slug>.md`. There are no formal acceptance criteria or VTs yet; an empty table does not mean coverage is complete or anything has passed.
+This directory holds verification plans, target references, coverage navigation, and run-record entry points; it does not hold test code. Keep this `README.md` as a static verification guide: save verification artifacts as `verification/VT-NNN-<slug>.md` using the [VT form](../_templates/items/verification-test.md), and maintain the acceptance coverage inventory and gaps in [INDEX.md](INDEX.md#coverage-index). An empty coverage table does not mean coverage is complete or anything has passed.
 
 <a id="layers"></a>
 ## Distinguish verification layers first
@@ -57,30 +57,9 @@ When behavior suits Gherkin, use the [blank feature](../_templates/items/verific
 3. **Find coverage item by item.** Search VT target fields and check whether the layer, specific target, per-target expected outcome, method, and preconditions are sufficient. Record a missing VT, missing criterion, omitted boundary, or item to confirm as a gap; a file's existence does not mean coverage.
 4. **Cross-check every VT target.** Confirm one by one that the target file and anchor exist, that the ID includes its owner and is consistent, and that the reference points to the correct layer and specific item, not one with the same number or a generic title. Note out-of-scope targets separately; never silently ignore dangling or incorrect references.
 5. **Check the source of relationships.** An SR maintains its upstream basis; VTs and validation scenarios maintain their own target AC references. For metadata artifacts, the frontmatter is the source and body criteria are located via `criterionAnchor`. Do reverse lookups by searching these fields; do not hand-maintain two opposite mappings.
-6. **Record gaps and checked baselines** in the index below. Do not delete real ACs, fabricate facts, or narrow scope on your own to eliminate gaps; when deferral, withdrawal, or exclusion is genuinely needed, keep its basis and the accountable owner's confirmation.
+6. **Record gaps and checked baselines** in [INDEX.md](INDEX.md#coverage-index). Do not delete real ACs, fabricate facts, or narrow scope on your own to eliminate gaps; when deferral, withdrawal, or exclusion is genuinely needed, keep its basis and the accountable owner's confirmation.
 
 When execution authorization covers the maintenance tools, use `check_traceability.trace_report(root, delivery_ids)` or the [actual CLI](../.github/utilities/README.md#traceability). `delivery_ids` must come from the complete inventory above, including ACs without a VT; an empty, invalid, duplicate, or unknown selection is an input error and is never narrowed to the known part. The report keeps the owner, source line, target, and byte baseline; its counts are numbers of formal files, not business passes. The VT layer stays in the `plan` table and the TS layer in the scenario type under `basis`; no metadata layer field is added.
-
-<a id="coverage-index"></a>
-## Acceptance source index (to be inventoried)
-
-This is a navigation and discrepancy record, not a requirements, mapping, or results database. The acceptance text is authoritative in its owner, and VT target relationships in the VT; VT links here are only the sources found in this check and must be rechecked later.
-
-| Check context | Content |
-|---|---|
-| Task, delivery scope, and basis for exclusions | TBD |
-| Check date and recorder | TBD |
-| Object baseline (commit, branch, and uncommitted scope) | TBD |
-| REQ/SR, design, or task basis baseline | TBD |
-| VT baseline and search scope of this check | TBD |
-
-Register each inventoried acceptance criterion individually; criteria without a VT must also keep a row.
-
-| Original-text link to the owning artifact and full acceptance ID | VT source links found (state if none) | Gaps, reference discrepancies, or items to check |
-|---|---|---|
-| To be inventoried; no formal entries yet | To be checked | TBD; do not use this to claim complete coverage |
-
-Do not add a copy of the acceptance text or a `pass`/`fail` status table. **Complete traceability, actual execution, and successful execution are three different conclusions**, each needing its own basis.
 
 <a id="execution"></a>
 ## Run records and applicability

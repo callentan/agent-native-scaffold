@@ -68,7 +68,7 @@ Purpose: confirm that every delivery acceptance criterion in scope has a target 
 5. Keep each relationship in its formal location:
    - The upstream basis stays in the [SR](../../../software-requirements/README.md#traceability).
    - Target relationships stay in the [VT/scenario target declarations](../../../verification/README.md#domain-scenarios). With adopted metadata, `upstream` / `targets` belong in frontmatter and body criteria are located by `criterionAnchor`; old records keep their original fields.
-   - The [verification index](../../../verification/README.md#coverage-index) only registers navigation, baselines, gaps, and reference differences. It copies no acceptance text, reverse mappings, or result table.
+   - The [verification index](../../../verification/INDEX.md#coverage-index) only registers navigation, baselines, gaps, and reference differences. It copies no acceptance text, reverse mappings, or result table.
 6. When authorized, call `trace_report(root, delivery_ids)` through the [actual coverage interface](../../utilities/README.md#traceability) with the complete step-1 list (never one rebuilt from VTs), tracing back all actual targets and keeping input errors and source locations. Its layer and criterion checks are a mechanical lower bound, not a replacement for steps 2 and 3 and not proof of execution.
 
 - Return: the full inventory from step 1, the per-target findings from steps 2 to 4, and the exact gaps.
@@ -190,7 +190,7 @@ Purpose: run only configured, authorized checks and record exactly what was obse
 
 ## Outputs
 
-- Authorized records → `verification/README.md#coverage-index`, the target/run/applicability/gap sections of the related `verification/VT-NNN-<slug>.md`, and the actual report entry points.
+- Authorized records → `verification/INDEX.md#coverage-index`, the target/run/applicability/gap sections of the related `verification/VT-NNN-<slug>.md`, and the actual report entry points; keep `verification/README.md` as a static guide.
 - Necessary acceptance changes → back to their owners.
 - Domain issues → as needed, the open-items section of the original artifact or the [formal location for BLs](../../../domain-model/README.md#strategic-forms).
 - Read-only reviews and queries → return only locatable findings, inventory, evidence limitations, and suggested run items. They do not write files.

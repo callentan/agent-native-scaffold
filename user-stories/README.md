@@ -1,6 +1,6 @@
 # Delivery slices and implementation checklists
 
-A US organizes the scope, steps, status, and record links of one delivery; it is not a second copy of the requirements. When a delivery slice is needed, use the [US form](../_templates/items/user-story.md) and save it as `user-stories/US-NNN-<slug>.md`; there are no formal USs yet.
+A US organizes the scope, steps, status, and record links of one delivery; it is not a second copy of the requirements. Keep this `README.md` as a static guide: when a delivery slice is needed, use the [US form](../_templates/items/user-story.md) and save it as `user-stories/US-NNN-<slug>.md`, using [INDEX.md](INDEX.md) only when milestone-level navigation across slices is needed.
 
 <a id="delivery"></a>
 ## When to use
