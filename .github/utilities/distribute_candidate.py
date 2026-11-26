@@ -172,8 +172,10 @@ def _read_manifest(root: Path) -> tuple[dict[str, Any], bytes, str]:
         raise CandidateError("INVALID_MANIFEST", "Manifest requires explicit file entries")
     seen: set[str] = set()
     for entry in files:
-        if not isinstance(entry, dict) or set(entry) != {"path", "component"}:
-            raise CandidateError("INVALID_MANIFEST", "Each file entry must contain only path and component")
+        if not isinstance(entry, dict) or not {"path", "component"} <= set(entry) <= {"path", "component", "projectOwned"}:
+            raise CandidateError("INVALID_MANIFEST", "Each file entry must contain path and component, and optionally projectOwned")
+        if "projectOwned" in entry and entry["projectOwned"] is not True:
+            raise CandidateError("INVALID_MANIFEST", "projectOwned must be true when present", path=str(entry["path"]))
         relative = _safe_relative(entry["path"])
         folded = relative.casefold()
         if folded in seen:

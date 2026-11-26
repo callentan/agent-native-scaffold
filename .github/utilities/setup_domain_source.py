@@ -76,7 +76,7 @@ def _source(value):
     try:
         validate_mapping({
             "schemaVersion": 1, "projectId": "source-check", "boundedContexts": [{"id": "source-check"}],
-            "domainSources": [value], "developmentRegistration": "docs/development.md#project-registration",
+            "domainSources": [value], "developmentRegistration": "docs/project-development.md#project-registration",
         }, "bc-config", Path("domainSource"))
     except ArtifactInputError as error:
         if error.code == "CONTRACT_ERROR":

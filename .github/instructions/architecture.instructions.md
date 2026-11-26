@@ -14,7 +14,7 @@ Apply these rules when changing architecture documents or code.
 
 ## Read first
 
-- First read the actual task, domain responsibilities, SR, applicable ABB/ADR/QAS, and the [development registration](../../docs/development.md#project-registration).
+- First read the actual task, domain responsibilities, SR, applicable ABB/ADR/QAS, and the [development registration](../../docs/project-development.md#project-registration).
 - Constrain only the architecture this project actually adopts. Do not assume four layers, service decomposition, a language, a cloud platform, containers, or dedicated endpoints by default.
 
 ## Dependency direction and wiring

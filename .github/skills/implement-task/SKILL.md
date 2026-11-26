@@ -17,7 +17,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 - [ ] Markdown: [documentation rules](../../instructions/docs.instructions.md) read.
 - [ ] Any test: [test rules](../../instructions/tests.instructions.md) read.
 - [ ] Code: [architecture](../../instructions/architecture.instructions.md), [coding](../../instructions/coding.instructions.md), and [security](../../instructions/security.instructions.md) rules read in full.
-- [ ] Affected rules, REQs, SRs, and VTs are read; the [development registration](../../../docs/development.md#project-registration) is verified for code.
+- [ ] Affected rules, REQs, SRs, and VTs are read; the [development registration](../../../docs/project-development.md#project-registration) is verified for code.
 - [ ] After the change: checks run through [verify-change](../verify-change/SKILL.md), and the diff is rechecked against the scope.
 - [ ] A [handoff log](../record-handoff/SKILL.md) is left, with gaps marked `not-run`.
 
@@ -29,7 +29,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
   - The affected model, REQs, SRs, VTs, and necessary design.
 - When applicable:
   - The current task or an existing [US](../../../user-stories/README.md), if any.
-  - For coding: the project, tech stack, location, and environment selected by the user, and a verified [development registration](../../../docs/development.md#project-registration).
+  - For coding: the project, tech stack, location, and environment selected by the user, and a verified [development registration](../../../docs/project-development.md#project-registration).
 
 ## Steps
 

@@ -64,7 +64,7 @@ When execution authorization covers the maintenance tools, use `check_traceabili
 <a id="execution"></a>
 ## Run records and applicability
 
-Before running, determine the targets and per-target criteria, and record the planned object baseline, requirement or task baseline, and VT plan baseline. Command-based checks use only confirmed real tools, environments, and working directories; application commands follow the [development guide](../docs/development.md#project-registration) and the actual project, and do not run until configured.
+Before running, determine the targets and per-target criteria, and record the planned object baseline, requirement or task baseline, and VT plan baseline. Command-based checks use only confirmed real tools, environments, and working directories; application commands follow the [project development registration](../docs/project-development.md#project-registration) and the actual project, and do not run until configured.
 
 A standalone document check needs no application, but you must still confirm the tool source, actual working directory, checked object, and criteria, and record them per the [document check notes](../docs/development.md#document-checks). For manual checks, write down the actions and observations; do not invent shell commands.
 

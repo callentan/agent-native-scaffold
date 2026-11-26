@@ -41,5 +41,5 @@ Read these rules explicitly whenever you modify any real code. Follow the actual
 
 - Base dependency/API usage on the current project and its versions.
 - Without a selected version or authorization to install, stop at the gap. Do not upgrade or install automatically.
-- Builds, checks, and tests must use the commands, cwd, and output locations in the [actual registration](../../docs/development.md#project-registration).
+- Builds, checks, and tests must use the commands, cwd, and output locations in the [actual registration](../../docs/project-development.md#project-registration).
 - Record the real check scope, exit code, and per-item results. A file name, zero discoveries, or a not-run state cannot prove the implementation correct.

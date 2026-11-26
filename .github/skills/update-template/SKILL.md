@@ -24,7 +24,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 
 - Required:
   - The task, its allowed file scope, read/write permissions, and completion conditions.
-  - The actual template source in the [project registration](../../../README.md#project).
+  - The actual template source in the [project registration](../../../PROJECT.md#project).
   - The local roots, readable files, and versions of the actual old baseline, local project, and new candidate.
   - Local uncommitted changes, intentional deletions, business data, and original rule locations.
   - The [maintenance tool environment](../../../docs/development.md#maintenance-tools) and this run's output location.

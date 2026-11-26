@@ -13,8 +13,8 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 
 - [ ] Read [AGENTS](../../../AGENTS.md) and this method in full.
 - [ ] Directory, branch, commit, index, and uncommitted scope are checked; existing content is separated from proposed content.
-- [ ] Only confirmed names, stage, scope, and versions enter the [project registration](../../../README.md#project); unknowns keep their placeholders.
-- [ ] Each gap is recorded under the stage it affects (product description versus [development registration](../../../docs/development.md#project-registration)).
+- [ ] Only confirmed names, stage, scope, and versions enter the [project registration](../../../PROJECT.md#project); unknowns keep their placeholders.
+- [ ] Each gap is recorded under the stage it affects (product description versus [development registration](../../../docs/project-development.md#project-registration)).
 - [ ] Business modeling is either routed to [define-requirements](../define-requirements/SKILL.md) or marked not applicable.
 - [ ] Unconfirmed fields are listed; nothing initializes code, installs dependencies, or picks a stack.
 - [ ] Documentation rules read for any Markdown change; handoff left with [record-handoff](../record-handoff/SKILL.md).
@@ -30,7 +30,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
 
 ## Steps
 
-1. Check the actual working directory, branch, commit, index (staging area), and uncommitted scope. Read the [project registration](../../../README.md#project) and the existing rules.
+1. Check the actual working directory, branch, commit, index (staging area), and uncommitted scope. Read the [project registration](../../../PROJECT.md#project) and the existing rules.
    - Distinguish existing content from content proposed for this merge.
    - Compare differences item by item.
 2. Enter only confirmed names, stage, scope summary, and source version in the project registration.
@@ -39,7 +39,7 @@ A reminder of the steps below, not a replacement for them. Tick each item before
    - Details of goals, users, scope, and constraints belong in the [product description](../../../stakeholder-requirements/product.md#product). Do not keep a second copy in the README.
 3. Record each gap under the stage it affects.
    - Questions that affect current materials or business decisions → the open-items section of the product description, with the blocked scope noted.
-   - Inputs that only affect later coding → the [development registration](../../../docs/development.md#project-registration) and its [gaps section](../../../docs/development.md#troubleshooting).
+   - Inputs that only affect later coding → the [development registration](../../../docs/project-development.md#project-registration) and its [gaps section](../../../docs/project-development.md#troubleshooting).
    - Documentation-only tasks may continue.
 4. Decide whether business modeling applies.
    - When business matters are involved, check facts against the [domain sources](../../../domain-model/overview.md#sources) and [source rules](../../../domain-model/README.md#sources), then use [define-requirements](../define-requirements/SKILL.md).
