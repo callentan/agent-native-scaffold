@@ -247,10 +247,10 @@ Every actual `targets` entry is reverse-checked, including targets outside the d
 
 | owner kind | Target layer |
 |---|---|
-| stakeholder-requirement, use-case, invariant, quality-attribute-scenario, domain-model | business |
+| stakeholder-requirement, quality-attribute-scenario, domain-model, subdomain | business |
 | software-requirement | software |
-| architecture-building-block, architecture-decision, architecture-specification, sequence-diagram, published-interface | design |
-| development-log, backlog-item, user-story, tool-qualification, review-record | maintenance |
+| architecture-building-block, architecture-decision, sequence-diagram | design |
+| development-log, user-story | maintenance |
 | Other kinds | No layer is guessed; reports `UNKNOWN_TARGET_LAYER` |
 
 Criteria come from the existing forms. Under each `criterionAnchor`, a VT needs actual table values in three rows: `Expected outcome and independent pass criterion for this target`, `Corresponding method/steps or actual test identifier`, and `Preconditions, forbidden side effects, and open items`. A TS needs its four form bullets: `Preconditions and inputs for this target`, `Actions, observations, and independent pass criterion for this target`, `Corresponding steps or actual test identifier`, and `Source navigation, open conditions, and forbidden side effects`. An anchor or heading alone, code/comments, placeholders, or a generic "all passed" do not satisfy this. Targets that share an anchor or have identical criterion content are reported as `SHARED_CRITERION`. This is an explainable structural minimum, not proof of natural-language semantics; human review is still needed to judge whether the actual expectation suffices for the original acceptance criterion.

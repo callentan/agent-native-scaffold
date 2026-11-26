@@ -31,7 +31,7 @@ Everything below is a **structural example**, not a confirmed artifact, configur
 
 | Field | Requirement and meaning |
 |---|---|
-| `schemaVersion`, `id`, `kind`, `scope`, `contentState` | All required. The only formal `kind` enumeration is `$defs.kind` in the schema, a closed set of 32 items; there are no custom plug-in kinds |
+| `schemaVersion`, `id`, `kind`, `scope`, `contentState` | All required. The only formal `kind` enumeration is `$defs.kind` in the schema, a closed set of 11 items; there are no custom plug-in kinds |
 | `upstream` | Optional; deduplicated list of full source references. Empty tuple only when truly omitted; `null`, objects, strings, or invalid elements are errors |
 | `targets` | Optional; deduplicated list of structured records. Each requires `target` and `criterionAnchor`, with an optional non-empty `testId`; owner, anchor, and test identifier must never be dropped |
 | `confirmation` | Required for `confirmed`; if provided, non-empty `by`, `reference`, and `baseline` are required. Only the declaration's shape is validated; it cannot authenticate the person, permissions, or approval |
@@ -275,7 +275,7 @@ A report can be **selected separately and explicitly** in the `verification` lis
 <a id="model-sources"></a>
 ## 5. Optional model-source manifest
 
-[model-sources.schema.json](model-sources.schema.json) and the [blank source form](../../_templates/config/model-sources.yaml) only register source selections. When adopted, the manifest is `model-sources.yaml` in the selected documentation root; no second BC/model/execution manifest is added. The original four contracts, 32 kinds, and nine views are unchanged.
+[model-sources.schema.json](model-sources.schema.json) and the [blank source form](../../_templates/config/model-sources.yaml) only register source selections. When adopted, the manifest is `model-sources.yaml` in the selected documentation root; no second BC/model/execution manifest is added. The original four contracts, 11 kinds, and nine views are unchanged.
 
 The manifest has only `schemaVersion: 1` and `scopes`. `scopes` maps explicit `project/context` keys to a map of needed views among the nine; each view maps to a non-empty list of `{path, baseline}`. `scopes: {}` is a valid empty map and does not mean a real project is registered; a scope value of `{}` means no view source is selected yet. Duplicate YAML keys, duplicate paths within one view, or conflicting baselines for one path are configuration errors, never merged by overriding.
 
@@ -306,14 +306,14 @@ Prefer the original artifacts; do not copy the business model for the tools. For
 
 | view | Required Markdown sources and sections (structure is checked; content is not authenticated) |
 |---|---|
-| requirements | REQ, SR, UC; owner AC of REQ/SR, explicit body anchors of UC |
+| requirements | REQ, SR; owner AC of REQ/SR |
 | stories | US `task` and `checklist`, plus SR sources |
 | architecture | ABB `structure`, `interfaces`, and `runtime`, plus ADR `decision` |
-| sequences | SEQ `basis`, `participants`, `paths`, and `diagram`, plus UC and ABB sources; read the source for timing, partner, and async meaning |
+| sequences | SEQ `basis`, `participants`, `paths`, and `diagram`, plus ABB sources; read the source for timing, partner, and async meaning |
 | verification | VT `plan`, `targets`, `runs` and their actual owned child run blocks, plus REQ/SR; the plan structure does not prove that an actual run exists |
-| quality | QAS `scenario` and `measurement`, the actual utility-tree source, plus REQ and actual TS/VT targets; a missing QAS or tree source gives unverified, and neither the tree nor the scenario body is copied |
-| governance | review-record `decision`; the meaning of approvals/waivers still belongs to the original record |
-| risk | risk-control `analysis`, `control`, and `residual`, plus REQ/VT sources; risk levels are not computed |
+| quality | QAS `scenario` and `measurement`, the actual utility-tree source, plus REQ and actual VT targets; a missing QAS or tree source gives unverified, and neither the tree nor the scenario body is copied |
+| governance | development-log source or YAML governance summary; the meaning of approvals/waivers still belongs to the original record |
+| risk | domain-model, REQ, and VT sources or YAML risk summary; risk levels are not computed |
 | release | development-log `release` and `change-control`; lifecycle/classification/version still belong to the original release record |
 
 A section alone or a generic body paragraph does not locate the original summary fields. Direct Markdown also checks the following **table values in the original owner** (two-column tables); when one is absent, a field-level `partial` gap is kept, and nothing is inferred from code arrows, metadata states, file names, or common values. The version is located by the actual object baseline; IDs and relations still come from the parser. These values are not new frontmatter fields and need no model copy.
@@ -323,11 +323,9 @@ A section alone or a generic body paragraph does not locate the original summary
 | US `task` | `Task progress/status`; contentState never substitutes for task progress |
 | ABB `runtime` | `language/Implementation language`, `framework/Framework`; if not yet selected, the item is missing and no default stack is chosen |
 | SEQ `paths` | An explicit `true/false` declaration of `hasAsync/Asynchronous interaction`; never inferred from Mermaid arrows |
-| SEQ `participants` | An existing integration-partner upstream; without one, an explicit source statement for `externalPartners/External partners` is needed, including when it is known that there are no partners |
+| SEQ `participants` | An explicit source statement for `externalPartners/External partners`, including when it is known that there are no partners |
 | This owner's `vt-…-run-NN` child blocks under VT `runs` | Date, notes, the three run baselines, and explicit auto/manual counts are read from each child block; actual results come from its multi-column per-criterion table, with no copy needed before the `runs` heading |
 | QAS `scenario` | All six values of the existing six-element table; the original field labels `stimulusSource/stimulus/environment/object/response/responseMeasure` are accepted as well |
-| review-record `decision` | `status/Review conclusion`, `notes/Limitations and notes`; reading the declaration does not authenticate approval |
-| risk-control `analysis` / `residual` | `preMitigationLevel/Pre-mitigation risk`, `residualRiskLevel/Residual risk`; risk is neither computed nor accepted |
 | development-log `release` | The five original field values `lifecycle/safetyClass/currentVersion/lastReleaseDate/nextPlannedRelease`; change control is still located through its own separate original section |
 
 Duplicate or missing values for one field, an explicit unknown value or placeholder (such as `Unknown`, `Not provided`, `Not run`, or `TBD`), a missing original section, and a missing required relation are each a specific gap. Counts are non-negative decimal integers; booleans accept only `true/false`; a known zero or false is not missing. Header and separator rows alone are not content. A SEQ diagram must be a genuinely closed Mermaid code fence inside its `diagram` section, with a sequence header and messages. HTML comments, examples inside an enclosing literal fence, unclosed fences, or ordinary notes cannot fill a gap; the body and diagram reuse the same comment/fence state machine, and raw text is never rescanned to guess a diagram. Unsupported shapes keep specific gaps and are not migrated automatically.

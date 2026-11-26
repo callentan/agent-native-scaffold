@@ -104,8 +104,8 @@ class RenderingTests(unittest.TestCase):
                       'Compare refusal bytes; no execution is asserted.\n',
                       targets=[{"target": SCOPE + "/SR-001#sr-001-ac-01",
                                 "criterionAnchor": "criterion", "testId": "test_owned_refusal"}])
-        self.artifact("CAP-001", "capability",
-                      '# CAP-001 Isolated scope\n<a id="ownership"></a>\n## Ownership\n'
+        self.artifact("SD-001", "subdomain",
+                      '# SD-001 Isolated scope\n<a id="ownership"></a>\n## Ownership\n'
                       'This owner has no declared relationships.\n')
 
     def manifest(self, selections):
@@ -129,14 +129,14 @@ class RenderingTests(unittest.TestCase):
         if deployment:
             body += ('<a id="deployment"></a>\n## Supplied deployment\n'
                      'Only the supplied offline workstation is in this source.\n')
-        spec = self.artifact("SWAS-001", "architecture-specification", body,
+        spec = self.artifact("SWAS-001", "architecture-building-block", body,
                              path="architecture/спецификация €.md")
         sources = [self.pointer(spec)]
         selections = {"requirements": [{"path": "software/SR-001.md",
                                         "baseline": baseline(self.root / "software/SR-001.md")}]}
         if sequence is not None:
-            self.artifact("UC-001", "use-case",
-                          '# UC-001 Source interaction\n<a id="main"></a>\n## Main path\n'
+            self.artifact("SD-002", "subdomain",
+                          '# SD-002 Source interaction\n<a id="main"></a>\n## Main path\n'
                           'Author proposes a candidate; keeper owns its refusal.\n')
             abb = self.artifact("ABB-001", "architecture-building-block",
                                '# ABB-001 Keeper candidate\n<a id="structure"></a>\n## Source structure\n'
@@ -155,7 +155,7 @@ class RenderingTests(unittest.TestCase):
                                'success returns the candidate; refusal preserves owner; error leaves bytes unchanged.\n'
                                '<a id="diagram"></a>\n## Supplied sequence\n```mermaid\n' + sequence + '```\n'
                                '<a id="limitations"></a>\n## Known gaps\nNo runtime test has executed.\n',
-                               upstream=[SCOPE + "/UC-001#main", SCOPE + "/ABB-001#structure"],
+                               upstream=[SCOPE + "/SD-002#main", SCOPE + "/ABB-001#structure"],
                                path="architecture/SEQ-001.md")
             sources.append(self.pointer(seq))
             selections["architecture"] = [{"path": abb.relative_to(self.root).as_posix(), "baseline": baseline(abb)}]
@@ -239,7 +239,7 @@ class RenderingTests(unittest.TestCase):
         result = self.trace()
         data = json.loads(result["content"])
         self.assertEqual([
-            SCOPE + "/CAP-001", SCOPE + "/REQ-001", SCOPE + "/SR-001", SCOPE + "/VT-001",
+            SCOPE + "/REQ-001", SCOPE + "/SD-001", SCOPE + "/SR-001", SCOPE + "/VT-001",
             OTHER + "/REQ-001",
         ], [node["key"] for node in data["nodes"]])
         self.assertEqual({
@@ -306,7 +306,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_invalid_artifact_version_is_not_optional_gap(self):
         self.graph()
-        path = self.root / "CAP-001.md"
+        path = self.root / "SD-001.md"
         path.write_text(path.read_text().replace("schemaVersion: 1", "schemaVersion: 2"), encoding="utf-8")
         self.assert_error("UNSUPPORTED_SCHEMA_VERSION", self.trace)
 
@@ -336,7 +336,7 @@ class RenderingTests(unittest.TestCase):
         self.graph()
         model = self.workspace / "old.json"
         model.write_text(json.dumps(export_view(self.root, SCOPE)), encoding="utf-8")
-        path = self.root / "CAP-001.md"
+        path = self.root / "SD-001.md"
         path.write_bytes(path.read_bytes() + b"\nAdditional candidate detail.\n")
         self.assert_error("STALE_MODEL_SOURCE", lambda: self.trace(model_path=model))
 
@@ -348,7 +348,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_unknown_view_manifest_is_input_error(self):
         self.graph()
-        self.manifest({"invented": [{"path": "CAP-001.md", "baseline": baseline(self.root / "CAP-001.md")}]})
+        self.manifest({"invented": [{"path": "SD-001.md", "baseline": baseline(self.root / "SD-001.md")}]})
         self.assert_error("INVALID_SOURCE_MANIFEST", self.trace)
 
     def test_bad_explicit_source_baseline_is_error_not_partial(self):
@@ -500,7 +500,7 @@ class RenderingTests(unittest.TestCase):
                 source = self.artifact("SEQ-002", "sequence-diagram",
                                       '# SEQ-002 Invalid subset\n<a id="diagram"></a>\n## Actual\n'
                                       '```mermaid\n' + sequence + '```\n')
-                if not (self.root / "CAP-001.md").exists():
+                if not (self.root / "SD-001.md").exists():
                     self.graph()
                 result = self.render("render_architecture",
                                      {"root": self.root, "scope": SCOPE, "sources": [self.pointer(source)]})
@@ -545,7 +545,7 @@ class RenderingTests(unittest.TestCase):
     def test_distinct_presentation_source_changes_sections_not_only_filename(self):
         inputs = self.architecture(sequence=None)
         first = self.render("render_presentation", inputs)
-        different = self.artifact("SWAS-002", "architecture-specification",
+        different = self.artifact("SWAS-002", "architecture-building-block",
                                   '# SWAS-002 Beta review notes\n<a id="tradeoffs"></a>\n'
                                   '## Candidate tradeoffs\nNo topology has been selected for Beta.\n'
                                   '<a id="questions"></a>\n## Open questions\nWho owns the offline boundary?\n',
@@ -591,7 +591,7 @@ class RenderingTests(unittest.TestCase):
     # RENDER-10/13: hostile text stays text in DOM and XML, never a resource.
     def test_untrusted_source_text_is_encoded_in_html_and_svg(self):
         inputs = self.architecture(sequence=None)
-        source = self.artifact("SWAS-002", "architecture-specification",
+        source = self.artifact("SWAS-002", "architecture-building-block",
                               '# SWAS-002 Unsafe-looking candidate\n<a id="text"></a>\n## Source text\n'
                               '<script>alert("candidate")</script>\n'
                               '<img src="https://example.invalid/no-fetch" onerror="bad()">\n'
@@ -620,7 +620,7 @@ class RenderingTests(unittest.TestCase):
     def test_svg_long_unicode_content_is_not_truncated_or_zero_height(self):
         inputs = self.architecture(sequence=None)
         text = "источник € & candidate boundary " * 70 + "FINAL-SOURCE-TOKEN"
-        source = self.artifact("SWAS-002", "architecture-specification",
+        source = self.artifact("SWAS-002", "architecture-building-block",
                               '# SWAS-002 Long candidate\n<a id="long"></a>\n## Supplied long content\n' + text + "\n")
         inputs["sources"] = [self.pointer(source)]
         for name in ("render_architecture", "render_presentation"):
@@ -748,7 +748,7 @@ class RenderingTests(unittest.TestCase):
         self.graph()
         model = self.workspace / "stale.json"
         model.write_text(json.dumps(export_view(self.root, SCOPE)), encoding="utf-8")
-        (self.root / "CAP-001.md").write_bytes((self.root / "CAP-001.md").read_bytes() + b"\nChanged detail.\n")
+        (self.root / "SD-001.md").write_bytes((self.root / "SD-001.md").read_bytes() + b"\nChanged detail.\n")
         output = self.workspace / "no-drift.svg"
         result = self.cli("render_traceability", "--format", "svg", "--model-path", str(model), "--output", str(output))
         self.assertEqual(1, result.returncode)
@@ -810,7 +810,7 @@ class RenderingTests(unittest.TestCase):
     def test_trace_source_read_failure_is_not_silent_empty(self):
         self.graph()
         module = self.tool("render_traceability")
-        source = self.root / "CAP-001.md"
+        source = self.root / "SD-001.md"
         original = Path.read_bytes
 
         def fail_selected(path):
@@ -824,7 +824,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_source_literal_stays_between_its_original_surrounding_prose(self):
         inputs = self.architecture(sequence=None)
-        source = self.artifact("SWAS-002", "architecture-specification",
+        source = self.artifact("SWAS-002", "architecture-building-block",
                               '# SWAS-002 Source ordering\n<a id="ordered"></a>\n## Actual order\n'
                               'BEFORE-SOURCE-TOKEN\n```text\nMIDDLE-LITERAL-TOKEN\n```\nAFTER-SOURCE-TOKEN\n')
         inputs["sources"] = [self.pointer(source)]
@@ -836,7 +836,7 @@ class RenderingTests(unittest.TestCase):
 
     def test_only_literal_source_body_is_not_dropped(self):
         inputs = self.architecture(sequence=None)
-        source = self.artifact("SWAS-002", "architecture-specification",
+        source = self.artifact("SWAS-002", "architecture-building-block",
                               '# SWAS-002 Literal body\n```text\nONLY-LITERAL-CONTENT\n```\n')
         inputs["sources"] = [self.pointer(source)]
         for name in ("render_architecture", "render_presentation"):
@@ -944,8 +944,8 @@ class RenderingTests(unittest.TestCase):
             upstream=[SCOPE + "/REQ-001"],
         )
         self.artifact(
-            "TS-001", "validation-scenario",
-            '# TS-001 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
+            "VT-002", "verification-test",
+            '# VT-002 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
             targets=[{"target": SCOPE + "/QAS-001#scenario", "criterionAnchor": "criterion"}],
         )
         source = self.root / "quality-tree.yaml"
@@ -954,7 +954,7 @@ class RenderingTests(unittest.TestCase):
         }, allow_unicode=True), encoding="utf-8")
         self.manifest({"quality": [
             {"path": qas.relative_to(self.root).as_posix(), "baseline": baseline(qas)},
-            {"path": "TS-001.md", "baseline": baseline(self.root / "TS-001.md")},
+            {"path": "VT-002.md", "baseline": baseline(self.root / "VT-002.md")},
             {"path": source.name, "baseline": baseline(source)},
         ]})
         model_evidence = export_view(self.root, SCOPE)["views"]["quality"]["evidenceRefs"]
@@ -978,8 +978,8 @@ class RenderingTests(unittest.TestCase):
             upstream=[SCOPE + "/REQ-001"],
         )
         ts = self.artifact(
-            "TS-001", "validation-scenario",
-            '# TS-001 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
+            "VT-002", "verification-test",
+            '# VT-002 Source-owned quality check\n<a id="criterion"></a>\n## Candidate criterion\n',
             targets=[{"target": SCOPE + "/QAS-001#scenario", "criterionAnchor": "criterion"}],
         )
         quality_sources = [

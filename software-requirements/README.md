@@ -20,7 +20,7 @@ A VT references SR acceptance criteria directly, without going through a US. To 
 
 Requirement confirmation, software implementation, and actual runs each need their own evidence. A complete form, schema validity, or an upstream marked Approved does not prove the accountable owner's confirmation; before forming an implementable requirement, check the actual decision and applicable baseline. Without source identities, known behavior may be organized in authorized notes, but formal traceability cannot be claimed complete.
 
-Applicable [intended use/risk references](../docs/governance.md#intended-use) are still maintained by their original owners; an SR only refines software behavior that has a basis. When external analysis, an acceptance decision, or control verification evidence is missing, list the related gaps; do not invent risk scores in the SR or use a [review record](../_templates/items/review-record.md) in place of the original VT. When a tool's purpose/configuration changes, keep the old evidence and re-review current applicability according to the [re-evaluation guide](../docs/ai-tooling.md#requalification).
+Applicable [intended use/risk references](../docs/governance.md#intended-use) are still maintained by their original owners; an SR only refines software behavior that has a basis. When external analysis, an acceptance decision, or control verification evidence is missing, list the related gaps; do not invent risk scores in the SR or use a review note in place of the original VT. When a tool's purpose/configuration changes, keep the old evidence and re-review current applicability according to the [re-evaluation guide](../docs/ai-tooling.md#requalification).
 
 ```markdown
 [SR-NNN-AC-01](SR-NNN-<slug>.md#sr-nnn-ac-01)

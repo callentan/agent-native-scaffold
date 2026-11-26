@@ -674,8 +674,8 @@ class DistributionTests(unittest.TestCase):
             "No application runtime has been selected.\n"
         )
         return write_metadata(
-            root, metadata(id="SWAS-001", kind="architecture-specification", scope=SCOPE),
-            body, "architecture/SWAS-001.md",
+            root, metadata(id="ABB-001", kind="architecture-building-block", scope=SCOPE),
+            body, "architecture/ABB-001.md",
         )
 
     def test_dist_01_manifest_is_explicit_and_uses_actual_delivered_files(self):
@@ -1229,20 +1229,20 @@ class DistributionTests(unittest.TestCase):
                 result = self.candidate_cli(
                     candidate, "render_presentation", "--root", str(fixture),
                     "--scope", SCOPE, "--format", output_format,
-                    "--source", "architecture/SWAS-001.md", "--baseline", baseline,
+                    "--source", "architecture/ABB-001.md", "--baseline", baseline,
                 )
                 self.assertEqual(0, result.returncode, result.stdout + result.stderr)
                 if output_format == "html":
-                    self.assertIn("SWAS-001", result.stdout)
+                    self.assertIn("ABB-001", result.stdout)
                     self.assertIn("This section is the supplied source, not a hard-coded slide.", result.stdout)
                 else:
                     self.assertIn("<svg", result.stdout)
-                    self.assertIn("SWAS-001", result.stdout)
+                    self.assertIn("ABB-001", result.stdout)
         for output_format in ("pdf", "pptx"):
             result = self.candidate_cli(
                 candidate, "render_presentation", "--root", str(fixture),
                 "--scope", SCOPE, "--format", output_format,
-                "--source", "architecture/SWAS-001.md", "--baseline", baseline,
+                "--source", "architecture/ABB-001.md", "--baseline", baseline,
             )
             self.assertEqual(2, result.returncode, result.stdout + result.stderr)
             self.assertEqual("unavailable", json.loads(result.stdout)["status"])
@@ -1359,8 +1359,8 @@ class DistributionTests(unittest.TestCase):
         )
         write_metadata(fixture, metadata(id="DM-001", kind="domain-model"), body, "domain-model/DM-001.md")
         before = (fixture / "domain-model/DM-001.md").read_bytes()
-        self.assertTrue((candidate / "_templates/items/invariant.md").is_file())
-        self.assertTrue((candidate / "_templates/items/bounded-context.md").is_file())
+        self.assertTrue((candidate / "_templates/items/subdomain.md").is_file())
+        self.assertTrue((candidate / "_templates/items/verification-test.md").is_file())
         facts = before.decode("utf-8")
         for statement in (
             "member, item, loan record", "an unreturned record counts as on loan",
@@ -1516,8 +1516,8 @@ class DistributionTests(unittest.TestCase):
             for entry in self.manifest()["files"]
         }
         reported_hashes = {item["path"]: item["candidate_sha256"] for item in verification["files"]}
-        self.assertEqual(len(expected_hashes), 133)
-        self.assertEqual(133, verification["verified_count"])
+        self.assertEqual(len(expected_hashes), 112)
+        self.assertEqual(112, verification["verified_count"])
         self.assertEqual(expected_hashes, reported_hashes)
         self.assertEqual(before, source_bytes(candidate))
 

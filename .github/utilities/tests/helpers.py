@@ -18,14 +18,11 @@ CONTRACTS = WORKTREE / ".github" / "contracts"
 
 # Independent inventory from the approved specification, not the implementation.
 KINDS = (
-    "domain-model", "subdomain", "bounded-context", "capability", "use-case",
-    "invariant", "validation-scenario", "backlog-item", "stakeholder-requirement",
-    "software-requirement", "user-story", "architecture-building-block",
-    "architecture-decision", "verification-test", "review-record",
-    "tool-qualification", "development-log", "quality-attribute-scenario",
-    "context-map", "published-interface", "aggregate", "entity", "value-object",
-    "factory", "domain-service", "policy", "domain-event", "integration-partner",
-    "intended-use", "risk-control", "architecture-specification", "sequence-diagram",
+    "domain-model", "subdomain",
+    "stakeholder-requirement", "quality-attribute-scenario",
+    "software-requirement", "user-story",
+    "architecture-building-block", "architecture-decision", "sequence-diagram",
+    "verification-test", "development-log",
 )
 VIEW_NAMES = (
     "requirements", "stories", "architecture", "sequences", "verification",

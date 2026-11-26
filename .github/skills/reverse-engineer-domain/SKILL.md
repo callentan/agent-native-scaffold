@@ -86,7 +86,7 @@ This method remains responsible for reading and judgment. It provides no automat
 Purpose: turn candidates into draft domain artifacts, only when drafting is authorized.
 
 1. First read the [domain guide and the actual forms](../../../domain-model/README.md#optional-forms).
-2. Choose SD/CTX/CAP/UC/INV, PI, QAS, or [BL](../../../_templates/items/backlog-item.md) as needed.
+2. Choose `domain-model/README.md`, `SD`, `REQ`, or `QAS` as needed, and record open questions in `domain-model/README.md#sources`.
 3. Following the [metadata contract](../../../domain-model/README.md#artifact-metadata), keep the draft state and single ownership of each relationship.
 4. When the scope/ID is not explicit, first return or save an authorized plain note. Do not invent a project identity just to pass the parser, or bulk-migrate old materials.
 5. Leave rules owned by their original domain file; candidates state the source interpretation clearly without copying a second set of rules.
