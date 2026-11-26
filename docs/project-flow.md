@@ -78,7 +78,7 @@ flowchart TD
 <a id="gates"></a>
 ## Gates
 
-- **Creation gate.** Code is created only after the user has chosen the project, stack, and location, authorized creation, and supplied the commands and working directories. Missing inputs make the task `blocked`; documentation work can continue. See [creation inputs](development.md#creation-inputs) and [project registration](development.md#project-registration).
+- **Creation gate.** Code is created only after the user has chosen the project, stack, and location, authorized creation, and supplied the commands and working directories. Missing inputs make the task `blocked`; documentation work can continue. See [creation inputs](development.md#creation-inputs) and [project registration](project-development.md#project-registration).
 - **Preflight gate.** [generate-code](../.github/skills/generate-code/SKILL.md) checks the directory, Git state, applicable rules, and every write path before writing anything.
 - **Evidence gate.** [verify-change](../.github/skills/verify-change/SKILL.md) keeps coverage, impact, and run results separate. A `not-run` item is never recorded as a pass.
 

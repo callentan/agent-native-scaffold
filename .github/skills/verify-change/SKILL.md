@@ -23,7 +23,7 @@ A reminder of the sections below, not a replacement for them. Tick each item bef
 
 ## Inputs
 
-- General: the current task and complete delivery scope; the actual model, REQs, SRs, necessary design, and maintenance completion conditions; the Git branch, commit, and uncommitted scope; the requirement and VT baselines; all related VTs, existing runs, and raw reports; the check mode and authorization; the actual object and the [development configuration](../../../docs/development.md#project-registration), or what is missing from it.
+- General: the current task and complete delivery scope; the actual model, REQs, SRs, necessary design, and maintenance completion conditions; the Git branch, commit, and uncommitted scope; the requirement and VT baselines; all related VTs, existing runs, and raw reports; the check mode and authorization; the actual object and the [development configuration](../../../docs/project-development.md#project-registration), or what is missing from it.
 - Per activity, in addition: domain review—the artifacts, sources, contexts, and open questions actually provided this time; query—an explicit root directory, object type, and filter scope; BL review—the original question and decision evidence.
 - When applicable: governance/risk materials, only when provided and applicable.
 

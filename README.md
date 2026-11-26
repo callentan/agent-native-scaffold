@@ -1,18 +1,8 @@
-# TBD: Project name
+# Project scaffold guide
 
 Entry point to the project's materials. Record known goals, business facts, and the current task first. Create a project only when needed; reading and maintaining the materials does not require choosing a tech stack. All "TBD" values and `NNN` are placeholders, not confirmed facts or formal artifacts.
 
-<a id="project"></a>
-## Project registration
-
-| Item | Current value |
-| --- | --- |
-| Project name | TBD |
-| Current stage | TBD; not yet confirmed |
-| Current work scope summary | TBD; not yet confirmed |
-| Template source version | unreleased; fill in from an approved tag or commit; do not invent a version number |
-
-Product goals, users, scope, and constraints belong in the [product description](stakeholder-requirements/product.md#product); this page keeps no separate PRD copy. The tech stack, environment, and development commands are in the [development guide](docs/development.md); none is configured yet.
+This guide is scaffold-owned and holds no project content. The project name, stage, scope, and template source version are registered in [PROJECT.md](PROJECT.md#project); the tech stack, environment, and development commands are registered in the [project development registration](docs/project-development.md#project-registration).
 
 <a id="first-setup"></a>
 ## First-time setup
@@ -41,6 +31,7 @@ Each folder's role and how to use it. Subdirectory `README.md` files stay static
 | Path | Purpose | How to use it |
 | --- | --- | --- |
 | `AGENTS.md` | Common entry point and reading path for agents | Read first, then the method for your task. |
+| `PROJECT.md` | Project registration: name, stage, scope, template source version | Project-owned; fill in confirmed values only. |
 | `stakeholder-requirements/` | Product description (`product.md`), high-level index (`INDEX.md`), stakeholder requirements (REQ), and QAS | Fill in [product.md](stakeholder-requirements/product.md#product) first. Read the [REQ guide](stakeholder-requirements/README.md) and copy REQ forms from `_templates/items/` when needed. |
 | `domain-model/` | Shared terms, bounded contexts, concepts (`overview.md`), high-level index (`INDEX.md`), and [artifact metadata conventions](domain-model/README.md#artifact-metadata) | Record confirmed lightweight terms, rules, and contexts in [overview.md](domain-model/overview.md) or standalone domain artifacts. |
 | `software-requirements/` | Software requirements (SR), their acceptance criteria, and optional cluster navigation (`INDEX.md`) | Derive SRs from confirmed REQs using [specify-feature](.github/skills/specify-feature/SKILL.md). |
@@ -49,7 +40,7 @@ Each folder's role and how to use it. Subdirectory `README.md` files stay static
 | `verification/` | Verification guide, coverage index (`INDEX.md`), VT plans, and run records | Keep each run's result with its own baseline, and track coverage in [verification/INDEX.md](verification/INDEX.md#coverage-index). See the [verification guide](verification/README.md). |
 | `logs/` | Development logs, one per task or session | Record handoffs using the [logs guide](logs/README.md). Link to results instead of copying them. |
 | `src/` | Project code, in any native layout | Create code only after the [development inputs](docs/development.md#creation-inputs) are complete. Keep the layout the project actually uses. |
-| `docs/` | Guides for development, governance, tooling, distribution, and template updates, plus the [project flow](docs/project-flow.md) | Start with the [development guide](docs/development.md) for commands and registration. Maker-side design, plan, and research notes (`docs/design/`, `docs/plan/`, `docs/research/`) are not part of a distributed copy. |
+| `docs/` | Guides for development, governance, tooling, distribution, and template updates, plus the [project flow](docs/project-flow.md) | Start with the [development guide](docs/development.md) for maintenance commands and the [project development registration](docs/project-development.md) for the application. Maker-side design, plan, and research notes (`docs/design/`, `docs/plan/`, `docs/research/`) are not part of a distributed copy. |
 | `_templates/` | Blank forms in `items/`, configuration in `config/`, and report templates in `reports/` | Copy a form to its formal location. Do not edit the blank form in place. |
 | `.github/` | Agent instructions, agents, skills (methods), prompts, the PR template, and optional tools: `utilities/` (Python maintenance tools), `contracts/` (JSON schemas), `hooks/` (git hooks), and `workflows/` (CI) | Start with [copilot-instructions](.github/copilot-instructions.md). Read the [utilities guide](.github/utilities/README.md) before running any tool. |
 
@@ -58,7 +49,7 @@ Each folder's role and how to use it. Subdirectory `README.md` files stay static
 
 | Activity | Method shared by humans and agents | Inputs and field guidance | Forms | Formal location |
 | --- | --- | --- | --- | --- |
-| Onboard project materials | [project-onboarding](.github/skills/project-onboarding/SKILL.md) | Confirmed project inputs, existing files, and Git; [project registration](#project) | Registration on this page, [development registration](docs/development.md#project-registration), [log](_templates/items/development-log.md) | This page, [product description](stakeholder-requirements/product.md#product), [development guide](docs/development.md), [logs](logs/README.md) |
+| Onboard project materials | [project-onboarding](.github/skills/project-onboarding/SKILL.md) | Confirmed project inputs, existing files, and Git; [project registration](PROJECT.md#project) | [Project registration](PROJECT.md#project), [development registration](docs/project-development.md#project-registration), [log](_templates/items/development-log.md) | [PROJECT.md](PROJECT.md), [product description](stakeholder-requirements/product.md#product), [project development registration](docs/project-development.md), [logs](logs/README.md) |
 | Shape the domain model and stakeholder requirements | [define-requirements](.github/skills/define-requirements/SKILL.md) | Goals, users, scope, and sources; [domain guide](domain-model/README.md), [REQ guide](stakeholder-requirements/README.md) | Fill-in sections of [domain overview](domain-model/overview.md), [optional domain forms](domain-model/README.md#optional-forms), [REQ](_templates/items/stakeholder-requirement.md), [QAS](_templates/items/quality-attribute-scenario.md) | [Domain overview](domain-model/overview.md) and `domain-model/`, [product description](stakeholder-requirements/product.md#product) and `stakeholder-requirements/` |
 | Extract domain candidates from existing materials | [reverse-engineer-domain](.github/skills/reverse-engineer-domain/SKILL.md) | Documents, implementations, excerpts, or external records you are authorized to read, with their actual locations/versions; [source boundaries](domain-model/README.md#sources) | [Existing domain forms](domain-model/README.md#optional-forms) as needed; when identity is missing, keep authorized notes first | Authorized candidate records or the owning domain/requirements directory; never write back to sources or confirm automatically |
 | Refine behavior, necessary design, and the verification plan | [specify-feature](.github/skills/specify-feature/SKILL.md) | The actual domain/REQ or maintenance request; [SR guide](software-requirements/README.md), [architecture guide](architecture/README.md), [verification guide](verification/README.md) | [SR](_templates/items/software-requirement.md), [VT](_templates/items/verification-test.md), and additional artifacts as needed | `software-requirements/`, `architecture/`, `verification/`, and [verification index](verification/INDEX.md#coverage-index) |

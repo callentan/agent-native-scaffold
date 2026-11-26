@@ -95,7 +95,7 @@ domainSources:
     path: domain-model
     baseline: 0123456789abcdef0123456789abcdef01234567
     readOnly: true
-developmentRegistration: docs/development.md#project-registration
+developmentRegistration: docs/project-development.md#project-registration
 ```
 
 ## 3. Derived model

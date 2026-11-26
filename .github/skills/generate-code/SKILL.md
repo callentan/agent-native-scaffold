@@ -25,7 +25,7 @@ A reminder of the steps below, not a replacement for them. Tick each item in ord
 - Required:
   - The actual task, confirmed scope and non-goals, behavior sources, all acceptance criteria, and planned VTs, each with its baseline.
   - Selected by the user: the application/project, language/stack and versions, target location, and creation authorization.
-  - From the [development registration](../../../docs/development.md#project-registration): the actual layout, environment/dependency sources, commands, and each command's cwd and report location.
+  - From the [development registration](../../../docs/project-development.md#project-registration): the actual layout, environment/dependency sources, commands, and each command's cwd and report location.
   - Directories authorized for reading, directories/files to be written, and content that must be preserved.
 - When applicable:
   - US/ABB, only when the task actually needs them.

@@ -24,7 +24,7 @@ applyTo: "**/test/**,**/tests/**,**/Tests/**,**/*.test.*,**/*.spec.*,**/*_test.*
 
 ## Commands and evidence
 
-- Take commands, tools, environment, and cwd from the [actual development registration](../../docs/development.md#project-registration) and the actual project. Do not assume a runner or invent build/test commands.
+- Take commands, tools, environment, and cwd from the [actual development registration](../../docs/project-development.md#project-registration) and the actual project. Do not assume a runner or invent build/test commands.
 - Record only actual runs and per-item evidence. Zero discoveries, all-skipped, or a zero exit code alone cannot prove that acceptance passed.
 - When the object or environment is missing, write `not-run` with the reason.
 - Document checks do not replace business or software runs.

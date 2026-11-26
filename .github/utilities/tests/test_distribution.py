@@ -687,7 +687,9 @@ class DistributionTests(unittest.TestCase):
         paths = [entry["path"] for entry in files]
         self.assertEqual(len(paths), len(set(paths)))
         for entry in files:
-            self.assertEqual({"path", "component"}, set(entry))
+            self.assertLessEqual({"path", "component"}, set(entry))
+            self.assertLessEqual(set(entry), {"path", "component", "projectOwned"})
+            self.assertIn(entry.get("projectOwned", True), (True,))
             path = PurePosixPath(entry["path"])
             self.assertFalse(path.is_absolute())
             self.assertNotIn("..", path.parts)
@@ -1312,14 +1314,14 @@ class DistributionTests(unittest.TestCase):
         exercise = self.workspace / "T05-document-only"
         exercise.mkdir()
         for relative in (
-            "README.md", "src/README.md", "docs/development.md",
+            "PROJECT.md", "README.md", "src/README.md", "docs/development.md", "docs/project-development.md",
             "_templates/items/development-log.md", "logs/README.md",
         ):
             destination = exercise / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes((candidate / relative).read_bytes())
-        readme = exercise / "README.md"
-        before_candidate = (candidate / "README.md").read_bytes()
+        readme = exercise / "PROJECT.md"
+        before_candidate = (candidate / "PROJECT.md").read_bytes()
         text = readme.read_text(encoding="utf-8")
         self.assertIn("| Project name | TBD |", text)
         self.assertIn("| Current work scope summary | TBD; not yet confirmed |", text)
@@ -1333,7 +1335,7 @@ class DistributionTests(unittest.TestCase):
         self.assertIn("Maintain documentation only; do not create an application",
                       readme.read_text(encoding="utf-8"))
         self.assertIn("project-registration", (exercise / "src/README.md").read_text(encoding="utf-8"))
-        self.assertEqual(before_candidate, (candidate / "README.md").read_bytes())
+        self.assertEqual(before_candidate, (candidate / "PROJECT.md").read_bytes())
         self.assertFalse((exercise / "src" / "app.py").exists())
         self.assertFalse((exercise / "verification" / "VT-001.md").exists())
 
@@ -1525,8 +1527,8 @@ class DistributionTests(unittest.TestCase):
             for entry in self.manifest()["files"]
         }
         reported_hashes = {item["path"]: item["candidate_sha256"] for item in verification["files"]}
-        self.assertEqual(len(expected_hashes), 120)
-        self.assertEqual(120, verification["verified_count"])
+        self.assertEqual(len(expected_hashes), 122)
+        self.assertEqual(122, verification["verified_count"])
         self.assertEqual(expected_hashes, reported_hashes)
         self.assertEqual(before, source_bytes(candidate))
 

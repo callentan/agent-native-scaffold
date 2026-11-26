@@ -4,7 +4,7 @@ This common entry point sets the reading path and rules for all work. Humans and
 
 ## Start here
 
-1. Read the [README project registration](README.md#project), and confirm the current task's goal, scope, basis, and completion conditions.
+1. Read the [project registration](PROJECT.md#project), and confirm the current task's goal, scope, basis, and completion conditions.
    - A maintenance request can itself serve as the basis.
    - Creating a US is not mandatory.
 2. Choose the matching method from the [README activity navigation](README.md#activities). **Explicitly read the complete `SKILL.md`**, then read the current facts, guides, and forms it links to.
@@ -18,6 +18,12 @@ This common entry point sets the reading path and rules for all work. Humans and
    - Preserve owner content, the existing locations of rules, and unrelated changes.
 
 ## Rules
+
+### Locked files
+
+- A file marked `scaffold: locked` in its first lines, or listed in `.scaffold/locked.txt`, is scaffold-owned. Do not modify, rename, or delete it in any task; only `ddd-scaffold update` writes it.
+- Project content goes in project-owned files: [PROJECT.md](PROJECT.md), [project-development.md](docs/project-development.md), `product.md`, `overview.md`, `INDEX.md`, and new formal artifacts. When a locked file needs customizing, record the need in a project-owned file instead.
+- `ddd-scaffold verify` lists locked files that differ from the installed receipt. It is a check, not a permission control.
 
 ### Authorization and facts
 

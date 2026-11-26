@@ -4,6 +4,6 @@ Currently `src/` contains only this guide: no application, dependencies, preset 
 
 Once the user has explicitly chosen and authorized it, a new project can go directly in `src/` or `src/<project>/`. An existing project keeps its original path and native source, test, and configuration layout; it is not required to migrate or create `src/tests/`.
 
-Before creating or onboarding a project, check the target directory and the required inputs. Afterwards, fill in the real relative location, native layout, environment and dependencies, install/build/run/test commands, actual working directory, report location, and applicable conditions in the [subproject registration of the development guide](../docs/development.md#project-registration).
+Before creating or onboarding a project, check the target directory and the required inputs. Afterwards, fill in the real relative location, native layout, environment and dependencies, install/build/run/test commands, actual working directory, report location, and applicable conditions in the [subproject registration](../docs/project-development.md#project-registration).
 
 While development inputs are not yet determined, leave them unconfigured. When there is no application, application builds and tests are not applicable to documentation tasks; planned business or software behavior VTs remain `not-run`, and a document check cannot be reported as the application passing.

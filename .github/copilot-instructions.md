@@ -9,6 +9,7 @@ Humans and agents use the same methods, facts, and results.
 
 ## While working
 
+- Never edit a file marked `scaffold: locked` or listed in `.scaffold/locked.txt`; see [Locked files](../AGENTS.md#locked-files).
 - When changing Markdown, read the [documentation rules](instructions/docs.instructions.md).
 - When changing any test, read the [test rules](instructions/tests.instructions.md), even if the file does not match the automatic rules.
 - Links in the methods are for navigation. They do not guarantee that target files are automatically included or loaded. When a target is not discovered, read it explicitly.
